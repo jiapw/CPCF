@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-10.14]
+        os: [macOS-latest]
         config: [Debug, Release]
       fail-fast: false
     timeout-minutes: 10
@@ -23,7 +23,7 @@ jobs:
         rm cpcf_mac_ipp.7z
 
     - name: Xcode build
-      run: /usr/bin/xcodebuild -sdk macosx10.14 -configuration ${{ matrix.config }} -workspace tester.xcodeproj/project.xcworkspace -scheme tester build CODE_SIGNING_ALLOWED=NO
+      run: /usr/bin/xcodebuild -sdk macosx10.15 -configuration ${{ matrix.config }} -workspace tester.xcodeproj/project.xcworkspace -scheme tester build CODE_SIGNING_ALLOWED=NO
       working-directory: testcases/proj.mac
 
     - name: Prepare artifacts
