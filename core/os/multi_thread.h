@@ -112,6 +112,7 @@ public:
 	DWORD	GetExitCode() const { return _ExitCode; }
 	bool	IsRunning() const { return _hThread != NULL; }
 	bool&	WantExit(){ return _bWantExit; }
+	bool	WantExit() const { return _bWantExit; }
 	void	TerminateForcely();
 	void	DetachThread(){ if(_hThread){ __release_handle(_hThread); _hThread = NULL; } }
 	void	SetPriority(UINT p = PRIORITY_HIGH);
