@@ -91,14 +91,6 @@ protected:
 	};
 	INLFUNC bool		_IsSymbolicZero() const { return Bytes == _Zero(); }
 	INLFUNC bool		_IsSymbolicVoid() const { return Bytes == _Void(); }
-	INLFUNC LPDWORD		GetDWords(){ return (LPDWORD)GetBytes(); }
-	INLFUNC LPCDWORD	GetDWords() const { return (LPCDWORD)GetBytes(); }
-	INLFUNC LPBYTE		GetBytes(){ ASSERT(!IsEmpty()); return Bytes; }
-	INLFUNC LPCBYTE		GetBytes() const 
-						{	if(_IsSymbolicZero())return _GetZero();
-							if(_IsSymbolicVoid())return _GetVoid();
-							return Bytes;
-						}
 public:
 	typedef dword_op<_LEN/4> dwop;
 	static const UINT LEN = _LEN;
@@ -107,6 +99,15 @@ public:
 	INLFUNC DataBlockRef(decltype(NULL) x){ if(x==0){ Bytes = nullptr; }else if(x==-1){ Bytes = (LPBYTE)-1; }else{ ASSERT(0); } }
 	INLFUNC DataBlockRef(const DataBlockRef& x){ Bytes = (LPBYTE)x.Bytes; }
 	INLFUNC ~DataBlockRef(){}
+
+	INLFUNC LPDWORD		GetDWords(){ return (LPDWORD)GetBytes(); }
+	INLFUNC LPCDWORD	GetDWords() const { return (LPCDWORD)GetBytes(); }
+	INLFUNC LPBYTE		GetBytes(){ ASSERT(!IsEmpty()); return Bytes; }
+	INLFUNC LPCBYTE		GetBytes() const 
+						{	if(_IsSymbolicZero())return _GetZero();
+							if(_IsSymbolicVoid())return _GetVoid();
+							return Bytes;
+						}
 
 	template< template<UINT l, bool s> class T >
 	INLFUNC DataBlockRef(const T<_LEN, true>& x){ Bytes = (LPBYTE)x.Bytes; }
