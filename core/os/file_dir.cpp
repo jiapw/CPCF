@@ -1621,9 +1621,11 @@ bool os::FileReadLine::GetNextLineWithQuote(rt::String_Ref& line, char quote)
 		return rt::String_Ref(_buf, _bufused).GetNextLine(line);
 }
 
-os::FileWriteLine::FileWriteLine()
+os::FileWrite::FileWrite(bool unbufferred)
 {
-	VERIFY(_buf.SetSize(FRL_BUFSIZE));
+	if(!unbufferred)
+		VERIFY(_buf.SetSize(FRL_BUFSIZE));
+
 	_bufused = 0;
 #if defined(PLATFORM_WIN)
 	_hFile = INVALID_HANDLE_VALUE;
@@ -1631,7 +1633,7 @@ os::FileWriteLine::FileWriteLine()
 }
 
 
-ULONGLONG os::FileWriteLine::GetSize() const
+ULONGLONG os::FileWrite::GetSize() const
 {
 #if defined(PLATFORM_WIN)
 	LARGE_INTEGER	i;
@@ -1642,7 +1644,7 @@ ULONGLONG os::FileWriteLine::GetSize() const
 #endif
 }
 
-bool os::FileWriteLine::IsOpen() const
+bool os::FileWrite::IsOpen() const
 {
 #if defined(PLATFORM_WIN)
 	return _hFile != INVALID_HANDLE_VALUE;
@@ -1651,7 +1653,7 @@ bool os::FileWriteLine::IsOpen() const
 #endif
 }
 
-bool os::FileWriteLine::Open(LPCSTR fn, bool append)
+bool os::FileWrite::Open(LPCSTR fn, bool append)
 {
 	_bufused = 0;
 
@@ -1674,7 +1676,7 @@ bool os::FileWriteLine::Open(LPCSTR fn, bool append)
 	return false;
 }
 
-void os::FileWriteLine::Close()
+void os::FileWrite::Close()
 {
 #if defined(PLATFORM_WIN)
 	if(_hFile != INVALID_HANDLE_VALUE)
@@ -1688,7 +1690,7 @@ void os::FileWriteLine::Close()
 #endif
 }
 
-bool os::FileWriteLine::Flush()
+bool os::FileWrite::Flush()
 {
 	if(_bufused)
 	{	
@@ -1699,43 +1701,65 @@ bool os::FileWriteLine::Flush()
 		if(_file.Write(_buf.Begin(),  _bufused) == _bufused)
 #endif
 		{	_bufused = 0;
+		}
+		else
+			return false;
+	}
+
+#if defined(PLATFORM_WIN)
+	::FlushFileBuffers(_hFile);
+#else
+	_file.Flush();
+#endif
+
+	return true;
+}
+
+bool os::FileWrite::Write(LPCVOID p, UINT size)
+{
+	if(_buf.GetSize())
+	{
+		if(_bufused + size > FRL_BUFSIZE)
+		{
+			bool ret;
+#if defined(PLATFORM_WIN)
+			DWORD w;
+			ret = (_bufused == 0 || ::WriteFile(_hFile, _buf.Begin(),  _bufused, &w, NULL)) &&
+				  ::WriteFile(_hFile, p,  size, &w, NULL);
+				
+#else
+			ret = (_bufused == 0 || _file.Write(_buf.Begin(),  _bufused) == _bufused) &&
+				  _file.Write(p,  size) == size;
+#endif
+			_bufused = 0;
+			return ret;
+		}
+		else
+		{
+			memcpy(&_buf[_bufused], p, size);
+			_bufused += size;
 			return true;
 		}
 	}
-	return false;
-}
-
-bool os::FileWriteLine::Write(LPCVOID p, UINT size)
-{
-	bool ret;
-	if(_bufused + size > FRL_BUFSIZE)
-	{
-#if defined(PLATFORM_WIN)
-        DWORD w;
-		ret = (_bufused == 0 || ::WriteFile(_hFile, _buf.Begin(),  _bufused, &w, NULL)) &&
-			  ::WriteFile(_hFile, p,  size, &w, NULL);
-				
-#else
-		ret = (_bufused == 0 || _file.Write(_buf.Begin(),  _bufused) == _bufused) &&
-			  _file.Write(p,  size) == size;
-#endif
-		_bufused = 0;
-		return ret;
-	}
 	else
 	{
-		memcpy(&_buf[_bufused], p, size);
-		_bufused += size;
-		return true;
+		bool ret;
+#if defined(PLATFORM_WIN)
+		DWORD w;
+		ret = ::WriteFile(_hFile, p,  size, &w, NULL);
+#else
+		ret = _file.Write(p,  size) == size;
+#endif
+		return ret;
 	}
 }
 
-bool os::FileWriteLine::WriteUTF8Sign()
+bool os::FileWrite::WriteUTF8Sign()
 {
 	return Write("\xef\xbb\xbf", 3);
 }
 
-bool os::FileWriteLine::WriteHeader(LPCVOID p, UINT size)
+bool os::FileWrite::WriteHeader(LPCVOID p, UINT size)
 {
 #if defined(PLATFORM_WIN)
 	DWORD w;

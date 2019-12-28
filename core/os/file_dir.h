@@ -241,7 +241,7 @@ public:
 	bool		ReadBlock(LPCVOID& p, UINT size);
 };
 
-class FileWriteLine
+class FileWrite
 {
 	static const int FRL_BUFSIZE = 64*1024;	// each line should smaller than half of this
 	rt::BufferEx<char>	_buf;
@@ -252,8 +252,8 @@ class FileWriteLine
 	File				_file;
 #endif
 public:
-	FileWriteLine();
-	~FileWriteLine(){ Close(); }
+	FileWrite(bool unbufferred = false);
+	~FileWrite(){ Close(); }
 	ULONGLONG	GetSize() const;
 	bool		Open(LPCSTR fn, bool append = true);
 	void		Close();
