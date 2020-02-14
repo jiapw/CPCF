@@ -195,6 +195,11 @@ public:
 	{
 		qsort(Begin(), GetSize(), sizeof(t_Val), (_PtFuncCompare)T::compare);
 	}
+	template<class TFUNC>
+	INLFUNC void Sort(TFUNC&& comp)
+	{
+		std::sort(Begin(), End(), comp);
+	}
 	INLFUNC void Shuffle(DWORD seed)
 	{	if(GetSize())
 		{	Randomizer rng(seed);	

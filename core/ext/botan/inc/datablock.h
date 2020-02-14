@@ -207,6 +207,7 @@ public:
 	INLFUNC	DataBlock&	UnseededRandom(){ randombytes_buf(GetBytes(), _LEN); return *this; }
 
 	template<bool sb> INLFUNC void	From(const DataBlock<_LEN, sb>& x){	ASSERT(!IsEmpty()); dwop::set(DWords, x.GetDWords()); }
+	template<bool sb> INLFUNC int	CompareDWords(const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }
 	template<bool sb> INLFUNC void	operator ^= (const DataBlock<_LEN, sb>& x){ ASSERT(!IsEmpty()); dwop::xor_to(DWords, x.GetDWords()); }
 	template<bool sb> INLFUNC bool	operator < (const DataBlock<_LEN, sb>& x) const	{ return dwop::cmp(GetDWords(), x.GetDWords()) < 0; }
 	template<bool sb> INLFUNC bool	operator <= (const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) <= 0; }
