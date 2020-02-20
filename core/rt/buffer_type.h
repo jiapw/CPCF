@@ -33,7 +33,7 @@
 #include "runtime_base.h"
 #include "type_traits.h"
 #include "string_type.h"
-
+#include <algorithm>
 
 namespace rt
 {
