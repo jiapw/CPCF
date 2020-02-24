@@ -37,6 +37,7 @@ struct UnitTests
 	static void precompiler();
 	static void commandline();
 	static void sortedpush();
+	static void sparsehash();
 
 	static void httpd();
 

@@ -194,6 +194,7 @@
     <ClCompile Include="..\tests\experiments.cpp" />
     <ClCompile Include="..\tests\test_api.cpp" />
     <ClCompile Include="..\tests\test_botan.cpp" />
+    <ClCompile Include="..\tests\test_ext.cpp" />
     <ClCompile Include="..\tests\test_http.cpp" />
     <ClCompile Include="..\tests\test_ipp.cpp" />
     <ClCompile Include="..\tests\test_library.cpp">
