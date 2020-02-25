@@ -57,9 +57,10 @@ The library favors performance (more speed, less resource) over simplicity and m
 * `gl::ShaderProgram`, `gl::ShaderCode` OpenGL shading language support
 * `gl::ShaderSourceCodeLibrary` Runtime shader compilation and management 
 * `gl::Object` Geometry representation and surface properties
+* `gl::ArcBall<>` Intuitive user interactive for scene/object rotation
 * `gl::gdiCanvas` 2D graphics drawing interface (text, image, line, rectangle and polygon)
 * `gl::gdiFont` Bitmap font representation for `gl::gdiCanvas`
-* `gl::ArcBall<>` Intuitive user interactive for scene/object rotation
+* `win_fontgen` A bitmap font generator (Windows only)
 
 ### Dependency
 The library is completely self-contained. It embedded copies of other projects and credited below.
