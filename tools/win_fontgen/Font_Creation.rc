@@ -1,0 +1,227 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (Simplified, PRC) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "TODO: <Company name>"
+            VALUE "FileDescription", "TODO: <File description>"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "Font_Creation.exe"
+            VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
+            VALUE "OriginalFilename", "Font_Creation.exe"
+            VALUE "ProductName", "TODO: <Product name>"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_FONT_CREATION_DIALOG DIALOGEX 0, 0, 509, 482
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Unicode Glyph Library Generator"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Unicode Chart:",IDC_STATIC,5,4,85,8
+    PUSHBUTTON      "Test",IDC_BUTTON_TEST,301,255,50,14,NOT WS_VISIBLE
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,4,164,440,1
+    PUSHBUTTON      "Show",IDC_BUTTON_TEST2,237,255,50,14,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT1,197,255,37,13,ES_AUTOHSCROLL | NOT WS_VISIBLE | NOT WS_BORDER,WS_EX_STATICEDGE
+    CONTROL         "",IDC_CODE_CHART,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | TVS_CHECKBOXES | TVS_INFOTIP | WS_HSCROLL | WS_TABSTOP,4,15,163,145,WS_EX_STATICEDGE
+    LTEXT           "Static",IDC_CHART_INFO,175,15,268,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,174,24,269,1
+    LTEXT           "Font:",IDC_STATIC,187,31,18,8
+    COMBOBOX        IDC_FontList,206,29,119,131,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FONTSIZE,345,29,37,116,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Size:",IDC_STATIC,328,31,16,8
+    CONTROL         "B",IDC_FONT_BOLD,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_PUSHLIKE | WS_TABSTOP,387,29,14,13,WS_EX_RIGHT | WS_EX_STATICEDGE
+    CONTROL         "I",IDC_FONT_BOLD2,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_PUSHLIKE | WS_TABSTOP,401,29,14,13,WS_EX_RIGHT | WS_EX_STATICEDGE
+    CONTROL         "U",IDC_FONT_BOLD3,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_PUSHLIKE | WS_TABSTOP,415,29,14,13,WS_EX_RIGHT | WS_EX_STATICEDGE
+    CONTROL         "S",IDC_FONT_BOLD4,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_PUSHLIKE | WS_TABSTOP,429,29,14,13,WS_EX_RIGHT | WS_EX_STATICEDGE
+    LTEXT           "B/W:",IDC_STATIC,388,47,17,8
+    COMBOBOX        IDC_FONTSIZE2,405,45,38,116,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Antialias:",IDC_STATIC,287,47,30,8
+    COMBOBOX        IDC_FONT_AA,319,45,63,116,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FONT_QUALITY,206,45,73,116,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Quality:",IDC_STATIC,179,47,26,8
+    LTEXT           "Weight:",IDC_STATIC,107,260,26,8,NOT WS_VISIBLE
+    COMBOBOX        IDC_FONT_WEIGHT,135,258,41,116,CBS_DROPDOWN | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Copy",IDC_BUTTON_COPY,163,222,35,14,NOT WS_VISIBLE,WS_EX_STATICEDGE
+    PUSHBUTTON      "Paste",IDC_BUTTON_PASTE,201,222,35,14,NOT WS_VISIBLE,WS_EX_STATICEDGE
+    PUSHBUTTON      "Save",IDC_BUTTON_SAVE,417,61,26,14,0,WS_EX_STATICEDGE
+    LTEXT           "Glyph Library Generation",IDC_GENE_INFO,175,98,196,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,174,107,269,1
+    CONTROL         "Overall Preview",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,54,227,66,10
+    EDITTEXT        IDC_EDIT2,204,113,33,12,ES_AUTOHSCROLL | NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Height:",IDC_STATIC,175,114,24,8
+    EDITTEXT        IDC_EDIT3,206,62,16,12,ES_AUTOHSCROLL | NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Baseline:",IDC_STATIC,176,64,30,8
+    EDITTEXT        IDC_EDIT4,327,62,16,12,ES_AUTOHSCROLL | NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_EDIT5,259,62,16,12,ES_AUTOHSCROLL | NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "L-Margin:",IDC_STATIC,227,64,31,8
+    CONTROL         "    R-Margin:",IDC_FONT_BOLD5,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_PUSHLIKE | BS_FLAT | WS_TABSTOP,279,62,46,12
+    CONTROL         "Invert Display",IDC_DISPLAY_INVERT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,386,97,61,10
+    PUSHBUTTON      "Load Settings",IDC_BUTTON_IMPORT,174,129,64,14,0,WS_EX_STATICEDGE
+    PUSHBUTTON      "Save Settings",IDC_BUTTON_EXPORT,240,129,64,14,0,WS_EX_STATICEDGE
+    PUSHBUTTON      "Copy To Sibling",IDC_BUTTON_SAVE2,387,78,56,14,0,WS_EX_STATICEDGE
+    LTEXT           "Pixel Format:",IDC_STATIC,249,114,43,8
+    COMBOBOX        IDC_COMBO1,293,112,60,51,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Generate UFG",IDC_BUTTON_GENERATE,306,129,64,14,0,WS_EX_STATICEDGE
+    PUSHBUTTON      "Test UFG",IDC_BUTTON_TEST_UFG,381,129,62,14,0,WS_EX_STATICEDGE
+    EDITTEXT        IDC_EDIT6,212,147,231,12,ES_AUTOHSCROLL | NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Test Text:",IDC_STATIC,175,148,34,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDVERT,375,130,1,13
+    LTEXT           "Glyph Step:",IDC_STATIC,361,114,38,8
+    COMBOBOX        IDC_ImageStep,401,112,42,51,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Swizzled (PSP only)",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,320,226,77,10
+    PUSHBUTTON      "Image2Array",IDC_BUTTON_IMG2ARRAY,452,296,54,14,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,448,3,1,472
+    PUSHBUTTON      "Copy CodeList",IDC_BUTTON_COPYCODE,453,6,54,14,0,WS_EX_STATICEDGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_FONT_CREATION_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 502
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 475
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Chinese (Simplified, PRC) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#include ""res\\Font_Creation.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "Font_Creation.ico"
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE 4, 2
+#pragma code_page(936)
+//#include "res\Font_Creation.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -70,3 +70,9 @@ tools/pylon/proj\.win/\.vs/
 tools/pylon/proj\.win/Debug/
 
 *.filters
+
+tools/win_fontgen/.vs/
+
+tools/win_fontgen/Debug/
+
+tools/win_fontgen/Release/

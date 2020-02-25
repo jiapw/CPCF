@@ -872,14 +872,14 @@ void gdiCanvasLayout::OnUserInputEvent(const os::UserInputEvent& x)
 
 void gdiCanvasLayout::ApplyTo(ShaderProgramBase& shader, LPCSTR layout_name, bool as_double_type)
 {
-#if !defined(PLATFORM_MAC)
-	if(as_double_type)
-	{
-		Vec4d v(_Offset.x, _Offset.y, _Scale.y, _Scale.y);
-		shader.SetUniform(layout_name, v);
-	}
-	else
-#endif
+//#if !defined(PLATFORM_MAC)
+//	if(as_double_type)
+//	{
+//		Vec4d v(_Offset.x, _Offset.y, _Scale.y, _Scale.y);
+//		shader.SetUniform(layout_name, v);
+//	}
+//	else
+//#endif
 	{
 		Vec4f v((float)_Offset.x, (float)_Offset.y, (float)_Scale.y, (float)_Scale.y);
 		shader.SetUniform(layout_name, v);
