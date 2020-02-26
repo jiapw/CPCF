@@ -700,5 +700,6 @@ SHA1: 95E1F33CA86B4815AA8B7FC7E4865F65 (first 16 bytes)
 
 === UnitTest<sparsehash>: BEGIN ===
  5 7 1 3 9
+ 4 6 2 8 10
 === UnitTest<sparsehash>: END =====
 
