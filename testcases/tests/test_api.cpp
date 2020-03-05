@@ -1473,6 +1473,8 @@ void rt::UnitTests::rt()
 			_LOG("catch std::bad_alloc");
 		};
 	}
+
+	_LOG("17 ~= 2^"<<Log2(17U));
 }
 
 

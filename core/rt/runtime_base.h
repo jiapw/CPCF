@@ -995,7 +995,10 @@ namespace rt
 	template<> INLFUNC UINT LeadingZeroBits(ULONGLONG x) { if (0 == x) return 64; return (UINT)__builtin_clzll(x); }
 #else
 #pragma message ("Advanced Bits Operations count-leading-zeros is not available")
-#endif	
+#endif
+
+	INLFUNC UINT Log2(UINT x){ return 31 - LeadingZeroBits((DWORD)x); }
+	INLFUNC UINT Log2(ULONGLONG x){ return 63 - LeadingZeroBits(x); }
 
 	// count trailing zeros
 	template<typename T> INLFUNC UINT TrailingZeroBits(T x);
@@ -1117,8 +1120,6 @@ template<class T, typename t_Val>
 FORCEINL SIZE_T BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	// first item equal to key, or length of arr
 {	return _details::_BinarySearch<T,t_Val,_details::_TrivialGetKey>(arr,len,key);
 }
-
-
 
 template<class T>
 class ObjRef
