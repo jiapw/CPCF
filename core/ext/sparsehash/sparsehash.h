@@ -55,7 +55,11 @@ struct key_traits;
 	{	static const rt::String& empty_key(){ return (const rt::String&)key_traits<rt::String_Ref>::empty_key(); }
 		static const rt::String& deleted_key(){ return (const rt::String&)key_traits<rt::String_Ref>::deleted_key(); }
 	};
-
+	template<typename POD>
+	struct key_traits<rt::PodRef<POD>, false>
+	{	static const rt::PodRef<POD>& empty_key(){ static const rt::PodRef<POD> a((POD*)0); return a; }
+		static const rt::PodRef<POD>& deleted_key(){ static const rt::PodRef<POD> a((POD*)-1); return a; }
+	};
     
 template<typename KEY, typename VALUE, typename hash_compare = SPARSEHASH_HASH<KEY>>
 class fast_map: public google::dense_hash_map<KEY, VALUE, hash_compare>
@@ -122,16 +126,20 @@ public:
 	}
 };
 
-template<typename t_Tag, typename t_Count = UINT, typename hash_compare = SPARSEHASH_HASH<t_Tag>>
+template<typename t_Tag, typename t_Count = int, typename hash_compare = SPARSEHASH_HASH<t_Tag>>
 class fast_counter: public fast_map<t_Tag, t_Count, hash_compare>
 {   typedef fast_map<t_Tag, t_Count, hash_compare> _SC;
 public:
-	INLFUNC void Count(const t_Tag& tag)
+	INLFUNC void Count(const t_Tag& tag, t_Count w = 1)
 	{	auto it = find(tag);
-        if(it == _SC::end())insert(std::pair<t_Tag, t_Count>(tag,1));
+        if(it == _SC::end())insert(std::pair<t_Tag, t_Count>(tag,w));
 		else
-		{	it->second++;
+		{	it->second += w;
 		}
+	}
+	INLFUNC t_Count Get(const t_Tag& tag)
+	{	auto it = find(tag);
+		return it == _SC::end()?0:it->second;
 	}
 };
 
