@@ -256,13 +256,6 @@ INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCST
 } // namespace _details
 } // namespace rt
 
-///////////////////////////////////////////////////////
-
-#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-#define ASSERT_STATIC(x)	static int MARCO_JOIN(__assertion_failed__,__COUNTER__)[((int)((bool)(x)))*2 - 1] __attribute__((unused));
-#else
-#define ASSERT_STATIC(x)	static int MARCO_JOIN(__assertion_failed__,__COUNTER__)[((int)((bool)(x)))*2 - 1];
-#endif
 
 ///////////////////////////////////////////////////////
 // Runtime diagnosis
@@ -634,7 +627,7 @@ template<int Size> struct _PodCopy
 template<UINT LEN>
 FORCEINL void Copy(LPVOID obj, LPCVOID from){ _details::_PodCopy<LEN>::Fill((LPBYTE)obj, (LPCBYTE)from); }
 template<typename T1, typename T2>
-FORCEINL void Copy(T1& obj, const T2& from){ ASSERT_STATIC(sizeof(T1) == sizeof(T2)); Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); }
+FORCEINL void Copy(T1& obj, const T2& from){ static_assert(sizeof(T1) == sizeof(T2), "Sizes of operands are different"); Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); }
 
 namespace _details
 {

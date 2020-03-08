@@ -446,7 +446,7 @@ enum _tagFolderChangedEvent
 	FCE_FILE_ACCESSED = FILE_NOTIFY_CHANGE_LAST_ACCESS,
 	FCE_FILE_CREATED = FILE_NOTIFY_CHANGE_CREATION
 #else
-	ASSERT_STATIC(0);
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #endif
 };
 protected:
@@ -458,7 +458,7 @@ protected:
 	HANDLE	_WaitingHandle;
 	HANDLE	_WorkingThread;
 #else
-	ASSERT_STATIC(0);
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #endif
 
 public:

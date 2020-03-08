@@ -100,7 +100,7 @@ UserInputEventPump::UserInputEventPump()
 	_rolloverTrackingRectTag = 0;
 	#endif
 #else
-	ASSERT_STATIC(0);
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #endif
 }
 
@@ -543,9 +543,9 @@ void UserInputEventPump::_OnReceiveEventFromResponder(UserInputEvent& e)
 }
 	
 } // namespace os
-#elif defined(PLATFORM_DROID)
-	ASSERT_STATIC(0);
+#elif defined(PLATFORM_ANDROID)
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #else
-	ASSERT_STATIC(0);
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #endif
 

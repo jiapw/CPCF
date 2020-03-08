@@ -1258,7 +1258,7 @@ File7z::File7z()
 	static bool _first_init = true;
 	if(_first_init)
 	{
-		ASSERT_STATIC(sizeof(_7zipState) == sizeof(_7zState));
+		static_assert(sizeof(_7zipState) == sizeof(_7zState), "size of _7zipState dosen't match");
 		CrcGenerateTable();
 		_first_init = false;
 	}

@@ -51,6 +51,8 @@
 
 #endif
 
+#define ASSERT_STATIC_NOT_IMPLMENTED	static_assert(0, "Not Implmentated.")
+
 namespace os
 {
 

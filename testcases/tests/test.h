@@ -38,6 +38,7 @@ struct UnitTests
 	static void commandline();
 	static void sortedpush();
 	static void sparsehash();
+	static void async_queue();
 
 	static void httpd();
 

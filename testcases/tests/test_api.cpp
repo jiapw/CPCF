@@ -1060,7 +1060,7 @@ void rt::UnitTests::buffer()
 	buf.push_front(12);
 	_LOG("push: "<<buf);
 
-	buf.erase(1,2);
+	buf.erase(1,3);
 	_LOG("erase: "<<buf);
 
 	buf.insert(1,3,100);

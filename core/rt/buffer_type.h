@@ -154,8 +154,8 @@ public:
 	INLFUNC t_SignedIndex SearchLowerbound(const t_Val& x) const // binary search
 	{	return std::lower_bound(Begin(), End(), x) - Begin();
 	}
-	INLFUNC void Zero(){ ASSERT_STATIC(rt::TypeTraits<t_Val>::IsPOD); memset((LPVOID)_p, 0, _len*sizeof(t_Val)); }
-	INLFUNC void Void(){ ASSERT_STATIC(rt::TypeTraits<t_Val>::IsPOD); memset((LPVOID)_p, 0xff, _len*sizeof(t_Val)); }
+	INLFUNC void Zero(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Zero() applies only to POD elements"); memset((LPVOID)_p, 0, _len*sizeof(t_Val)); }
+	INLFUNC void Void(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Void() applies only to POD elements"); memset((LPVOID)_p, 0xff, _len*sizeof(t_Val)); }
 	template<typename T>
 	INLFUNC void CopyFrom(const Buffer_Ref<T>& x)
 	{	ASSERT(GetSize() == x.GetSize());
@@ -251,7 +251,7 @@ public:
 		return _Find::kth(_p, 0, GetSize()-1, k);
 	}
 	INLFUNC void RandomBits(DWORD seed = rand())
-	{	ASSERT_STATIC(rt::TypeTraits<t_Val>::IsPOD);
+	{	static_assert(rt::TypeTraits<t_Val>::IsPOD, "RandomBits() applies only to POD elements");
 		Randomizer rng(seed);
 		t_Index int_size = GetSize()*sizeof(t_Val)/4;
 		t_Index i=0;
@@ -541,9 +541,6 @@ public:
 		ASSERT(p >= _SC::Begin());
 		erase(p - _SC::Begin());
 	}
-	INLFUNC void erase(const t_Val* begin, const t_Val* end) // *end will not be erased
-	{	erase(begin - _SC::Begin(), end - _SC::Begin());
-	}
 	INLFUNC void erase(SIZE_T index)
 	{	ASSERT(index<_SC::_len);
 		// call dtor for removed items
@@ -551,10 +548,12 @@ public:
 		_SC::_len--;
 		memmove(&_SC::_p[index],&_SC::_p[index+1],sizeof(t_Val)*(_SC::_len-index));
 	}
-	INLFUNC void erase(SIZE_T index_begin, SIZE_T index_end)
+	INLFUNC void erase(const t_Val* begin, const t_Val* end) // *end will not be erased
+	{	erase(begin - _SC::Begin(), end - _SC::Begin());
+	}
+	INLFUNC void erase(SIZE_T index_begin, SIZE_T index_end) // [index_end] will not be erased
 	{	ASSERT(index_begin<=index_end);
-		ASSERT(index_end<_SC::_len);
-		index_end++;
+		ASSERT(index_end<=_SC::_len);
 		// call dtor for removed items
 		for(SIZE_T i=index_begin;i<index_end;i++)_SC::_xt::dtor(_SC::_p[i]);
 		memmove(&_SC::_p[index_begin],&_SC::_p[index_end],sizeof(t_Val)*(_SC::_len-index_end));

@@ -554,7 +554,7 @@ bool os::GetProcessorTimes(ULONGLONG* pbusy, ULONGLONG* ptotal)
 		}
 	}
 #else
-	ASSERT_STATIC(0);
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #endif
 	return false;
 }

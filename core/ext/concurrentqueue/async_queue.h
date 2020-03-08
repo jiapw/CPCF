@@ -147,7 +147,7 @@ struct _ConcurrentQueue;
 	};
 } // _details
 
-template<typename T, UINT BLOCK_SIZE, bool BLOCKING = true, bool SINGLE_READER_WRITER = false>
+template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
 // the reserved size in the ctor will be round to multiple of BLOCK_SIZE
 class AsyncDataQueueInfinite
 {
@@ -164,11 +164,11 @@ public:
 	void Empty(){ _Q.~QueueType(); new (&_Q) QueueType(_InitReservedSize); }
 };
 
-template<typename T, UINT BLOCK_SIZE, bool BLOCKING = true, bool SINGLE_READER_WRITER = false>
+template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
 // the reserved size in the ctor will be round to multiple of BLOCK_SIZE
-class AsyncDataQueue: public AsyncDataQueueInfinite<T, BLOCK_SIZE, BLOCKING, SINGLE_READER_WRITER>
+class AsyncDataQueue: public AsyncDataQueueInfinite<T, BLOCKING, BLOCK_SIZE, SINGLE_READER_WRITER>
 {
-	typedef AsyncDataQueueInfinite<T, BLOCK_SIZE, BLOCKING, SINGLE_READER_WRITER> _SC;
+	typedef AsyncDataQueueInfinite<T, BLOCKING,  BLOCK_SIZE,SINGLE_READER_WRITER> _SC;
 	volatile INT	__Size;
 	INT				__SizeMax;
 public:
@@ -190,6 +190,100 @@ public:
 		else return false;
 	}
 	INLFUNC INT GetSize() const { return __Size; }
+};
+
+template<template<typename T, bool BLOCKING, UINT BLOCK_SIZE, bool SINGLE_READER_WRITER> class T_QUEUE, typename T, UINT JITTER_BUFSIZE_MAX = 1024U, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
+class DeJitteredQueue // only for single reader
+{
+protected:
+	static const UINT SEQ_RANGESIZE			= 0x80000000U;
+	static const UINT SEQ_BITMASK			= SEQ_RANGESIZE - 1U;
+	static const UINT FLAG_NOTNULL			= 0x80000000U;
+
+	static_assert((JITTER_BUFSIZE_MAX >= 4) && !(JITTER_BUFSIZE_MAX & (JITTER_BUFSIZE_MAX - 1)), "JITTER_BUFSIZE_MAX must be a power of 2 (and at least 4)");
+	
+	struct SeqT
+	{	UINT	SeqFlag; // [Seq:31b][Null:1b]
+		T		Obj;
+		SeqT(){ SeqFlag = 0; }
+		SeqT(UINT seqflag, const T& obj):Obj(obj){ SeqFlag = seqflag; ASSERT(IsNotNull()); }
+		UINT	Seq() const { return SeqFlag&SEQ_BITMASK; }
+		bool	IsNotNull() const { return SeqFlag&FLAG_NOTNULL; }
+	};
+
+	T_QUEUE<SeqT, BLOCKING, BLOCK_SIZE, SINGLE_READER_WRITER>	_Queue;
+	// writer state
+	volatile UINT		_NextSeq;
+	// reader state (single thread)
+	UINT				_LastReadSeq;
+	rt::BufferEx<SeqT>	_JitterBuf;
+	UINT				_JitterBufBaseSeq;
+
+	static UINT			_SeqMinus(UINT large, UINT small)
+						{	ASSERT(large<SEQ_RANGESIZE && small<SEQ_RANGESIZE);
+							if(large >= small){ return large-small; }
+							else{	ASSERT(large < 0x40000000U && small > 0x40000000U);
+									return large + 0x80000000U - small;
+						}		}
+	static UINT			_SeqInc(UINT s){ return (s+1)&SEQ_BITMASK; }
+	UINT				_WriterNextSeqFlag(){ return FLAG_NOTNULL|os::AtomicIncrement((volatile int*)&_NextSeq); }
+
+public:
+	DeJitteredQueue(){ _NextSeq = -1; _LastReadSeq = -1; _JitterBufBaseSeq = 0; }
+	template<typename ...ARGS>
+	auto Push(const T& t, ARGS... args){ return _Queue.Push(SeqT(_WriterNextSeqFlag(),t), args...); }
+	template<typename ...ARGS>
+	bool Pop(T* t, ARGS... args)
+	{
+		UINT expected_seq = _SeqInc(_LastReadSeq);
+		if(_JitterBuf.GetSize())
+		{	// pop from jitter buffer if available
+			UINT idx = _SeqMinus(expected_seq, _JitterBufBaseSeq);
+			if(idx < _JitterBuf.GetSize() && _JitterBuf[idx].IsNotNull())
+			{	
+				_LastReadSeq = expected_seq;
+				*t = std::move(_JitterBuf[idx].Obj);
+				// shrink jitter buffer
+				if(idx + 1 == _JitterBuf.GetSize()){ _JitterBuf.ShrinkSize(0); }
+				else if(_JitterBuf.GetSize() > JITTER_BUFSIZE_MAX/2 && idx > _JitterBuf.GetSize()/2)
+				{	_JitterBuf.erase(0, idx+1);
+					_JitterBufBaseSeq = (idx + 1 + _JitterBufBaseSeq)&SEQ_BITMASK;
+				}
+
+				return true;
+			}
+		}
+
+		SeqT pop;
+		while(_Queue.Pop(pop, args...))
+		{
+			if(pop.Seq() == expected_seq) // no jitter
+			{
+				_LastReadSeq = expected_seq;
+				*t = std::move(pop.Obj);
+				return true;
+			}
+			// jittered
+			ASSERT(pop.IsNotNull());
+			UINT idx;
+			if(_JitterBuf.GetSize())
+			{
+				idx = _SeqMinus(pop.Seq(), _JitterBufBaseSeq);
+				ASSERT(idx < JITTER_BUFSIZE_MAX);
+				if(idx >= _JitterBuf.GetSize())VERIFY(_JitterBuf.ChangeSize(idx+1));
+			}
+			else
+			{
+				_JitterBufBaseSeq = expected_seq;
+				idx = _SeqMinus(pop.Seq(), _JitterBufBaseSeq);
+				ASSERT(idx < JITTER_BUFSIZE_MAX);
+				_JitterBuf.ChangeSize(idx+1);
+			}
+			_JitterBuf[idx] = pop;
+		}
+
+		return false;
+	}
 };
 
 } // ext

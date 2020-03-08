@@ -1,4 +1,5 @@
 #include "../../core/ext/sparsehash/sparsehash.h"
+#include "../../core/ext/concurrentqueue/async_queue.h"
 #include "test.h"
 
 void rt::UnitTests::sparsehash()
@@ -50,4 +51,80 @@ void rt::UnitTests::sparsehash()
 
 		_LOG(out);
 	}
+}
+
+void rt::UnitTests::async_queue()
+{
+	struct DeJitter: public ext::DeJitteredQueue<ext::AsyncDataQueue, UINT, 1024U, false>
+	{
+		UINT seq_base;
+
+		bool PushWithSeq(UINT x, UINT seq)
+		{
+			_NextSeq = (seq_base+seq-1)&SEQ_BITMASK;
+			return Push(x);
+		}
+
+		UINT SEQ_BOUNDARY = SEQ_RANGESIZE - 10;
+		void SetBoundryTest(bool yes)
+		{	if(yes)
+			{	_LastReadSeq = SEQ_BOUNDARY; 
+				seq_base = SEQ_BOUNDARY;
+			}
+			else
+			{	_LastReadSeq = 0;
+				seq_base = 0;
+			}
+		}
+		
+	};
+
+	ext::AsyncDataQueue<UINT, false> queue;
+	DeJitter dejittered_queue;
+	DeJitter dejittered_queue_boundry;
+
+	dejittered_queue.SetBoundryTest(false);
+	dejittered_queue_boundry.SetBoundryTest(true);
+
+	rt::Buffer<UINT> pushes;
+	pushes.SetSize(20);
+	for(UINT i=0; i<pushes.GetSize(); i++)
+		pushes[i] = i+1;
+
+	pushes.Shuffle(3532893);
+
+	for(UINT i: pushes)
+	{
+		queue.Push(i);
+		dejittered_queue.PushWithSeq(i, i);
+		dejittered_queue_boundry.PushWithSeq(i, i);
+	}
+
+	rt::String out;
+
+	for(;;)
+	{
+		UINT val;
+		if(!queue.Pop(val))break;
+		out += rt::SS(",") + val;
+	}
+	_LOG("Jittered: "<<out.SubStr(1));
+
+	out.Empty();
+	for(;;)
+	{
+		UINT val;
+		if(!dejittered_queue.Pop(&val))break;
+		out += rt::SS(",") + val;
+	}
+	_LOG("DeJittered: "<<out.SubStr(1));
+
+	out.Empty();
+	for(;;)
+	{
+		UINT val;
+		if(!dejittered_queue_boundry.Pop(&val))break;
+		out += rt::SS(",") + val;
+	}
+	_LOG("DeJittered at Boundary: "<<out.SubStr(1));
 }

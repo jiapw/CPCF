@@ -1112,7 +1112,7 @@ APPPATH_UTF8_SET:
 	out_path = largest + '/' + app_name;
 	os::File::CreateDirectory(out_path);
 #else
-	ASSERT_STATIC(0);
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #endif
 	
 }
@@ -2270,7 +2270,7 @@ void os::FolderChangingMonitor::Destroy()
 }
 
 #elif defined(PLATFORM_MAC)
-	//ASSERT_STATIC(0);
+	ASSERT_STATIC_NOT_IMPLMENTED;
 #endif // #if defined(PLATFORM_WIN) ||  defined(PLATFORM_MAC)
 
 

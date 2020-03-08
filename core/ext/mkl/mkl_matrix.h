@@ -84,8 +84,9 @@ class Matrix_Ref
 {
 	template<typename t_Val2, bool t_NotTransposed2>
 	friend class Matrix_Ref;
-	ASSERT_STATIC(	rt::TypeTraits<t_Val>::Typeid == ::rt::_typeid_32f || 
-					rt::TypeTraits<t_Val>::Typeid == ::rt::_typeid_64f	);
+	static_assert(	rt::TypeTraits<t_Val>::Typeid == ::rt::_typeid_32f || 
+					rt::TypeTraits<t_Val>::Typeid == ::rt::_typeid_64f, 
+					"Only float/double Matrix is supported");
 	static const int OPTI_WORKING_BLOCK_SIZE = 64;
 
 protected:
@@ -383,7 +384,7 @@ public:
 	//Linear Equations
 	//This*x=B  --> A change to LU, B change to solution
 	bool SolveLinearEquations( Matrix_Ref<t_Val,true>&B )
-	{	ASSERT_STATIC(t_NotTransposed); // row major matrix is not supported
+	{	static_assert(t_NotTransposed, "row major matrix is not supported");
 		ASSERT(IsSquare());
 		ASSERT(GetRowCount() == B.GetRowCount());
 		::rt::Buffer_32BIT<int> Ipiv;
@@ -416,7 +417,7 @@ public:
 	//Linear Least Squares
 	//This*x=B  --> This change to singlar vectors, B change to solution
 	bool SolveLinearLeastSquares_SVD( Matrix_Ref<t_Val,true>& B , UINT* pRank = nullptr, t_Val rank_condition = ((t_Val)0.0001) )
-	{	ASSERT_STATIC(t_NotTransposed); // row major matrix is not supported
+	{	static_assert(t_NotTransposed, "row major matrix is not supported");
 		ASSERT(rt::max(GetColCount(),GetRowCount()) == B.GetRowCount());
 		UINT s_len = rt::min(GetColCount(),GetRowCount());
 		Vector<t_Val> Workspc; //first [s_len] elements used to output eigenvalue

@@ -102,8 +102,10 @@ namespace _details
 template<typename t_Val>
 class VectorCompact_Ref: public ::rt::Buffer_Ref<t_Val, MKL_SIZE>
 {
-	ASSERT_STATIC(	rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_32f || 
-					rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_64f	);
+	static_assert(	rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_32f || 
+					rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_64f,
+					"Only float/double Vector is supported"
+	);
 private:
 	MKL_SIZE	__always_be_one;		// make class memory layout same to Stride Vector
 public:
@@ -232,8 +234,10 @@ public:
 template<typename t_Val>
 class VectorStrided_Ref
 {
-	ASSERT_STATIC(	rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_32f || 
-					rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_64f	);
+	static_assert(	rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_32f || 
+					rt::TypeTraits< typename ::rt::Remove_Qualifer<t_Val>::t_Result >::Typeid == rt::_typeid_64f,
+					"Only float/double Vector is supported"
+	);
 protected:
 	t_Val*		_p;
 	MKL_SIZE	_len;
