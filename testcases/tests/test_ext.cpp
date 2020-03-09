@@ -21,11 +21,12 @@ void rt::UnitTests::sparsehash()
 			if((*it & 1) == 0)
 				set.erase(it);
 
-		rt::String out;
+		rt::BufferEx<int>	a;
 		for(auto it: set)
-			out += rt::SS(" ") + it;
+			a.push_back(it);
 
-		_LOG(out);
+		a.Sort();
+		_LOG(a);
 	}
 
 	{
@@ -45,11 +46,12 @@ void rt::UnitTests::sparsehash()
 			if((it->first & 1) == 1)
 				set.erase(it);
 
-		rt::String out;
+		rt::BufferEx<int>	a;
 		for(auto it: set)
-			out += rt::SS(" ") + it.second;
+			a.push_back(it.first);
 
-		_LOG(out);
+		a.Sort();
+		_LOG(a);
 	}
 }
 

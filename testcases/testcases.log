@@ -697,8 +697,8 @@ SHA1: 95E1F33CA86B4815AA8B7FC7E4865F65 (first 16 bytes)
 === UnitTest<botan_hash>: END =====
 
 === UnitTest<sparsehash>: BEGIN ===
- 1 3 5 7 9
- 2 4 6 8 10
+{1,3,5,7,9}
+{2,4,6,8,10}
 === UnitTest<sparsehash>: END =====
 
 === UnitTest<async_queue>: BEGIN ===
