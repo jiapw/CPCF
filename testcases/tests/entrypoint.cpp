@@ -15,7 +15,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(async_queue);
+		TYPETRAITS_UNITTEST(async_write);
 		//TYPETRAITS_UNITTEST(callback_to_member_function);
 		return;
 	}
@@ -61,6 +61,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(botan_hash);
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
+		TYPETRAITS_UNITTEST(async_write);
 	
 		if(0) // non-static test
 		{

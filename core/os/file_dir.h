@@ -243,38 +243,57 @@ public:
 
 class FileWrite
 {
-	static const int FRL_BUFSIZE = 64*1024;	// each line should smaller than half of this
-	rt::BufferEx<char>	_buf;
-	UINT				_bufused;
+	static const UINT FRL_BUFSIZE = 256U*1024U;	// each line should smaller than half of this
+
+	UINT				_HeaderSize;
+	rt::BufferEx<char>	_WriteBuf;
+	rt::BufferEx<char>	_WriteBuf_Back;
+	bool				_IsAsyncMode() const { return _WriteBuf_Back.Begin(); }
+
 #if defined(PLATFORM_WIN)
 	HANDLE				_hFile;
+	bool				_bWritePending;
+	OVERLAPPED			_Overlapped;
+	
 #else
 	File				_file;
 #endif
+	bool		_FileWriteBuf();
+	void		_FileWriteSync();
+	LPBYTE		_Claim(SIZE_T size){ if(size > FRL_BUFSIZE || (size + _WriteBuf.GetSize() > FRL_BUFSIZE && !_FileWriteBuf()))return nullptr; return (LPBYTE)_WriteBuf.End(); }
+	void		_Commit(SIZE_T size){ ASSERT(_WriteBuf.GetSize() + size <= FRL_BUFSIZE); _WriteBuf.ChangeSize(_WriteBuf.GetSize() + size); }
 public:
-	FileWrite(bool unbufferred = false);
+	enum FileWriteFlag
+	{	FW_TRUNCATE = 0x01, // don't append
+		FW_ASYNC	= 0x02,	// write buffer async
+		FW_UTF8SIGN	= 0x04	// write UTF8 header
+	};
+
+	FileWrite();
 	~FileWrite(){ Close(); }
 	ULONGLONG	GetSize() const;
-	bool		Open(LPCSTR fn, bool append = true);
+	bool		IsOpen() const;
+	bool		Open(LPCSTR fn, DWORD flag = 0, UINT header_size = 0);
 	void		Close();
-	bool		WriteLine(const rt::String_Ref& line){ return Write(line.Begin(), (UINT)line.GetLength()) && Write("\r\n",2); }
+	bool		Write(LPCVOID p, UINT size)
+				{	auto* b = _Claim(size);
+					if(b){ memcpy(b, p, size); _Commit(size); return true; }
+					return false;
+				}
+	template<typename T>
+	bool		WriteBlock(const T& obj){ return Write(&obj, sizeof(T)); }
 	bool		WriteLine(LPCSTR line){ return WriteLine(rt::String_Ref(line)); }
 	template<typename T>
 	bool		WriteLine(const T& line)
-				{	SIZE_T len = line.GetLength();
-					LPSTR buf = (LPSTR)alloca(len);
-					VERIFY(line.CopyTo(buf) == len);
-					return WriteLine(rt::String_Ref(buf,len));
+				{	SIZE_T len = line.GetLength() + 2;
+					auto* p = (LPSTR)_Claim(len);
+					if(p){ VERIFY(len == line.CopyTo(p)); *(WORD*)&p[len-2] = 0xa0d; _Commit(len); return true; }
+					return false;
 				}
-	bool		Write(LPCVOID p, UINT size);
 	bool		Flush();
-	bool		WriteUTF8Sign();
 	bool		WriteHeader(LPCVOID p, UINT size);
 	template<typename T>
-	bool		WriteBlock(const T& obj){ return Write(&obj, sizeof(T)); }
-	template<typename T>
 	bool		WriteHeader(const T& obj){ return WriteHeader(&obj, sizeof(T)); }
-	bool		IsOpen() const;
 };
 
 class FileMapping

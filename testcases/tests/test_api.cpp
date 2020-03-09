@@ -1590,6 +1590,60 @@ void rt::UnitTests::commandline()
 	_LOG(text);
 }
 
+void rt::UnitTests::async_write()
+{
+	rt::Buffer<BYTE>	data;
+	data.SetSize(23*1024*1024);
+	data.RandomBits(94784);
+
+	LPCSTR fn = "async_write.test";
+
+	{
+		os::FileWrite f;
+		if(f.Open(fn, os::FileWrite::FW_TRUNCATE|os::FileWrite::FW_ASYNC, 8))
+		{
+			for(UINT i=0; i<data.GetSize(); i+=23*1024)
+			{
+				if(!f.Write(&data[i], 23*1024))
+					return;
+			}
+		}
+
+		f.WriteHeader(0x12345678deadbeefULL);
+		f.Close();
+
+		os::FileBuffer<BYTE> load;
+		load.Open(fn);
+
+		_LOG("Size Header: "<<load.GetSize() - data.GetSize());
+		_LOG("Header = "<<rt::tos::HexNum<>(*(ULONGLONG*)load.Begin()));
+		_LOG("Content Match: "<<(0==memcmp(load.Begin() + 8, data.Begin(), data.GetSize())));
+	}
+
+	{
+		os::FileWrite f;
+		if(f.Open(fn, os::FileWrite::FW_TRUNCATE|os::FileWrite::FW_UTF8SIGN))
+		{
+			for(UINT i=0; i<data.GetSize(); i+=23*1024)
+			{
+				if(!f.Write(&data[i], 23*1024))
+					return;
+			}
+		}
+
+		f.Close();
+
+		os::FileBuffer<BYTE> load;
+		load.Open(fn);
+
+		_LOG("Size Header: "<<load.GetSize() - data.GetSize());
+		_LOG("Header = "<<rt::tos::Base16OnStack<>(load.Begin(), 3));
+		_LOG("Content Match: "<<(0==memcmp(load.Begin() + 3, data.Begin(), data.GetSize())));
+	}
+
+	os::File::RemovePath(fn);
+}
+
 void rt::UnitTests::file()
 {
 	{	os::FileBuffer<BYTE>	file("D:/ArtSq/Coin-FE/Dev/proj/unit_test/captcha_bg.jpg");

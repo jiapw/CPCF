@@ -15,6 +15,7 @@ struct UnitTests
 	static void html();
 	static void json();
 	static void file();
+	static void async_write();
 	static void timedate();
 	static void http_client();
 	static void http_nav();

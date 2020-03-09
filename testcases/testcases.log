@@ -705,8 +705,60 @@ SHA1: 95E1F33CA86B4815AA8B7FC7E4865F65 (first 16 bytes)
 === UnitTest<sparsehash>: END =====
 
 === UnitTest<async_queue>: BEGIN ===
+Multiple Reader/Writer
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 0
+Pop[0]: 1 VAL=0
+Pop[1]: 1 VAL=1
+Pop[2]: 1 VAL=2
+Pop[3]: 1 VAL=3
+Pop[4]: 0
+WAIT=1
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 1
+Single Reader/Writer
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 1
+Push[5]: 1
+Push[6]: 1
+Push[7]: 0
+Pop[0]: 1 VAL=0
+Pop[1]: 1 VAL=1
+Pop[2]: 1 VAL=2
+Pop[3]: 1 VAL=3
+Pop[4]: 1 VAL=4
+Pop[5]: 1 VAL=5
+Pop[6]: 1 VAL=6
+Pop[7]: 0
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 1
+Push[5]: 1
+Push[6]: 1
+Push[7]: 1
+DeJitter Reader/Writer
 Jittered: 2,6,13,14,10,18,20,19,9,4,15,16,17,3,1,5,11,7,8,12
 DeJittered: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
 DeJittered at Boundary: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
 === UnitTest<async_queue>: END =====
+
+=== UnitTest<async_write>: BEGIN ===
+Size Header: 8
+Header = 12345678DEADBEEF
+Content Match: 1
+Size Header: 3
+Header = EFBBBF
+Content Match: 1
+=== UnitTest<async_write>: END =====
 

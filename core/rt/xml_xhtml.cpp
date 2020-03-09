@@ -1061,7 +1061,7 @@ bool XMLParser::_ForceWellformed(rt::String& xml)
 								{	insertions[tagname_stack[i].insert_index].removed = true;
 								}
 							}
-							tagname_stack.erase(encls,sz-1);
+							tagname_stack.erase(encls,sz);
 							goto NEXT_TAG;
 						}
 					}

@@ -55,6 +55,114 @@ void rt::UnitTests::sparsehash()
 
 void rt::UnitTests::async_queue()
 {
+	{	_LOG("Multiple Reader/Writer");		
+		typedef ext::AsyncDataQueue<DWORD, true, 2> CQ;
+		
+		UINT capacity = 4;
+		DWORD t = 0;
+		
+		{	CQ cq(capacity);
+			for(UINT i=0;i<5;i++)
+			{
+				_LOG("Push["<<i<<"]: "<<cq.Push(i));
+			}
+
+			for(UINT i=0;i<4;i++)
+			{	
+				int ret = cq.Pop(t);
+				_LOG("Pop["<<i<<"]: "<<ret<<" VAL="<<t);
+			}
+
+			os::Timestamp tm;
+			tm.LoadCurrentTime();
+			_LOG("Pop[4]: "<<cq.Pop(t, 1100));
+			_LOG("WAIT="<<(int)(tm.TimeLapse()/1000));
+		}
+
+		{	CQ cq(capacity);
+			for(UINT i=0;i<5;i++)
+			{
+				_LOG("Push["<<i<<"]: "<<cq.Push(i, true));
+			}
+		}
+	}
+	
+	{	_LOG("Single Reader/Writer");
+		typedef ext::AsyncDataQueue<DWORD, true, 2, true> CQ;
+
+		UINT capacity = 7;
+		DWORD t = 0;
+
+		{	CQ cq(capacity);
+			for(UINT i=0;i<8;i++)
+			{
+				_LOG("Push["<<i<<"]: "<<cq.Push(i));
+			}
+
+			for(UINT i=0;i<7;i++)
+			{	
+				int ret = cq.Pop(t);
+				_LOG("Pop["<<i<<"]: "<<ret<<" VAL="<<t);
+			}
+
+			_LOG("Pop[7]: "<<cq.Pop(t));
+		}
+
+		{	CQ cq(capacity);
+			for(UINT i=0;i<8;i++)
+			{
+				_LOG("Push["<<i<<"]: "<<cq.Push(i, true));
+			}
+		}
+	}
+
+#if defined(PLATFORM_RELEASE_BUILD)
+	{
+		typedef ext::AsyncDataQueueInfinite<ULONGLONG, 16, true, false> CQ;
+		CQ cq;
+
+		os::HighPerformanceCounter tm;
+		static const int steps = 1000000;
+
+		tm.LoadCurrentCount();
+		for(UINT i=0; i<steps; i++)
+		{
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+		}
+
+		_LOGC("CQ Push: "<<10e9*steps*25/tm.TimeLapse()<<" qps");
+
+		tm.LoadCurrentCount();
+		for(UINT i=0; i<steps; i++)
+		{
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+		}
+
+		_LOGC("CQ Pop: "<<10e9*steps*25/tm.TimeLapse()<<" qps");
+
+		tm.LoadCurrentCount();
+		for(UINT i=0; i<steps; i++)
+		{
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+			cq.Push(10000);	cq.Push(10000); cq.Push(10000); cq.Push(10000); cq.Push(10000);
+		}
+
+		_LOGC("CQ Push: "<<10e9*steps*25/tm.TimeLapse()<<" qps");
+	}
+#endif
+
+	_LOG("DeJitter Reader/Writer");
 	struct DeJitter: public ext::DeJitteredQueue<ext::AsyncDataQueue, UINT, 1024U, false>
 	{
 		UINT seq_base;
