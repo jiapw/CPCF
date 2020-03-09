@@ -134,7 +134,7 @@ public:
 	SIZE_T		GetCurrentPosition() const;
 	SIZE_T		Seek(SSIZE_T offset,UINT nFrom = Seek_Begin);
 	void		SeekToBegin();
-	void		SeekToEnd();
+	SIZE_T		SeekToEnd();
 	void        Flush();
 	int			GetFD() const { return fileno(_hFile); }
 
@@ -256,11 +256,6 @@ class FileWrite
 	OVERLAPPED			_Overlapped;
 #else
 	File				_File;
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	int 				_EpollListFD;
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-	
-#endif
 #endif
 	bool		_FileWriteBuf();
 	void		_FileWriteSync();

@@ -726,10 +726,10 @@ void os::File::SeekToBegin()
 	Seek(0,(DWORD)Seek_Begin);
 }
 
-void os::File::SeekToEnd()
+SIZE_T os::File::SeekToEnd()
 {
 	ASSERT(IsOpen());
-	Seek(0,(DWORD)Seek_End);
+	return Seek(0,(DWORD)Seek_End);
 }
 
 void os::File::GetCurrentDirectory(rt::String& out)
@@ -1633,7 +1633,6 @@ os::FileWrite::FileWrite()
 	_hFile = INVALID_HANDLE_VALUE;
 	rt::Zero(_Overlapped);
 #else
-	_EpollListFD = -1;
 #endif
 }
 
@@ -1660,6 +1659,14 @@ bool os::FileWrite::IsOpen() const
 bool os::FileWrite::Open(LPCSTR fn, DWORD flag, UINT header_size)
 {
 	Close();
+	
+#if !defined(PLATFORM_WIN)
+	if(flag&FW_ASYNC)
+	{
+		flag &= ~FW_ASYNC;
+		_LOGC_WARNING("os::FileWrite don't support asynchronous I/O, fallback to blocking I/O.")
+	}
+#endif		
 
 	_bWritePending = false;
 	if(flag&FW_ASYNC)
@@ -1705,29 +1712,15 @@ bool os::FileWrite::Open(LPCSTR fn, DWORD flag, UINT header_size)
 #else
 	if(_File.Open(fn, (flag&FW_TRUNCATE)?os::File::Normal_Write:os::File::Normal_Append))
 	{
-		if(_IsAsyncMode())
-		{
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-			int flags = fcntl(_File.GetFD(), F_GETFL, 0);
-			fcntl(_File.GetFD(), F_SETFL, flags | O_NONBLOCK);
-			_EpollListFD = epoll_create1(0);
-			int e = errno;
-			struct epoll_event ee;
-			ee.events = EPOLLOUT; // Only poll for input events (reading).
-			ee.data.fd = _File.GetFD();
-			if(_EpollListFD>=0 && epoll_ctl(_EpollListFD, EPOLL_CTL_ADD, _File.GetFD(), &ee) == 0)
-				goto OPEN_FAILED;
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-#endif
-		}
+		ASSERT(!_IsAsyncMode());
 		
-		size_t pos = lseek64(_File.GetFD(), 0, SEEK_END);
+		size_t pos = _File.SeekToEnd();
 		if(_HeaderSize > pos)
 		{
-			lseek64(_File.GetFD(), 0, SEEK_SET);
-			fallocate64(_File.GetFD(), FALLOC_FL_INSERT_RANGE, 0, _HeaderSize);
+			_File.Truncate(_HeaderSize);
+			_File.SeekToBegin();
 			if(flag&FW_UTF8SIGN)WriteHeader("\xef\xbb\xbf", 3);
-			lseek64(_File.GetFD(), 0, SEEK_END);
+			_File.SeekToEnd();
 		}
 		
 		return true;
@@ -1765,29 +1758,12 @@ bool os::FileWrite::_FileWriteBuf()
 		}
 		return false;
 	}
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-	ASSERT_STATIC_NOT_IMPLMENTED;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	if(_IsAsyncMode())
+#else
+	ASSERT(!_IsAsyncMode());
+	if(write(_File.GetFD(), _WriteBuf.Begin(), (UINT)_WriteBuf.GetSize()) >= 0)
 	{
-		_FileWriteSync();
-		ASSERT(_WriteBuf_Back.GetSize() == 0);
-		if(write(_File.GetFD(), _WriteBuf.Begin(), (UINT)_WriteBuf.GetSize()) >= 0)
-		{
-			rt::Swap(_WriteBuf_Back, _WriteBuf);
-			_bWritePending = true;
-			return true;
-		}
-	}
-	else
-	{	
-		ASSERT(!_bWritePending);
-		if(write(_File.GetFD(), _WriteBuf.Begin(), (UINT)_WriteBuf.GetSize()) >= 0)
-		{
-			_WriteBuf.ChangeSize(0);
-			return true;
-		}
-		return false;
+		_WriteBuf.ChangeSize(0);
+		return true;
 	}
 #endif
 
@@ -1803,11 +1779,8 @@ void os::FileWrite::_FileWriteSync()
 	VERIFY(WAIT_OBJECT_0 == ::WaitForSingleObject(_Overlapped.hEvent, INFINITE));
 	_WriteBuf_Back.ChangeSize(0);
 	::ResetEvent(_Overlapped.hEvent);
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-	ASSERT_STATIC_NOT_IMPLMENTED;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	struct epoll_event epoll_event_buf;
-	int ret = epoll_wait(_EpollListFD, &epoll_event_buf, 1, 1000000);
+#else
+	ASSERT(0);
 #endif
 
 	_bWritePending = false;
@@ -1832,7 +1805,6 @@ void os::FileWrite::Close()
 	}
 #else
 	_File.Close();
-	if(_EpollListFD>=0)close(_EpollListFD);
 #endif
 }
 
@@ -1844,7 +1816,7 @@ bool os::FileWrite::Flush()
 #if defined(PLATFORM_WIN)
 	::FlushFileBuffers(_hFile);
 #else
-	syncfs(_File.GetFD());
+	_File.Flush();
 #endif
 
 	return true;
@@ -1878,25 +1850,11 @@ bool os::FileWrite::WriteHeader(LPCVOID p, UINT size)
 				::SetFilePointerEx(_hFile, zero, NULL, FILE_END);
 	}
 #else
-	if(_IsAsyncMode())
-	{
-		_FileWriteSync();
-		if(write(_File.GetFD(), p, size) >= 0)
-		{
-			_bWritePending = true;
-			_FileWriteSync();
-			return true;
-		}
-		
-		return false;
-	}
-	else
-	{
-		lseek64(_File.GetFD(), 0, SEEK_SET);
-		bool ret = write(_File.GetFD(), p,  size) == size;
-		lseek64(_File.GetFD(), 0, SEEK_END);
-		return ret;
-	}
+	ASSERT(!_IsAsyncMode());
+	_File.SeekToBegin();
+	bool ret = write(_File.GetFD(), p,  size) == size;
+	_File.SeekToEnd();
+	return ret;
 #endif
 }
 

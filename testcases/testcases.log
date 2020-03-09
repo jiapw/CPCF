@@ -1,1 +1,761 @@
-﻿=== UnitTest<async_write>: BEGIN ===
+﻿=== UnitTest<rt>: BEGIN ===
+a = 16 PTR=1
+b = 8 PTR=1
+c = 40 PTR=1
+d = 4 PTR=1
+e = 8 PTR=1
+sizeof(rt::TypeTraits<MyType>::t_Val) = 8
+rt::TypeTraits<MyType>::IsPOD = 1
+sizeof(rt::TypeTraits<MyTypeTR>::t_Val) = 8
+rt::TypeTraits<MyTypeTR>::IsPOD = 0
+sizeof(BYTE)	=1
+sizeof(WORD)	=2
+sizeof(DWORD)	=4
+sizeof(UINT)	=4
+sizeof(QWORD)		=8
+sizeof(LONGLONG)	=8
+sizeof(ULONGLONG)	=8
+sizeof(QWORD)		=8
+rt::MaxPower2Within(2049): 2048
+rt::Swap: <a, b> = <2,1>
+rt::SwitchByteOrder(CEFABEBA00000000) = 00000000BABEFACE
+int is POD: 1
+int[24] is POD: 1
+rt::IsTypeSame<int,int>: 1
+rt::IsTypeSame<int,float>: 0
+rt::IsTypeSame<const int,int>: 0
+rt::Remove_QualiferAndRef<const int>: 1
+rt::TypeTraits<int[23]>::t_Element: 1
+rt::NumericTraits<double>::IsFloat: 1
+rt::NumericTraits<float>::IsUnsigned: 0
+Allocate: 0
+catch std::bad_alloc
+17 ~= 2^4
+=== UnitTest<rt>: END =====
+
+=== UnitTest<buffer>: BEGIN ===
+Init: {0,0,123}
+Copy: {0,0,123}
+push: {12,0,0,123,456,789}
+erase: {12,123,456,789}
+insert: {12,100,100,100,123,456,789}
+insert: {12,200,100,100,100,123,456,789}
+sort: {12,100,100,100,123,200,456,789}
+hello
+is
+shit
+world
+Overflow
+1234567890
+123456789
+12345678
+Strings: {"string0","string1","string2"}
+Strings copied: {"string0","string1","string2","string3"}
+{57097,64218,18685,37624,14930,5901,47532,3015,7620,10155}
+Top-1: 3015
+Top-3: 7620
+Top-6: 18685
+Top-10: 64218
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+.1...1.........................................................1................1.......1 PopCount:5
+1,5,63,80,88
+..1...1.........................................................1................1....... PopCount:4
+2,6,64,81
+....1...1.........................................................1................1..... PopCount:4
+4,8,66,83
+.........................................................1................1.............. PopCount:2
+57,74
+.........................................................................1............... PopCount:1
+73
+........1................................................................................ PopCount:1
+8
+=== UnitTest<buffer>: END =====
+
+=== UnitTest<sortedpush>: BEGIN ===
+BufferEx::SortedPush
+{64} Add:64 at 0
+{27,64} Add:27 at 0
+{27,48,64} Add:48 at 1
+{27,48,64,220} Add:220 at 3
+{27,48,64,142,220} Add:142 at 3
+{27,48,64,142,214,220} Add:214 at 4
+{27,48,64,142,166,214,220} Add:166 at 4
+{27,48,64,142,157,166,214,220} Add:157 at 4
+{27,48,64,103,142,157,166,214,220} Add:103 at 3
+{27,48,64,103,103,142,157,166,214,220} Add:103 at 4
+{27,48,64,103,103,142,157,166, ... ,220} // size=11 Add:176 at 8
+{27,48,64,103,103,142,157,166, ... ,220} // size=12 Add:190 at 9
+{27,48,64,103,103,142,157,166, ... ,238} // size=13 Add:238 at 12
+{27,35,48,64,103,103,142,157, ... ,238} // size=14 Add:35 at 1
+{27,35,48,64,103,103,142,143, ... ,238} // size=15 Add:143 at 7
+{27,35,48,64,95,103,103,142, ... ,238} // size=16 Add:95 at 4
+{27,35,48,64,95,103,103,142, ... ,238} // size=17 Add:174 at 11
+{27,35,38,48,64,95,103,103, ... ,238} // size=18 Add:38 at 2
+{21,27,35,38,48,64,95,103, ... ,238} // size=19 Add:21 at 0
+{21,27,35,38,48,64,95,103, ... ,238} // size=20 Add:158 at 12
+Buffer::SortedPush
+{49,65535,65535,65535,65535,65535,65535,65535} Add:49 at 0
+{49,156,65535,65535,65535,65535,65535,65535} Add:156 at 1
+{49,156,220,65535,65535,65535,65535,65535} Add:220 at 2
+{33,49,156,220,65535,65535,65535,65535} Add:33 at 0
+{33,49,68,156,220,65535,65535,65535} Add:68 at 2
+{33,49,64,68,156,220,65535,65535} Add:64 at 2
+{24,33,49,64,68,156,220,65535} Add:24 at 0
+{24,33,49,64,68,156,207,220} Add:207 at 6
+{24,33,49,64,68,82,156,207} Add:82 at 5
+{24,33,49,64,68,72,82,156} Add:72 at 5
+{24,33,49,64,68,72,73,82} Add:73 at 6
+{24,33,49,64,68,72,73,82} Add:214 at -1
+{24,33,49,64,68,72,73,82} Add:199 at -1
+{24,33,49,64,68,72,73,82} Add:103 at -1
+{24,33,49,64,68,72,73,82} Add:230 at -1
+{24,33,49,64,68,72,73,82} Add:85 at -1
+{24,33,49,64,68,72,73,82} Add:245 at -1
+{24,33,41,49,64,68,72,73} Add:41 at 2
+{24,33,41,49,64,68,72,73} Add:205 at -1
+{24,33,41,42,49,64,68,72} Add:42 at 3
+=== UnitTest<sortedpush>: END =====
+
+=== UnitTest<string_conv>: BEGIN ===
+12
+12
+123
+123
+123.45
+123.4500
+1.2300e+45
+1.2300e+45
+inf
+=== UnitTest<string_conv>: END =====
+
+=== UnitTest<string>: BEGIN ===
+123📢好的 456
+123好的 456
+std::string = 1234!!
+int i=110; i/=2;
+_LOG("/*some comment*/");
+i += 32;
+i++; 
+_LOG("//some conmment");
+i+=222;
+--\'\"--\\\\*\\9
+--\'\"--\\\\*\\9
+--'"--\\*\9
+--'"--\\*\9
+<div class=\"tabBody3 tabContent\"><ul><li><a id=\"viewItemsMeasurements\" title=\"View this items measurements\" href=\"/am/pssizechart.nap?productID=511413\">View this item\'s measurements</a><br></li></ul><span><ul><li> Fits true to size, take your normal size</li><li> Cut for a loose fit</li><li> Mid-weight, slightly stretchy fabric</li><li>Model is 177cm/ 5\'10\" and is wearing a FR size 36 </li></ul></span></div>
+/123/456/89/
+/123/456/89
+P:ftp , H:www.xxx.com , PATH:/124/rty.jpg
+P: , H: , PATH:124/rty.jpg
+P: , H: , PATH:rty.jpg
+P: , H: , PATH:/124/rty.jpg
+P:http , H:www.google.com , PATH:/
+!?123456~
+[-!?****123456~-]
+[
+c
+a
+trim_comments
+TrimCodeComments
+code
+80
+c->a
+TrimCodeComments(code);80
+c	->
+a	*
+trim_comments	.
+TrimCodeComments	(
+code	);
+80	
+GetNextLine(line, true)
+"1"
+"2"
+GetNextLine(line, false)
+"1"
+""
+"2"
+""
+""
+""
+abc
+bcd
+cde
+de
+abcde
+
+
+abcde
+cde
+e
+
+
+ab
+abcde
+abcde
+
+de
+abcde
+abcde
+abcd
+abcd
+hello world
+a[2]: l
+ToNumber: 123456
+TrimLeft(2).ToNumber(num): 3456
+SubStrHead(4).ToNumber(num): 1234
+Split<>(','): 123,456,789 ,123$ddd 'yes "\'no',,,,
+Split<>(" ,"): 123,456,789,,123$ddd,yes "\'no,,
+Split<true>(" ,$"): 123,456,789,123,ddd,yes "\'no,,
+Split<>(...): 345,453;546,4543,444,ddd,,,
+hello world 1233 !!
+String Expression 1: hello world 1233 !! ..
+String Expression 2: worlld !!
+Replace: wor===d !!
+IsPrefixOf: 1
+BinaryCString: \x31\x32\x33\x34\x35\x36
+Binary: 313233343536
+map["123"]: 456
+Length of "123" + "\x0\x1\x3" is 6
+FileSize<false,false>: 40.54 kB
+FileSize<false,true>: 3.96 MB
+FileSize<false,false>: 38.66 gB
+FileSize<false,true>: 3775.63 TB
+TimeSpan<true>: 0.010 second
+TimeSpan<true>: 10 seconds
+TimeSpan<true>: 1d:3h:46m:40s
+TimeSpan<true>: 16d:7h:41m
+TimeSpan<false>: 16d:7h:41m:0s
+=== UnitTest<string>: END =====
+
+=== UnitTest<encoding>: BEGIN ===
+50 = A0
+0469 = 0HM1
+4D187B = 9MC7B
+E8C22C2D = X312RB1
+2C5F1C4D48 = 5HFHRKA8
+A3509DA7F409 = MD89V9@M11
+66EA973D9B26B2 = CVN9EFCV4TS0
+D1B20752EA1162E6 = T6S0EMQA25HE6
+3DC68256FBA5A203E2 = 7Q384NQVMPH07R2
+3620A0961B07303749A3 = 6RGA15GV0WR3EJD3
+C3FE3532C81BFDE079A44B = RF@3ACP83FYY0YD493
+718357997C26652BDA125A75 = E61NF6BW4SJJQPGJB9T1
+B28A5255CD08811128F4B0CDEA = PA554NED120H2A7MP36YA
+2FE8DB2CF7791EF6F5E68E0B0F4C = 5@MDPB7QF4FFDXF6HR5GYK0
+1F1E277994F80A51852EA225D62B8F = 3WF2EYCM@055319EM8JXCAWF
+A743320C3ADA81D4B4203B1630AC222F = MX1K431TVA0X9D107CB31B1257
+FBF76D40BA4FFD103C0AD9B7A6B00C93AF = @FVPTG5T9@YH0F0AV6VTDC0CJEQ1
+34613997BCC2047C725D757D1C95B1E56A5A = 6HGKK5XWR827RWJXENYHS5DHWNN5A
+146624DC1577F5179910ADA2852663611F6CD9 = 2HK29Q0NE@THF68GNPH8A9K3C4FPSP1
+D7 = t7
+EC54 = xha0
+7D3302 = fmsg2
+635CF856 = cdefgn2
+14FFEA549F = 2k@ymn4@
+BF211A8C5CD9 = qwghn32wv1
+041ECE32F3B405 = 0gfcwcqkpg21
+2E06B60513B42F2E = 5r3bc18kpgqje
+A279533815808FEBF8 = m9wn6e0ng27yqy0
+ADD03F9139C37EC120D1 = nq83@49srd@c286h
+9E4F4DE9D04E0B0BDE964E = ks7mvteg9r5gqqmp96
+05EF0E1BFF3877F156CBAC44 = 0qqgw6@@71v@2npbnh20
+871E142A09AC7DB03241F7DAE0 = gwf18ag9nhyv0cj1y@de0
+E8B7239AABF8C7B3F2A96D67EC8B = x2vj76nb@33v7wn9dnkys23
+6D703CE37E164B94419A28397D008D = dnr3srvy2s5s8gct50wqt04d
+6E7F2BF382E61F159FB78717FF1AFCE9 = ds@jqww2wrfhb7xqgwb@y6qwx1
+1F5C371A1A4BED866DADDB15B014AC1EA2 = 3xe3e6gt9fprcvddvcav055c3th0
+4E64A863EEE21F9CEC1910C414E0C1E95E85 = 9sjagr@ew8fssv0s23219r61x5f85
+EB9E3C631110C690F6D6DAA149756E97DAD70A = xef3rrrh23391xppvagmjxbej@dde22
+65 = C5
+5725 = ASI1
+BCA615 = NIJ15
+018D579A = 066LF62
+1B845CAC2A = 3E25PB1A
+68FDC927F2D9 = D3USI9VIR1
+398D0019ACF3FF = 766G06DCUFV1
+8954D20BBD23CD86 = H5AD42TT4F6O6
+48F0400F50D0E0BBFE = 93O403QGQ3GBNV2
+971CF0746449712B1A4F = ISEF0T3495OIM6IF
+48E85EC2395CC54C9CA7D9 = 93K5TGHPBJ2KP757R1
+1422E736494CB5FA2CD67427 = 2GHEEDI99IQVKB6MEGJ1
+B30AE1E9C3841EBAE0D1138976 = MC5E3QE3GGFBLO6H2E4N6
+84C2D55C0A26F0CF8DD4BD278204 = GJ1DAN0A4ROCV3EKNKJO410
+012F8FCC8DF7E7DFF8F645B17D4163 = 04NOVJ4DUVJTVU7M8MONQGB3
+E5E8DFDA8C77C4C6B7E33C2C0554D527 = SNKDVMKCEV2CDDV37GM0AL6L47
+1BDEDB6C83E1A16FF0875DC2F0589AE256 = 3FFDMR43S6GMVS47BN1F0M4QS9B0
+4DB75763B47D5A7798B205B2068211A3ED76 = 9MRLEOTKFLD7F65I0MP0D0GHKFMN6
+C61B81728AF286B8C08E1D5F9D5E7F3B45A66A = OODO2SKAUA3BHG4E3LFPQNJV7D2QCQ2
+76 = e6
+C448 = oh40
+136BE7 = 2dlu7
+ECBB4762 = titkeo2
+285F293C1D = 51fiif0t
+321116672E49 = 688hcppe91
+1977B005E921FB = 35rr01f947t1
+866FE57A3087E5C6 = gpnuauhggvis6
+A17D17A9716D5201D1 = k5uhfabhdl903k1
+5FF5EF1C1DB8C7A774BA = bvquu70tn33qet5q
+D12E27DC86FA2068BBFA68 = q4n2fn46v8g6hevqd0
+3EC183253D9CA01223B677D8 = 7r0o699tjig148tmevc0
+D9A73EBED6FBF892F964BB63FB = r6jjtfmmvfs95ub4ndhvb
+2B8C89CF6DCF55348FC6B896A85F = 5e68jjrdptaj93u6n2bagn3
+090B66DC1603DAE7E8FD7B6858C9AB = 145mdn0m0fdefq7tfdk5hidb
+3C41CA450D0220B8FB43790400E1FE1A = 7h0skh8d08gbhuq3f4201ofu32
+AB620C5A3CD50BB6D925C2F76164E58AB5 = ldh0omhsqk5rdm95obrm2p75haq1
+21326E68E0F16FF0C4E37D80AE0793A2EF38 = 44p6sq70u5nv1h73fm0as1sjkbnj8
+CC26249463F7982E976B8ADC222D2B482D8447 = pgj29533uuc2t5rbhbe24b9b90mo8h3
+24 = 44
+5756 = axbo
+70E3A9 = e3ht9
+B6CAED6C = pv5etvo
+575BB0ABDD = axdviayx
+268C118D9056 = 4t6i33cga6
+7E93BDFD26A32A = ft9vv@96mcno
+628870A36F9725C1 = ca47i8vfjwjwi
+25D2B24727F39D1AE7 = 4q9b4hs7yeehns3
+F8649534FF9AA6366B45 = @ij9ad7@kak3ctt5
+021E0D10B1FF28FB8D5552 = o8fot45h@wmfq3anaz
+4A905FF39F6A468D51F3FD19 = 9a85@ww@d938tmfk@mci
+984C67F254C2E15649C7021A2F = ki66fwjmrbgncje7o8dzf
+6CBFEC0B1C79A29353B5DC13337D = dj@yrzrwf6h96mxnvg9k6@i
+BD439C0873FBE2FF8A18769930AC6D = qnisrz3k@fhf@zgretckib3d
+BDF516625AA873239E7B61F69D030DF7 = qqthcrjtnisj77kvc7v9tordy7
+043125E93E6AAAADD63477950E24D3CEE3 = ogrjbt9ydanavnhmeyagw96ksvhi
+D742E420DEB730A3BB3B6476F0FE9E7A675B = txie886ypwra7esvchvfi@myf9knb
+3500D8F4ABA7B2CE7E2745AB6DF9615BE8CA55 = 6modhx5bmyscw@h78pnpvybibfmcmni
+=== UnitTest<encoding>: END =====
+
+=== UnitTest<json>: BEGIN ===
+{
+   "abs": 1.3000,
+   "cond_true": 
+   {
+      "cond_true_nested": [1, 2, "eee"],
+      "qwe": "nested",
+      "yue": 3.10
+   },
+   "empty": {},
+   "fix": {"H": 0, "R": 2},
+   "cond_true": 1234
+}
+[
+   {"name": "jake", "age": 12},
+   {"name": "mary", "age": 7},
+   1,
+   false,
+   "haha",
+   "@"
+]
+Json Size: 506 = 506
+{
+   "Key:Complex": "complex\" key",
+   "name": "this is name",
+   "sex": "a female",
+   "empty": "",
+   "alive": true,
+   "age": 20,
+   "char": "C",
+   "phone": {"number": 5235251, "ext": 432},
+   "weight": "123.50kg",
+   "state": 
+   {
+      "paid": false,
+      "lastshow": "2007/03/02"
+   },
+   "children": 
+   [
+      {"name": "jake", "age": 12},
+      {"name": "mary", "age": 7},
+      1,
+      false,
+      "haha",
+      "@"
+   ],
+   "numbers": 
+   [
+      1,
+      2,
+      "hello",
+      {"c": 1.2000},
+      [3, "c", false],
+      <7/InArray>,
+      4.50
+   ],
+   "other": [{"f0": 0}, {"f1": 1}],
+   "std": "std::string",
+   "bin": <21/1234567890ABCDEFGHIJK>,
+   "raw": null,
+   "empty": []
+}
+complex\" key
+this is name
+1234567890ABCDEFGHIJK
+
+5235251
+hello
+1.2000
+false
+c
+InArray
+4.50
+Key:Complex [string] = complex\" key
+name [string] = this is name
+sex [string] = a female
+empty [null] = 
+alive [bool] = true
+age [number] = 20
+char [string] = C
+phone [object] = {
+"number":5235251,
+"ext":432
+}
+weight [string] = 123.50kg
+state [object] = {
+"paid":false,
+"lastshow":"2007/03/02"
+}
+children [array] = [{
+"name":"jake",
+"age":12
+},{
+"name":"mary",
+"age":7
+},1,false,"haha","@"]
+numbers [array] = [1,2,"hello",{
+"c":1.2000
+},[3,"c",false],<7/InArray>,4.50]
+other [array] = [{
+"f0":0
+},{
+"f1":1
+}]
+std [string] = std::string
+bin [binary] = 1234567890ABCDEFGHIJK
+raw [null] = null
+empty [array] = []
+jake
+mary
+
+
+
+
+2
+3
+4
+a: 5
+b: [2,3,4]
+c: 8.9
+d: Yes
+Escaped String: \x00\t\\ABC\'\"123
+Unescaped Matches: 1
+{
+"num":100
+,
+"arr":[0,1,"12"],
+"str":"string"
+,
+"bin":<7/ABCDEFG>
+}
+A Json: false{
+"var":1.3000
+}
+A Json:  13{
+"var":1.3000
+} EOF
+=== UnitTest<json>: END =====
+
+=== UnitTest<express_tk>: BEGIN ===
+-9.8
+-9.8
+=== UnitTest<express_tk>: END =====
+
+=== UnitTest<xml>: BEGIN ===
+abcd & fff-<- ! ??
+<?xml version="1.0" encoding="utf-8" ?>
+<root name="testing" height="12.50">
+    <item key="no">/*Some Inner Text*/</item>
+    <item key="&lt;yes&gt;" height="12" />
+    <item key="no">Another Node</item>
+</root>
+EnterXPath: /*Some Inner Text*/
+key = no
+mixed inner text: /*Some Inner Text*/ Another Node
+<root> [ name="testing" height="12.50" ]
+  <item> [ key="no" ]
+  <item> [ key="&lt;yes&gt;" height="12" ]
+  <item> [ key="no" ]
+=== UnitTest<xml>: END =====
+
+=== UnitTest<file>: BEGIN ===
+
+test_(1).txt
+test_(2).txt
+test_(3).txt
+test_(4).txt
+test_(5).txt
+test_(6).txt
+test_(7).txt
+test_(8).txt
+test_(9).txt
+File Content: Testing String wrote to file !!
+File Remove: 1
+File Remove: 0
+=== UnitTest<file>: END =====
+
+=== UnitTest<precompiler>: BEGIN ===
+
+Precompiled:
+val is 1
+val is 1 for sure
+
+
+Precompiled:
+val is 2
+
+
+Precompiled:
+val is 3
+
+
+Precompiled:
+val > 3
+
+
+Precompiled:
+
+1>2?1:2
+IT = "this is the value of IT"Values;
+MultiLine = Line1 Line2 Line3;
+MultiLine is Line1 Line2 MOOD-PC
+
+ComSpec = cmd.exeC:SomeMissing
+%NotClosed /var/usr/home%%
+MOOD-PC>12?MOOD-PC:12
+Merged = "this is the value of IT" + Values
+TT = 234
+TT exists
+End of File
+
+
+
+Precompiled:
+
+1>2?1:2
+it = "this is the value of it" Values;
+multiLine = Line1 Line2 Line3;
+multiLine is Line1 Line2 MOOD-PC
+
+comSpec = cmd.exe C: SomeMissing
+MOOD-PC>12?MOOD-PC:12
+Merged = "this is the value of it" + Values + HAHA234XIXI2>3?2:3WIWI
+tt = 234
+tt exists
+it is defined
+tt is fit
+it is correct
+(tx.Contract<<16 |  tx.Op)
+End of File
+
+
+=== UnitTest<precompiler>: END =====
+
+=== UnitTest<vm>: BEGIN ===
+1G VM: 1
+100M File Mapping: 1
+Write Head
+Write Tail
+=== UnitTest<vm>: END =====
+
+=== UnitTest<timedate>: BEGIN ===
+1980/03/02 12:21:33.321
+1980/03/02 12:21:33.000
+1980/03/02 12:21:00.000
+1970/01/01 12:21:33.321
+1970/01/01 12:21:33.000
+1980/03/02 00:00:00.000
+1970/01/01 12:21:00.000
+1970/01/01 12:21:00.000
+Day: 0 == 0
+Day: 2 == 2
+Timelapse is between [50, 400]: 1
+2001/04/03 13:45:03.000
+2011/07/13 00:00:00.000
+FromInternetTimeFormat: 1994/11/15 12:45:26.000
+ToInternetTimeFormat: Tue, 15 Nov 1994 12:45:26 GMT
+LastMonth: 2011/12/01
+Date32 diff 1: 0,0
+Date32 diff 1: 1,-1
+Date32 diff 1: 2,-2
+Waiting for 2 seconds ...
+os::TickCount in sec: 2
+=== UnitTest<timedate>: END =====
+
+=== UnitTest<smallmath>: BEGIN ===
+(0.0000,1.0000e+100,100.4000,0.0000)
+(0.00,1.00e+10,100.40)
+STR-EXP: a=(1.2000,3.4000,5.6000)
+(0.1802,0.5105,0.8408)
+(0.1802,0.5105,0.8408) dot (-6.5000,-4.3000,2.1000) = -1.60052
+(104.8081,139.8605,-48.4528)
+(-55.9528,-84.4471,112.8340)
+(2.5703,-86.7188,-83.7800)
+(104.8081,-55.9528,2.5703)
+(139.8605,-84.4471,-86.7188)
+(-48.4528,112.8340,-83.7800)
+(0.9571,0.2889,-0.0207)
+(0.1501,-0.5559,-0.8176)
+(-0.2477,0.7795,-0.5754)
+scale = (181.3653,151.6362,120.6062)
+=== UnitTest<smallmath>: END =====
+
+=== UnitTest<filelist>: BEGIN ===
+/entrypoint.cpp
+/experiments.cpp
+/test_api.cpp
+/test_botan.cpp
+/test_ext.cpp
+/test_http.cpp
+/test_ipp.cpp
+/test_library.cpp
+/test_mkl.cpp
+/test_perf.cpp
+
+Process Listed 1
+=== UnitTest<filelist>: END =====
+
+=== UnitTest<multithread>: BEGIN ===
+ATOM Result: 456789
+CriticalSection Result: 456789
+Event Set: 0
+Event Set: 1
+Thread Run: 1
+Event Timeout: 2000
+Event Set
+Thread Waited: 2000, 1
+Thread Ended
+=== UnitTest<multithread>: END =====
+
+=== UnitTest<inet_encoding>: BEGIN ===
+MQ== = MQ==
+Full Data: 1
+1 = 1
+MTI= = MTI=
+Full Data: 1
+12 = 12
+MTIz = MTIz
+Full Data: 1
+123 = 123
+MTIzNA== = MTIzNA==
+Full Data: 1
+1234 = 1234
+MTIzNDU= = MTIzNDU=
+Full Data: 1
+12345 = 12345
+Full Data: 0
+12345
+MTIzNDU2
+=== UnitTest<inet_encoding>: END =====
+
+=== UnitTest<sysinfo>: BEGIN ===
+=== UnitTest<sysinfo>: END =====
+
+=== UnitTest<binary_search>: BEGIN ===
+{1451,19964,30528,32473,50203,52016,54492,57664,58510,63718}
+1451 is at 0/0
+1461 is at 1/10
+1450 is at 0/10
+32473 is at 3/3
+32474 is at 4/10
+63718 is at 9/9
+63719 is at 10/10
+=== UnitTest<binary_search>: END =====
+
+=== UnitTest<botan_cipher>: BEGIN ===
+PlainText: 1234567890ABCDEF
+Encrypted: 28F0BA6609AFE8C04ABD1A32BB071274
+Decrypted: 1234567890ABCDEF
+PlainText: 1234567890ABCDEFfedcba0987654321
+Encrypted: F0E61C603FE645B13759D0964C3C4D8671FB8616AAB8F859587826B5924DBD07
+Decrypted: 1234567890ABCDEFfedcba0987654321
+Encrypted Unchained:
+    D14A48202BE61B909692353D24801E26
+    D14A48202BE61B909692353D24801E26
+    D14A48202BE61B909692353D24801E26
+Encrypted Chained:
+    D14A48202BE61B909692353D24801E26
+    A3C5672648E11E8F1D8EE33F3ABE773C
+    DA79435CA167F68C9FC27CB2470E1E3C
+=== UnitTest<botan_cipher>: END =====
+
+=== UnitTest<botan_hash>: BEGIN ===
+Input: "hello world"
+MD5: 5EB63BBBE01EEED093CB22BB8F5ACDC3
+SHA1: 2AAE6C35C94FCFB415DBE95F408B9CE91EE846ED
+Input: "GameWallpaperHD_2013-04_1366753EF3514652A80ECE50A9585524"
+SHA1: 95E1F33CA86B4815AA8B7FC7E4865F6529233CD1
+SHA1: 95E1F33CA86B4815AA8B7FC7E4865F65 (first 16 bytes)
+=== UnitTest<botan_hash>: END =====
+
+=== UnitTest<sparsehash>: BEGIN ===
+ 1 3 5 7 9
+ 2 4 6 8 10
+=== UnitTest<sparsehash>: END =====
+
+=== UnitTest<async_queue>: BEGIN ===
+Multiple Reader/Writer
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 0
+Pop[0]: 1 VAL=0
+Pop[1]: 1 VAL=1
+Pop[2]: 1 VAL=2
+Pop[3]: 1 VAL=3
+Pop[4]: 0
+WAIT=1
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 1
+Single Reader/Writer
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 1
+Push[5]: 1
+Push[6]: 1
+Push[7]: 0
+Pop[0]: 1 VAL=0
+Pop[1]: 1 VAL=1
+Pop[2]: 1 VAL=2
+Pop[3]: 1 VAL=3
+Pop[4]: 1 VAL=4
+Pop[5]: 1 VAL=5
+Pop[6]: 1 VAL=6
+Pop[7]: 0
+Push[0]: 1
+Push[1]: 1
+Push[2]: 1
+Push[3]: 1
+Push[4]: 1
+Push[5]: 1
+Push[6]: 1
+Push[7]: 1
+DeJitter Reader/Writer
+Jittered: 2,6,13,14,10,18,20,19,9,4,15,16,17,3,1,5,11,7,8,12
+DeJittered: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+DeJittered at Boundary: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+=== UnitTest<async_queue>: END =====
+
+=== UnitTest<async_write>: BEGIN ===
+Size Header: 8
+Header = 12345678DEADBEEF
+Content Match: 1
+Size Header: 3
+Header = EFBBBF
+Content Match: 1
+=== UnitTest<async_write>: END =====
+
