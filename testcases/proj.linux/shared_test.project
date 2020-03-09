@@ -14,10 +14,9 @@
       <File Name="../tests/test_ipp.cpp"/>
       <File Name="../tests/test_library.cpp"/>
       <File Name="../tests/test_perf.cpp"/>
+      <File Name="../tests/test_ext.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="CPCF">
-      <File Name="../../essentials.cpp"/>
-      <File Name="../../essentials.h"/>
       <File Name="../../core/os/high_level.cpp"/>
       <File Name="../../core/os/high_level.h"/>
       <File Name="../../core/os/precompiler.cpp"/>
@@ -40,6 +39,20 @@
       <File Name="../../core/os/file_zip.cpp"/>
       <File Name="../../core/os/file_zip.h"/>
       <File Name="../../core/ext/ipp/ipp_image.cpp"/>
+      <File Name="../../core/os/file_dir.cpp"/>
+      <File Name="../../core/os/file_dir.h"/>
+      <File Name="../../core/os/kernal_encode.cpp"/>
+      <File Name="../../core/os/kernel.cpp"/>
+      <File Name="../../core/os/kernel.h"/>
+      <File Name="../../core/os/kernel_log.cpp"/>
+      <File Name="../../core/os/multi_thread.cpp"/>
+      <File Name="../../core/os/multi_thread.h"/>
+      <File Name="../../core/os/platform.h"/>
+      <File Name="../../core/os/predefines.h"/>
+      <File Name="../../core/inet/inet.cpp"/>
+      <File Name="../../core/inet/inet.h"/>
+      <File Name="../../core/rt/json.cpp"/>
+      <File Name="../../core/rt/json.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Executable">
@@ -74,7 +87,7 @@
       </Compiler>
       <Linker Options="" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="$(IntermediateDirectory)/$(ProjectName)" CommandArguments="/verify" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="." PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="$(IntermediateDirectory)/$(ProjectName)" CommandArguments="/verify-" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="." PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>

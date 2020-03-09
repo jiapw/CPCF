@@ -24,7 +24,6 @@ void TestMain()
 		rt::String fn;
 		os::File::ResolveRelativePath(logfile, fn);
 		_LOGC("Log: "<<fn);
-				
 
 		rt::String dir;
 	/*

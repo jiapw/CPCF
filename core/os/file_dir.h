@@ -249,14 +249,18 @@ class FileWrite
 	rt::BufferEx<char>	_WriteBuf;
 	rt::BufferEx<char>	_WriteBuf_Back;
 	bool				_IsAsyncMode() const { return _WriteBuf_Back.Begin(); }
+	bool				_bWritePending;
 
 #if defined(PLATFORM_WIN)
 	HANDLE				_hFile;
-	bool				_bWritePending;
 	OVERLAPPED			_Overlapped;
-	
 #else
-	File				_file;
+	File				_File;
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+	int 				_EpollListFD;
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+	
+#endif
 #endif
 	bool		_FileWriteBuf();
 	void		_FileWriteSync();

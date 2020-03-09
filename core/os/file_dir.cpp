@@ -38,6 +38,7 @@ struct _stat:public stat{};
 #include <sys/time.h>
 #include <sys/statfs.h>
 #include <sys/mman.h>
+#include <sys/epoll.h>
 #include <fcntl.h>
 #endif
 
@@ -705,23 +706,18 @@ bool os::File::Truncate(SIZE_T len)
 SIZE_T os::File::GetCurrentPosition() const
 { 
 	ASSERT(IsOpen());
-#if defined(PLATFORM_WIN)
-	return _ftelli64(_hFile);
-#else
-	return ftell64(_hFile);
-#endif
+	return rt::_CastToNonconst(this)->Seek(0, Seek_Current);
 }
 
-SIZE_T os::File::Seek(SSIZE_T offset,UINT nFrom)
+SIZE_T os::File::Seek(SSIZE_T offset, UINT nFrom)
 {
 	ASSERT(IsOpen());
 	ASSERT(offset<0x7fffffff);
 #if defined(PLATFORM_WIN)
-	_fseeki64(_hFile, offset, nFrom);
+	return _fseeki64(_hFile, offset, nFrom);
 #else
-	fseek64(_hFile, offset, nFrom);
+	return lseek64(GetFD(), offset, nFrom);
 #endif
-	return ftell(_hFile);
 }
 
 void os::File::SeekToBegin()
@@ -1636,6 +1632,8 @@ os::FileWrite::FileWrite()
 #if defined(PLATFORM_WIN)
 	_hFile = INVALID_HANDLE_VALUE;
 	rt::Zero(_Overlapped);
+#else
+	_EpollListFD = -1;
 #endif
 }
 
@@ -1646,7 +1644,7 @@ ULONGLONG os::FileWrite::GetSize() const
 	::GetFileSizeEx(_hFile, &i);
 	return i.QuadPart;
 #else
-	return _file.GetFileSize();
+	return _File.GetFileSize();
 #endif
 }
 
@@ -1655,7 +1653,7 @@ bool os::FileWrite::IsOpen() const
 #if defined(PLATFORM_WIN)
 	return _hFile != INVALID_HANDLE_VALUE;
 #else
-	return _file.IsOpen();
+	return _File.IsOpen();
 #endif
 }
 
@@ -1705,13 +1703,38 @@ bool os::FileWrite::Open(LPCSTR fn, DWORD flag, UINT header_size)
 		return true;
 	}
 #else
-	if(_file.Open(fn, append?os::File::Normal_Append:os::File::Normal_Write))
+	if(_File.Open(fn, (flag&FW_TRUNCATE)?os::File::Normal_Write:os::File::Normal_Append))
 	{
-		_file.Seek(0, SEEK_END);
+		if(_IsAsyncMode())
+		{
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+			int flags = fcntl(_File.GetFD(), F_GETFL, 0);
+			fcntl(_File.GetFD(), F_SETFL, flags | O_NONBLOCK);
+			_EpollListFD = epoll_create1(0);
+			int e = errno;
+			struct epoll_event ee;
+			ee.events = EPOLLOUT; // Only poll for input events (reading).
+			ee.data.fd = _File.GetFD();
+			if(_EpollListFD>=0 && epoll_ctl(_EpollListFD, EPOLL_CTL_ADD, _File.GetFD(), &ee) == 0)
+				goto OPEN_FAILED;
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+#endif
+		}
+		
+		size_t pos = lseek64(_File.GetFD(), 0, SEEK_END);
+		if(_HeaderSize > pos)
+		{
+			lseek64(_File.GetFD(), 0, SEEK_SET);
+			fallocate64(_File.GetFD(), FALLOC_FL_INSERT_RANGE, 0, _HeaderSize);
+			if(flag&FW_UTF8SIGN)WriteHeader("\xef\xbb\xbf", 3);
+			lseek64(_File.GetFD(), 0, SEEK_END);
+		}
+		
 		return true;
 	}
 #endif
 
+OPEN_FAILED:
 	Close();
 	return false;
 }
@@ -1745,7 +1768,27 @@ bool os::FileWrite::_FileWriteBuf()
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 	ASSERT_STATIC_NOT_IMPLMENTED;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	ASSERT_STATIC_NOT_IMPLMENTED;
+	if(_IsAsyncMode())
+	{
+		_FileWriteSync();
+		ASSERT(_WriteBuf_Back.GetSize() == 0);
+		if(write(_File.GetFD(), _WriteBuf.Begin(), (UINT)_WriteBuf.GetSize()) >= 0)
+		{
+			rt::Swap(_WriteBuf_Back, _WriteBuf);
+			_bWritePending = true;
+			return true;
+		}
+	}
+	else
+	{	
+		ASSERT(!_bWritePending);
+		if(write(_File.GetFD(), _WriteBuf.Begin(), (UINT)_WriteBuf.GetSize()) >= 0)
+		{
+			_WriteBuf.ChangeSize(0);
+			return true;
+		}
+		return false;
+	}
 #endif
 
 	return false;
@@ -1754,26 +1797,27 @@ bool os::FileWrite::_FileWriteBuf()
 void os::FileWrite::_FileWriteSync()
 {
 	ASSERT(IsOpen());
+	if(!_bWritePending)return;
+
 #if defined(PLATFORM_WIN)
-	if(_bWritePending)
-	{
-		VERIFY(WAIT_OBJECT_0 == ::WaitForSingleObject(_Overlapped.hEvent, INFINITE));
-		_bWritePending = false;
-		_WriteBuf_Back.ChangeSize(0);
-		::ResetEvent(_Overlapped.hEvent);
-	}
+	VERIFY(WAIT_OBJECT_0 == ::WaitForSingleObject(_Overlapped.hEvent, INFINITE));
+	_WriteBuf_Back.ChangeSize(0);
+	::ResetEvent(_Overlapped.hEvent);
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 	ASSERT_STATIC_NOT_IMPLMENTED;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	ASSERT_STATIC_NOT_IMPLMENTED;
+	struct epoll_event epoll_event_buf;
+	int ret = epoll_wait(_EpollListFD, &epoll_event_buf, 1, 1000000);
 #endif
+
+	_bWritePending = false;
 }
 
 void os::FileWrite::Close()
 {
 	if(!IsOpen())return;
-
 	Flush();
+
 #if defined(PLATFORM_WIN)
 	if(_hFile != INVALID_HANDLE_VALUE)
 	{	
@@ -1787,7 +1831,8 @@ void os::FileWrite::Close()
 		_Overlapped.hEvent = NULL;
 	}
 #else
-	_file.Close();
+	_File.Close();
+	if(_EpollListFD>=0)close(_EpollListFD);
 #endif
 }
 
@@ -1799,7 +1844,7 @@ bool os::FileWrite::Flush()
 #if defined(PLATFORM_WIN)
 	::FlushFileBuffers(_hFile);
 #else
-	_file.Flush();
+	syncfs(_File.GetFD());
 #endif
 
 	return true;
@@ -1833,10 +1878,25 @@ bool os::FileWrite::WriteHeader(LPCVOID p, UINT size)
 				::SetFilePointerEx(_hFile, zero, NULL, FILE_END);
 	}
 #else
-	_file.Seek(0, rt::_File::Seek_Begin);
-	bool ret = _file.Write(p,  size) == size;
-	_file.Seek(0, rt::_File::Seek_End);
-	return ret;
+	if(_IsAsyncMode())
+	{
+		_FileWriteSync();
+		if(write(_File.GetFD(), p, size) >= 0)
+		{
+			_bWritePending = true;
+			_FileWriteSync();
+			return true;
+		}
+		
+		return false;
+	}
+	else
+	{
+		lseek64(_File.GetFD(), 0, SEEK_SET);
+		bool ret = write(_File.GetFD(), p,  size) == size;
+		lseek64(_File.GetFD(), 0, SEEK_END);
+		return ret;
+	}
 #endif
 }
 

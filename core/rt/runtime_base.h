@@ -564,48 +564,9 @@ FORCEINL void Void(LPVOID obj, SIZE_T size)
 	}
 }
 
-template<typename T_POD>
-struct PodRef
-{	const T_POD* _p;
-	PodRef(){ _p = nullptr; }
-	PodRef(const PodRef& x):_p(x._p){}
-	PodRef(const T_POD* p):_p(p){}
-	PodRef(const T_POD& p):_p(&p){}
-
-	operator const T_POD& () const { return *_p; }
-	operator const T_POD* () const { return _p; }
-
-	const T_POD*	operator = (const T_POD* x){ _p = x; return x; }
-	const T_POD&	operator = (const T_POD& x){ _p = &x; return x; }
-	const PodRef&	operator = (const PodRef& x){ _p = x._p; return x; }
-	bool			operator== (const PodRef& x) const 
-					{	if(_p == x._p)return true; 
-						return _p && _p != (const T_POD*)-1 && x._p && x._p != (const T_POD*)-1 && *_p == *x._p;
-					}
-	bool			operator < (const PodRef& x) const 
-					{	if(_p == x._p || _p == (const T_POD*)-1 || x._p == 0)return false;
-						if(_p == 0 || x._p == (const T_POD*)-1)return true;
-						return *_p < *x._p;
-					}
-	T_POD*			operator ->(){ ASSERT(_p); return _p; }
-	const T_POD*	operator ->() const { ASSERT(_p); return _p; }
-	struct hash_compare
-	{
-		enum // parameters for hash table
-		{	bucket_size = 4,	// 0 < bucket_size
-			min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
-		};
-		size_t operator()(const PodRef& key) const
-		{	return _details::_HashValue(key._p, sizeof(T_POD));
-        }
-		bool operator()(const PodRef& _Keyval1, const PodRef& _Keyval2) const
-		{	return _Keyval1 < _Keyval2;		}
-	};
-};
 
 namespace _details
 {
-
 template<int Size> struct _PodCopy
 {	static FORCEINL void Fill(LPBYTE p, LPCBYTE s)
 	{	*(SIZE_T*)p = *(SIZE_T*)s;
@@ -716,8 +677,47 @@ namespace _details
 		INLFUNC bool operator()(const T& _Keyval1, const T& _Keyval2) const
 		{	return memcmp(&_Keyval1, &_Keyval2, sizeof(T)) < 0;	}
 	};
-}
+} // namespace _details
 
+
+template<typename T_POD>
+struct PodRef
+{	const T_POD* _p;
+	PodRef(){ _p = nullptr; }
+	PodRef(const PodRef& x):_p(x._p){}
+	PodRef(const T_POD* p):_p(p){}
+	PodRef(const T_POD& p):_p(&p){}
+
+	operator const T_POD& () const { return *_p; }
+	operator const T_POD* () const { return _p; }
+
+	const T_POD*	operator = (const T_POD* x){ _p = x; return x; }
+	const T_POD&	operator = (const T_POD& x){ _p = &x; return x; }
+	const PodRef&	operator = (const PodRef& x){ _p = x._p; return x; }
+	bool			operator== (const PodRef& x) const 
+					{	if(_p == x._p)return true; 
+						return _p && _p != (const T_POD*)-1 && x._p && x._p != (const T_POD*)-1 && *_p == *x._p;
+					}
+	bool			operator < (const PodRef& x) const 
+					{	if(_p == x._p || _p == (const T_POD*)-1 || x._p == 0)return false;
+						if(_p == 0 || x._p == (const T_POD*)-1)return true;
+						return *_p < *x._p;
+					}
+	T_POD*			operator ->(){ ASSERT(_p); return _p; }
+	const T_POD*	operator ->() const { ASSERT(_p); return _p; }
+	struct hash_compare
+	{
+		enum // parameters for hash table
+		{	bucket_size = 4,	// 0 < bucket_size
+			min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
+		};
+		size_t operator()(const PodRef& key) const
+		{	return _details::_HashValue(key._p, sizeof(T_POD));
+        }
+		bool operator()(const PodRef& _Keyval1, const PodRef& _Keyval2) const
+		{	return _Keyval1 < _Keyval2;		}
+	};
+};
 
 } // namespace rt
 
