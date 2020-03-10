@@ -145,80 +145,90 @@ struct _ConcurrentQueue;
 			return try_dequeue(t);
 		}
 	};
+	template<bool HasCounter>
+	class _QueueCounter
+	{	protected:
+			INT		_InitReservedSize;
+			INLFUNC bool _PostPop(bool yes){ return yes; }
+			INLFUNC bool _PostPush(bool yes){ return yes; }
+			_QueueCounter(int reserved):_InitReservedSize(reserved){}
+	};	template<>
+		class _QueueCounter<true>
+		{	protected:
+				INT				_InitReservedSize;
+				volatile INT	_Size;
+				INLFUNC bool _PostPop(bool yes){ if(yes)os::AtomicDecrement(&_Size); return yes; }
+				INLFUNC bool _PostPush(bool yes){ if(yes)os::AtomicIncrement(&_Size); return yes; }
+				_QueueCounter(int reserved):_InitReservedSize(reserved){ _Size = 0; }
+			public:
+				INLFUNC INT GetSize() const { return _Size; }
+		};
 } // _details
 
-template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
-// the reserved size in the ctor will be round to multiple of BLOCK_SIZE
-class AsyncDataQueueInfinite
-{
+template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool HAS_GETSIZE = false, bool SINGLE_READER_WRITER = false>
+class AsyncDataQueueInfinite: public _details::_QueueCounter<HAS_GETSIZE>
+{	
 	typedef _details::_ConcurrentQueue<T, BLOCKING, SINGLE_READER_WRITER, BLOCK_SIZE> QueueType;
 protected:
 	QueueType	_Q;
-	INT			_InitReservedSize;
-
 public:
-	AsyncDataQueueInfinite(INT ReservedSize = 32):_Q(_InitReservedSize = ReservedSize){}
+	typedef T TYPE;
+	template<typename T2>
+	using WithType = AsyncDataQueueInfinite<T2, BLOCKING, BLOCK_SIZE, HAS_GETSIZE, SINGLE_READER_WRITER>;
 
-	void Push(const T& t){ VERIFY(_Q.enqueue(t)); }
-	bool Pop(T& t, UINT timeout = 0){ return _Q.Pop(t,timeout); }
-	void Empty(){ _Q.~QueueType(); new (&_Q) QueueType(_InitReservedSize); }
+	AsyncDataQueueInfinite(INT reserve_size = 32):_Q(reserve_size),_details::_QueueCounter<HAS_GETSIZE>(reserve_size){}
+	void	Push(const T& t){ VERIFY((_PostPush(_Q.enqueue(t)))); }
+	bool	Pop(T& t, UINT timeout = 0){ return _PostPop(_Q.Pop(t,timeout)); }
+	void	Empty(){ _Q.~QueueType(); new (&_Q) QueueType(_InitReservedSize); }
 };
 
 template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
 // the reserved size in the ctor will be round to multiple of BLOCK_SIZE
-class AsyncDataQueue: public AsyncDataQueueInfinite<T, BLOCKING, BLOCK_SIZE, SINGLE_READER_WRITER>
+class AsyncDataQueue: public AsyncDataQueueInfinite<T, BLOCKING, BLOCK_SIZE, true, SINGLE_READER_WRITER>
 {
-	typedef AsyncDataQueueInfinite<T, BLOCKING,  BLOCK_SIZE,SINGLE_READER_WRITER> _SC;
-	volatile INT	__Size;
-	INT				__SizeMax;
+	typedef AsyncDataQueueInfinite<T, BLOCKING, BLOCK_SIZE, true, SINGLE_READER_WRITER> _SC;
+	INT	__SizeMax;
 public:
-	AsyncDataQueue(INT MaxSize = 0x7fffffff, INT ReservedSize = 32):_SC(ReservedSize){ __Size = 0; __SizeMax = MaxSize; }
+	typedef T TYPE;
+	template<typename T2>
+	using WithType = AsyncDataQueue<T2, BLOCKING, BLOCK_SIZE, SINGLE_READER_WRITER>;
+
+	AsyncDataQueue(INT max_size = 0x7fffffff, INT reserve_size = 32):_SC(reserve_size){ __SizeMax = max_size; }
 	INLFUNC bool Push(const T& t, bool force_grow = false)
-	{	if(force_grow || __Size<__SizeMax)
-		{	
-			os::AtomicIncrement(&__Size); 
-			VERIFY(_SC::_Q.enqueue(t));
+	{	if(force_grow || _SC::GetSize()<__SizeMax)
+		{	_SC::Push(t);
 			return true; 
 		}
 		else return false;
 	}
-	INLFUNC bool Pop(T& t, UINT timeout = 0)
-	{	if(_SC::_Q.Pop(t,timeout))
-		{	os::AtomicDecrement(&__Size);
-			return true;
-		}
-		else return false;
-	}
-	INLFUNC INT GetSize() const { return __Size; }
 };
 
-template<template<typename T, bool BLOCKING, UINT BLOCK_SIZE, bool SINGLE_READER_WRITER> class T_QUEUE, typename T, UINT JITTER_BUFSIZE_MAX = 1024U, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
+template<class T_QUEUE, UINT JITTER_BUFSIZE_MAX = 1024U>
 class DeJitteredQueue // only for single reader
 {
+	static_assert((JITTER_BUFSIZE_MAX >= 4) && !(JITTER_BUFSIZE_MAX & (JITTER_BUFSIZE_MAX - 1)), "JITTER_BUFSIZE_MAX must be a power of 2 (and at least 4)");
+	typedef typename T_QUEUE::TYPE	TYPE;
 protected:
 	static const UINT SEQ_RANGESIZE			= 0x80000000U;
 	static const UINT SEQ_BITMASK			= SEQ_RANGESIZE - 1U;
 	static const UINT FLAG_NOTNULL			= 0x80000000U;
-
-	static_assert((JITTER_BUFSIZE_MAX >= 4) && !(JITTER_BUFSIZE_MAX & (JITTER_BUFSIZE_MAX - 1)), "JITTER_BUFSIZE_MAX must be a power of 2 (and at least 4)");
 	
 	struct SeqT
-	{	UINT	SeqFlag; // [Seq:31b][Null:1b]
-		T		Obj;
+	{	UINT		SeqFlag; // [Seq:31b][Null:1b]
+		TYPE		Obj;
 		SeqT(){ SeqFlag = 0; }
-		SeqT(UINT seqflag, const T& obj):Obj(obj){ SeqFlag = seqflag; ASSERT(IsNotNull()); }
-		UINT	Seq() const { return SeqFlag&SEQ_BITMASK; }
-		bool	IsNotNull() const { return SeqFlag&FLAG_NOTNULL; }
+		SeqT(UINT seqflag, const TYPE& obj):Obj(obj){ SeqFlag = seqflag; ASSERT(IsNotNull()); }
+		UINT		Seq() const { return SeqFlag&SEQ_BITMASK; }
+		bool		IsNotNull() const { return SeqFlag&FLAG_NOTNULL; }
 	};
 
-	T_QUEUE<SeqT, BLOCKING, BLOCK_SIZE, SINGLE_READER_WRITER>	_Queue;
+	typename T_QUEUE::template WithType<SeqT>	_Queue;
 	// writer state
 	volatile UINT		_NextSeq;
 	// reader state (single thread)
 	UINT				_LastReadSeq;
 	rt::BufferEx<SeqT>	_JitterBuf;
 	UINT				_JitterBufBaseSeq;
-
 	static UINT			_SeqMinus(UINT large, UINT small)
 						{	ASSERT(large<SEQ_RANGESIZE && small<SEQ_RANGESIZE);
 							if(large >= small){ return large-small; }
@@ -227,13 +237,12 @@ protected:
 						}		}
 	static UINT			_SeqInc(UINT s){ return (s+1)&SEQ_BITMASK; }
 	UINT				_WriterNextSeqFlag(){ return FLAG_NOTNULL|os::AtomicIncrement((volatile int*)&_NextSeq); }
-
 public:
 	DeJitteredQueue(){ _NextSeq = -1; _LastReadSeq = -1; _JitterBufBaseSeq = 0; }
 	template<typename ...ARGS>
-	auto Push(const T& t, ARGS... args){ return _Queue.Push(SeqT(_WriterNextSeqFlag(),t), args...); }
+	auto Push(const TYPE& t, ARGS... args){ return _Queue.Push(SeqT(_WriterNextSeqFlag(),t), args...); }
 	template<typename ...ARGS>
-	bool Pop(T* t, ARGS... args)
+	bool Pop(TYPE* t, ARGS... args)
 	{
 		UINT expected_seq = _SeqInc(_LastReadSeq);
 		if(_JitterBuf.GetSize())
@@ -249,7 +258,6 @@ public:
 				{	_JitterBuf.erase(0, idx+1);
 					_JitterBufBaseSeq = (idx + 1 + _JitterBufBaseSeq)&SEQ_BITMASK;
 				}
-
 				return true;
 			}
 		}
@@ -281,7 +289,6 @@ public:
 			}
 			_JitterBuf[idx] = pop;
 		}
-
 		return false;
 	}
 };

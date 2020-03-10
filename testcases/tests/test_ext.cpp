@@ -165,7 +165,7 @@ void rt::UnitTests::async_queue()
 #endif
 
 	_LOG("DeJitter Reader/Writer");
-	struct DeJitter: public ext::DeJitteredQueue<ext::AsyncDataQueue, UINT, 1024U, false>
+	struct DeJitter: public ext::DeJitteredQueue<ext::AsyncDataQueue<UINT, true>>
 	{
 		UINT seq_base;
 
