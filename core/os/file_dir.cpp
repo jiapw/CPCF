@@ -1731,7 +1731,6 @@ bool os::FileWrite::Open(LPCSTR fn, DWORD flag, UINT header_size)
 	}
 #endif
 
-OPEN_FAILED:
 	Close();
 	return false;
 }
