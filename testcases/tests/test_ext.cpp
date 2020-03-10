@@ -120,7 +120,7 @@ void rt::UnitTests::async_queue()
 
 #if defined(PLATFORM_RELEASE_BUILD)
 	{
-		typedef ext::AsyncDataQueueInfinite<ULONGLONG, 16, true, false> CQ;
+		typedef ext::AsyncDataQueueInfinite<ULONGLONG, true, 16, false> CQ;
 		CQ cq;
 
 		os::HighPerformanceCounter tm;

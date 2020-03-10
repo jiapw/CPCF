@@ -698,8 +698,10 @@ bool os::File::Truncate(SIZE_T len)
 {
 #if defined(PLATFORM_WIN)
 	return _chsize_s(GetFD(), (long)len) == 0;
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+    return ftruncate64(GetFD(), len) == 0;
 #else
-	return ftruncate64(GetFD(), len) == 0;
+	return ftruncate(GetFD(), len) == 0;
 #endif
 }
 
@@ -715,8 +717,10 @@ SIZE_T os::File::Seek(SSIZE_T offset, UINT nFrom)
 	ASSERT(offset<0x7fffffff);
 #if defined(PLATFORM_WIN)
 	return _fseeki64(_hFile, offset, nFrom);
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+    return lseek64(GetFD(), offset, nFrom);
 #else
-	return lseek64(GetFD(), offset, nFrom);
+	return lseek(GetFD(), offset, nFrom);
 #endif
 }
 
@@ -2351,9 +2355,8 @@ void os::FolderChangingMonitor::Destroy()
 	}
 }
 
-#elif defined(PLATFORM_MAC)
-	ASSERT_STATIC_NOT_IMPLMENTED;
-#endif // #if defined(PLATFORM_WIN) ||  defined(PLATFORM_MAC)
+#else
+#endif
 
 
 #if defined(PLATFORM_WIN)

@@ -51,6 +51,7 @@
 		941D3E97213073CD00F97118 /* xml_xhtml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E94213073CD00F97118 /* xml_xhtml.cpp */; };
 		941D3E9A213073E000F97118 /* botan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E98213073E000F97118 /* botan.cpp */; };
 		941D3E9D2130779000F97118 /* exprtk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E9B2130779000F97118 /* exprtk.cpp */; };
+		9429576E241709C500A5A0A3 /* test_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9429576D241709C500A5A0A3 /* test_ext.cpp */; };
 		94A69E9022C0840A00757781 /* test_perf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A69E8F22C0840A00757781 /* test_perf.cpp */; };
 		95C9EC94232A3D5D002A4B91 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC93232A3D5D002A4B91 /* json.cpp */; };
 		95C9EC96232A3D6F002A4B91 /* kernal_encode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC95232A3D6F002A4B91 /* kernal_encode.cpp */; };
@@ -142,6 +143,7 @@
 		941D3E99213073E000F97118 /* botan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = botan.h; path = ../../../core/ext/botan/botan.h; sourceTree = "<group>"; };
 		941D3E9B2130779000F97118 /* exprtk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exprtk.cpp; path = ../../../core/ext/exprtk/exprtk.cpp; sourceTree = "<group>"; };
 		941D3E9C2130779000F97118 /* exprtk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = exprtk.h; path = ../../../core/ext/exprtk/exprtk.h; sourceTree = "<group>"; };
+		9429576D241709C500A5A0A3 /* test_ext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_ext.cpp; path = ../../tests/test_ext.cpp; sourceTree = "<group>"; };
 		94A69E8F22C0840A00757781 /* test_perf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_perf.cpp; path = ../../tests/test_perf.cpp; sourceTree = "<group>"; };
 		95C9EC93232A3D5D002A4B91 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../../../core/rt/json.cpp; sourceTree = "<group>"; };
 		95C9EC95232A3D6F002A4B91 /* kernal_encode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kernal_encode.cpp; path = ../../../core/os/kernal_encode.cpp; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 		93C4A231169FEC7A00D3C820 /* tester */ = {
 			isa = PBXGroup;
 			children = (
+				9429576D241709C500A5A0A3 /* test_ext.cpp */,
 				94A69E8F22C0840A00757781 /* test_perf.cpp */,
 				941D3E3E2130735D00F97118 /* lib_inc.c */,
 				941D3E362130734E00F97118 /* entrypoint.cpp */,
@@ -356,6 +359,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 93C4A223169FEC7A00D3C820;
@@ -389,6 +393,7 @@
 				941D3E382130734F00F97118 /* test_http.cpp in Sources */,
 				941D3E4A2130737100F97118 /* tinyhttpd_fileserv.cpp in Sources */,
 				941D3E622130738800F97118 /* high_level.cpp in Sources */,
+				9429576E241709C500A5A0A3 /* test_ext.cpp in Sources */,
 				941D3E8D213073BD00F97118 /* ipp_core.cpp in Sources */,
 				95C9EC98232A3DB2002A4B91 /* ipp_image.cpp in Sources */,
 				95C9EC94232A3D5D002A4B91 /* json.cpp in Sources */,
