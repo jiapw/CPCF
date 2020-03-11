@@ -40,6 +40,7 @@ struct UnitTests
 	static void sortedpush();
 	static void sparsehash();
 	static void async_queue();
+	static void rocks_db();
 
 	static void httpd();
 

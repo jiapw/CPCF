@@ -87,7 +87,13 @@ class RocksCursor
 	::rocksdb::Iterator* iter;
 	friend class RocksDB;
 
+	RocksCursor();
+	RocksCursor(::rocksdb::Iterator* it){ iter = it; }
+	RocksCursor(const RocksCursor& x) = delete; // RocksCursor can only be constructed by RocksDB
+
 public:
+	RocksCursor(const RocksCursor&& x){ iter = x.iter; }	// move constructor, enable return by RocksDB::First/Last
+
 	template<typename T>
 	INLFUNC const T&			Value() const { return *(T*)iter->value().data(); }
 	template<typename T>
@@ -97,14 +103,12 @@ public:
 	INLFUNC const SliceValue	Value() const { return (const SliceValue&)iter->value(); }
 	INLFUNC SIZE_T				KeyLength() const { return iter->key().size(); }
 	INLFUNC SIZE_T				ValueLength() const { return iter->value().size(); }
-	INLFUNC						RocksCursor(){ iter = nullptr; }
-	INLFUNC						RocksCursor(Iterator* i):iter(i){}
 	INLFUNC						~RocksCursor(){ _SafeDel_Untracked(iter); }
-	INLFUNC Iterator*			operator = (Iterator* it){ _SafeDel_Untracked(iter); return iter = it; }
 	INLFUNC bool				IsValid() const { return iter && iter->Valid(); }
 	INLFUNC void				Next(){ iter->Next(); }
 	INLFUNC void				Prev(){ iter->Prev(); }
-	INLFUNC Iterator*			Detach(){ ::rocksdb::Iterator* ret = iter; iter = nullptr; return ret; }
+	INLFUNC void				Next(UINT co){ while(co--)iter->Next(); }
+	INLFUNC void				Prev(UINT co){ while(co--)iter->Prev(); }
 	INLFUNC bool				IsEmpty() const { return iter == nullptr; }
 };
 
@@ -180,23 +184,23 @@ public:
 		return (_pDB->Get(*opt, k, &temp).ok())?
 				rt::String_Ref(temp.data(), temp.length()):rt::String_Ref();
 	}
-	INLFUNC ::rocksdb::Iterator* Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault)
+	INLFUNC RocksCursor Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault)
 	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
 		ASSERT(it);
 		it->Seek(begin);
-		return it;
+		return RocksCursor(it);
 	}
-	INLFUNC ::rocksdb::Iterator* First(const ReadOptions* opt = ReadOptionsDefault)
+	INLFUNC RocksCursor First(const ReadOptions* opt = ReadOptionsDefault)
 	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
 		ASSERT(it);
 		it->SeekToFirst();
-		return it;
+		return RocksCursor(it);
 	}
-	INLFUNC ::rocksdb::Iterator* Last(const ReadOptions* opt = ReadOptionsDefault)
+	INLFUNC RocksCursor Last(const ReadOptions* opt = ReadOptionsDefault)
 	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
 		ASSERT(it);
 		it->SeekToLast();
-		return it;
+		return RocksCursor(it);
 	}
 	INLFUNC bool Delete(const SliceValue& k, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Delete(*opt, k).ok(); }
 	template<typename func_visit>

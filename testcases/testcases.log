@@ -759,3 +759,8 @@ Header = EFBBBF
 Content Match: 1
 === UnitTest<async_write>: END =====
 
+=== UnitTest<rocks_db>: BEGIN ===
+0
+4
+=== UnitTest<rocks_db>: END =====
+

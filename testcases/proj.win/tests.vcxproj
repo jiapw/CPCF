@@ -36,7 +36,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <UseIntelIPP>false</UseIntelIPP>
   </PropertyGroup>
@@ -52,7 +52,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <UseIntelIPP>false</UseIntelIPP>
   </PropertyGroup>
@@ -175,6 +175,7 @@
     <ClCompile Include="..\..\core\ext\ipp\ipp_core.cpp" />
     <ClCompile Include="..\..\core\ext\ipp\ipp_image.cpp" />
     <ClCompile Include="..\..\core\ext\lib_inc.c" />
+    <ClCompile Include="..\..\core\ext\rocksdb\rocksdb.cpp" />
     <ClCompile Include="..\..\core\inet\http_client.cpp" />
     <ClCompile Include="..\..\core\inet\inet.cpp" />
     <ClCompile Include="..\..\core\inet\tinyhttpd.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="..\..\core\ext\mkl\mkl_matrix.h" />
     <ClInclude Include="..\..\core\ext\mkl\mkl_rng.h" />
     <ClInclude Include="..\..\core\ext\mkl\mkl_vector.h" />
+    <ClInclude Include="..\..\core\ext\rocksdb\rocksdb.h" />
     <ClInclude Include="..\..\core\inet\http_client.h" />
     <ClInclude Include="..\..\core\inet\inet.h" />
     <ClInclude Include="..\..\core\inet\kvstore.h" />

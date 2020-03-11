@@ -1,4 +1,5 @@
 #include "../../core/ext/sparsehash/sparsehash.h"
+#include "../../core/ext/rocksdb/rocksdb.h"
 #include "../../core/ext/concurrentqueue/async_queue.h"
 #include "test.h"
 
@@ -53,6 +54,23 @@ void rt::UnitTests::sparsehash()
 		a.Sort();
 		_LOG(a);
 	}
+}
+
+void rt::UnitTests::rocks_db()
+{
+	ext::RocksDB db;
+	db.Open("test.db");
+
+	for(UINT i=0; i<100; i++)
+		db.Set(i,i);
+
+	auto it = db.First();
+	_LOG(it.Value<int>());
+	it.Next(4);
+	_LOG(it.Value<int>());
+
+	// ext::RocksCursor a;   // not allowed
+	// ext::RocksCursor b = it;  // not allowed
 }
 
 void rt::UnitTests::async_queue()
