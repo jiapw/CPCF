@@ -13,7 +13,7 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of CPF.  nor the names of its
+//     * Neither the name of CPCF.  nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -270,7 +270,6 @@ public:
 
 	FileWrite();
 	~FileWrite(){ Close(); }
-	ULONGLONG	GetSize() const;
 	bool		IsOpen() const;
 	bool		Open(LPCSTR fn, DWORD flag = 0, UINT header_size = 0);
 	void		Close();

@@ -1640,17 +1640,6 @@ os::FileWrite::FileWrite()
 #endif
 }
 
-ULONGLONG os::FileWrite::GetSize() const
-{
-#if defined(PLATFORM_WIN)
-	LARGE_INTEGER	i;
-	::GetFileSizeEx(_hFile, &i);
-	return i.QuadPart;
-#else
-	return _File.GetFileSize();
-#endif
-}
-
 bool os::FileWrite::IsOpen() const
 {
 #if defined(PLATFORM_WIN)

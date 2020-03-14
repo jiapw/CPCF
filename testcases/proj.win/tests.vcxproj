@@ -236,6 +236,7 @@
     <ClInclude Include="..\..\core\os\file_dir.h" />
     <ClInclude Include="..\..\core\os\file_zip.h" />
     <ClInclude Include="..\..\core\os\high_level.h" />
+    <ClInclude Include="..\..\core\os\multi_thread_primitive.h" />
     <ClInclude Include="..\..\core\os\precompiler.h" />
     <ClInclude Include="..\..\core\os\user_inputs.h" />
     <ClInclude Include="..\..\core\os\kernel.h" />

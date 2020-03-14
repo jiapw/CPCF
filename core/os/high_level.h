@@ -13,7 +13,7 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of CPF.  nor the names of its
+//     * Neither the name of CPCF.  nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -75,14 +75,14 @@ protected:
 	void				_HookedOutput(char* p, UINT len);
 
 protected:
-	os::CriticalSection		_CCS;
-	HANDLE					_hProcess;
-	rt::String				_Output;
-	int						_ExitCode;
-	os::Timestamp			_ExecutionTime;		// in msec
-	os::Timestamp			_ExitTime;
-	void					ClearAll();
-	static DWORD			OutputHookThread(LPVOID);
+	os::CriticalSection	_CCS;
+	HANDLE				_hProcess;
+	rt::String			_Output;
+	int					_ExitCode;
+	os::Timestamp		_ExecutionTime;		// in msec
+	os::Timestamp		_ExitTime;
+	void				ClearAll();
+	static DWORD		OutputHookThread(LPVOID);
 
 public:
 	static void _RemoveCarriageReturn(rt::String& output, const rt::String_Ref& add);
