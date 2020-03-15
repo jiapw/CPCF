@@ -13,7 +13,7 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of CPF.  nor the names of its
+//     * Neither the name of CPCF.  nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -441,6 +441,13 @@ public:
 	INLFUNC bool SetSize(SIZE_T co=0) //zero for clear
 	{	if(_SC::SetSize(co)){ _len_reserved=_SC::_len; return true; }
 		else{ _len_reserved=0; return false; }
+	}
+	INLFUNC t_Val* Detach(bool maintain_reserve_size = false)
+	{	if(_SC::_len == 0)return nullptr;
+		auto* p = _SC::Detach();	ASSERT(p);
+		if(maintain_reserve_size){ VERIFY(_SC::_p = _Malloc32AL(t_Val,_len_reserved)); }
+		else _len_reserved = 0;
+		return p;
 	}
 	INLFUNC SIZE_T GetSize() const { return _SC::GetSize(); } // make Visual Studio happy
 	INLFUNC bool Clear(){ return SetSize(0); }

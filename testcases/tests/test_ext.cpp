@@ -1,4 +1,5 @@
 #include "../../core/ext/sparsehash/sparsehash.h"
+#include "../../core/ext/rocksdb/rocksdb.h"
 #include "../../core/ext/concurrentqueue/async_queue.h"
 #include "test.h"
 
@@ -21,11 +22,12 @@ void rt::UnitTests::sparsehash()
 			if((*it & 1) == 0)
 				set.erase(it);
 
-		rt::String out;
+		rt::BufferEx<int>	a;
 		for(auto it: set)
-			out += rt::SS(" ") + it;
+			a.push_back(it);
 
-		_LOG(out);
+		a.Sort();
+		_LOG(a);
 	}
 
 	{
@@ -45,12 +47,30 @@ void rt::UnitTests::sparsehash()
 			if((it->first & 1) == 1)
 				set.erase(it);
 
-		rt::String out;
+		rt::BufferEx<int>	a;
 		for(auto it: set)
-			out += rt::SS(" ") + it.second;
+			a.push_back(it.first);
 
-		_LOG(out);
+		a.Sort();
+		_LOG(a);
 	}
+}
+
+void rt::UnitTests::rocks_db()
+{
+	ext::RocksDB db;
+	db.Open("test.db");
+
+	for(UINT i=0; i<100; i++)
+		db.Set(i,i);
+
+	auto it = db.First();
+	_LOG(it.Value<int>());
+	it.Next(4);
+	_LOG(it.Value<int>());
+
+	// ext::RocksCursor a;   // not allowed
+	// ext::RocksCursor b = it;  // not allowed
 }
 
 void rt::UnitTests::async_queue()
@@ -118,7 +138,7 @@ void rt::UnitTests::async_queue()
 
 #if defined(PLATFORM_RELEASE_BUILD)
 	{
-		typedef ext::AsyncDataQueueInfinite<ULONGLONG, 16, true, false> CQ;
+		typedef ext::AsyncDataQueueInfinite<ULONGLONG, true, 16, false> CQ;
 		CQ cq;
 
 		os::HighPerformanceCounter tm;
@@ -163,7 +183,7 @@ void rt::UnitTests::async_queue()
 #endif
 
 	_LOG("DeJitter Reader/Writer");
-	struct DeJitter: public ext::DeJitteredQueue<ext::AsyncDataQueue, UINT, 1024U, false>
+	struct DeJitter: public ext::DeJitteredQueue<ext::AsyncDataQueue<UINT, true>>
 	{
 		UINT seq_base;
 

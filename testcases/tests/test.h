@@ -32,7 +32,6 @@ struct UnitTests
 	static void filelist();
 	static void smallmath();
 	static void vm();
-	static void pcqueue();
 	static void binary_search();
 	static void plog();
 	static void precompiler();
@@ -40,6 +39,7 @@ struct UnitTests
 	static void sortedpush();
 	static void sparsehash();
 	static void async_queue();
+	static void rocks_db();
 
 	static void httpd();
 

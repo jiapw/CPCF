@@ -13,7 +13,7 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of CPF.  nor the names of its
+//     * Neither the name of CPCF.  nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -57,58 +57,352 @@ public:
 	virtual void OnDaemonControl(DWORD dwControl){};			// dwControl = SERVICE_CONTROL_STOP/SERVICE_CONTROL_SHUTDOWN/ ...
 };
 
-#if defined(PLATFORM_WIN)
 
-class LaunchProcess
+template<typename t_ActualWriter>
+class ParallelWriter
 {
-	HANDLE hChildStdinRd, hChildStdinWrDup, 
-		   hChildStdoutWr,hChildStdoutRdDup;
-
-public:
-	typedef void	(*FUNC_HOOKEDOUTPUT)(char* p, UINT len, LPVOID cookie);
+protected:
+	rt::Buffer<BYTE>	_WritePool;
+	double				_AvgAttenuation;
 
 protected:
-	FUNC_HOOKEDOUTPUT	_Callback;
-	LPVOID				_Callback_Cookie;
-	DWORD				_Flag;
-	os::Thread			_OutputHookThread;
-	void				_HookedOutput(char* p, UINT len);
-
-protected:
-	os::CriticalSection		_CCS;
-	HANDLE					_hProcess;
-	rt::String				_Output;
-	int						_ExitCode;
-	os::Timestamp			_ExecutionTime;		// in msec
-	os::Timestamp			_ExitTime;
-	void					ClearAll();
-	static DWORD			OutputHookThread(LPVOID);
-
-public:
-	static void _RemoveCarriageReturn(rt::String& output, const rt::String_Ref& add);
-	enum
-	{	FLAG_ROUTE_OUTPUT	= 0x1,
-		FLAG_SAVE_OUTPUT	= 0x2,	// retrieve by GetOutput/GetOutputLen
+	struct _Chunk
+	{	UINT	size;		
+		UINT	length;		// INFINITE indicates the chunk is not finalized
+		BYTE	data[1];	// real size set is by SetLogEntrySize
+		_Chunk*	GetNext(){ return (_Chunk*)(data + size); }
 	};
-	LaunchProcess();
-	~LaunchProcess();
-	void	SetOutputCallback(FUNC_HOOKEDOUTPUT func, LPVOID cookie);
-	bool	Launch(LPCSTR cmdline, DWORD flag = FLAG_ROUTE_OUTPUT, DWORD window_show = SW_HIDE, LPCSTR pWorkDirectory = nullptr, LPCSTR pEnvVariableAddon = nullptr);  // pEnvVariableAddon is \0 seperated multiple strings (UTF8), ends with \0\0
-	bool	WaitForEnding(DWORD timeout = INFINITE); // return false when timeout
-	void	Terminate();
-	bool	IsRunning();
-	LPCSTR	GetOutput();
-	UINT	GetOutputLen();
-	void	CopyOutput(rt::String& out);
-	bool	SendInput(const rt::String_Ref& str){ return str.IsEmpty()?true:SendInput(str.Begin(), (UINT)str.GetLength()); }
-	bool	SendInput(LPCSTR p, UINT len);
-	const os::Timestamp&	GetExecutionTime() const { return _ExecutionTime; }		// available after IsRunning() returns false!	
-	const os::Timestamp&	GetExitTime() const { return _ExitTime; }		// available after IsRunning() returns false!	
-	int		GetExitCode() const { return _ExitCode; }					// available after IsRunning() returns false!
-	bool	SendToStdin(LPCVOID str, UINT len);
+	static const SIZE_T _ChunkHeaderSize = sizeof(UINT)*2;
+	struct _WriteBuf
+	{	LPBYTE			pBuf;
+		volatile int	Used;
+	};
+	_WriteBuf			_WriteBuffers[2];
+
+protected:
+	_WriteBuf*			_FrontBuf;
+	_WriteBuf*			_BackBuf;
+	UINT				_WriteDownInterval;
+	UINT				_WriteBufferSize;
+	os::Thread			_WriteThread;
+
+	void _WriteDownBackBuffer()
+	{	_Chunk* p = (_Chunk*)_BackBuf->pBuf;
+		int used = _BackBuf->Used;
+		_Chunk* pend = (_Chunk*)(_BackBuf->pBuf + rt::min<int>(used,(int)(_WriteBufferSize - _ChunkHeaderSize)));
+	
+		for(;p<pend;p = p->GetNext())
+		{	
+			if(p->size)
+			{	if(p->length==INFINITE){ stat_UnfinalizedChunk++; continue; }
+				if(p->length>0)
+					if(!((t_ActualWriter*)this)->Write(p->data,p->length))
+						stat_FileError++;
+			}
+			else break;
+		}
+		((t_ActualWriter*)this)->Flush();
+
+		// Use Rate
+		{	int fr;
+			if(_BackBuf->Used >= (int)_WriteBufferSize)
+			{	fr = 100;	}
+			else
+			{	fr = 100*(_BackBuf->Used/1024)/(_WriteBufferSize/1024);	}
+
+			if(stat_BufferUsagePeek)
+			{
+				if(fr > stat_BufferUsagePeek)stat_BufferUsagePeek = fr;
+				stat_BufferUsageAvg = (int)(fr + _AvgAttenuation*(stat_BufferUsageAvg - fr) + 0.5);
+			}
+			else
+			{	stat_BufferUsagePeek = fr;
+				stat_BufferUsageAvg = fr;
+			}
+		}
+
+		_BackBuf->Used = 0;
+		rt::Zero(_BackBuf->pBuf,_WriteBufferSize);
+	}
+
+	void _WriteRoute()
+	{	int time_to_sleep = _WriteDownInterval;
+		os::Timestamp tm;
+        rt::String fn;
+
+		int _last_claim = 0;
+		os::Timestamp _last_cps;
+		_last_cps.LoadCurrentTime();
+
+		for(;;)
+		{
+			while(time_to_sleep > 300)
+			{	os::Sleep(300);
+				time_to_sleep -= 300;
+				if(_WriteThread.WantExit())
+					goto CLOSING_FILE;
+			}
+
+			ASSERT(time_to_sleep > 0);
+			os::Sleep(time_to_sleep);
+
+			tm.LoadCurrentTime();
+
+			_WriteDownBackBuffer();
+			rt::Swap(_BackBuf,_FrontBuf);
+
+			{	float cps = (stat_TotalClaimed - _last_claim)*1000/(float)(_last_cps.TimeLapse(tm));
+				if(stat_ClaimPerSecond<0)
+					stat_ClaimPerSecond = cps;
+				else stat_ClaimPerSecond = (stat_ClaimPerSecond*9 + cps)/10;
+
+				_last_claim = stat_TotalClaimed;
+				_last_cps = tm;
+			}
+
+			if(stat_ClaimFailure || stat_FinalizeFailure || stat_FileError || stat_UnfinalizedChunk)
+				LogAlert();
+
+			int time_used = (int)tm.TimeLapse();
+
+			{	int IOUage;
+				if(	time_used < (int)_WriteDownInterval )
+					IOUage = 100*time_used/_WriteDownInterval;
+				else
+					IOUage = 100;
+
+				if( stat_FileIOUsagePeek )
+				{
+					if(IOUage>stat_FileIOUsagePeek)stat_FileIOUsagePeek = IOUage;
+					stat_FileIOUsageAvg = (int)(IOUage + _AvgAttenuation*(stat_FileIOUsageAvg - IOUage) + 0.5);
+				}
+				else
+				{
+					stat_FileIOUsagePeek = IOUage;
+					stat_FileIOUsageAvg = IOUage;
+				}
+			}
+
+			time_to_sleep = rt::min<int>(_WriteDownInterval, rt::max<int>(100, _WriteDownInterval - time_used));
+		}	
+CLOSING_FILE:
+		_WriteDownBackBuffer();
+		rt::Swap(_BackBuf,_FrontBuf);
+		_WriteDownBackBuffer();
+		((t_ActualWriter*)this)->Exit();
+	}
+
+public: // statistic
+	int					stat_FileError;
+	int					stat_UnfinalizedChunk;
+	float				stat_ClaimPerSecond;
+	int					stat_BufferUsageAvg;			// percentage
+	int					stat_BufferUsagePeek;			// percentage
+	int					stat_FileIOUsageAvg;			// percentage
+	int					stat_FileIOUsagePeek;			// percentage
+	volatile int		stat_TotalClaimed;
+	volatile int		stat_ClaimFailure;
+	volatile int		stat_FinalizeFailure;
+
+public:
+	ParallelWriter()
+	{	_WriteDownInterval = 0;
+
+		rt::Zero(_WriteBuffers,sizeof(_WriteBuffers));
+		_FrontBuf = _WriteBuffers;
+		_BackBuf = _FrontBuf + 1;
+
+		stat_BufferUsagePeek = 0;
+		stat_BufferUsageAvg = 0;
+		stat_FileIOUsageAvg = 0;
+		stat_FileIOUsagePeek = 0;
+
+		SetWriteDownInterval(1000);
+	}
+	~ParallelWriter(){ Close(); }
+	bool	Open(UINT buffer_size = 1024*1024)
+	{	ASSERT(!_WriteThread.IsRunning());
+		stat_ClaimPerSecond = -1;
+		stat_BufferUsagePeek = 0;
+		stat_BufferUsageAvg = 0;
+		stat_FileError = 0;
+		stat_UnfinalizedChunk = 0;
+		stat_ClaimFailure = 0;
+		stat_FinalizeFailure = 0;
+		stat_FileIOUsageAvg = 0;			// percentage
+		stat_FileIOUsagePeek = 0;			// percentage
+		stat_TotalClaimed = 0;
+
+		_WriteBufferSize = (buffer_size + 3) & 0xffffffffc;
+		if(_WritePool.SetSize(2*_WriteBufferSize))
+		{
+			_FrontBuf->pBuf = _WritePool;
+			_FrontBuf->Used = 0;
+			_BackBuf->pBuf = &_WritePool[_WriteBufferSize];
+			_BackBuf->Used = 0;
+
+			struct _call
+			{	static DWORD _func(LPVOID pThis)
+				{	((ParallelWriter*)pThis)->_WriteRoute();
+					return 0;
+				}
+			};
+			return _WriteThread.Create(_call::_func,this);
+		}
+		_WritePool.SetSize(0);
+		return false;
+	}
+	void	Close()
+	{	stat_ClaimPerSecond = -1;
+		if(_WriteThread.IsRunning())
+		{	_WriteThread.WantExit() = true;
+			_WriteThread.WaitForEnding(1000, true);
+		}
+	}
+	void	LogAlert()
+	{	static const rt::SS precentage("% / ");
+		_LOG_WARNING("ParallelFileWriter Alert"<<
+						"\n - Total Claim      : "<<stat_TotalClaimed<<
+						"\n - Claim Failure    : "<<stat_ClaimFailure<<
+						"\n - Finalize Failure : "<<stat_FinalizeFailure<<
+						"\n - Unfinalized      : "<<stat_UnfinalizedChunk<<
+						"\n - File I/O Failure : "<<stat_FileError<<
+						"\n - Buffer Load      : "<<stat_BufferUsageAvg<<precentage<<stat_BufferUsagePeek<<
+						"%\n - File I/O Load    : "<<stat_FileIOUsageAvg<<precentage<<stat_FileIOUsagePeek<<'%'
+		);
+	}
+	bool	IsOpen() const { return _WriteThread.IsRunning(); }
+	UINT	GetWriteDownInterval() const { return _WriteDownInterval; }
+	void	SetWriteDownInterval(UINT write_interval_msec)
+	{	_WriteDownInterval = rt::max<UINT>(100,write_interval_msec);
+		_AvgAttenuation = pow(0.64, write_interval_msec/1000.0);		// Attenuate to 0.01 after 10 sec
+		ASSERT_FLOAT(_AvgAttenuation);
+	}
+	UINT	GetBufferSize() const { return _WriteBufferSize; }
+
+	INLFUNC LPSTR ClaimWriting(UINT size)
+	{	ASSERT(size);
+		_WriteBuf* buf = _FrontBuf;
+        int chunk = os::AtomicAdd(size + _ChunkHeaderSize, &buf->Used) - (size + _ChunkHeaderSize);
+		os::AtomicIncrement(&stat_TotalClaimed);
+		if(chunk + (int)size + (int)_ChunkHeaderSize <= (int)_WriteBufferSize)
+		{
+			_Chunk* p = (_Chunk*)&buf->pBuf[chunk];
+			p->size = size;
+			p->length = INFINITE;
+			return (LPSTR)p->data;
+		}
+		else
+		{	// this may happen when the writer is much faster then the sync thread
+			os::AtomicIncrement(&stat_ClaimFailure);
+			return nullptr;
+		}
+	}
+
+	INLFUNC void FinalizeWritten(LPSTR pBuf, UINT len)
+	{	_Chunk* p = (_Chunk*)&pBuf[-((int)_ChunkHeaderSize)];
+
+		if(	len <= p->size &&
+			p->length == INFINITE && p->size < _WriteBufferSize)
+		{	p->length = len;	}
+		else 
+			os::AtomicIncrement(&stat_FinalizeFailure);
+			// This may happen when it takes too long time between a paired 
+			// ClaimWriting/FinalizeWritten calling. e.g. longer than m_WriteDownInterval
+			// other possiblity is the caller ruined the buffer (run down)  
+	}
+
+	template<class T>
+	INLFUNC bool WriteString(const T& x)	// string expression or json definition
+	{	
+		UINT len = (UINT)x.GetLength();
+		LPSTR p = ClaimWriting(len);
+		if(p)
+		{	VERIFY(len == x.CopyTo((char*)p));
+			FinalizeWritten(p,len);
+			return true;
+		}else return false;
+	}
+
+	template<class T>
+	INLFUNC bool WriteLine(const T& x)	// string expression or json definition
+	{
+		UINT len = (UINT)x.GetLength();
+		LPSTR p = ClaimWriting(len + 2);
+		if(p)
+		{	VERIFY(len == x.CopyTo((char*)p));
+			*((WORD*)(p + len)) = 0x0a0d;	// "\r\n"
+			FinalizeWritten(p,len+2);
+			return true;
+		}else return false;
+	}
+	INLFUNC bool WriteString(const rt::String_Ref& str){ ASSERT(str.GetLength()<INT_MAX); return Write(str.Begin(),(UINT)str.GetLength()); }
+	INLFUNC bool Write(LPCVOID str, UINT len)
+	{	
+		LPSTR p = ClaimWriting(len);
+		if(p)
+		{	memcpy(p,str,len);
+			FinalizeWritten(p,len);
+			return true;
+		}else return false;
+	}
 };
 
-#endif
+class ParallelLog
+{
+protected:
+	struct LogE
+	{	int  type;
+		int  line;
+		int  log_len;  // include terminate-zero
+		int  filename_len;
+		int  funcname_len;
+		char text[1];
+	};
+	struct LogWriter
+	{	void Flush(){};
+		void Exit(){};
+		bool Write(LPCVOID p, UINT size)
+		{	const LogE& e = *((LogE*)p);
+			os::_details::LogWriteDefault(e.text, &e.text[e.log_len], e.line, &e.text[e.log_len + e.filename_len], e.type, nullptr);
+			return true;
+		}
+	};
+
+	ParallelWriter<LogWriter>	_PW;
+
+public:
+	ParallelLog(UINT writedown_interval = 500, UINT buffer_size = 1024*1024)
+	{	VERIFY(_PW.Open(buffer_size)); _PW.SetWriteDownInterval(writedown_interval);
+		struct _call
+		{	static void _log(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type, LPVOID cookie)
+			{	((ParallelLog*)cookie)->Write(log, file, line_num, func, type);
+			}
+		};
+		os::_details::SetLogWriteFunction(_call::_log, this);
+	}
+	~ParallelLog(){ _PW.Close(); os::_details::SetLogWriteFunction(); }
+	INLFUNC void Write(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type)
+	{	ASSERT(log && file && func);
+		int log_len = (int)strlen(log)+1;
+		int filename_len = (int)strlen(file)+1;
+		int funcname_len = (int)strlen(func)+1;
+		int tot_len = 5*sizeof(int) + log_len + filename_len + funcname_len;
+		LogE* e = (LogE*)_PW.ClaimWriting(tot_len);
+		if(e)
+		{	e->filename_len = filename_len;
+			e->funcname_len = funcname_len;
+			e->line = line_num;
+			e->log_len = log_len;
+			e->type = type;
+			memcpy(e->text, log, log_len);
+			memcpy(e->text + log_len, file, filename_len);
+			memcpy(e->text + log_len + filename_len, func, funcname_len);
+		}
+		_PW.FinalizeWritten((LPSTR)e, tot_len);
+	}
+};
+
 
 class ParallelFileWriter
 {

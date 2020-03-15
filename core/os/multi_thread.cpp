@@ -5,14 +5,14 @@
 /////////////////////////////////////////////////////////////////
 // Platform independent implementations
 //////////////////////////////////////////////////
-// GarbageCollection
+// DelayedGarbageCollection
 namespace os
 {
 namespace _details
 {
 	struct _GarbagItem
 	{	LPVOID			pObj;
-		os::GarbageCollection::LPFUNC_DELETION	pDeletionFunction;
+		os::DelayedGarbageCollection::LPFUNC_DELETION	pDeletionFunction;
 		int				TTL;
 		void			Delete(){ pDeletionFunction(pObj); }
 		bool			Tick() // return true when the item should be NOT deleted
@@ -40,12 +40,12 @@ namespace _details
 }
 } // namespace os
 
-void os::GarbageCollection::Exit()
+void os::DelayedGarbageCollection::Exit()
 {
 	_details::g_GCB.Exit();
 }
 
-DWORD os::GarbageCollection::_DeletionThread(LPVOID)
+DWORD os::DelayedGarbageCollection::_DeletionThread(LPVOID)
 {
 	for(;;)
 	{
@@ -85,7 +85,7 @@ DELETION_EXITING:
 	return 0;
 }
 
-void os::GarbageCollection::DeleteObject(LPVOID x, DWORD TTL_msec, os::GarbageCollection::LPFUNC_DELETION delete_func)
+void os::DelayedGarbageCollection::DeleteObject(LPVOID x, DWORD TTL_msec, os::DelayedGarbageCollection::LPFUNC_DELETION delete_func)
 {
 	ASSERT(delete_func);
 
@@ -547,11 +547,6 @@ UINT os::Thread::GetId()
 	return _ThreadId;
 }
 
-UINT os::Thread::GetCurrentId()
-{
-	return (SIZE_T)::GetCurrentThreadId();
-}
-
 void os::Thread::SetPriority(UINT p)
 {
 	SetThreadPriority(_hThread, p);
@@ -566,30 +561,6 @@ void os::Thread::TerminateForcely()
 		_hThread = NULL;
 	}
 }
-
-os::CriticalSection::CriticalSection()
-{
-	InitializeCriticalSection(&hCS);
-	_OwnerTID = 0;
-}
-
-os::CriticalSection::~CriticalSection()
-{
-	ASSERT(_OwnerTID == 0);
-	DeleteCriticalSection(&hCS);
-}
-
-os::Event::Event()
-{
-	VERIFY(hEvent = ::CreateEvent(NULL,true,false,NULL));
-}
-
-os::Event::~Event()
-{
-	::CloseHandle(hEvent);
-}
-
-
 
 #else
 //////////////////////////////////////////////////////////
@@ -670,15 +641,6 @@ bool os::Thread::_Create(UINT stack_size, ULONGLONG CPU_affinity)
 	return false;
 }
 
-UINT os::Thread::GetCurrentId()
-{
-#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-	return (SIZE_T)pthread_mach_thread_np(pthread_self());
-#else
-	return pthread_self();
-#endif
-}
-
 UINT os::Thread::GetId()
 {
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
@@ -713,35 +675,405 @@ void os::Thread::__release_handle(HANDLE hThread)
 	pthread_detach((pthread_t&)hThread);
 }
 
-os::CriticalSection::CriticalSection()
-{
-	pthread_mutexattr_t attributes;
-	pthread_mutexattr_init(&attributes);
-	pthread_mutexattr_settype(&attributes, PTHREAD_MUTEX_RECURSIVE);
-	
-	VERIFY(0==pthread_mutex_init(&hCS, &attributes));
-	
-	pthread_mutexattr_destroy(&attributes);
-	_OwnerTID = 0;
-}
-
-os::CriticalSection::~CriticalSection()
-{
-	pthread_mutex_destroy(&hCS);
-	ASSERT(_OwnerTID == 0);
-}
-
-os::Event::Event()
-{
-	VERIFY(0 == pthread_cond_init(&hEvent,NULL)); 
-	bSet = false;
-}
-
-os::Event::~Event()
-{	
-	pthread_cond_destroy(&hEvent);
-}
-
 #endif
 
 
+#if defined(PLATFORM_WIN)
+////////////////////////////////////////////////////////////
+// CLaunchProcess
+os::LaunchProcess::LaunchProcess()
+{
+	_hProcess = INVALID_HANDLE_VALUE;
+	hChildStdoutRdDup = INVALID_HANDLE_VALUE;
+	hChildStdinRd = INVALID_HANDLE_VALUE;
+	hChildStdinWrDup = INVALID_HANDLE_VALUE;
+	hChildStdoutWr = INVALID_HANDLE_VALUE;
+
+	_Callback = nullptr;
+
+	_ExitCode = 0;
+	_ExitTime = 0;
+	_ExecutionTime = 0;
+}
+
+os::LaunchProcess::~LaunchProcess()
+{
+	IsRunning();
+	_ClearAll();
+}
+
+
+void os::LaunchProcess::_ClearAll()
+{	
+	_OutputHookThread.WantExit() = true;
+	_OutputHookThread.WaitForEnding();
+
+	#define _SafeCloseHandle(x) { if((x)!=INVALID_HANDLE_VALUE){ ::CloseHandle(x); x=INVALID_HANDLE_VALUE; } }
+
+	_SafeCloseHandle(_hProcess);
+
+	_SafeCloseHandle(hChildStdoutRdDup);	//make hook thread exit
+	_SafeCloseHandle(hChildStdinRd);
+	_SafeCloseHandle(hChildStdinWrDup);
+	_SafeCloseHandle(hChildStdoutWr);
+
+
+	#undef _SafeCloseHandle
+}
+
+
+bool os::LaunchProcess::Launch(LPCSTR cmdline, DWORD flag, LPCSTR pWorkDirectory, LPCSTR pEnvVariable)
+{
+	VERIFY(!IsRunning());
+
+	rt::String cmd(cmdline);
+	if(cmd.IsEmpty())return false;
+
+	_Flag = flag;
+	bool hook_output = (FLAG_SAVE_OUTPUT&flag) || (FLAG_ROUTE_OUTPUT&flag) || _Callback!=NULL;
+
+	PROCESS_INFORMATION piProcInfo;
+	STARTUPINFOW siStartInfo;
+
+	rt::Zero( &piProcInfo, sizeof(PROCESS_INFORMATION) );
+	rt::Zero( &siStartInfo, sizeof(STARTUPINFO) );
+	siStartInfo.cb = sizeof(STARTUPINFO);
+	siStartInfo.wShowWindow = (WORD)(flag&FLAG_HIDE_WINDOW)?SW_HIDE:SW_SHOW;
+	siStartInfo.dwFlags = STARTF_USESHOWWINDOW;
+
+	if(hook_output)
+	{	
+		HANDLE hChildStdoutRd,hChildStdinWr;
+		/////////////////////////////////////////////////////////////////////////
+		// Creating a Child Process with Redirected Input and Output
+		// 1. create pipes
+		SECURITY_ATTRIBUTES saAttr;
+		bool fSuccess; 
+
+		// Set the bInheritHandle flag so pipe handles are inherited. 
+		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+		saAttr.bInheritHandle = true; 
+		saAttr.lpSecurityDescriptor = NULL;
+
+		// Create a pipe for the child process's STDOUT. 
+		::CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0);
+
+		// Create non-inheritable read handle and close the inheritable read handle. 
+		fSuccess = DuplicateHandle(	GetCurrentProcess(), hChildStdoutRd,
+									GetCurrentProcess(),&hChildStdoutRdDup , 0,
+									false, DUPLICATE_SAME_ACCESS);
+		CloseHandle(hChildStdoutRd);
+
+		// Create a pipe for the child process's STDIN. 
+		::CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0);
+
+		// Duplicate the write handle to the pipe so it is not inherited. 
+		fSuccess = DuplicateHandle(	GetCurrentProcess(), hChildStdinWr, 
+									GetCurrentProcess(), &hChildStdinWrDup, 0, 
+									false, DUPLICATE_SAME_ACCESS); 
+		CloseHandle(hChildStdinWr);
+
+		///////////////////////////////////////////////////////
+		// 2. create child process
+		siStartInfo.hStdError = hChildStdoutWr;
+		siStartInfo.hStdOutput = hChildStdoutWr;
+		siStartInfo.hStdInput = hChildStdinRd;
+		siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+		_hProcess = INVALID_HANDLE_VALUE;
+		_Output.Empty();
+		_OutputHookThread.Create(_OutputHookRoutine, this);
+		_OutputHookThread.SetPriority(os::Thread::PRIORITY_HIGH);
+	}
+
+	_ExitCode = STILL_ACTIVE;
+
+	rt::Buffer<WCHAR>	env;
+	if(pEnvVariable)
+	{
+		LPCWSTR s = ::GetEnvironmentStringsW();
+		UINT s_len=0;
+		for(;;s_len++)
+			if(s[s_len] == 0 && s[s_len+1] == 0)
+				break;
+
+		UINT a_len=0;
+		for(;;a_len++)
+			if(pEnvVariable[a_len] == 0 && pEnvVariable[a_len+1] == 0)
+				break;
+
+		os::__UTF16 addon(rt::String_Ref(pEnvVariable, a_len));
+
+		env.SetSize(a_len + 1 + s_len + 1 + 1);
+		env.Zero();
+		memcpy(&env[0], s, sizeof(WCHAR)*s_len);
+		memcpy(&env[s_len+1], addon.Begin(), sizeof(WCHAR)*a_len);
+		
+		pEnvVariable = (LPCSTR)env.Begin();
+	}
+
+	// Create the child process. 
+	bool ret =
+	CreateProcessW(	NULL, 
+					os::__UTF16(cmd).Begin(),	// command line 
+					NULL,				// process security attributes 
+					NULL,				// primary thread security attributes 
+					true,				// handles are inherited 
+					pEnvVariable?CREATE_UNICODE_ENVIRONMENT:0,				// creation flags 
+					(LPVOID)pEnvVariable,
+					os::__UTF16(pWorkDirectory),
+					&siStartInfo,		// STARTUPINFO pointer 
+					&piProcInfo);		// receives PROCESS_INFORMATION 
+
+	if(ret)
+	{	
+		_hProcess = piProcInfo.hProcess;
+		CloseHandle( piProcInfo.hThread );
+		return true;
+	}
+	else
+	{
+		_LOG_WARNING("Error launching process: "<<cmd<<" ERR: "<<GetLastError());
+		_ClearAll();
+		return false;
+	}
+}
+
+LPCSTR os::LaunchProcess::GetOutput()
+{
+	return _Output;
+}
+
+UINT os::LaunchProcess::GetOutputLen()
+{
+	return (UINT)_Output.GetLength();
+}
+
+void os::LaunchProcess::CopyOutput(rt::String& out)
+{
+	EnterCSBlock(_CCS);
+	out = _Output;
+}
+
+bool os::LaunchProcess::WaitForEnding(DWORD timeout)
+{
+	os::TickCount t;
+	t.LoadCurrentTick();
+
+	::Sleep(500);
+
+	while(IsRunning())
+	{	::Sleep(500);
+		if((DWORD)t.TimeLapse()>timeout)return false;
+	}
+
+	return true;
+}
+
+void os::LaunchProcess::Terminate()
+{
+	if(IsRunning())
+	{
+		::TerminateProcess(_hProcess,-1);
+		os::Sleep(0);
+		while(IsRunning())os::Sleep(1);
+		_ClearAll();
+	}
+}
+
+bool os::LaunchProcess::IsRunning()
+{
+	if(_hProcess!=INVALID_HANDLE_VALUE)
+	{
+		bool exited = false;
+		VERIFY(::GetExitCodeProcess(_hProcess,(LPDWORD)&_ExitCode));
+		exited = (_ExitCode!=STILL_ACTIVE);
+
+		if(exited)
+		{	
+			FILETIME creat,exit,foo;
+			GetProcessTimes(_hProcess,&creat,&exit,&foo,&foo);
+
+			if(*((__int64*)&exit))
+			{
+				_ExecutionTime = (UINT)((((ULONGLONG&)exit) - ((ULONGLONG&)creat))/10000);
+				_ExitTime = (*((__int64*)&exit))/10000LL - 11644473600000LL;
+			
+				_ClearAll();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+void os::LaunchProcess::_HookedOutput(char* buffer, UINT dwRead)
+{
+	if(_Flag&FLAG_ROUTE_OUTPUT){ buffer[dwRead]=0; printf(buffer); }
+	if(_Flag&FLAG_SAVE_OUTPUT)
+	{	EnterCSBlock(_CCS);
+		int i = (int)_Output.GetLength();
+		_RemoveCarriageReturn(_Output, rt::String_Ref(buffer, dwRead));
+	}
+	if(_Callback)
+	{	_Callback(buffer, dwRead, _Callback_Cookie);
+	}
+}
+
+
+DWORD os::LaunchProcess::_OutputHookRoutine(LPVOID p)
+{
+	LaunchProcess* pThis = (LaunchProcess*)p;
+
+	char buffer[1024];
+
+	pThis->_ExitCode = STILL_ACTIVE;
+
+	DWORD dwRead,exitcode;
+	exitcode = STILL_ACTIVE;
+	while(exitcode==STILL_ACTIVE)
+	{	
+		if(PeekNamedPipe(pThis->hChildStdoutRdDup,NULL,0,NULL,&dwRead,0))
+		{	if( dwRead )
+			{	if( ReadFile( pThis->hChildStdoutRdDup, buffer, rt::min((DWORD)sizeof(buffer)-1,dwRead), &dwRead, NULL) && dwRead )
+				{	pThis->_HookedOutput(buffer,dwRead);
+					continue;
+				}
+			}
+		}
+
+		Sleep(100);
+		if(pThis->hChildStdoutRdDup==INVALID_HANDLE_VALUE)return 0;
+		if(pThis->_hProcess != INVALID_HANDLE_VALUE)
+			GetExitCodeProcess(pThis->_hProcess,&exitcode);
+		else return 0;
+	} 
+
+	// check for words before death of the process
+	do
+	{	dwRead = 0;
+		if(PeekNamedPipe(pThis->hChildStdoutRdDup,NULL,0,NULL,&dwRead,0))
+		{	if( dwRead )
+			{	if( ReadFile( pThis->hChildStdoutRdDup, buffer, rt::min((DWORD)sizeof(buffer)-1,dwRead), &dwRead, NULL) && dwRead )
+					pThis->_HookedOutput(buffer,dwRead);
+			}
+		}
+	}while(dwRead);
+
+	pThis->_ExitCode = exitcode;
+	return 0;
+}
+
+bool os::LaunchProcess::SendToStdin(LPCVOID str, UINT len)
+{
+	DWORD wlen = 0;
+	return WriteFile(hChildStdinWrDup, str, len, &wlen, NULL) && wlen == len;
+}
+
+void os::LaunchProcess::_RemoveCarriageReturn(rt::String& output, const rt::String_Ref& add)
+{
+	if(add.IsEmpty())return;
+
+	LPCSTR p = add.Begin();
+	LPCSTR end = add.End();
+	LPCSTR last_linend = nullptr;
+	LPCSTR last_copied = p;
+
+	if(!output.IsEmpty() && output.Last() == '\r')
+	{
+		if(*p == '\n')
+		{	p++;
+			output += '\n';
+			last_copied = last_linend = p;
+		}
+		else
+		{	int i = (int)output.FindCharacterReverse('\n');
+			if(i<0){ output.Empty(); }
+			else{ output.SetLength(i+1); }
+			last_linend = p;
+		}
+	}
+	else
+	{	LPCSTR s = p;
+		while(*s != '\r' && *s != '\n' && s < end)s++;
+		if(*s == '\r')
+		{
+			if(s+1 < end)
+			{	
+				if(s[1] == '\n')
+				{	last_linend = s+2;
+				}
+				else
+				{	int i = (int)output.FindCharacterReverse('\n');
+					if(i<0){ output.Empty(); }
+					else{ output.SetLength(i + 1); }
+					p = last_copied = last_linend = s + 1;
+				}
+			}
+			else
+			{	output += rt::String_Ref(p,s+1);
+				return;
+			}	
+		}
+		else if(s == end)
+		{
+			output += add;
+			return;
+		}
+		else
+		{	ASSERT(*s == '\n');
+			last_linend = p = s+1;
+		}
+	}
+
+	for(;p < end;p++)
+	{
+
+		if(*p == '\n'){ last_linend = p+1; }
+		else if(*p == '\r')
+		{
+			if(p+1<end)
+			{
+				if(p[1] == '\n')
+				{	last_linend = p + 2;
+					p++;
+				}
+				else
+				{	ASSERT(last_linend >= last_copied);
+					if(last_linend != last_copied)
+					{	output += rt::String_Ref(last_copied,last_linend); 
+					}
+					last_copied = last_linend = p + 1;
+				}
+			}
+			else
+			{
+				output += rt::String_Ref(last_copied, p+1);
+				return;
+			}
+		}
+	}
+
+	if(last_copied < end)
+		output += rt::String_Ref(last_copied, end);
+}
+
+
+void os::LaunchProcess::SetOutputCallback(FUNC_HOOKEDOUTPUT func, LPVOID cookie)
+{
+	_Callback = func;
+	_Callback_Cookie = cookie;
+}
+
+bool os::LaunchProcess::SendInput(LPCSTR p, UINT len)
+{
+	if(hChildStdinWrDup)
+	{	DWORD w;
+		return WriteFile(hChildStdinWrDup, p, len, &w, NULL) && w == len;
+	}
+	return false;
+}
+
+#endif // #if defined(PLATFORM_WIN)

@@ -500,9 +500,6 @@ test_(9).txt
 File Content: Testing String wrote to file !!
 File Remove: 1
 File Remove: 0
-2 => 123456
-4097 => 12345678
-4098 => 1234567
 === UnitTest<file>: END =====
 
 === UnitTest<precompiler>: BEGIN ===
@@ -700,8 +697,8 @@ SHA1: 95E1F33CA86B4815AA8B7FC7E4865F65 (first 16 bytes)
 === UnitTest<botan_hash>: END =====
 
 === UnitTest<sparsehash>: BEGIN ===
- 5 7 1 3 9
- 4 6 2 8 10
+{1,3,5,7,9}
+{2,4,6,8,10}
 === UnitTest<sparsehash>: END =====
 
 === UnitTest<async_queue>: BEGIN ===
@@ -761,4 +758,9 @@ Size Header: 3
 Header = EFBBBF
 Content Match: 1
 === UnitTest<async_write>: END =====
+
+=== UnitTest<rocks_db>: BEGIN ===
+0
+4
+=== UnitTest<rocks_db>: END =====
 

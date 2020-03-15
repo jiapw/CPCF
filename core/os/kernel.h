@@ -13,7 +13,7 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of CPF.  nor the names of its
+//     * Neither the name of CPCF.  nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -468,7 +468,6 @@ struct TimestampDate:public ::rt::tos::S_<1, 70>
 
 namespace os
 {
-#ifdef PLATFORM_WIN
 /////////////////////////////////////
 // Console Progress Indicator
 class ConsoleProgressIndicator
@@ -485,7 +484,7 @@ public:
 	void One(){ _Prog++; _Display(); }
 	void SetProgress(ULONGLONG x){ _Prog = x; _Display(); }
 };
-#endif
+
 
 /////////////////////////////////////
 // Date32, representing only days 

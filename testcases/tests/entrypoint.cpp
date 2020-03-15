@@ -15,7 +15,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(async_write);
+		TYPETRAITS_UNITTEST(rocks_db);
 		//TYPETRAITS_UNITTEST(callback_to_member_function);
 		return;
 	}
@@ -24,7 +24,6 @@ void TestMain()
 		rt::String fn;
 		os::File::ResolveRelativePath(logfile, fn);
 		_LOGC("Log: "<<fn);
-				
 
 		rt::String dir;
 	/*
@@ -62,12 +61,12 @@ void TestMain()
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
 		TYPETRAITS_UNITTEST(async_write);
+		TYPETRAITS_UNITTEST(rocks_db);
 	
 		if(0) // non-static test
 		{
 			TYPETRAITS_UNITTEST(pfw);
 			TYPETRAITS_UNITTEST(plog);
-			TYPETRAITS_UNITTEST(pcqueue);
 
 			//TYPETRAITS_UNITTEST(commandline();
 			//TYPETRAITS_UNITTEST(socket();

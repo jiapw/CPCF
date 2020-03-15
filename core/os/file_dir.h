@@ -13,7 +13,7 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of CPF.  nor the names of its
+//     * Neither the name of CPCF.  nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -134,7 +134,7 @@ public:
 	SIZE_T		GetCurrentPosition() const;
 	SIZE_T		Seek(SSIZE_T offset,UINT nFrom = Seek_Begin);
 	void		SeekToBegin();
-	void		SeekToEnd();
+	SIZE_T		SeekToEnd();
 	void        Flush();
 	int			GetFD() const { return fileno(_hFile); }
 
@@ -249,14 +249,13 @@ class FileWrite
 	rt::BufferEx<char>	_WriteBuf;
 	rt::BufferEx<char>	_WriteBuf_Back;
 	bool				_IsAsyncMode() const { return _WriteBuf_Back.Begin(); }
+	bool				_bWritePending;
 
 #if defined(PLATFORM_WIN)
 	HANDLE				_hFile;
-	bool				_bWritePending;
 	OVERLAPPED			_Overlapped;
-	
 #else
-	File				_file;
+	File				_File;
 #endif
 	bool		_FileWriteBuf();
 	void		_FileWriteSync();
@@ -271,7 +270,6 @@ public:
 
 	FileWrite();
 	~FileWrite(){ Close(); }
-	ULONGLONG	GetSize() const;
 	bool		IsOpen() const;
 	bool		Open(LPCSTR fn, DWORD flag = 0, UINT header_size = 0);
 	void		Close();
