@@ -67,7 +67,6 @@ void TestMain()
 		{
 			TYPETRAITS_UNITTEST(pfw);
 			TYPETRAITS_UNITTEST(plog);
-			TYPETRAITS_UNITTEST(pcqueue);
 
 			//TYPETRAITS_UNITTEST(commandline();
 			//TYPETRAITS_UNITTEST(socket();

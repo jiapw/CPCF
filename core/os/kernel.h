@@ -468,7 +468,6 @@ struct TimestampDate:public ::rt::tos::S_<1, 70>
 
 namespace os
 {
-#ifdef PLATFORM_WIN
 /////////////////////////////////////
 // Console Progress Indicator
 class ConsoleProgressIndicator
@@ -485,7 +484,7 @@ public:
 	void One(){ _Prog++; _Display(); }
 	void SetProgress(ULONGLONG x){ _Prog = x; _Display(); }
 };
-#endif
+
 
 /////////////////////////////////////
 // Date32, representing only days 

@@ -151,7 +151,7 @@
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\core\os\multi_thread_primitive.h" />
+    <ClInclude Include="..\..\core\os\thread_primitive.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\tests\web_assets\index.css">

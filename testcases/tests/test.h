@@ -32,7 +32,6 @@ struct UnitTests
 	static void filelist();
 	static void smallmath();
 	static void vm();
-	static void pcqueue();
 	static void binary_search();
 	static void plog();
 	static void precompiler();

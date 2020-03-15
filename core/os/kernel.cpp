@@ -1675,7 +1675,6 @@ namespace _details
 }} // namespace os::_details
 
 
-#ifdef PLATFORM_WIN
 namespace os
 {
 
@@ -1703,18 +1702,24 @@ void ConsoleProgressIndicator::_Display()
 		if(_Total)
 		{
 			float prec = _Prog*100.0f/_Total;
-			printf("%s: %llu (%0.2f%%), %s remains   \r", _Hint.GetString(), _Prog, prec, rt::tos::TimeSpan<>(_StartTime.TimeLapse()*(_Total-_Prog)/_Prog).Begin());
+			char bar[21];
+			for(int i=0;i<20;i++)
+			{	float t = i - prec*20;
+				if(t<0)			bar[i] = '>';
+				else if(t<0.5)	bar[i] = '=';
+				else			bar[i] = '-';
+			}
+			bar[20] = 0;
+			printf("%s: %llu (%0.2f%%), [%s] %s remains   \r", _Hint.GetString(), _Prog, prec, bar, rt::tos::TimeSpan<>(_StartTime.TimeLapse()*(_Total-_Prog)/_Prog).Begin());
 		}
 		else
 		{	
 			printf("%s: %llu, %s passed   \r", _Hint.GetString(), _Prog, rt::tos::TimeSpan<>(_StartTime.TimeLapse()).Begin());
 		}
 	}
-
 }
 
 }
-#endif
 
 #if defined(PLATFORM_IOS)
 
