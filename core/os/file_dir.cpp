@@ -757,6 +757,9 @@ void os::File::GetCurrentDirectory(rt::String& out)
 	else
 		out.Empty();
 #endif
+
+	if(out.IsEmpty())
+		ResolveRelativePath(".", out);
 }
 
 bool os::File::SetCurrentDirectory(LPCSTR path)
@@ -2072,6 +2075,11 @@ void os::CommandLine::RemoveOption(const rt::String_Ref& option_name)
 		if(option_name == _Options[i].Name)
 			_Options.erase(i);
 	}
+}
+
+void os::CommandLine::AppendText(const rt::String_Ref& arg)
+{
+	_Arguments.push_back() = arg;
 }
 
 LPCSTR os::CommandLine::SearchOptionEx(const rt::String_Ref& option_substring) const

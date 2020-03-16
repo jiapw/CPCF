@@ -551,13 +551,14 @@ public:
 						}
 						return default_val;
 					}
-	LPCSTR			SearchOptionEx(const rt::String_Ref& option_substring) const;	//search an option contains this name (in lower-case)	, if found return the remaining text of the option
+	LPCSTR			SearchOptionEx(const rt::String_Ref& option_substring) const;	//search an option contains this name (in lower-case), if found return the remaining text of the option
 	rt::String_Ref	GetOption(const rt::String_Ref& option_name, const rt::String_Ref& def_val = nullptr) const;
 	bool			HasOption(const rt::String_Ref& option_name) const;
 	void			RemoveOption(const rt::String_Ref& option_name);
 
 	UINT			GetTextCount()const{ return (UINT)_Arguments.GetSize(); }
-	LPCSTR			GetText(UINT idx, LPCSTR default_val = nullptr)const{ return _Arguments.GetSize()>idx?(LPCSTR)_Arguments[idx]:default_val; }
+	LPCSTR			GetText(UINT idx, LPCSTR default_val = nullptr) const { return _Arguments.GetSize()>idx?(LPCSTR)_Arguments[idx]:default_val; }
+	void			AppendText(const rt::String_Ref& arg);
 
 	LPCSTR			GetOriginalLine() const { return _CommandLine; }
 
@@ -583,7 +584,7 @@ protected:
 #endif
 	int				_ExitCode;
 	UINT			_ExecutionTime;		// in msec
-	os::Timestamp	_ExitTime;				// available after call IsRunning and it returns false
+	os::Timestamp	_ExitTime;			// available after call IsRunning and it returns false
 
 public:
 	Process();
@@ -594,7 +595,7 @@ public:
 	bool		IsRunning();
 
 	UINT		GetExecutionTime() const { return _ExecutionTime; }		// available after IsRunning() returns false!	
-	int			GetExitCode() const { return _ExitCode; }					// available after IsRunning() returns false!	
+	int			GetExitCode() const { return _ExitCode; }				// available after IsRunning() returns false!	
 	void		SetExitCode(int c){ _ExitCode = c; }
 	LONGLONG	GetExitTime() const { return _ExitTime; }	// available after IsRunning() returns false!
     
