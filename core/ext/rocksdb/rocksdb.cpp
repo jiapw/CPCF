@@ -43,4 +43,64 @@ struct __InitRocksDBOptions
 
 __InitRocksDBOptions	g_InitRocksDBOptions;
 
-}} // namespace ext::_details
+} // namespace _details
+
+bool RocksDB::Open(LPCSTR db_path, DBScopeWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
+{
+	ASSERT(_pDB == nullptr);
+	
+	::rocksdb::Options opt;
+	opt.create_if_missing = !open_existed_only;
+	opt.max_file_opening_threads = file_thread_co;
+	opt.keep_log_file_num = logfile_num_max;
+
+	switch(robustness)
+	{	
+	case DBWR_LEVEL_FASTEST:
+		opt.disableDataSync = true;
+		opt.use_fsync = false;
+		opt.allow_os_buffer = true;
+		break;
+	case DBWR_LEVEL_DEFAULT:		
+		opt.disableDataSync = false;
+		opt.use_fsync = false;
+		opt.allow_os_buffer = true;
+		break;
+	case DBWR_LEVEL_UNBUFFERED:
+		opt.disableDataSync = false;
+		opt.use_fsync = false;
+		opt.allow_os_buffer = false;
+		break;
+	case DBWR_LEVEL_STRONG:
+		opt.disableDataSync = false;
+		opt.use_fsync = true;
+		opt.allow_os_buffer = false;
+		break;
+	default:
+		ASSERT(0);
+		return false;
+	}
+
+	return Open(db_path, &opt);
+}
+
+bool RocksDB::Open(LPCSTR db_path, const Options* opt)
+{
+	ASSERT(_pDB == nullptr);
+	ASSERT(opt);
+
+	if(opt->create_if_missing)os::File::CreateDirectories(db_path, false);
+
+	::rocksdb::DB* p;
+	if(::rocksdb::DB::Open(*opt, db_path, &p).ok())
+	{
+		_pDB = p;
+		return true; 
+	}
+
+	return false;
+}
+
+
+
+} // namespace ext

@@ -123,30 +123,57 @@ public:
 	static const WriteOptions*	WriteOptionsRobust;
 	static const ReadOptions*	ReadOptionsDefault;
 
+	enum DBScopeWriteRobustness
+	{								// disableDataSync  use_fsync  allow_os_buffer
+		DBWR_LEVEL_FASTEST = 0,		// true				false		true
+		DBWR_LEVEL_DEFAULT,			// false			false		true
+		DBWR_LEVEL_UNBUFFERED,		// false			false		false
+		DBWR_LEVEL_STRONG			// false			true		false
+	};
+
+	// ## disableDataSync
+	// If true, then the contents of manifest and data files are not synced
+	// to stable storage. Their contents remain in the OS buffers till the
+	// OS decides to flush them. This option is good for bulk-loading
+	// of data. Once the bulk-loading is complete, please issue a
+	// sync to the OS to flush all dirty buffesrs to stable storage.
+
+	// ## use_fsync
+	// If true, then every store to stable storage will issue a fsync.
+	// If false, then every store to stable storage will issue a fdatasync.
+	// This parameter should be set to true while storing data to
+	// filesystem like ext3 that can lose files after a reboot.
+
+	// ## allow_os_buffer
+	// Hint the OS that it should not buffer disk I/O. Enabling this
+	// parameter may improve performance but increases pressure on the
+	// system cache.
+	// The exact behavior of this parameter is platform dependent.
+	//
+	// On POSIX systems, after RocksDB reads data from disk it will
+	// mark the pages as "unneeded". The operating system may - or may not
+	// - evict these pages from memory, reducing pressure on the system
+	// cache. If the disk block is requested again this can result in
+	// additional disk I/O.
+	//
+	// On WINDOWS system, files will be opened in "unbuffered I/O" mode
+	// which means that data read from the disk will not be cached or
+	// bufferized. The hardware buffer of the devices may however still
+	// be used. Memory mapped files are not impacted by this parameter.
+
 public:
-	INLFUNC RocksDB(){ _pDB = nullptr; }
-	INLFUNC ~RocksDB(){ Close(); }
-	INLFUNC bool Open(LPCSTR db_path, bool open_existed_only = false, const Options* opt = nullptr)
-	{	ASSERT(_pDB == nullptr);
-		if(opt == nullptr)
-		{	::rocksdb::Options* my;
-			opt = my = _StackNew(Options)();
-			my->create_if_missing = !open_existed_only;
-		}
-		if(!open_existed_only)os::File::CreateDirectories(db_path, false);
-		::rocksdb::DB* p;
-		if(::rocksdb::DB::Open(*opt, db_path, &p).ok())
-		{	_pDB = p;	return true; }
-		else return false;
-	}
-	INLFUNC bool IsOpen() const { return _pDB!=nullptr; }
-	INLFUNC void Close(){ if(_pDB){ delete _pDB; _pDB = nullptr; } }
-	INLFUNC bool Set(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Put(*opt, k, val).ok(); }
-	INLFUNC bool Merge(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Merge(*opt, k, val).ok(); }
-	INLFUNC bool Get(const SliceValue& k, std::string& str, const ReadOptions* opt = ReadOptionsDefault) const { ASSERT(_pDB); return _pDB->Get(*opt, k, &str).ok(); }
-	INLFUNC bool Has(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const { thread_local std::string t; return Get(k, t, opt); }
+	RocksDB(){ _pDB = nullptr; }
+	~RocksDB(){ Close(); }
+	bool Open(LPCSTR db_path, DBScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
+	bool Open(LPCSTR db_path, const Options* opt);
+	bool IsOpen() const { return _pDB!=nullptr; }
+	void Close(){ if(_pDB){ delete _pDB; _pDB = nullptr; } }
+	bool Set(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Put(*opt, k, val).ok(); }
+	bool Merge(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Merge(*opt, k, val).ok(); }
+	bool Get(const SliceValue& k, std::string& str, const ReadOptions* opt = ReadOptionsDefault) const { ASSERT(_pDB); return _pDB->Get(*opt, k, &str).ok(); }
+	bool Has(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const { thread_local std::string t; return Get(k, t, opt); }
 	template<typename t_POD>
-	INLFUNC bool Get(const SliceValue& k, t_POD* valout, const ReadOptions* opt = ReadOptionsDefault) const
+	bool Get(const SliceValue& k, t_POD* valout, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT_NONRECURSIVE;
 		thread_local std::string temp;
 		ASSERT(_pDB);
@@ -156,7 +183,7 @@ public:
 		}else return false;
 	}
 	template<typename t_NUM>
-	INLFUNC t_NUM GetAs(const SliceValue& k, t_NUM default_val = 0, const ReadOptions* opt = ReadOptionsDefault) const
+	t_NUM GetAs(const SliceValue& k, t_NUM default_val = 0, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT_NONRECURSIVE;
 		thread_local std::string temp;
 		ASSERT(_pDB);
@@ -164,7 +191,7 @@ public:
 			   *((t_NUM*)temp.data()):default_val;
 	}
 	template<typename t_Type>
-	INLFUNC const t_Type* Fetch(const SliceValue& k, SIZE_T* len_out = nullptr, const ReadOptions* opt = ReadOptionsDefault) const // Get a inplace referred buffer, will be invalid after next Fetch
+	const t_Type* Fetch(const SliceValue& k, SIZE_T* len_out = nullptr, const ReadOptions* opt = ReadOptionsDefault) const // Get a inplace referred buffer, will be invalid after next Fetch
 	{	ASSERT_NONRECURSIVE;
 		thread_local std::string temp;
 		ASSERT(_pDB);
@@ -177,34 +204,34 @@ public:
 			return nullptr;
 		}
 	}
-	INLFUNC rt::String_Ref Fetch(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const
+	rt::String_Ref Fetch(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT_NONRECURSIVE;
 		thread_local std::string temp;
 		ASSERT(_pDB);
 		return (_pDB->Get(*opt, k, &temp).ok())?
 				rt::String_Ref(temp.data(), temp.length()):rt::String_Ref();
 	}
-	INLFUNC RocksCursor Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault)
+	RocksCursor Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault)
 	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
 		ASSERT(it);
 		it->Seek(begin);
 		return RocksCursor(it);
 	}
-	INLFUNC RocksCursor First(const ReadOptions* opt = ReadOptionsDefault)
+	RocksCursor First(const ReadOptions* opt = ReadOptionsDefault)
 	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
 		ASSERT(it);
 		it->SeekToFirst();
 		return RocksCursor(it);
 	}
-	INLFUNC RocksCursor Last(const ReadOptions* opt = ReadOptionsDefault)
+	RocksCursor Last(const ReadOptions* opt = ReadOptionsDefault)
 	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
 		ASSERT(it);
 		it->SeekToLast();
 		return RocksCursor(it);
 	}
-	INLFUNC bool Delete(const SliceValue& k, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Delete(*opt, k).ok(); }
+	bool Delete(const SliceValue& k, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Delete(*opt, k).ok(); }
 	template<typename func_visit>
-	INLFUNC SIZE_T ScanBackward(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
+	SIZE_T ScanBackward(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT(_pDB);
 		RocksCursor it = _pDB->NewIterator(*opt);
 		ASSERT(!it.IsEmpty());
@@ -217,7 +244,7 @@ public:
 		return ret;
 	}
 	template<typename func_visit>
-	INLFUNC SIZE_T ScanBackward(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
+	SIZE_T ScanBackward(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT(_pDB);
 		RocksCursor it = _pDB->NewIterator(*opt);
 		ASSERT(!it.IsEmpty());
@@ -230,7 +257,7 @@ public:
 		return ret;
 	}
 	template<typename func_visit>
-	INLFUNC SIZE_T Scan(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
+	SIZE_T Scan(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT(_pDB);
 		RocksCursor it = _pDB->NewIterator(*opt);
 		ASSERT(!it.IsEmpty());
@@ -243,7 +270,7 @@ public:
 		return ret;
 	}
 	template<typename func_visit>
-	INLFUNC SIZE_T Scan(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
+	SIZE_T Scan(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT(_pDB);
 		RocksCursor it = _pDB->NewIterator(*opt);
 		ASSERT(!it.IsEmpty());
@@ -256,7 +283,7 @@ public:
 		return ret;
 	}
 	template<typename func_visit>
-	INLFUNC SIZE_T ScanPrefix(const func_visit& v, const SliceValue& prefix, const ReadOptions* opt = ReadOptionsDefault) const
+	SIZE_T ScanPrefix(const func_visit& v, const SliceValue& prefix, const ReadOptions* opt = ReadOptionsDefault) const
 	{	ASSERT(_pDB);
 		RocksCursor it = _pDB->NewIterator(*opt);
 		ASSERT(!it.IsEmpty());
