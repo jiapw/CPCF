@@ -598,7 +598,8 @@ INLFUNC rt::String& JSON_OBJECT_MERGE(rt::String& x, TJSON&& json)
 		x.Shorten(1);
 		UINT len = (UINT)x.GetLength();
 		x += json;
-		x[len] = ',';
+		if(x[len+1] != '}'){ x[len] = ','; }
+		else { x[len] = '}'; x.SetLength(len+1); }
 	}
 
 	return x;

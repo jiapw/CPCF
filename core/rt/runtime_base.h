@@ -776,7 +776,7 @@ extern bool IsMemoryExceptionEnabledInThread();
 
 #else
 
-#define _Malloc8AL(type, co)		((type*) os::IsMemoryExceptionEnabledInThread()? new BYTE[sizeof(type)*co] : new (std::nothrow) BYTE[sizeof(type)*co])
+#define _Malloc8AL(type, co)		((type*)(os::IsMemoryExceptionEnabledInThread()? new BYTE[sizeof(type)*co] : new (std::nothrow) BYTE[sizeof(type)*co]))
 #define _Malloc32AL(type, co)		((type*)os::_details::Malloc32AL(sizeof(type)*(co), true))
 
 #define _SafeFree8AL_ConstPtr(ptr)	{ delete [] (LPBYTE)ptr; }
