@@ -198,22 +198,21 @@ struct _JVar
 	}
 };
 
-namespace _details
-{
-	template<typename T>
-	struct _NeedQuote{ static const int need = 0; };
-	template<>
-	struct _NeedQuote<const rt::String_Ref*>{ static const int need = 1; };
-}
-
 template<typename t_String = rt::StringFixed<1024>>  // or StringFixed<LEN>
 class _JArray
 {
 	t_String	_buf;
+
+	template<typename T>
+	FORCEINL void	_Append(const T& obj, bool need_quote)
+					{	if(_buf.GetLength() != 1){ _buf += ',';	}
+						if(need_quote){	_buf += '"'; _buf += obj; _buf += '"'; }
+						else{ _buf += obj; }
+					}
 public:
 	FORCEINL _JArray(){ _buf = "["; }
 
-#define JA_NUMERIC_ITEM(numeric_type)	FORCEINL void Append(numeric_type x){ Append(rt::tos::Number(x), false); }
+#define JA_NUMERIC_ITEM(numeric_type)	FORCEINL void Append(numeric_type x){ _Append(rt::tos::Number(x), false); }
 	JA_NUMERIC_ITEM(bool)
 	JA_NUMERIC_ITEM(short)
 	JA_NUMERIC_ITEM(unsigned short)
@@ -229,24 +228,12 @@ public:
 	JA_NUMERIC_ITEM(double)
 #undef JA_NUMERIC_ITEM
 		
-	FORCEINL void	Append(LPCSTR x){ Append(rt::String_Ref(x), true); }
-	FORCEINL void	Append(LPSTR x){ Append(rt::String_Ref(x), true); }
-	FORCEINL void	Append(char x){ Append(rt::String_Ref(&x, 1), true); }
-
+	FORCEINL void	Append(LPCSTR x){ _Append(rt::String_Ref(x), true); }
+	FORCEINL void	Append(LPSTR x){ _Append(rt::String_Ref(x), true); }
+	FORCEINL void	Append(char x){ _Append(rt::String_Ref(&x, 1), true); }
 	template<typename T>
-	FORCEINL void	Append(const T& obj, bool need_quote = (bool)rt::_details::_NeedQuote<const T*>::need)
-					{	if(_buf.GetLength() != 1)
-						{	_buf += ',';
-						}
-						if(need_quote)
-						{	_buf += '"';
-							_buf += obj;
-							_buf += '"';
-						}
-						else
-						{	_buf += obj;
-						}
-					}
+	FORCEINL void	Append(T& json){ _Append(json, std::is_base_of<rt::String_Ref, T>::value); }
+
 	FORCEINL UINT	GetLength() const { return (UINT)(_buf.GetLength() + 1); }
 	FORCEINL UINT	CopyTo(LPSTR p) const 
 					{	_buf.CopyTo(p);

@@ -203,6 +203,17 @@ void rt::UnitTests::json()
 							) + " EOF";
 		_LOG(ALLOCA_C_STRING(str));
 	}
+
+	{
+		rt::String a;
+		a = (
+			J(a) = rt::tos::Base16OnStack<>(123456),
+			J(b) = rt::String("123456"),
+			J(c) = JA("String",rt::String_Ref(), (J(a) = 12.f), rt::tos::Base16OnStack<>(123456), rt::String("123456"), rt::tos::Base32CrockfordLowercaseOnStack<>(0ULL))
+		);
+
+		_LOG(rt::JsonBeautified(a));
+	}
 }
 
 void rt::UnitTests::xml()

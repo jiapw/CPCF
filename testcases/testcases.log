@@ -462,6 +462,19 @@ A Json: false{
 A Json:  13{
 "var":1.3000
 } EOF
+{
+   "a": "40E20100",
+   "b": "123456",
+   "c": 
+   [
+      "String",
+      "",
+      {"a": 12.00},
+      "40E20100",
+      "123456",
+      "0000000000000"
+   ]
+}
 === UnitTest<json>: END =====
 
 === UnitTest<express_tk>: BEGIN ===
