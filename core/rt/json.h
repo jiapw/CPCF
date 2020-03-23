@@ -592,7 +592,7 @@ INLFUNC rt::String& JSON_OBJECT_APPEND(rt::String& x, const rt::String_Ref& key,
 template<typename TJSON>
 INLFUNC rt::String& JSON_OBJECT_MERGE(rt::String& x, TJSON&& json)
 {	static const rt::SS  _sep("\":");
-	if(x.IsEmpty()){ x = json; }
+	if(x.GetLength()<5 || x.TrimSpace().TrimLeft(1).TrimRight(1).TrimSpace().IsEmpty()){ x = json; }
 	else
 	{	ASSERT(x.Last() == '}');
 		x.Shorten(1);
