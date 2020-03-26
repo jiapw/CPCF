@@ -1013,86 +1013,77 @@ FORCEINL void Swap(T& a, T& b)
 // Advanced Bits Operations
 namespace rt
 {
-	// count leading zeros
-	template<typename T> INLFUNC UINT LeadingZeroBits(T x);
+namespace _details
+{	
+	template<typename T, int bitw = sizeof(T)*8>
+	struct AdvBitOps;
+		template<typename T> struct AdvBitOps<T, 16>
+		{
 #if defined(PLATFORM_WIN)
-	template<> INLFUNC UINT LeadingZeroBits(WORD x) { DWORD index; return _BitScanReverse(&index, (DWORD)x) ? 16U - 1U - (UINT)index : 16U; }
-	template<> INLFUNC UINT LeadingZeroBits(DWORD x) { DWORD index; return _BitScanReverse(&index, x) ? 32U - 1U - (UINT)index : 32U; }
-	#if defined(PLATFORM_64BIT)
-	template<> INLFUNC UINT LeadingZeroBits(ULONGLONG x) { DWORD index; return _BitScanReverse64(&index, x) ? 64U - 1U - (UINT)index : 64U; }
-	#endif
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MAC)
-	template<> INLFUNC UINT LeadingZeroBits(WORD x) { if (0 == x) return 16; return (UINT)__builtin_clz((DWORD)x) - 16; }
-	template<> INLFUNC UINT LeadingZeroBits(DWORD x) { if (0 == x) return 32; return (UINT)__builtin_clz(x); }
-	template<> INLFUNC UINT LeadingZeroBits(ULONGLONG x) { if (0 == x) return 64; return (UINT)__builtin_clzll(x); }
+			static UINT LeadingZeroBits(T x){ ULONG index; return _BitScanReverse(&index, (DWORD)x) ? 16U - 1U - (UINT)index : 16U; }
+			static UINT TrailingZeroBits(T x) { ULONG index; return _BitScanForward(&index, (DWORD)x) ? (UINT)index : 16U; }
+			static UINT NonzeroBits(T x) { return (UINT)__popcnt16((WORD)x); }
+			static T	ByteOrderSwap(T x) { return (T)_byteswap_ushort((WORD)x); }
 #else
-#pragma message ("Advanced Bits Operations count-leading-zeros is not available")
+			static UINT LeadingZeroBits(T x) { if (0 == x)return 16; return (UINT)__builtin_clz((DWORD)x) - 16; }
+			static UINT TrailingZeroBits(T x) { if (0 == x)return 16; return (UINT)__builtin_ctz((DWORD)x); }
+			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcount((DWORD)x); }
+			static T	ByteOrderSwap(T x) { return (T)__builtin_bswap16((WORD)x); }
 #endif
-
-	INLFUNC UINT Log2(UINT x){ return 31 - LeadingZeroBits((DWORD)x); }
-	INLFUNC UINT Log2(ULONGLONG x){ return 63 - LeadingZeroBits(x); }
-
-	// count trailing zeros
-	template<typename T> INLFUNC UINT TrailingZeroBits(T x);
+		};
+		template<typename T> struct AdvBitOps<T, 32>
+		{
 #if defined(PLATFORM_WIN)
-	template<> INLFUNC UINT TrailingZeroBits(WORD x) { DWORD index; return _BitScanForward(&index, (DWORD)x) ? (UINT)index : 16U; }
-	template<> INLFUNC UINT TrailingZeroBits(DWORD x) { DWORD index; return _BitScanForward(&index, x) ? (UINT)index : 32U; }
-	#if defined(PLATFORM_64BIT)
-	template<> INLFUNC UINT TrailingZeroBits(ULONGLONG x) { DWORD index; return _BitScanForward64(&index, x) ? (UINT)index : 64U; }
-	#endif
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MAC)
-	template<> INLFUNC UINT TrailingZeroBits(WORD x) { if (0 == x) return 16; return (UINT)__builtin_ctz((DWORD)x); }
-	template<> INLFUNC UINT TrailingZeroBits(DWORD x) { if (0 == x) return 32; return (UINT)__builtin_ctz(x); }
-	template<> INLFUNC UINT TrailingZeroBits(ULONGLONG x) { if (0 == x) return 64; return (UINT)__builtin_ctzll(x); }
+			static UINT LeadingZeroBits(T x) { ULONG index; return _BitScanReverse(&index, (DWORD)x) ? 32U - 1U - (UINT)index : 32U; }
+			static UINT TrailingZeroBits(T x) { ULONG index; return _BitScanForward(&index, (DWORD)x) ? (UINT)index : 32U; }
+			static UINT NonzeroBits(T x) { return (UINT)__popcnt((DWORD)x); }
+			static T	ByteOrderSwap(T x) { return _byteswap_ulong((DWORD)x); }
 #else
-#pragma message ("Advanced Bits Operations count-trailing-zeros is not available")
-#endif	
-
-	// count 1s
-	template<typename T> INLFUNC UINT NonzeroBits(T x);
-#if defined(PLATFORM_WIN)
-	template<> INLFUNC UINT NonzeroBits(WORD x) { return (UINT)__popcnt16(x); }
-	template<> INLFUNC UINT NonzeroBits(DWORD x) { return (UINT)__popcnt(x); }
-	#if defined(PLATFORM_64BIT)
-	template<> INLFUNC UINT NonzeroBits(ULONGLONG x) { return (UINT)__popcnt64(x); }
-	#endif
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MAC)
-	template<> INLFUNC UINT NonzeroBits(WORD x) { return (UINT)__builtin_popcount((DWORD)x); }
-	template<> INLFUNC UINT NonzeroBits(DWORD x) { return (UINT)__builtin_popcount(x); }
-	template<> INLFUNC UINT NonzeroBits(ULONGLONG x) { return (UINT)__builtin_popcountll(x); }
-#else
-#pragma message ("Advanced Bits Operations count-pop-bits is not available")
+			static UINT LeadingZeroBits(T x) { if(0 == x)return 32; return (UINT)__builtin_clz((DWORD)x); }
+			static UINT TrailingZeroBits(T x) { if(0 == x)return 32; return (UINT)__builtin_ctz((DWORD)x); }
+			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcount((DWORD)x); }
+			static T	ByteOrderSwap(T x) { return __builtin_bswap32((DWORD)x); }
 #endif
-
-	// swap byte order
-	template<typename T> INLFUNC T ByteOrderSwap(T x);
-#if defined(PLATFORM_WIN)
-	template<> INLFUNC WORD ByteOrderSwap(WORD x) { return _byteswap_ushort(x); }
-	template<> INLFUNC DWORD ByteOrderSwap(DWORD x) { return _byteswap_ulong(x); }
-	#if defined(PLATFORM_64BIT)
-	template<> INLFUNC ULONGLONG ByteOrderSwap(ULONGLONG x) { return _byteswap_uint64(x); }
-	#endif
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MAC)
-	template<> INLFUNC WORD ByteOrderSwap(WORD x) { return __builtin_bswap16(x); }
-	template<> INLFUNC DWORD ByteOrderSwap(DWORD x) { return __builtin_bswap32(x); }
-	template<> INLFUNC ULONGLONG ByteOrderSwap(ULONGLONG x) { return __builtin_bswap64(x); }
-#else
-#pragma message ("Advanced Bits Operations byte-order-swap is not available")
-#endif	
-
-	// sub_borrow
-	template<typename T> INLFUNC BYTE SubBorrow(BYTE, T, T, T*);
 #if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
-	template<> INLFUNC BYTE SubBorrow(BYTE b_in, UINT a, UINT b, UINT* out) { return _subborrow_u32(b_in, a, b, out); }
-	#if defined(PLATFORM_64BIT)
-	template<> INLFUNC BYTE SubBorrow(BYTE b_in, ULONGLONG a, ULONGLONG b, ULONGLONG* out) { return _subborrow_u64(b_in, a, b, out); }
-	#endif
-#elif defined(PLATFORM_LINUX)
-	template<> INLFUNC BYTE SubBorrow(BYTE b_in, UINT a, UINT b, UINT* out) { return __builtin_ia32_sbb_u32(b_in, a, b, out); }
-	template<> INLFUNC BYTE SubBorrow(BYTE b_in, ULONGLONG a, ULONGLONG b, ULONGLONG* out) { return __builtin_ia32_sbb_u64(b_in, a, b, out); }
+			static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
+			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return _subborrow_u32(b_in, (UINT)a, (UINT)b, (UINT*)out); }
 #else
-#pragma message ("SubBorrow is not available")
+			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return __builtin_ia32_sbb_u32(b_in, (UINT)a, (UINT)b, (UINT*)out); }
 #endif
+		};
+		template<typename T> struct AdvBitOps<T, 64>
+		{
+#if defined(PLATFORM_WIN)
+	#if defined(PLATFORM_64BIT)
+			static UINT LeadingZeroBits(T x) { ULONG index; return _BitScanReverse64(&index, (ULONGLONG)x) ? 64U - 1U - (UINT)index : 64U; }
+			static UINT TrailingZeroBits(T x) { ULONG index; return _BitScanForward64(&index, (ULONGLONG)x) ? (UINT)index : 64U; }
+			static UINT NonzeroBits(T x) { return (UINT)__popcnt64((ULONGLONG)x); }
+			static T	ByteOrderSwap(T x) { return (T)_byteswap_uint64((ULONGLONG)x); }
+	#endif
+#else
+			static UINT LeadingZeroBits(T x) { if(0 == x)return 64; return (UINT)__builtin_clzll((ULONGLONG)x); }
+			static UINT TrailingZeroBits(T x) { if(0 == x)return 64; return (UINT)__builtin_ctzll((ULONGLONG)x); }
+			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcountll((ULONGLONG)x); }
+			static T	ByteOrderSwap(T x) { return (T)__builtin_bswap64((ULONGLONG)x); }
+#endif
+#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
+	#if defined(PLATFORM_64BIT)
+			static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
+			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return _subborrow_u64(b_in, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)out); }
+	#endif
+#else
+			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return __builtin_ia32_sbb_u64(b_in, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)out); }
+#endif
+		};
+} // namespace _details
+	
+template<typename T> UINT LeadingZeroBits(T x) { return _details::AdvBitOps<T>::LeadingZeroBits(x); }
+template<typename T> UINT TrailingZeroBits(T x) { return _details::AdvBitOps<T>::TrailingZeroBits(x); }
+template<typename T> UINT NonzeroBits(T x) { return _details::AdvBitOps<T>::NonzeroBits(x); }
+template<typename T> T	  ByteOrderSwap(T x) { return _details::AdvBitOps<T>::ByteOrderSwap(x); }
+template<typename T> UINT Log2(T x){ return sizeof(T)*8 - 1 - LeadingZeroBits(x); }
+template<typename T> BYTE SubBorrow(BYTE b_in, T a, T b, T* out){ return _details::AdvBitOps<T>::SubBorrow(b_in, a, b, out); }
+template<typename T> BYTE AddCarry(BYTE b_in, T a, T b, T* out){ return _details::AdvBitOps<T>::AddCarry(b_in, a, b, out); }
 }
 
 namespace rt
