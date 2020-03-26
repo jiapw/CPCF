@@ -427,7 +427,7 @@ LPCSTR JsonObject::_LocateValue(const rt::String_Ref& xpath, bool bDoNotSplitDot
 
 JsonType JsonKeyValuePair::GetValueType(const rt::String_Ref& Value) 
 {	
-	if(Value.IsEmpty())return JSON_NULL;
+	if(Value.IsEmpty() && Value.Begin() == nullptr)return JSON_NULL;
 	if(Value[-1] == '"' || Value[-1] == '\'')return JSON_STRING;
 	if(Value[-1] == '/')return JSON_BINARY;
 	if(Value[0] == '{')return JSON_OBJECT;
