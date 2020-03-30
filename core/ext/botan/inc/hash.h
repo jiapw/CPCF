@@ -144,12 +144,14 @@ protected:
 	Ipp32u	_Context;
 public:
 	Hash(){ Reset(); }
-	void Reset(){ _Context = 0; }//~((DWORD)0); }
+	void	Reset(){ _Context = 0; }//~((DWORD)0); }
+	void	Reset(LPCVOID HashValue){ _Context = *((Ipp32u*)HashValue); IPPCALL(ippsSwapBytes_32u_I)((Ipp32u*)&_Context, 1); }
 	template<typename T> void Update(const T& x){ Update(&x, sizeof(x)); }
-	void Update(LPCVOID data, UINT size){ IPPCALL(ippsCRC32_8u)((LPCBYTE)data, size, &_Context); }
-	void Finalize(LPVOID HashValue){ *((Ipp32u*)HashValue) = _Context; IPPCALL(ippsSwapBytes_32u_I)((Ipp32u*)HashValue, 1); }
-	void Calculate(LPCVOID data, UINT size, LPVOID HashValue){ Reset(); Update(data, size); Finalize(HashValue); }
-	DWORD Calculate(LPCVOID data, UINT size){ DWORD a; Calculate(data,size,&a); return a; }
+	void	Update(LPCVOID data, UINT size){ IPPCALL(ippsCRC32_8u)((LPCBYTE)data, size, &_Context); }
+	void	Finalize(LPVOID HashValue){ *((Ipp32u*)HashValue) = _Context; IPPCALL(ippsSwapBytes_32u_I)((Ipp32u*)HashValue, 1); }
+	DWORD	GetCRC() const { DWORD ret = _Context; IPPCALL(ippsSwapBytes_32u_I)((Ipp32u*)&ret, 1); return ret; }
+	void	Calculate(LPCVOID data, UINT size, LPVOID HashValue){ Reset(); Update(data, size); Finalize(HashValue); }
+	DWORD	Calculate(LPCVOID data, UINT size){ DWORD a; Calculate(data,size,&a); return a; }
 };
 
 } // namespace sec
