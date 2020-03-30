@@ -326,6 +326,8 @@ D742E420DEB730A3BB3B6476F0FE9E7A675B = txie886ypwra7esvchvfi@myf9knb
 === UnitTest<encoding>: END =====
 
 === UnitTest<json>: BEGIN ===
+3
+aa:aa = 3
 {
    "abs": 1.3000,
    "cond_true": 
@@ -401,7 +403,7 @@ InArray
 Key:Complex [string] = complex\" key
 name [string] = this is name
 sex [string] = a female
-empty [null] = 
+empty [string] = 
 alive [bool] = true
 age [number] = 20
 char [string] = C

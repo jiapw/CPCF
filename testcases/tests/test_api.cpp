@@ -20,6 +20,14 @@
 void rt::UnitTests::json()
 {
 	{
+		rt::JsonObject json = "{\"aa:aa\": 3}";
+		_LOG(json.GetValueAs<int>("aa:aa"));
+		rt::JsonKeyValuePair kv;
+		json.GetNextKeyValuePair(kv);
+		_LOG(kv.GetKey()<<" = "<<kv.GetValue());
+	}
+
+	{
 		rt::String str =
 		(
 			J_IF(false, J(cond_false) = "no"),

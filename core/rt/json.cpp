@@ -222,10 +222,14 @@ void JsonObject::UnescapeStringValue(const rt::String_Ref& in, rt::String& val_o
 bool JsonObject::GetNextKeyValuePair(JsonKeyValuePair& kvp) const
 {	
 	if(_Doc.IsEmpty())return false;
+	ASSERT(*_Doc.Begin() == '{');
 	LPCSTR p = _Doc.Begin() + 1;
 	LPCSTR end = _Doc.End();
-	if(kvp._Key.Begin()>=p && kvp._Value.End()<=_Doc.End())p = kvp._Value.End();
-	if(*p=='"' || *p=='\'' || *p=='>')p++;
+	if(kvp._Key.Begin()>=p && kvp._Value.End()<=_Doc.End())
+	{
+		p = kvp._Value.End();
+		if(*p=='"' || *p=='\'' || *p=='>')p++;
+	}
 
 	p = _skip_whitespace(p, end);
 	if(*p == '}')return false;
