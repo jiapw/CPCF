@@ -58,19 +58,32 @@ void rt::UnitTests::sparsehash()
 
 void rt::UnitTests::rocks_db()
 {
+	LPCSTR fn = "test.db";
+
 	ext::RocksDB db;
-	db.Open("test.db");
+	ext::RocksDB::Nuke(fn);
+	db.Open(fn);
 
 	for(UINT i=0; i<100; i++)
-		db.Set(i,i);
+		db.Set(i*2,i*2);
+	{
+		auto it = db.First();
+		_LOG(it.Value<int>());
+		it.Next(4);
+		_LOG(it.Value<int>());
 
-	auto it = db.First();
-	_LOG(it.Value<int>());
-	it.Next(4);
-	_LOG(it.Value<int>());
+		// ext::RocksCursor a;   // not allowed
+		// ext::RocksCursor b = it;  // not allowed
 
-	// ext::RocksCursor a;   // not allowed
-	// ext::RocksCursor b = it;  // not allowed
+		it = db.Find(33);
+		_LOG(it.Value<int>());
+		it.Prev(4);
+		_LOG(it.Value<int>());
+	}
+
+	db.Close();
+
+	ext::RocksDB::Nuke(fn);
 }
 
 void rt::UnitTests::async_queue()

@@ -93,6 +93,7 @@ class RocksCursor
 
 public:
 	RocksCursor(const RocksCursor&& x){ iter = x.iter; }	// move constructor, enable return by RocksDB::First/Last
+	void	operator = (RocksCursor&& x){ _SafeDel_Untracked(iter); iter = x.iter; x.iter = nullptr; }
 
 	template<typename T>
 	INLFUNC const T&			Value() const { return *(T*)iter->value().data(); }
@@ -211,20 +212,20 @@ public:
 		return (_pDB->Get(*opt, k, &temp).ok())?
 				rt::String_Ref(temp.data(), temp.length()):rt::String_Ref();
 	}
-	RocksCursor Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault)
-	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
+	RocksCursor Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
+	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt);
 		ASSERT(it);
 		it->Seek(begin);
 		return RocksCursor(it);
 	}
-	RocksCursor First(const ReadOptions* opt = ReadOptionsDefault)
-	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
+	RocksCursor First(const ReadOptions* opt = ReadOptionsDefault) const
+	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt);
 		ASSERT(it);
 		it->SeekToFirst();
 		return RocksCursor(it);
 	}
-	RocksCursor Last(const ReadOptions* opt = ReadOptionsDefault)
-	{	::rocksdb::Iterator* it = _pDB->NewIterator(*opt);
+	RocksCursor Last(const ReadOptions* opt = ReadOptionsDefault) const
+	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt);
 		ASSERT(it);
 		it->SeekToLast();
 		return RocksCursor(it);
@@ -326,6 +327,75 @@ public:
 									char*	varname##_buf = (char*)alloca(varname##_strexp.GetLength());	\
 									UINT	varname##_strlen = (UINT)varname##_strexp.CopyTo(varname##_buf); \
 									SliceValue varname(varname##_buf, varname##_strlen); \
+
+namespace _details
+{
+
+template<int LEN>
+struct cmp
+{	static INLFUNC bool less(LPCBYTE a, LPCBYTE b){ return *a < *b || (*a == *b && cmp<LEN-1>::less(a+1, b+1)); }
+	static INLFUNC bool less_equal(LPCBYTE a, LPCBYTE b){ return *a < *b || ((*a == *b) && cmp<LEN-1>::less_equal(a+1, b+1)); }
+	static INLFUNC bool great_equal(LPCBYTE a, LPCBYTE b){ return *a > *b || ((*a == *b) && cmp<LEN-1>::great_equal(a+1, b+1)); }
+};
+	template<> struct cmp<1>
+	{	static INLFUNC bool less(LPCBYTE a, LPCBYTE b){ return *a < *b; }
+		static INLFUNC bool less_equal(LPCBYTE a, LPCBYTE b){ return *a <= *b; }
+		static INLFUNC bool great_equal(LPCBYTE a, LPCBYTE b){ return *a >= *b; }
+	};
+} // namespace _details
+
+#pragma pack(push, 1)
+template<typename T>
+struct DbKeyDescendent  // for POD
+{	BYTE	Data[sizeof(T)];
+	static_assert(rt::TypeTraits<T>::IsPOD, "DbKeyDescendent<T>: T should be POD");
+	DbKeyDescendent() = default;
+	DbKeyDescendent(const DbKeyDescendent& x) = default;
+	DbKeyDescendent(const T& x){ *this = x; }
+	auto		operator = (const DbKeyDescendent& x) -> const DbKeyDescendent& { rt::CopyByteTo<sizeof(T)>(&x, this); return x; }
+	const T&	operator = (const T& x)
+				{	static_assert(sizeof(T) <= ULONGLONG);
+					ULONGLONG a = *(ULONGLONG*)&x;
+					a = 0xffffffffffffffffULL - a;
+					rt::SwitchByteOrderTo(*(T*)&a, *(T*)Data);
+					return x;
+				}
+				operator T() const
+				{	ULONGLONG x = 0;
+					rt::SwitchByteOrderTo(*(T*)Data, *(T*)&x);
+					x = 0xffffffffffffffffULL - x;
+					return (T&)x;
+				}
+	bool		operator < (const DbKeyDescendent& x) const { return _details::cmp<sizeof(T)>::less(Data, x.Data); }
+	bool		operator <= (const DbKeyDescendent& x) const { return _details::cmp<sizeof(T)>::less_equal(Data, x.Data); }
+	bool		operator >= (const DbKeyDescendent& x) const { return _details::cmp<sizeof(T)>::great_equal(Data, x.Data); }
+	T			Original() const { return *this; }
+};
+
+template<typename T>
+struct DbKeyAscendent  // for POD
+{	BYTE	Data[sizeof(T)];
+	static_assert(rt::TypeTraits<T>::IsPOD, "DbKeyDescendent<T>: T should be POD");
+	DbKeyAscendent() = default;
+	DbKeyAscendent(const DbKeyAscendent& x) = default;
+	DbKeyAscendent(const T& x){ *this = x; }
+	auto		operator = (const DbKeyAscendent& x) -> const DbKeyAscendent& { rt::CopyByteTo<sizeof(T)>(&x, this); return x; }
+	const T&	operator = (const T& x)
+				{
+					rt::SwitchByteOrderTo(*(T*)&x, *(T*)Data);
+					return x;
+				}
+				operator T() const
+				{	T x;
+					rt::SwitchByteOrderTo(*(T*)Data, *(T*)&x);
+					return x;
+				}
+	bool		operator < (const DbKeyAscendent& x) const { return _details::cmp<sizeof(T)>::less(Data, x.Data); }
+	bool		operator <= (const DbKeyAscendent& x) const { return _details::cmp<sizeof(T)>::less_equal(Data, x.Data); }
+	bool		operator >= (const DbKeyAscendent& x) const { return _details::cmp<sizeof(T)>::great_equal(Data, x.Data); }
+	T			Original() const { return *this; }
+};
+#pragma pack(pop)
 
 } // namespace ext
 
