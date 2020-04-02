@@ -92,8 +92,9 @@ class RocksCursor
 	RocksCursor(const RocksCursor& x) = delete; // RocksCursor can only be constructed by RocksDB
 
 public:
-	RocksCursor(const RocksCursor&& x){ iter = x.iter; }	// move constructor, enable return by RocksDB::First/Last
-	void	operator = (RocksCursor&& x){ _SafeDel_Untracked(iter); iter = x.iter; x.iter = nullptr; }
+	INLFUNC RocksCursor(const RocksCursor&& x){ iter = x.iter; }	// move constructor, enable return by RocksDB::First/Last
+	INLFUNC	~RocksCursor(){ Empty(); }
+	INLFUNC void				operator = (RocksCursor&& x){ _SafeDel_Untracked(iter); iter = x.iter; x.iter = nullptr; }
 
 	template<typename T>
 	INLFUNC const T&			Value() const { return *(T*)iter->value().data(); }
@@ -104,13 +105,13 @@ public:
 	INLFUNC const SliceValue	Value() const { return (const SliceValue&)iter->value(); }
 	INLFUNC SIZE_T				KeyLength() const { return iter->key().size(); }
 	INLFUNC SIZE_T				ValueLength() const { return iter->value().size(); }
-	INLFUNC						~RocksCursor(){ _SafeDel_Untracked(iter); }
 	INLFUNC bool				IsValid() const { return iter && iter->Valid(); }
 	INLFUNC void				Next(){ iter->Next(); }
 	INLFUNC void				Prev(){ iter->Prev(); }
 	INLFUNC void				Next(UINT co){ while(co--)iter->Next(); }
 	INLFUNC void				Prev(UINT co){ while(co--)iter->Prev(); }
 	INLFUNC bool				IsEmpty() const { return iter == nullptr; }
+	INLFUNC void				Empty(){ _SafeDel_Untracked(iter); }
 };
 
 class RocksDB
