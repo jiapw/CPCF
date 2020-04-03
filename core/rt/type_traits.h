@@ -665,7 +665,7 @@ struct _EnumStringify;
 
 template<typename T>
 INLFUNC LPCSTR EnumStringify(T x){ return rt::_details::_EnumStringify<T>(x); }
-									
+	
 } // namespace rt
 
 

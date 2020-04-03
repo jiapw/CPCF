@@ -369,9 +369,8 @@ public:
 		}
 		return false;
 	}
-	INLFUNC void ShrinkSize(SIZE_T new_size) // avoid calling ctor
-	{	ASSERT(new_size<=_SC::_len);
-		if( new_size == _SC::_len )return;
+	INLFUNC void ShrinkSize(SIZE_T new_size) // skip calling ctor
+	{	if( new_size >= _SC::_len )return;
 		if( new_size<_SC::_len )
 		{	
 			for(SIZE_T i=new_size;i<_SC::_len;i++)_SC::_xt::dtor(_SC::_p[i]);	//call dtor for unwanted instances at back
