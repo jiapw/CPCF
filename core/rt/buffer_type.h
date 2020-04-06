@@ -1066,13 +1066,13 @@ public:
 };
 
 
-template<typename T, UINT TOP_K=1, bool store_last_val = false>
-class TopFrequentValues
+template<typename T, UINT TOP_K=1, typename T_WEIGHT = int, bool keep_latest_value = false>
+class TopWeightedValues
 {
-	template<typename _T, UINT _TOP_K, bool s> friend class TopFrequentValues;
+	template<typename _T, UINT _TOP_K, typename T_WEIGHT, bool s> friend class TopWeightedValues;
 	struct _val
-	{	T	Val;
-		int	Count;
+	{	T			Val;
+		T_WEIGHT	Wei;
 	};
 public:
 	static const int UNMATCHED = 0;
@@ -1080,90 +1080,89 @@ public:
 	static const int MATCHED_WITH_TOP = 2;
 protected:
 	_val	_TopValues[TOP_K];
-	int		_Match(const T& val)	// 0: not match, 1: matched and no promote, 2: matched
+	int		_Match(const T& val, T_WEIGHT wei)	// 0: not match, 1: matched and no promote, 2: matched
 			{
 				if(_TopValues[0].Val == val)
-				{	_TopValues[0].Count++;
-					if(store_last_val)_TopValues[0].Val = val;
+				{	_TopValues[0].Wei += wei;
+					if(keep_latest_value)_TopValues[0].Val = val;
 					return MATCHED_WITH_TOP;
 				}
-				if(_TopValues[0].Count == 0)
-				{	_TopValues[0].Count = 1;
+				if(_TopValues[0].Wei == 0)
+				{	_TopValues[0].Wei = wei;
 					_TopValues[0].Val = val;
 					return MATCHED_WITH_TOP;
 				}
-				int ret = ((TopFrequentValues<T,TOP_K-1>*)&_TopValues[1])->_Match(val);
+				int ret = ((TopWeightedValues<T,TOP_K-1,T_WEIGHT>*)&_TopValues[1])->_Match(val, wei);
 				if(ret == MATCHED_WITH_TOP)
-				{	if(_TopValues[1].Count > _TopValues[0].Count)
+				{	if(_TopValues[1].Wei > _TopValues[0].Wei)
 					{	rt::Swap(_TopValues[1], _TopValues[0]);
 						return MATCHED_WITH_TOP;
 					}else return MATCHED;
 				}
 				return ret;
 			}
+	auto	_WeightSum() const { return _TopValues[0].Wei + ((TopFrequentValues<T,TOP_K-1,T_WEIGHT>*)&_TopValues[1])->_WeightSum(); }
 public:
-	TopFrequentValues(){ Reset(); }
+	TopWeightedValues(){ Reset(); }
 	static	UINT GetSize(){ return TOP_K; }
 	void	Reset(){ rt::Zero(*this); }
-	int		Sample(const T& val)		// UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
-			{	int ret = _Match(val);
+	int		Sample(const T& val, T_WEIGHT wei = 1)		// UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
+			{	int ret = _Match(val, wei);
 				if(ret == UNMATCHED)
-				{	if((--_TopValues[TOP_K-1].Count) < 0)
+				{	if((--_TopValues[TOP_K-1].Wei) < 0)
 					{	_TopValues[TOP_K-1].Val = val;
-						_TopValues[TOP_K-1].Count = 1;
+						_TopValues[TOP_K-1].Wei = wei;
 						return MATCHED;
 					}
 				}
 				return ret;
 			}
-	bool	IsSignificant(UINT min_votes) const { return _TopValues[0].Count >= min_votes && _TopValues[0].Count > 2*_TopValues[1].Count; }
-	bool	IsEmpty() const { return GetFrequency() <= 0; }
-	int		GetFrequency() const { return _TopValues[0].Count; }
-	int		GetFrequency(UINT i) const { return _TopValues[i].Count; }
+	bool	IsEmpty() const { return GetWeight() <= 0; }
+	auto	GetWeight() const { return _TopValues[0].Wei; }
+	auto	GetWeight(UINT i) const { return _TopValues[i].Wei; }
 	auto&	operator[](UINT i) const { return Get(i); }
 	auto&	Get() const { return _TopValues[0].Val; }
 	auto&	Get(UINT i) const { return _TopValues[i].Val; }
-	bool	Get(UINT i, T* val, int* count) const
-			{	if(_TopValues[i].Count>0)
-				{	*count = _TopValues[i].Count;
+	bool	Get(UINT i, T* val, T_WEIGHT* wei) const
+			{	if(_TopValues[i].Wei>0)
+				{	*wei = _TopValues[i].Wei;
 					*val = _TopValues[i].Val;
 					return true; 
 				}else return false;
 			}
 	void	Remove(UINT i)
 			{	if(((int)TOP_K) - (int)i - 1 > 0)memmove(&_TopValues[i], &_TopValues[i+1], sizeof(_val)*(TOP_K - i - 1));
-				_TopValues[TOP_K-1].Count = 0;
+				_TopValues[TOP_K-1].Wei = 0;
 			}
-	UINT	GetSignificantRatio(UINT min_votes) const // by precent
-			{	return _TopValues[0].Count >= (int)min_votes?50 + rt::min(50, (_TopValues[0].Count - _TopValues[1].Count)/_TopValues[0].Count)
-											:_TopValues[0].Count/2*min_votes;
-			}
+	bool	IsSignificant(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei >= min_weight && _TopValues[0].Wei > _WeightSum()/2; }
+	UINT	GetSignificantRatio(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei >= min_weight?(UINT)(_TopValues[0].Wei*100/_WeightSum()):0; }
 };
-	template<typename T, bool s>
-	class TopFrequentValues<T,0,s>
-	{	template<typename _T, UINT _TOP_K, bool _s> friend class TopFrequentValues;
-		protected:	int _Match(const T& val){ return 0; }
+	template<typename T, typename T_WEIGHT, bool s>
+	class TopWeightedValues<T, 0, T_WEIGHT, s>
+	{	template<typename _T, UINT _TOP_K, typename T_WEIGHT, bool _s> friend class TopWeightedValues;
+		protected:	int		_Match(const T& val, T_WEIGHT wei){ return 0; }
+					auto	_WeightSum() const { return 0; }
 	};
 
-template<class t_Ostream, typename t_Ele, int TOP, bool S>
-t_Ostream& operator<<(t_Ostream& Ostream, const TopFrequentValues<t_Ele, TOP, S> & vec)
+template<class t_Ostream, typename t_Ele, int TOP, typename t_Wei, bool S>
+t_Ostream& operator<<(t_Ostream& Ostream, const TopWeightedValues<t_Ele, TOP, t_Wei, S> & vec)
 {	Ostream<<'{';
 	if(rt::TypeTraits<typename rt::TypeTraits<t_Ele>::t_Element>::Typeid == rt::_typeid_8s)
 	{
 		for(UINT i=0;i<vec.GetSize();i++)
 		{	if(i)
-				Ostream<<','<<'"'<<vec[i]<<"\"="<<vec.GetFrequency(i);
+				Ostream<<','<<' '<<'"'<<vec[i]<<"\"="<<vec.GetWeight(i);
 			else
-				Ostream<<'"'<<vec[i]<<"\"="<<vec.GetFrequency(i);
+				Ostream<<'"'<<vec[i]<<"\"="<<vec.GetWeight(i);
 		}
 	}
 	else
 	{
 		for(UINT i=0;i<vec.GetSize();i++)
 		{	if(i)
-				Ostream<<','<<vec[i]<<'='<<vec.GetFrequency(i);
+				Ostream<<','<<' '<<vec[i]<<'='<<vec.GetWeight(i);
 			else
-				Ostream<<vec[i]<<'='<<vec.GetFrequency(i);
+				Ostream<<vec[i]<<'='<<vec.GetWeight(i);
 		}
 	}
 	Ostream<<'}';

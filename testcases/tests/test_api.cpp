@@ -1064,6 +1064,23 @@ void rt::UnitTests::precompiler()
 
 void rt::UnitTests::buffer()
 {
+	{	rt::TopWeightedValues<int, 5, float> votes;
+		votes.Sample(1, 0.1f);
+		votes.Sample(3, 0.4f);
+		_LOG(votes);
+
+		votes.Sample(4, 0.2f);
+		votes.Sample(5, 0.02f);
+		votes.Sample(2, 0.01f);
+		_LOG(votes);
+
+		votes.Sample(4, 0.3f);
+		_LOG(votes);
+
+		votes.Sample(2, 1.f);
+		_LOG(votes);
+	}
+
 	rt::BufferEx<int>	buf;
 	buf.SetSize(3);
 	buf.Set(0);
