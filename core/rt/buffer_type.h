@@ -1101,7 +1101,7 @@ protected:
 				}
 				return ret;
 			}
-	auto	_WeightSum() const { return _TopValues[0].Wei + ((TopFrequentValues<T,TOP_K-1,T_WEIGHT>*)&_TopValues[1])->_WeightSum(); }
+	auto	_WeightSum() const { return _TopValues[0].Wei + ((TopWeightedValues<T,TOP_K-1,T_WEIGHT>*)&_TopValues[1])->_WeightSum(); }
 public:
 	TopWeightedValues(){ Reset(); }
 	static	UINT GetSize(){ return TOP_K; }
