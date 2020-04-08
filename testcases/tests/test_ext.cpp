@@ -186,8 +186,83 @@ void rt::UnitTests::rocks_db()
 	//Rand Order: 457         17824194        2291340			Rand Order: 46			12263473        1556467
 	//Rand+Compr: 458         21178903        3389045			Rand+Compr: 46			15260804        2036797
 
-	/*
-
+/*
+    Release Build Mac Mini (2014) + Apple SSD (512GB)
+    DBWR_LEVEL_FASTEST - WriteOptionsFastRisky
+    Asce Order: 1384569    19037349    524771
+    Desc Order: 1205159    18190861    549404
+    Desc+Compr: 1473572    23039712    768779
+    Rand Order: 443674    13509947    558604
+    Rand+Compr: 613971    13021859    824895
+    DBWR_LEVEL_DEFAULT - WriteOptionsFastRisky
+    Asce Order: 1447145    18513161    596101
+    Desc Order: 1248247    8585274    507108
+    Desc+Compr: 1535761    21282786    848086
+    Rand Order: 417861    13004660    512533
+    Rand+Compr: 565986    13773808    807828
+    DBWR_LEVEL_UNBUFFERED - WriteOptionsFastRisky
+    Asce Order: 594477    15504580    553609
+    Desc Order: 741282    18691929    496552
+    Desc+Compr: 1537722    21467505    790474
+    Rand Order: 294542    13129551    534549
+    Rand+Compr: 617939    13524222    771488
+    DBWR_LEVEL_STRONG - WriteOptionsFastRisky
+    Asce Order: 1402182    18116839    488892
+    Desc Order: 1198487    18238489    534471
+    Desc+Compr: 1466985    22705099    793701
+    Rand Order: 413760    12686613    460277
+    Rand+Compr: 592750    13157894    853167
+    DBWR_LEVEL_FASTEST - WriteOptionsDefault
+    Asce Order: 219073    15970305    489711
+    Desc Order: 215834    18141553    527876
+    Desc+Compr: 185060    13428979    671346
+    Rand Order: 152521    10909052    536152
+    Rand+Compr: 169758    9591247    742205
+    DBWR_LEVEL_DEFAULT - WriteOptionsDefault
+    Asce Order: 189913    17422373    540624
+    Desc Order: 205955    17479473    460539
+    Desc+Compr: 197788    17065813    766067
+    Rand Order: 152264    11569444    497687
+    Rand+Compr: 172546    13504602    657699
+    DBWR_LEVEL_UNBUFFERED - WriteOptionsDefault
+    Asce Order: 214872    16501224    498653
+    Desc Order: 202687    17270166    467851
+    Desc+Compr: 192490    20801170    666498
+    Rand Order: 151901    13172281    428023
+    Rand+Compr: 178632    9668860    787233
+    DBWR_LEVEL_STRONG - WriteOptionsDefault
+    Asce Order: 218338    16905779    543460
+    Desc Order: 190053    18399396    523554
+    Desc+Compr: 182842    14763126    816510
+    Rand Order: 143805    11083330    472800
+    Rand+Compr: 172461    12502441    763272
+    DBWR_LEVEL_FASTEST - WriteOptionsRobust
+    Asce Order: 12704    20257171    228967
+    Desc Order: 10717    19068901    940225
+    Desc+Compr: 12987    22333696    1400820
+    Rand Order: 9895    20098135    980655
+    Rand+Compr: 12704    23486238    1298997
+    DBWR_LEVEL_DEFAULT - WriteOptionsRobust
+    Asce Order: 14415    20297324    969742
+    Desc Order: 14836    20439121    245525
+    Desc+Compr: 11661    23089064    1370633
+    Rand Order: 12041    20237154    827341
+    Rand+Compr: 13919    23115124    1281120
+    DBWR_LEVEL_UNBUFFERED - WriteOptionsRobust
+    Asce Order: 14830    20237154    857872
+    Desc Order: 14786    20157480    1043460
+    Desc+Compr: 14675    23115124    1470736
+    Rand Order: 14555    20257171    874690
+    Rand+Compr: 14001    23167420    1476461
+    DBWR_LEVEL_STRONG - WriteOptionsRobust
+    Asce Order: 14262    20078431    992103
+    Desc Order: 14912    20197238    913836
+    Desc+Compr: 14825    23193657    1533393
+    Rand Order: 14383    20277227    842174
+    Rand+Compr: 14668    23063063    1380519
+*/
+    
+/*
 	struct cmp: public ::rocksdb::Comparator
 	{
 		// Three-way comparison.  Returns value:
@@ -425,7 +500,7 @@ void rt::UnitTests::rocks_db()
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_STRONG - WriteOptionsRobust");
 	test(ext::RocksStorage::DBWR_LEVEL_STRONG, ext::RocksDB::WriteOptionsRobust);
-	*/
+*/
 }
 
 void rt::UnitTests::async_queue()

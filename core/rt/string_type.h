@@ -1854,9 +1854,9 @@ struct __TNAS
 	{
 #if defined(PLATFORM_WIN)
 		return __FUNCTION__; 
-#elif defined(PLATFORM_LINUX)
+#else
 		return __PRETTY_FUNCTION__;
-#endif		
+#endif
 	}
 };
 

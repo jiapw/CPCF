@@ -1435,7 +1435,7 @@ void rt::UnitTests::rt()
 		
 		struct a { int __; };
 		_LOGC(rt::TypeNameToString<a>());
-	}
+    }
 }
 
 

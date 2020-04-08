@@ -52,6 +52,7 @@
 		941D3E9A213073E000F97118 /* botan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E98213073E000F97118 /* botan.cpp */; };
 		941D3E9D2130779000F97118 /* exprtk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E9B2130779000F97118 /* exprtk.cpp */; };
 		9429576E241709C500A5A0A3 /* test_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9429576D241709C500A5A0A3 /* test_ext.cpp */; };
+		946C4501243E881D009D8581 /* rocksdb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946C4500243E881D009D8581 /* rocksdb.cpp */; };
 		94A69E9022C0840A00757781 /* test_perf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A69E8F22C0840A00757781 /* test_perf.cpp */; };
 		95C9EC94232A3D5D002A4B91 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC93232A3D5D002A4B91 /* json.cpp */; };
 		95C9EC96232A3D6F002A4B91 /* kernal_encode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC95232A3D6F002A4B91 /* kernal_encode.cpp */; };
@@ -144,6 +145,8 @@
 		941D3E9B2130779000F97118 /* exprtk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exprtk.cpp; path = ../../../core/ext/exprtk/exprtk.cpp; sourceTree = "<group>"; };
 		941D3E9C2130779000F97118 /* exprtk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = exprtk.h; path = ../../../core/ext/exprtk/exprtk.h; sourceTree = "<group>"; };
 		9429576D241709C500A5A0A3 /* test_ext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_ext.cpp; path = ../../tests/test_ext.cpp; sourceTree = "<group>"; };
+		946C44FF243E881D009D8581 /* rocksdb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rocksdb.h; path = ../../../core/ext/rocksdb/rocksdb.h; sourceTree = "<group>"; };
+		946C4500243E881D009D8581 /* rocksdb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rocksdb.cpp; path = ../../../core/ext/rocksdb/rocksdb.cpp; sourceTree = "<group>"; };
 		94A69E8F22C0840A00757781 /* test_perf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_perf.cpp; path = ../../tests/test_perf.cpp; sourceTree = "<group>"; };
 		95C9EC93232A3D5D002A4B91 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../../../core/rt/json.cpp; sourceTree = "<group>"; };
 		95C9EC95232A3D6F002A4B91 /* kernal_encode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kernal_encode.cpp; path = ../../../core/os/kernal_encode.cpp; sourceTree = "<group>"; };
@@ -252,7 +255,7 @@
 				93C4A241169FECE300D3C820 /* os */,
 				930D8F0616C4E63C00261897 /* ipp */,
 				93C4A23F169FECD800D3C820 /* rt */,
-				93C4A267169FF40D00D3C820 /* botan */,
+				93C4A267169FF40D00D3C820 /* ext */,
 				93C4A232169FEC7A00D3C820 /* main.cpp */,
 				93C4A234169FEC7A00D3C820 /* tester.1 */,
 			);
@@ -317,13 +320,15 @@
 			name = inet;
 			sourceTree = "<group>";
 		};
-		93C4A267169FF40D00D3C820 /* botan */ = {
+		93C4A267169FF40D00D3C820 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				946C4500243E881D009D8581 /* rocksdb.cpp */,
+				946C44FF243E881D009D8581 /* rocksdb.h */,
 				941D3E98213073E000F97118 /* botan.cpp */,
 				941D3E99213073E000F97118 /* botan.h */,
 			);
-			name = botan;
+			name = ext;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -379,6 +384,7 @@
 			files = (
 				93C4A233169FEC7A00D3C820 /* main.cpp in Sources */,
 				941D3E602130738800F97118 /* precompiler.cpp in Sources */,
+				946C4501243E881D009D8581 /* rocksdb.cpp in Sources */,
 				941D3E3F2130735D00F97118 /* lib_inc.c in Sources */,
 				941D3E652130738800F97118 /* kernel.cpp in Sources */,
 				941D3E372130734F00F97118 /* test_botan.cpp in Sources */,

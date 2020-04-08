@@ -15,7 +15,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(rt);
+		TYPETRAITS_UNITTEST(rocks_db);
 		//TYPETRAITS_UNITTEST(callback_to_member_function);
 		return;
 	}
