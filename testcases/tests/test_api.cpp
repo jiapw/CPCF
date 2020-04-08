@@ -1062,7 +1062,6 @@ void rt::UnitTests::precompiler()
 	//os::File("out.cpp", os::File::Normal_WriteText).Write(os::Precompiler("main.cpp").GetCompiled());
 }
 
-
 void rt::UnitTests::buffer()
 {
 	{	rt::TopWeightedValues<int, 5, float> votes;
@@ -1434,7 +1433,7 @@ void rt::UnitTests::rt()
 		_LOG(rt::TypeNameToString<os::_tagProcessPriority>());
 		
 		struct a { int __; };
-		_LOGC(rt::TypeNameToString<a>());
+		_LOG(rt::TypeNameToString<a>()<<" (nested type in function scope)");
     }
 }
 

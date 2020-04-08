@@ -1866,23 +1866,20 @@ template<typename T>
 INLFUNC rt::String_Ref TypeNameToString()
 {
 	LPCSTR raw_name = _details::__TNAS<T>::__TNAS_END();
-	raw_name = strstr(raw_name, "rt::_details::__TNAS<");
-	ASSERT(raw_name);
+	raw_name = strstr(raw_name, "rt::_details::__TNAS<");			ASSERT(raw_name);
 	raw_name += 21;
-	LPCSTR end = strstr(raw_name, ">::__TNAS_END");
-	ASSERT(end);
-
+	LPCSTR end = strstr(raw_name, ">::__TNAS_END");					ASSERT(end);
 	if(rt::String_Ref(raw_name, end) == rt::SS("__TNAS_T"))
-	{
-		raw_name = strstr(end, "__TNAS_T = ");	ASSERT(raw_name);
+	{	raw_name = strstr(end, "__TNAS_T = ");						ASSERT(raw_name);
 		raw_name += 11;
 		end = strchr(raw_name,';');
 	}
-	
 	if(memcmp(raw_name, "struct ", 7) == 0){ raw_name += 7; }
 	else if(memcmp(raw_name, "class ", 6) == 0){ raw_name += 6; }
-
-	return rt::String_Ref(raw_name, end);
+	else if(memcmp(raw_name, "enum ", 5) == 0){ raw_name += 5; }
+	rt::String_Ref ret(raw_name, end);
+	// check if nested type defined within function scope, and fullback to clang's behavior 
+	return ret.Occurrence("()") >= 2?ret.TrimBeforeReverse("):"):ret;
 }
 
 namespace _details
