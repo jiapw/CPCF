@@ -88,8 +88,8 @@ public:
     {	_SC::set_empty_key(key_traits<KEY>::empty_key());
 		_SC::set_deleted_key(key_traits<KEY>::deleted_key());
 	}
-	INLFUNC bool has(const KEY&& k) const { return find(k) != end(); }
-	INLFUNC bool has(const KEY& k) const { return find(k) != end(); }
+	INLFUNC bool has(const KEY&& k) const { return _SC::find(k) != _SC::end(); }
+	INLFUNC bool has(const KEY& k) const { return _SC::find(k) != _SC::end(); }
 };
 
 template<typename KEY, typename VALUE, typename hash_compare = SPARSEHASH_HASH<KEY>>

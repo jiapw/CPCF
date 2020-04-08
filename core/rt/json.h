@@ -232,7 +232,7 @@ public:
 	FORCEINL void	Append(LPSTR x){ _Append(rt::String_Ref(x), true); }
 	FORCEINL void	Append(char x){ _Append(rt::String_Ref(&x, 1), true); }
 	template<typename T>
-	FORCEINL void	Append(T& json){ _Append(json, std::is_base_of<rt::String_Ref, T>::value); }
+	FORCEINL void	Append(const T& json){ _Append(json, std::is_base_of<rt::String_Ref, T>::value); }
 
 	FORCEINL UINT	GetLength() const { return (UINT)(_buf.GetLength() + 1); }
 	FORCEINL UINT	CopyTo(LPSTR p) const 

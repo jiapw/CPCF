@@ -1069,7 +1069,7 @@ public:
 template<typename T, UINT TOP_K=1, typename T_WEIGHT = int, bool keep_latest_value = false>
 class TopWeightedValues
 {
-	template<typename _T, UINT _TOP_K, typename T_WEIGHT, bool s> friend class TopWeightedValues;
+	template<typename _T, UINT _TOP_K, typename _WEIGHT, bool s> friend class TopWeightedValues;
 	struct _val
 	{	T			Val;
 		T_WEIGHT	Wei;
@@ -1139,12 +1139,12 @@ public:
 };
 	template<typename T, typename T_WEIGHT, bool s>
 	class TopWeightedValues<T, 0, T_WEIGHT, s>
-	{	template<typename _T, UINT _TOP_K, typename T_WEIGHT, bool _s> friend class TopWeightedValues;
+	{	template<typename _T, UINT _TOP_K, typename _WEIGHT, bool _s> friend class TopWeightedValues;
 		protected:	int		_Match(const T& val, T_WEIGHT wei){ return 0; }
 					auto	_WeightSum() const { return 0; }
 	};
 
-template<class t_Ostream, typename t_Ele, int TOP, typename t_Wei, bool S>
+template<class t_Ostream, typename t_Ele, UINT TOP, typename t_Wei, bool S>
 t_Ostream& operator<<(t_Ostream& Ostream, const TopWeightedValues<t_Ele, TOP, t_Wei, S> & vec)
 {	Ostream<<'{';
 	if(rt::TypeTraits<typename rt::TypeTraits<t_Ele>::t_Element>::Typeid == rt::_typeid_8s)

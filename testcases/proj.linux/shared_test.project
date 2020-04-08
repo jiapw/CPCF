@@ -55,6 +55,10 @@
       <File Name="../../core/rt/json.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
+  <VirtualDirectory Name="ext">
+    <File Name="../../core/ext/rocksdb/rocksdb.cpp"/>
+    <File Name="../../core/ext/rocksdb/rocksdb.h"/>
+  </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="-std=c++14;-pthread" C_Options="" Assembler="">

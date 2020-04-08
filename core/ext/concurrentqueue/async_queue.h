@@ -168,6 +168,7 @@ struct _ConcurrentQueue;
 template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool HAS_GETSIZE = false, bool SINGLE_READER_WRITER = false>
 class AsyncDataQueueInfinite: public _details::_QueueCounter<HAS_GETSIZE>
 {	
+	typedef _details::_QueueCounter<HAS_GETSIZE> _SC;
 	typedef _details::_ConcurrentQueue<T, BLOCKING, SINGLE_READER_WRITER, BLOCK_SIZE> QueueType;
 protected:
 	QueueType	_Q;
@@ -177,9 +178,9 @@ public:
 	using WithType = AsyncDataQueueInfinite<T2, BLOCKING, BLOCK_SIZE, HAS_GETSIZE, SINGLE_READER_WRITER>;
 
 	AsyncDataQueueInfinite(INT reserve_size = 32):_Q(reserve_size),_details::_QueueCounter<HAS_GETSIZE>(reserve_size){}
-	void	Push(const T& t){ VERIFY((_PostPush(_Q.enqueue(t)))); }
-	bool	Pop(T& t, UINT timeout = 0){ return _PostPop(_Q.Pop(t,timeout)); }
-	void	Empty(){ _Q.~QueueType(); new (&_Q) QueueType(_InitReservedSize); }
+	void	Push(const T& t){ VERIFY((_SC::_PostPush(_Q.enqueue(t)))); }
+	bool	Pop(T& t, UINT timeout = 0){ return _SC::_PostPop(_Q.Pop(t,timeout)); }
+	void	Empty(){ _Q.~QueueType(); new (&_Q) QueueType(_SC::_InitReservedSize); }
 };
 
 template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>

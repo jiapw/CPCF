@@ -17,10 +17,11 @@
 
 #include "test.h"
 
+class _JArray;
 void rt::UnitTests::json()
 {
 	{
-		rt::JsonObject json = "{\"aa:aa\": 3}";
+		rt::JsonObject json = rt::SS("{\"aa:aa\": 3}");
 		_LOG(json.GetValueAs<int>("aa:aa"));
 		rt::JsonKeyValuePair kv;
 		json.GetNextKeyValuePair(kv);
@@ -1430,8 +1431,10 @@ void rt::UnitTests::rt()
 	{
 		_LOG(rt::TypeNameToString<int>());
 		_LOG(rt::TypeNameToString<os::Timestamp>());
+		_LOG(rt::TypeNameToString<os::_tagProcessPriority>());
+		
 		struct a { int __; };
-		_LOG(rt::TypeNameToString<a>());
+		_LOGC(rt::TypeNameToString<a>());
 	}
 }
 

@@ -1,4 +1,4 @@
-=== UnitTest<rt>: BEGIN ===
+﻿=== UnitTest<rt>: BEGIN ===
 a = 16 PTR=1
 b = 8 PTR=1
 c = 40 PTR=1
@@ -31,6 +31,9 @@ rt::NumericTraits<float>::IsUnsigned: 0
 Allocate: 0
 catch std::bad_alloc
 17 ~= 2^4
+int
+os::Timestamp
+os::_tagProcessPriority
 === UnitTest<rt>: END =====
 
 === UnitTest<buffer>: BEGIN ===

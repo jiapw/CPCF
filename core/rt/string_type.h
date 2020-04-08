@@ -1840,13 +1840,24 @@ struct GUID:public ::rt::tos::S_<>
 
 } // tos
 
+typedef tos::StaticString SS;
+typedef tos::DataAsString DS;
+typedef tos::StdStringAsString	StdStr;
+
 // typename to string
 namespace _details
 {
 
-template<typename T>
-struct _TNAS
-{	static LPCSTR _TNAS_END(){ return __FUNCTION__; }
+template<typename __TNAS_T>
+struct __TNAS
+{	static LPCSTR __TNAS_END()
+	{
+#if defined(PLATFORM_WIN)
+		return __FUNCTION__; 
+#elif defined(PLATFORM_LINUX)
+		return __PRETTY_FUNCTION__;
+#endif		
+	}
 };
 
 } // namespace _details
@@ -1854,19 +1865,25 @@ struct _TNAS
 template<typename T>
 INLFUNC rt::String_Ref TypeNameToString()
 {
-	LPCSTR raw_name = _details::_TNAS<T>::_TNAS_END();
-	if(memcmp(raw_name, "rt::_details::_TNAS<", 20) == 0)raw_name += 20;
+	LPCSTR raw_name = _details::__TNAS<T>::__TNAS_END();
+	raw_name = strstr(raw_name, "rt::_details::__TNAS<");
+	ASSERT(raw_name);
+	raw_name += 21;
+	LPCSTR end = strstr(raw_name, ">::__TNAS_END");
+	ASSERT(end);
+
+	if(rt::String_Ref(raw_name, end) == rt::SS("__TNAS_T"))
+	{
+		raw_name = strstr(end, "__TNAS_T = ");	ASSERT(raw_name);
+		raw_name += 11;
+		end = strchr(raw_name,';');
+	}
+	
 	if(memcmp(raw_name, "struct ", 7) == 0){ raw_name += 7; }
 	else if(memcmp(raw_name, "class ", 6) == 0){ raw_name += 6; }
-	LPCSTR end = strstr(raw_name, ">::_TNAS_END");
-	ASSERT(end);
 
 	return rt::String_Ref(raw_name, end);
 }
-
-typedef tos::StaticString SS;
-typedef tos::DataAsString DS;
-typedef tos::StdStringAsString	StdStr;
 
 namespace _details
 {

@@ -256,7 +256,7 @@ public:
 #define THREADSAFEMUTABLE_TRYUPDATE(org_obj, new_obj)	os::_details::_TSM_Updater<decltype(org_obj)> new_obj(org_obj, true)
 
 
-
+#if defined(PLATFORM_WIN)
 
 class LaunchProcess
 {
@@ -312,6 +312,7 @@ public:
 	bool		SendToStdin(LPCVOID str, UINT len);
 };
 
+#endif
 
 } // namespace os
 
