@@ -61,87 +61,168 @@ void rt::UnitTests::rocks_db()
 	LPCSTR fn = "test.db";
 
 	{
-		ext::RocksDB db;
-		ext::RocksDB::Nuke(fn);
-		db.Open(fn);
+		ext::RocksStorage::Nuke(fn);
+		ext::RocksStorage store;
 
+		store.SetDBOpenOptionKeyOrder<UINT>("t2");
+
+		store.Open(fn);
+
+		ext::RocksDB db = store.Get("t");
+		ext::RocksDB db2 = store.Get("t2");
+			
 		for(UINT i=0; i<100; i++)
-			db.Set(i*2,i*2);
 		{
-			auto it = db.First();
-			_LOG(it.Value<int>());
-			it.Next(4);
-			_LOG(it.Value<int>());
-
-			// ext::RocksCursor a;   // not allowed
-			// ext::RocksCursor b = it;  // not allowed
-
-			it = db.Find(33);
-			_LOG(it.Value<int>());
-			it.Prev(4);
-			_LOG(it.Value<int>());
+			db.Set(i*100,i*100);
+			db2.Set(i*100,i*100 + 1);
 		}
 
-		db.Close();
+		{	rt::String str;
+			auto it = db.First();
+			while(it.IsValid()){ str += rt::tos::Number(it.Key<UINT>()) + ' '; it.Next(); }
+			_LOG(str);
 
-		ext::RocksDB::Nuke(fn);
+			str.Empty();
+			it = db2.First();
+			while(it.IsValid()){ str += rt::tos::Number(it.Key<UINT>()) + ' '; it.Next(); }
+			_LOG(str);
+		}
+		store.Close();
 	}
 
+	{
+		ext::RocksStorage store;
+		store.SetDBOpenOptionKeyOrder<UINT>("t2");
+
+		store.Open(fn);
+
+		ext::RocksDB db = store.Get("t");
+		ext::RocksDB db2 = store.Get("t2");
+
+		_LOG(db.GetAs<int>(200));
+		_LOG(db2.GetAs<int>(200));
+
+		_LOG(db.Last().Key<int>());
+		_LOG(db2.Last().Key<int>());
+
+		_LOG(db.First().Key<int>());
+		_LOG(db2.First().Key<int>());
+	}
+
+	ext::RocksStorage::Nuke(fn);
+	
+
 	// Release Build Z440 Samsung SSD 960 (NVMe)				Release Build T4500 + WD1002
-	//DBWR_LEVEL_FASTEST - WriteOptionsFastRisky				DBWR_LEVEL_FASTEST - WriteOptionsFastRisky
-	//Asce Order: 1280000     18962962        1712374			Asce Order: 489952      13653333        1036437
-	//Desc Order: 142618      20897959        1759450			Desc Order: 66797       13473684        1047034
-	//Rand Order: 136351      13298701        1667752			Rand Order: 69189       9570093 1042769
+	//DBWR_LEVEL_FASTEST - WriteOptionsFastRisky                DBWR_LEVEL_FASTEST - WriteOptionsFastRisky
+	//Asce Order: 1754355     18971043        1536483			Asce Order: 1147158     12799680        1047964
+	//Desc Order: 1523945     18397082        1560335			Desc Order: 928318      12968263        1048138
+	//Desc+Compr: 2018609     23166896        2385684			Desc+Compr: 1165212     16218442        1688749
+	//Rand Order: 805183      12741072        1532626			Rand Order: 548065      10026633        1039350
+	//Rand+Compr: 974097      9647362         2124415			Rand+Compr: 652878      12150552        1562221
 	//DBWR_LEVEL_DEFAULT - WriteOptionsFastRisky				DBWR_LEVEL_DEFAULT - WriteOptionsFastRisky
-	//Asce Order: 1484057     21787234        1738539			Asce Order: 467579      13653333        1087048
-	//Desc Order: 144632      21333333        1777777			Desc Order: 72061       13298701        1090521
-	//Rand Order: 137081      15283582        1732656			Rand Order: 65473       10039215        1041709
+	//Asce Order: 1933790     19395041        1666927			Asce Order: 1138739     12959728        952329
+	//Desc Order: 1496179     19224631        1575680			Desc Order: 851233      11751339        962068
+	//Desc+Compr: 1602880     20132908        2187711			Desc+Compr: 1159472     16235413        1649511
+	//Rand Order: 842410      12935989        1535301			Rand Order: 544576      10037050        984916
+	//Rand+Compr: 904298      11940159        2118981			Rand+Compr: 656599      12084449        1577032
 	//DBWR_LEVEL_UNBUFFERED - WriteOptionsFastRisky				DBWR_LEVEL_UNBUFFERED - WriteOptionsFastRisky
-	//Asce Order: 1365333     21333333        1689768			Asce Order: 404743      13298701        1072251
-	//Desc Order: 139509      20480000        1783972			Desc Order: 59122       13298701        1066666
-	//Rand Order: 135989      15283582        1706666			Rand Order: 61207       9481481 1038539
+	//Asce Order: 1990591     19486203        1461333			Asce Order: 1144991     12863190        1073432
+	//Desc Order: 1509968     19231130        1623263			Desc Order: 935493      12405354        1032636
+	//Desc+Compr: 1961948     22855612        2385378			Desc+Compr: 1162328     16230266        1677291
+	//Rand Order: 814625      8617715         1494277			Rand Order: 550593      10041775        1027449
+	//Rand+Compr: 941886      13580181        2197835			Rand+Compr: 646134      11056643        1609582
 	//DBWR_LEVEL_STRONG - WriteOptionsFastRisky					DBWR_LEVEL_STRONG - WriteOptionsFastRisky
-	//Asce Order: 1505882     21333333        1812389			Asce Order: 395366      12800000        1026052
-	//Desc Order: 147338      21333333        1695364			Desc Order: 59813       13128205        1077894
-	//Rand Order: 130612      14840579        1726812			Rand Order: 55172       9941747 1056759
+	//Asce Order: 1986189     19510336        1605609			Asce Order: 1105031     12174678        1048738
+	//Desc Order: 1544122     17148981        1484828			Desc Order: 910659      12980098        1051921
+	//Desc+Compr: 1988040     22878591        2366984			Desc+Compr: 1143022     16226666        1687404
+	//Rand Order: 836567      13338543        1560799			Rand Order: 540766      10011634        1082208
+	//Rand+Compr: 948912      12566730        2116865			Rand+Compr: 603076      11247308        1474983
 	//DBWR_LEVEL_FASTEST - WriteOptionsDefault					DBWR_LEVEL_FASTEST - WriteOptionsDefault
-	//Asce Order: 358041      21787234        1855072			Asce Order: 120046      13298701        989371
-	//Desc Order: 119069      20897959        1585139			Desc Order: 51225       13298701        1072251
-	//Rand Order: 100293      14628571        1735593			Rand Order: 50443       9846153 1035389
+	//Asce Order: 361997      17424152        1367176			Asce Order: 147521      12752338        1087254
+	//Desc Order: 343889      17396031        1595274			Desc Order: 138703      12717179        1019356
+	//Desc+Compr: 373537      22908789        2407751			Desc+Compr: 146023      16210739        1648791
+	//Rand Order: 279890      12283037        1495525			Rand Order: 124057      10029775        1033631
+	//Rand+Compr: 282770      12959236        2166622			Rand+Compr: 129771      12172941        1586925
 	//DBWR_LEVEL_DEFAULT - WriteOptionsDefault					DBWR_LEVEL_DEFAULT - WriteOptionsDefault
-	//Asce Order: 347118      21787234        1851717			Asce Order: 114413      13298701        1014866
-	//Desc Order: 118381      21333333        1768566			Desc Order: 51534       13298701        1036437
-	//Rand Order: 105785      14840579        1718120			Rand Order: 49708       9846153			1052415
+	//Asce Order: 299899      12912662        1287069			Asce Order: 145513      12955301        1040197
+	//Desc Order: 351548      19312738        1518370			Desc Order: 140691      12912174        1035229
+	//Desc+Compr: 368541      22418284        2320322			Desc+Compr: 146304      16225380        1583901
+	//Rand Order: 280780      11558997        1519021			Rand Order: 124097      9767637 1024537
+	//Rand+Compr: 303718      13076903        2263038			Rand+Compr: 128670      12401598        1584423
 	//DBWR_LEVEL_UNBUFFERED - WriteOptionsDefault				DBWR_LEVEL_UNBUFFERED - WriteOptionsDefault
-	//Asce Order: 345945      21787234        1882352			Asce Order: 102605      12641975        1024000
-	//Desc Order: 118655      20897959        1868613			Desc Order: 51900       13298701        1015873
-	//Rand Order: 111183      14840579        1865209			Rand Order: 48995       9752380			1079030
+	//Asce Order: 373988      19434427        1492578			Asce Order: 146721      12964322        1046979
+	//Desc Order: 317104      19371925        1570549			Desc Order: 140484      12824045        998004
+	//Desc+Compr: 342619      21583340        2410341			Desc+Compr: 144364      16088233        1670557
+	//Rand Order: 253407      10175891        1497531			Rand Order: 123405      10034198        1057974
+	//Rand+Compr: 288887      12736318        1979451			Rand+Compr: 129344      11053779        1596963
 	//DBWR_LEVEL_STRONG - WriteOptionsDefault					DBWR_LEVEL_STRONG - WriteOptionsDefault
-	//Asce Order: 339072      21787234        1747440			Asce Order: 115445      13128205        1080168
-	//Desc Order: 113024      21333333        1910447			Desc Order: 52485       13128205        1077894
-	//Rand Order: 110344      14628571        1692561			Rand Order: 50667       9846153			1026052
+	//Asce Order: 374028      19315288        1408939			Asce Order: 142883      12139749        1031852
+	//Desc Order: 339521      18857153        1626483			Desc Order: 138219      12919179        1036582
+	//Desc+Compr: 379595      22998832        2427195			Desc+Compr: 143721      16117861        1676572
+	//Rand Order: 278343      10042169        1446764			Rand Order: 123227      9965257 1057139
+	//Rand+Compr: 294540      11438145        2196204			Rand+Compr: 129064      12240019        1636577
 	//DBWR_LEVEL_FASTEST - WriteOptionsRobust					DBWR_LEVEL_FASTEST - WriteOptionsRobust
-	//Asce Order: 577		20480000        2275555				Asce Order: 46			20480000        1462857
-	//Desc Order: 563		20480000        2560000				Desc Order: 39			10240000        1462857
-	//Rand Order: 578		20480000        2275555				Rand Order: 49			10240000        1575384
+	//Asce Order: 467         18517179        2051898			Asce Order: 56			12397094        1404760
+	//Desc Order: 459         18840846        2257246			Desc Order: 39			12389594        1457547
+	//Desc+Compr: 455         21950696        3448972			Desc+Compr: 46			15014662        2291340
+	//Rand Order: 472         16939619        2272021			Rand Order: 46			12300300        1345774
+	//Rand+Compr: 466         20317460        3362337			Rand+Compr: 53			15069904        2162618
 	//DBWR_LEVEL_DEFAULT - WriteOptionsRobust					DBWR_LEVEL_DEFAULT - WriteOptionsRobust
-	//Asce Order: 576		20480000        2560000				Asce Order: 46			20480000        1462857
-	//Desc Order: 571		20480000        2560000				Desc Order: 46			20480000        1462857
-	//Rand Order: 567		20480000        2560000				Rand Order: 46			20480000        1365333
+	//Asce Order: 463         18500451        2137563			Asce Order: 39			12579852        1528244
+	//Desc Order: 466         18635122        2144951			Desc Order: 34			12300300        1514568
+	//Desc+Compr: 470         22285092        3185069			Desc+Compr: 38			15609756        2309427
+	//Rand Order: 460         18285714        2253769			Rand Order: 38			12427184        1368618
+	//Rand+Compr: 455         20500500        3087126			Rand+Compr: 46			15136733        2211663
 	//DBWR_LEVEL_UNBUFFERED - WriteOptionsRobust				DBWR_LEVEL_UNBUFFERED - WriteOptionsRobust
-	//Asce Order: 572		20480000        2560000				Asce Order: 46			20480000        1365333
-	//Desc Order: 573		20480000        2275555				Desc Order: 38			10240000        1462857
-	//Rand Order: 574		20480000        2560000				Rand Order: 55			20480000        1365333
+	//Asce Order: 468         19140186        2314124			Asce Order: 46			11790443        1491624
+	//Desc Order: 461         15352323        2190140			Desc Order: 51			11544532        1543330
+	//Desc+Compr: 457         21833688        3373414			Desc+Compr: 46			14755043        2032552
+	//Rand Order: 457         18302055        2035380			Rand Order: 45			12322503        1481481
+	//Rand+Compr: 464         21222797        3471186			Rand+Compr: 44			13950953        2215251
 	//DBWR_LEVEL_STRONG - WriteOptionsRobust					DBWR_LEVEL_STRONG - WriteOptionsRobust
-	//Asce Order: 575		20480000        2560000				Asce Order: 39			10240000        1365333
-	//Desc Order: 560		20480000        2925714				Desc Order: 54			10240000        1462857
-	//Rand Order: 576		20480000        2048000				Rand Order: 48			10240000        1204705
+	//Asce Order: 460         18771769        2116577			Asce Order: 47			12427184        1567306
+	//Desc Order: 464         17731601        2326743			Desc Order: 46			12397094        1305955
+	//Desc+Compr: 458         22212581        3246670			Desc+Compr: 46			15329341        2310208
+	//Rand Order: 457         17824194        2291340			Rand Order: 46			12263473        1556467
+	//Rand+Compr: 458         21178903        3389045			Rand+Compr: 46			15260804        2036797
 
 	/*
+
+	struct cmp: public ::rocksdb::Comparator
+	{
+		// Three-way comparison.  Returns value:
+		//   < 0 iff "a" < "b",
+		//   == 0 iff "a" == "b",
+		//   > 0 iff "a" > "b"
+		virtual int Compare(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
+		{
+			auto x = *(UINT*)a.data();
+			auto y = *(UINT*)b.data();
+			if(x>y)return -1;
+			else if(x<y)return +1;
+			return 0;
+		}
+
+		virtual bool Equal(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override 
+		{	
+			return  *(UINT*)a.data() ==  *(UINT*)b.data();
+		}
+
+		virtual const char* Name() const { return "test_cmp"; }
+		virtual void FindShortestSeparator(std::string* start, const ::rocksdb::Slice& limit) const {}
+		virtual void FindShortSuccessor(std::string* key) const {}
+	};
+
+	cmp	_cmp;
+	::rocksdb::ColumnFamilyOptions opt;
+	opt.comparator = &_cmp;
+
+	os::SetProcessPriority(os::PROCPRIO_REALTIME);
+
 	rt::Buffer<ULONGLONG>	keys;
 	keys.SetSize(100*1024);
 
-	auto test = [&keys, fn](ext::RocksDB::DBScopeWriteRobustness wr, const ext::WriteOptions* w_opt)
+	auto test = [&keys, fn, &opt](ext::RocksStorage::StorageScopeWriteRobustness wr, const ext::WriteOptions* w_opt)
 	{
 		for(UINT i=0; i<keys.GetSize(); i++)
 		{	keys[i] = i;
@@ -149,15 +230,17 @@ void rt::UnitTests::rocks_db()
 		}
 
 		os::HighPerformanceCounter hpc;
-		hpc.SetOutputMillisecond();
-		hpc.LoadCurrentCount();
+		hpc.SetOutputUnit(1000U);
+		
+		{	ext::RocksStorage::Nuke(fn);
+			ext::RocksStorage store;
+			store.Open(fn, wr);
+			auto db = store.Get("q");
 
-		{	ext::RocksDB::Nuke(fn);
-			ext::RocksDB db;
-			db.Open(fn, wr);
+			hpc.LoadCurrentCount();
 			for(UINT i=0; i<keys.GetSize(); i++)
 				db.Set(keys[i], keys[i], w_opt);
-			ULONGLONG insert = keys.GetSize()*1000/hpc.TimeLapse();
+			ULONGLONG insert = keys.GetSize()*1000000LL/rt::max(1LL, hpc.TimeLapse());
 
 			hpc.LoadCurrentCount();
 			for(UINT i=0; i<10; i++)
@@ -165,7 +248,7 @@ void rt::UnitTests::rocks_db()
 				auto it = db.First();
 				while(it.IsValid())it.Next();
 			}
-			ULONGLONG scan = keys.GetSize()*10000/hpc.TimeLapse();
+			ULONGLONG scan = keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse());
 
 			hpc.LoadCurrentCount();
 			for(UINT i=0; i<10; i++)
@@ -173,15 +256,18 @@ void rt::UnitTests::rocks_db()
 				auto it = db.Last();
 				while(it.IsValid())it.Prev();
 			}
-			_LOG("Asce Order: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000/hpc.TimeLapse());
+			_LOG("Asce Order: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse()));
 		}
 
-		{	ext::RocksDB::Nuke(fn);
-			ext::RocksDB db;
-			db.Open(fn, wr);
+		{	ext::RocksStorage::Nuke(fn);
+			ext::RocksStorage store;
+			store.Open(fn, wr);
+			auto db = store.Get("q");
+
+			hpc.LoadCurrentCount();
 			for(UINT i=0; i<keys.GetSize(); i++)
 				db.Set(keys[keys.GetSize() - i - 1], keys[i], w_opt);
-			ULONGLONG insert = keys.GetSize()*1000/hpc.TimeLapse();
+			ULONGLONG insert = keys.GetSize()*1000000LL/rt::max(1LL, hpc.TimeLapse());
 
 			hpc.LoadCurrentCount();
 			for(UINT i=0; i<10; i++)
@@ -189,7 +275,7 @@ void rt::UnitTests::rocks_db()
 				auto it = db.First();
 				while(it.IsValid())it.Next();
 			}
-			ULONGLONG scan = keys.GetSize()*10000/hpc.TimeLapse();
+			ULONGLONG scan = keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse());
 
 			hpc.LoadCurrentCount();
 			for(UINT i=0; i<10; i++)
@@ -197,16 +283,23 @@ void rt::UnitTests::rocks_db()
 				auto it = db.Last();
 				while(it.IsValid())it.Prev();
 			}
-			_LOG("Desc Order: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000/hpc.TimeLapse());
+			_LOG("Desc Order: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse()));
 		}
 
-		{	ext::RocksDB::Nuke(fn);
-			ext::RocksDB db;
-			db.Open(fn, wr);
-			keys.Shuffle(5439);
+		{	ext::RocksStorage::Nuke(fn);
+			ext::RocksStorage store;
+
 			for(UINT i=0; i<keys.GetSize(); i++)
-				db.Set(keys[i], keys[i], w_opt);
-			ULONGLONG insert = keys.GetSize()*1000/hpc.TimeLapse();
+				keys[i] = i;
+
+			store.SetDBOpenOption("q", opt);
+			store.Open(fn, wr);
+			auto db = store.Get("q");
+
+			hpc.LoadCurrentCount();
+			for(UINT i=0; i<keys.GetSize(); i++)
+				db.Set(keys[keys.GetSize() - i - 1], keys[i], w_opt);
+			ULONGLONG insert = keys.GetSize()*1000000LL/rt::max(1LL, hpc.TimeLapse());
 
 			hpc.LoadCurrentCount();
 			for(UINT i=0; i<10; i++)
@@ -214,7 +307,7 @@ void rt::UnitTests::rocks_db()
 				auto it = db.First();
 				while(it.IsValid())it.Next();
 			}
-			ULONGLONG scan = keys.GetSize()*10000/hpc.TimeLapse();
+			ULONGLONG scan = keys.GetSize()*10000000LL/rt::max(1LL,hpc.TimeLapse());
 
 			hpc.LoadCurrentCount();
 			for(UINT i=0; i<10; i++)
@@ -222,49 +315,116 @@ void rt::UnitTests::rocks_db()
 				auto it = db.Last();
 				while(it.IsValid())it.Prev();
 			}
-			_LOG("Rand Order: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000/hpc.TimeLapse());
+			_LOG("Desc+Compr: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse()));
+		}
+
+		{	ext::RocksStorage::Nuke(fn);
+			ext::RocksStorage store;
+			store.Open(fn, wr);
+			auto db = store.Get("q");
+
+			for(UINT i=0; i<keys.GetSize(); i++)
+			{	keys[i] = i;
+				rt::SwitchByteOrder(keys[i]);
+			}
+
+			keys.Shuffle(5439);
+
+			hpc.LoadCurrentCount();
+			for(UINT i=0; i<keys.GetSize(); i++)
+				db.Set(keys[i], keys[i], w_opt);
+			ULONGLONG insert = keys.GetSize()*1000000LL/rt::max(1LL, hpc.TimeLapse());
+
+			hpc.LoadCurrentCount();
+			for(UINT i=0; i<10; i++)
+			{
+				auto it = db.First();
+				while(it.IsValid())it.Next();
+			}
+			ULONGLONG scan = keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse());
+
+			hpc.LoadCurrentCount();
+			for(UINT i=0; i<10; i++)
+			{
+				auto it = db.Last();
+				while(it.IsValid())it.Prev();
+			}
+			_LOG("Rand Order: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse()));
+		}
+
+		{	ext::RocksStorage::Nuke(fn);
+			ext::RocksStorage store;
+
+			store.SetDBOpenOption("q", opt);
+
+			store.Open(fn, wr);
+			auto db = store.Get("q");
+
+			for(UINT i=0; i<keys.GetSize(); i++)
+				keys[i] = i;
+			keys.Shuffle(5439);
+
+			hpc.LoadCurrentCount();
+			for(UINT i=0; i<keys.GetSize(); i++)
+				db.Set(keys[i], keys[i], w_opt);
+			ULONGLONG insert = keys.GetSize()*1000000LL/rt::max(1LL, hpc.TimeLapse());
+
+			hpc.LoadCurrentCount();
+			for(UINT i=0; i<10; i++)
+			{
+				auto it = db.First();
+				while(it.IsValid())it.Next();
+			}
+			ULONGLONG scan = keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse());
+
+			hpc.LoadCurrentCount();
+			for(UINT i=0; i<10; i++)
+			{
+				auto it = db.Last();
+				while(it.IsValid())it.Prev();
+			}
+			_LOG("Rand+Compr: "<<insert<<'\t'<<scan<<'\t'<<keys.GetSize()*10000000LL/rt::max(1LL, hpc.TimeLapse()));
 		}
 	};
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_FASTEST - WriteOptionsFastRisky");
-	test(ext::RocksDB::DBWR_LEVEL_FASTEST, ext::RocksDB::WriteOptionsFastRisky);
+	test(ext::RocksStorage::DBWR_LEVEL_FASTEST, ext::RocksDB::WriteOptionsFastRisky);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_DEFAULT - WriteOptionsFastRisky");
-	test(ext::RocksDB::DBWR_LEVEL_DEFAULT, ext::RocksDB::WriteOptionsFastRisky);
+	test(ext::RocksStorage::DBWR_LEVEL_DEFAULT, ext::RocksDB::WriteOptionsFastRisky);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_UNBUFFERED - WriteOptionsFastRisky");
-	test(ext::RocksDB::DBWR_LEVEL_UNBUFFERED, ext::RocksDB::WriteOptionsFastRisky);
+	test(ext::RocksStorage::DBWR_LEVEL_UNBUFFERED, ext::RocksDB::WriteOptionsFastRisky);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_STRONG - WriteOptionsFastRisky");
-	test(ext::RocksDB::DBWR_LEVEL_STRONG, ext::RocksDB::WriteOptionsFastRisky);
+	test(ext::RocksStorage::DBWR_LEVEL_STRONG, ext::RocksDB::WriteOptionsFastRisky);
 
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_FASTEST - WriteOptionsDefault");
-	test(ext::RocksDB::DBWR_LEVEL_FASTEST, ext::RocksDB::WriteOptionsDefault);
+	test(ext::RocksStorage::DBWR_LEVEL_FASTEST, ext::RocksDB::WriteOptionsDefault);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_DEFAULT - WriteOptionsDefault");
-	test(ext::RocksDB::DBWR_LEVEL_DEFAULT, ext::RocksDB::WriteOptionsDefault);
+	test(ext::RocksStorage::DBWR_LEVEL_DEFAULT, ext::RocksDB::WriteOptionsDefault);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_UNBUFFERED - WriteOptionsDefault");
-	test(ext::RocksDB::DBWR_LEVEL_UNBUFFERED, ext::RocksDB::WriteOptionsDefault);
+	test(ext::RocksStorage::DBWR_LEVEL_UNBUFFERED, ext::RocksDB::WriteOptionsDefault);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_STRONG - WriteOptionsDefault");
-	test(ext::RocksDB::DBWR_LEVEL_STRONG, ext::RocksDB::WriteOptionsDefault);
+	test(ext::RocksStorage::DBWR_LEVEL_STRONG, ext::RocksDB::WriteOptionsDefault);
 
 	keys.ShrinkSize(2*1024);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_FASTEST - WriteOptionsRobust");
-	test(ext::RocksDB::DBWR_LEVEL_FASTEST, ext::RocksDB::WriteOptionsRobust);
+	test(ext::RocksStorage::DBWR_LEVEL_FASTEST, ext::RocksDB::WriteOptionsRobust);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_DEFAULT - WriteOptionsRobust");
-	test(ext::RocksDB::DBWR_LEVEL_DEFAULT, ext::RocksDB::WriteOptionsRobust);
+	test(ext::RocksStorage::DBWR_LEVEL_DEFAULT, ext::RocksDB::WriteOptionsRobust);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_UNBUFFERED - WriteOptionsRobust");
-	test(ext::RocksDB::DBWR_LEVEL_UNBUFFERED, ext::RocksDB::WriteOptionsRobust);
+	test(ext::RocksStorage::DBWR_LEVEL_UNBUFFERED, ext::RocksDB::WriteOptionsRobust);
 
 	_LOG_HIGHLIGHT("DBWR_LEVEL_STRONG - WriteOptionsRobust");
-	test(ext::RocksDB::DBWR_LEVEL_STRONG, ext::RocksDB::WriteOptionsRobust);
-
+	test(ext::RocksStorage::DBWR_LEVEL_STRONG, ext::RocksDB::WriteOptionsRobust);
 	*/
 }
 

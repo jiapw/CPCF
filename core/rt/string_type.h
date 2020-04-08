@@ -1840,6 +1840,30 @@ struct GUID:public ::rt::tos::S_<>
 
 } // tos
 
+// typename to string
+namespace _details
+{
+
+template<typename T>
+struct _TNAS
+{	static LPCSTR _TNAS_END(){ return __FUNCTION__; }
+};
+
+} // namespace _details
+
+template<typename T>
+INLFUNC rt::String_Ref TypeNameToString()
+{
+	LPCSTR raw_name = _details::_TNAS<T>::_TNAS_END();
+	if(memcmp(raw_name, "rt::_details::_TNAS<", 20) == 0)raw_name += 20;
+	if(memcmp(raw_name, "struct ", 7) == 0){ raw_name += 7; }
+	else if(memcmp(raw_name, "class ", 6) == 0){ raw_name += 6; }
+	LPCSTR end = strstr(raw_name, ">::_TNAS_END");
+	ASSERT(end);
+
+	return rt::String_Ref(raw_name, end);
+}
+
 typedef tos::StaticString SS;
 typedef tos::DataAsString DS;
 typedef tos::StdStringAsString	StdStr;
@@ -1852,6 +1876,7 @@ LPSTR __alloca_string(LPSTR p, const T& x)
 	return p;
 }
 } // namespace rt::_details
+
 } // namespace rt
 
 #define __SS(...)						(rt::SS(#__VA_ARGS__))

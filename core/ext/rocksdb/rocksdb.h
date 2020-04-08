@@ -8,6 +8,7 @@
 #include "./include/db.h"
 #include "./include/slice_transform.h"
 #include "./include/merge_operator.h"
+#include "./include/comparator.h"
 
 namespace ext
 {
@@ -114,10 +115,14 @@ public:
 	INLFUNC void				Empty(){ _SafeDel_Untracked(iter); }
 };
 
+
 class RocksDB
 {
+	friend class RocksStorage;
+
 protected:
 	::rocksdb::DB*		_pDB;
+	::rocksdb::ColumnFamilyHandle*	_pCF;
 
 public:
 	static const WriteOptions*	WriteOptionsFastRisky;
@@ -125,7 +130,155 @@ public:
 	static const WriteOptions*	WriteOptionsRobust;
 	static const ReadOptions*	ReadOptionsDefault;
 
-	enum DBScopeWriteRobustness
+	enum DBOpenType
+	{
+		DBOT_SMALL_DB = 0,	// optimized for small db
+		DBOT_DEFAULT,
+		DBOT_LOOKUP,		// optimized point lookup, no range scan
+	};
+
+	RocksDB(::rocksdb::DB* db, ::rocksdb::ColumnFamilyHandle* cf):_pDB(db),_pCF(cf){}
+
+public:
+	RocksDB(){ Empty(); }
+	RocksDB(const RocksDB& x){ _pDB = x._pDB; _pCF = x._pCF; }
+
+	bool IsEmpty() const { return _pDB == nullptr; }
+	void Empty(){ _pDB = nullptr; _pCF = nullptr; }
+	bool Set(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Put(*opt, _pCF, k, val).ok(); }
+	bool Merge(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Merge(*opt, _pCF, k, val).ok(); }
+	bool Get(const SliceValue& k, std::string& str, const ReadOptions* opt = ReadOptionsDefault) const { ASSERT(_pDB); return _pDB->Get(*opt, _pCF, k, &str).ok(); }
+	bool Has(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const { thread_local std::string t; return Get(k, t, opt); }
+	template<typename t_POD>
+	bool Get(const SliceValue& k, t_POD* valout, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT_NONRECURSIVE;
+		thread_local std::string temp;
+		ASSERT(_pDB);
+		if(_pDB->Get(*opt, _pCF, k, &temp).ok() && temp.length() == sizeof(t_POD))
+		{	memcpy(valout, temp.data(), sizeof(t_POD));
+			return true;
+		}else return false;
+	}
+	template<typename t_NUM>
+	t_NUM GetAs(const SliceValue& k, t_NUM default_val = 0, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT_NONRECURSIVE;
+		thread_local std::string temp;
+		ASSERT(_pDB);
+		return (_pDB->Get(*opt, _pCF, k, &temp).ok() && temp.length() == sizeof(t_NUM))?
+			   *((t_NUM*)temp.data()):default_val;
+	}
+	template<typename t_Type>
+	const t_Type* Fetch(const SliceValue& k, SIZE_T* len_out = nullptr, const ReadOptions* opt = ReadOptionsDefault) const // Get a inplace referred buffer, will be invalid after next Fetch
+	{	ASSERT_NONRECURSIVE;
+		thread_local std::string temp;
+		ASSERT(_pDB);
+		if(_pDB->Get(*opt, _pCF, k, &temp).ok() && temp.length() >= sizeof(t_Type))
+		{	if(len_out)*len_out = temp.length();
+			return (t_Type*)temp.data();
+		}
+		else
+		{	if(len_out)*len_out = 0;
+			return nullptr;
+		}
+	}
+	rt::String_Ref Fetch(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT_NONRECURSIVE;
+		thread_local std::string temp;
+		ASSERT(_pDB);
+		return (_pDB->Get(*opt, _pCF, k, &temp).ok())?
+				rt::String_Ref(temp.data(), temp.length()):rt::String_Ref();
+	}
+	RocksCursor Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
+	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt, _pCF);
+		ASSERT(it);
+		it->Seek(begin);
+		return RocksCursor(it);
+	}
+	RocksCursor First(const ReadOptions* opt = ReadOptionsDefault) const
+	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt, _pCF);
+		ASSERT(it);
+		it->SeekToFirst();
+		return RocksCursor(it);
+	}
+	RocksCursor Last(const ReadOptions* opt = ReadOptionsDefault) const
+	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt, _pCF);
+		ASSERT(it);
+		it->SeekToLast();
+		return RocksCursor(it);
+	}
+	bool Delete(const SliceValue& k, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Delete(*opt, _pCF, k).ok(); }
+	template<typename func_visit>
+	SIZE_T ScanBackward(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT(_pDB);
+		RocksCursor it = _pDB->NewIterator(*opt, _pCF);
+		ASSERT(!it.IsEmpty());
+		SIZE_T ret = 0;
+		for(it.iter->Seek(begin); it.IsValid(); it.Prev())
+		{	ret++;
+			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
+				break;
+		}
+		return ret;
+	}
+	template<typename func_visit>
+	SIZE_T ScanBackward(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT(_pDB);
+		RocksCursor it = _pDB->NewIterator(*opt, _pCF);
+		ASSERT(!it.IsEmpty());
+		SIZE_T ret = 0;
+		for(it.iter->SeekToLast(); it.IsValid(); it.Prev())
+		{	ret++;
+			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
+				break;
+		}
+		return ret;
+	}
+	template<typename func_visit>
+	SIZE_T Scan(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT(_pDB);
+		RocksCursor it = _pDB->NewIterator(*opt, _pCF);
+		ASSERT(!it.IsEmpty());
+		SIZE_T ret = 0;
+		for(it.iter->Seek(begin); it.IsValid(); it.Next())
+		{	ret++;
+			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
+				break;
+		}
+		return ret;
+	}
+	template<typename func_visit>
+	SIZE_T Scan(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT(_pDB);
+		RocksCursor it = _pDB->NewIterator(*opt, _pCF);
+		ASSERT(!it.IsEmpty());
+		SIZE_T ret = 0;
+		for(it.iter->SeekToFirst(); it.IsValid(); it.Next())
+		{	ret++;
+			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
+				break;
+		}
+		return ret;
+	}
+	template<typename func_visit>
+	SIZE_T ScanPrefix(const func_visit& v, const SliceValue& prefix, const ReadOptions* opt = ReadOptionsDefault) const
+	{	ASSERT(_pDB);
+		RocksCursor it = _pDB->NewIterator(*opt, _pCF);
+		ASSERT(!it.IsEmpty());
+		SIZE_T ret = 0;
+		for(it.iter->Seek(prefix); it.IsValid() && it.Key().starts_with(prefix); it.Next())
+		{	ret++;
+			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
+				break;
+		}
+		return ret;
+	}
+};
+
+class RocksStorage
+{
+	friend class RocksDB;
+public:
+	enum StorageScopeWriteRobustness
 	{								// disableDataSync  use_fsync  allow_os_buffer
 		DBWR_LEVEL_FASTEST = 0,		// true				false		true
 		DBWR_LEVEL_DEFAULT,			// false			false		true
@@ -163,142 +316,65 @@ public:
 	// bufferized. The hardware buffer of the devices may however still
 	// be used. Memory mapped files are not impacted by this parameter.
 
+protected:
+	::rocksdb::DB*		_pDB;
+	struct CFEntry
+	{
+		::rocksdb::ColumnFamilyHandle*	pCF;
+		::rocksdb::ColumnFamilyOptions	Opt;
+		CFEntry(){ pCF = nullptr; }
+	};
+	typedef rt::hash_map<rt::String, CFEntry, rt::String::hash_compare> T_DBS;
+	os::ThreadSafeMutable<T_DBS>	_AllDBs;
+
 public:
-	RocksDB(){ _pDB = nullptr; }
-	~RocksDB(){ Close(); }
-	bool Open(LPCSTR db_path, DBScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
-	bool Open(LPCSTR db_path, const Options* opt);
-	bool IsOpen() const { return _pDB!=nullptr; }
-	void Close(){ if(_pDB){ delete _pDB; _pDB = nullptr; } }
-	bool Set(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Put(*opt, k, val).ok(); }
-	bool Merge(const SliceValue& k, const SliceValue& val, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Merge(*opt, k, val).ok(); }
-	bool Get(const SliceValue& k, std::string& str, const ReadOptions* opt = ReadOptionsDefault) const { ASSERT(_pDB); return _pDB->Get(*opt, k, &str).ok(); }
-	bool Has(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const { thread_local std::string t; return Get(k, t, opt); }
-	template<typename t_POD>
-	bool Get(const SliceValue& k, t_POD* valout, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT_NONRECURSIVE;
-		thread_local std::string temp;
-		ASSERT(_pDB);
-		if(_pDB->Get(*opt, k, &temp).ok() && temp.length() == sizeof(t_POD))
-		{	memcpy(valout, temp.data(), sizeof(t_POD));
-			return true;
-		}else return false;
-	}
-	template<typename t_NUM>
-	t_NUM GetAs(const SliceValue& k, t_NUM default_val = 0, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT_NONRECURSIVE;
-		thread_local std::string temp;
-		ASSERT(_pDB);
-		return (_pDB->Get(*opt, k, &temp).ok() && temp.length() == sizeof(t_NUM))?
-			   *((t_NUM*)temp.data()):default_val;
-	}
-	template<typename t_Type>
-	const t_Type* Fetch(const SliceValue& k, SIZE_T* len_out = nullptr, const ReadOptions* opt = ReadOptionsDefault) const // Get a inplace referred buffer, will be invalid after next Fetch
-	{	ASSERT_NONRECURSIVE;
-		thread_local std::string temp;
-		ASSERT(_pDB);
-		if(_pDB->Get(*opt, k, &temp).ok() && temp.length() >= sizeof(t_Type))
-		{	if(len_out)*len_out = temp.length();
-			return (t_Type*)temp.data();
-		}
-		else
-		{	if(len_out)*len_out = 0;
-			return nullptr;
-		}
-	}
-	rt::String_Ref Fetch(const SliceValue& k, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT_NONRECURSIVE;
-		thread_local std::string temp;
-		ASSERT(_pDB);
-		return (_pDB->Get(*opt, k, &temp).ok())?
-				rt::String_Ref(temp.data(), temp.length()):rt::String_Ref();
-	}
-	RocksCursor Find(const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
-	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt);
-		ASSERT(it);
-		it->Seek(begin);
-		return RocksCursor(it);
-	}
-	RocksCursor First(const ReadOptions* opt = ReadOptionsDefault) const
-	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt);
-		ASSERT(it);
-		it->SeekToFirst();
-		return RocksCursor(it);
-	}
-	RocksCursor Last(const ReadOptions* opt = ReadOptionsDefault) const
-	{	::rocksdb::Iterator* it = rt::_CastToNonconst(_pDB)->NewIterator(*opt);
-		ASSERT(it);
-		it->SeekToLast();
-		return RocksCursor(it);
-	}
-	bool Delete(const SliceValue& k, const WriteOptions* opt = WriteOptionsDefault){ ASSERT(_pDB); return _pDB->Delete(*opt, k).ok(); }
-	template<typename func_visit>
-	SIZE_T ScanBackward(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT(_pDB);
-		RocksCursor it = _pDB->NewIterator(*opt);
-		ASSERT(!it.IsEmpty());
-		SIZE_T ret = 0;
-		for(it.iter->Seek(begin); it.IsValid(); it.Prev())
-		{	ret++;
-			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
-				break;
-		}
-		return ret;
-	}
-	template<typename func_visit>
-	SIZE_T ScanBackward(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT(_pDB);
-		RocksCursor it = _pDB->NewIterator(*opt);
-		ASSERT(!it.IsEmpty());
-		SIZE_T ret = 0;
-		for(it.iter->SeekToLast(); it.IsValid(); it.Prev())
-		{	ret++;
-			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
-				break;
-		}
-		return ret;
-	}
-	template<typename func_visit>
-	SIZE_T Scan(const func_visit& v, const SliceValue& begin, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT(_pDB);
-		RocksCursor it = _pDB->NewIterator(*opt);
-		ASSERT(!it.IsEmpty());
-		SIZE_T ret = 0;
-		for(it.iter->Seek(begin); it.IsValid(); it.Next())
-		{	ret++;
-			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
-				break;
-		}
-		return ret;
-	}
-	template<typename func_visit>
-	SIZE_T Scan(const func_visit& v, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT(_pDB);
-		RocksCursor it = _pDB->NewIterator(*opt);
-		ASSERT(!it.IsEmpty());
-		SIZE_T ret = 0;
-		for(it.iter->SeekToFirst(); it.IsValid(); it.Next())
-		{	ret++;
-			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
-				break;
-		}
-		return ret;
-	}
-	template<typename func_visit>
-	SIZE_T ScanPrefix(const func_visit& v, const SliceValue& prefix, const ReadOptions* opt = ReadOptionsDefault) const
-	{	ASSERT(_pDB);
-		RocksCursor it = _pDB->NewIterator(*opt);
-		ASSERT(!it.IsEmpty());
-		SIZE_T ret = 0;
-		for(it.iter->Seek(prefix); it.IsValid() && it.Key().starts_with(prefix); it.Next())
-		{	ret++;
-			if(!rt::_details::_CallLambda<bool, decltype(v(it))>(true, v, it).retval)
-				break;
-		}
-		return ret;
-	}
+	RocksStorage(){ _pDB = nullptr; }
+	~RocksStorage(){ Close(); }
+	bool		Open(LPCSTR db_path, StorageScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
+	bool		Open(LPCSTR db_path, const Options* opt);
+	bool		IsOpen() const { return _pDB!=nullptr; }
+	void		Close();
+	RocksDB		Get(const rt::String_Ref& name, bool create_auto = true);
+
+	void		SetDBOpenOption(LPCSTR db_name, const ::rocksdb::ColumnFamilyOptions& opt);
+	template<class KeyType>
+	void		SetDBOpenOptionKeyOrder(LPCSTR db_name)
+				{	struct cmp: public ::rocksdb::Comparator
+					{	// Three-way comparison.  Returns value:
+						//   < 0 iff "a" < "b",
+						//   == 0 iff "a" == "b",
+						//   > 0 iff "a" > "b"
+						virtual int Compare(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
+						{	ASSERT(a.size()>=sizeof(KeyType));
+							ASSERT(b.size()>=sizeof(KeyType));
+							auto& x = *(const KeyType*)a.data();
+							auto& y = *(const KeyType*)b.data();
+							if(x<y)return -1;
+							else if(y<x)return +1;
+							return 0;
+						}
+						virtual bool Equal(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override 
+						{	ASSERT(a.size()>=sizeof(KeyType));
+							ASSERT(b.size()>=sizeof(KeyType));
+							return  *(const KeyType*)a.data() ==  *(const KeyType*)b.data();
+						}
+						rt::String _keytype_name;
+						cmp(){ _keytype_name = rt::TypeNameToString<KeyType>(); }
+						virtual const char* Name() const { return _keytype_name; }
+						virtual void FindShortestSeparator(std::string* start, const ::rocksdb::Slice& limit) const {}
+						virtual void FindShortSuccessor(std::string* key) const {}
+					};
+					static const cmp _cmp;
+
+					THREADSAFEMUTABLE_UPDATE(_AllDBs, new_db);
+					auto& e = new_db->operator[](db_name);
+					ASSERT(e.pCF == nullptr);
+					e.Opt.comparator = &_cmp;
+				}
+
 	static void Nuke(LPCSTR db_path){ os::File::RemovePath(db_path); }
 };
+
 
 template<char separator = ':'>
 class SeparatorPrefixTransform : public ::rocksdb::SliceTransform 

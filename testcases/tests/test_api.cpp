@@ -1426,6 +1426,13 @@ void rt::UnitTests::rt()
 	}
 
 	_LOG("17 ~= 2^"<<Log2(17U));
+
+	{
+		_LOG(rt::TypeNameToString<int>());
+		_LOG(rt::TypeNameToString<os::Timestamp>());
+		struct a { int __; };
+		_LOG(rt::TypeNameToString<a>());
+	}
 }
 
 
