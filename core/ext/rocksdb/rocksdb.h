@@ -119,6 +119,7 @@ public:
 class RocksDB
 {
 	friend class RocksStorage;
+	friend class RocksDBStandalone;
 
 protected:
 	::rocksdb::DB*		_pDB;
@@ -274,17 +275,49 @@ public:
 	}
 };
 
+enum RocksStorageScopeWriteRobustness
+{								// disableDataSync  use_fsync  allow_os_buffer
+	DBWR_LEVEL_FASTEST = 0,		// true				false		true
+	DBWR_LEVEL_DEFAULT,			// false			false		true
+	DBWR_LEVEL_UNBUFFERED,		// false			false		false
+	DBWR_LEVEL_STRONG			// false			true		false
+};
+
+namespace _details
+{
+template<int LEN, bool is_pod>
+struct _pod_equal;
+template<> struct _pod_equal<1, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *x == *y; } };
+template<> struct _pod_equal<2, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(WORD*)x == *(WORD*)y; } };
+template<> struct _pod_equal<3, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(WORD*)x == *(WORD*)y && _pod_equal<1, true>::is(x+2, y+2); } };
+template<> struct _pod_equal<4, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(DWORD*)x == *(DWORD*)y; } };
+template<> struct _pod_equal<5, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(DWORD*)x == *(DWORD*)y && _pod_equal<1, true>::is(x+4, y+4); } };
+template<> struct _pod_equal<6, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(DWORD*)x == *(DWORD*)y && _pod_equal<2, true>::is(x+4, y+4); } };
+template<> struct _pod_equal<7, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(DWORD*)x == *(DWORD*)y && _pod_equal<3, true>::is(x+4, y+4); } };
+template<> struct _pod_equal<8, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(ULONGLONG*)x == *(ULONGLONG*)y; } };
+template<int LEN>
+struct _pod_equal<LEN, true>{ static bool is(LPCBYTE x, LPCBYTE y){ return *(ULONGLONG*)x == *(ULONGLONG*)y && _pod_equal<LEN-8, true>::is(x+8, y+8); } };
+
+struct _compare
+{	template<typename T> static auto 
+	INLFUNC with(const T& x, const T& y) -> decltype(x.compare_with(y)) { return x.compare_with(y); }
+	template<typename T, typename ... ARGS> static auto 
+	INLFUNC with(const T& x, const T& y, ARGS ...args) -> decltype((x < y && x == y)*1) 
+			{	if(x<y)return -1;
+				if(y<x)return +1;
+				return 0;
+			}
+	template<typename T> static auto 
+	INLFUNC equal(const T& x, const T& y) -> decltype(_pod_equal<sizeof(T), rt::TypeTraits<T>::IsPOD>::is((LPCBYTE)&x, (LPCBYTE)&y)) { return _pod_equal<sizeof(T), rt::TypeTraits<T>::IsPOD>::is((LPCBYTE)&x, (LPCBYTE)&y); }
+	template<typename T, typename ... ARGS> static auto 
+	INLFUNC equal(const T& x, const T& y, ARGS ...args) -> decltype(x == y) { return x == y; }
+};
+} // namespace _details
+
 class RocksStorage
 {
 	friend class RocksDB;
 public:
-	enum StorageScopeWriteRobustness
-	{								// disableDataSync  use_fsync  allow_os_buffer
-		DBWR_LEVEL_FASTEST = 0,		// true				false		true
-		DBWR_LEVEL_DEFAULT,			// false			false		true
-		DBWR_LEVEL_UNBUFFERED,		// false			false		false
-		DBWR_LEVEL_STRONG			// false			true		false
-	};
 
 	// ## disableDataSync
 	// If true, then the contents of manifest and data files are not synced
@@ -330,13 +363,15 @@ protected:
 public:
 	RocksStorage(){ _pDB = nullptr; }
 	~RocksStorage(){ Close(); }
-	bool		Open(LPCSTR db_path, StorageScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
+	bool		Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
 	bool		Open(LPCSTR db_path, const Options* opt);
 	bool		IsOpen() const { return _pDB!=nullptr; }
 	void		Close();
 	RocksDB		Get(const rt::String_Ref& name, bool create_auto = true);
 
-	void		SetDBOpenOption(LPCSTR db_name, const ::rocksdb::ColumnFamilyOptions& opt);
+	// first ':' in the name will be treated as wild prefix
+	// so you can set db_name to "abc:" and all column famlity with db_name starts with "abc:" will be applied the specified options
+	void		SetDBOpenOption(LPCSTR db_name, const ::rocksdb::ColumnFamilyOptions& opt); 
 	template<class KeyType>
 	void		SetDBOpenOptionKeyOrder(LPCSTR db_name)
 				{	struct cmp: public ::rocksdb::Comparator
@@ -349,14 +384,12 @@ public:
 							ASSERT(b.size()>=sizeof(KeyType));
 							auto& x = *(const KeyType*)a.data();
 							auto& y = *(const KeyType*)b.data();
-							if(x<y)return -1;
-							else if(y<x)return +1;
-							return 0;
+							return _details::_compare::with(x ,y);
 						}
 						virtual bool Equal(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override 
 						{	ASSERT(a.size()>=sizeof(KeyType));
 							ASSERT(b.size()>=sizeof(KeyType));
-							return  *(const KeyType*)a.data() ==  *(const KeyType*)b.data();
+							return _details::_compare::equal(*(const KeyType*)a.data(), *(const KeyType*)b.data());
 						}
 						rt::String _keytype_name;
 						cmp(){ _keytype_name = rt::TypeNameToString<KeyType>(); }
@@ -373,6 +406,20 @@ public:
 				}
 
 	static void Nuke(LPCSTR db_path){ os::File::RemovePath(db_path); }
+};
+
+class RocksDBStandalone: public RocksDB
+{
+	RocksStorage	_Storage;
+private: 
+	RocksDBStandalone(const RocksDB& x);
+	void Empty();
+
+public:
+	RocksDBStandalone(){ Close(); }
+	bool	Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
+	bool	IsOpen() const { return _Storage.IsOpen(); }
+	void	Close();
 };
 
 

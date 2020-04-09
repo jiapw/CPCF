@@ -53,7 +53,7 @@ void RocksStorage::SetDBOpenOption(LPCSTR db_name, const ColumnFamilyOptions& op
 	e.Opt = opt;
 }
 
-bool RocksStorage::Open(LPCSTR db_path, StorageScopeWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
+bool RocksStorage::Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
 {
 	ASSERT(_pDB == nullptr);
 
@@ -94,6 +94,8 @@ bool RocksStorage::Open(LPCSTR db_path, StorageScopeWriteRobustness robustness, 
 
 bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 {
+	LPCSTR default_cfname = "default";
+
 	ASSERT(_pDB == nullptr);
 	ASSERT(opt);
 
@@ -101,7 +103,12 @@ bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 		os::File::CreateDirectories(db_path, false);
 
 	std::vector<std::string>	cfs;
-	if(::rocksdb::DB::ListColumnFamilies(*opt, db_path, &cfs).ok())
+	if(!::rocksdb::DB::ListColumnFamilies(*opt, db_path, &cfs).ok())
+	{
+		if(!opt->create_if_missing)return false;
+		cfs.push_back(default_cfname);
+	}
+
 	{
 		std::vector<ColumnFamilyDescriptor>	cfds;
 		std::vector<ColumnFamilyHandle*>	cfptrs;
@@ -111,23 +118,50 @@ bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 
 		THREADSAFEMUTABLE_UPDATE(_AllDBs, new_obj);
 
+		bool drop_default = cfs.size() > 1;
+		if(drop_default && _AllDBs.Get().find(default_cfname) != _AllDBs.Get().end())
+			drop_default = false;
+
 		for(UINT i=0; i<cfs.size(); i++)
 		{
 			cfds[i].name = cfs[i];
+			auto it = new_obj->find(cfs[i].c_str());
+			if(it == new_obj->end())
+			{
+				rt::String_Ref name(cfs[i]);
+				int pos;
+				if((pos = (int)name.FindCharacter(':')) > 0)
+				{	auto wild_it = new_obj->find(ALLOCA_C_STRING(name.SubStr(pos+1)));
+					if(wild_it != new_obj->end())
+					{
+						cfds[i].options = new_obj->operator[](cfs[i].c_str()).Opt = wild_it->second.Opt;
+						continue;
+					}
+				}
+			}
+
 			cfds[i].options = new_obj->operator[](cfs[i].c_str()).Opt;
 		}
 
 		if(::rocksdb::DB::Open(*opt, db_path, cfds, &cfptrs, &_pDB).ok())
 		{
 			for(UINT i=0; i<cfs.size(); i++)
+			{	
+				if(drop_default && cfs[i] == default_cfname)
+				{
+					_pDB->DropColumnFamily(cfptrs[i]);
+					_pDB->DestroyColumnFamilyHandle(cfptrs[i]);
+					continue;
+				}
+				
 				new_obj->operator[](cfs[i].c_str()).pCF = cfptrs[i];
+			}
+
+			if(drop_default)
+				new_obj->erase(default_cfname);
 
 			return true;
 		}
-	}
-	else if(::rocksdb::DB::Open(*opt, db_path, &_pDB).ok())
-	{
-		return true;
 	}
 
 	return false;
@@ -149,6 +183,16 @@ RocksDB	RocksStorage::Get(const rt::String_Ref& name, bool create_auto)
 
 	if(create_auto)
 	{
+		auto it = new_obj->find(sname);
+		if(it == new_obj->end())
+		{
+			rt::String_Ref ss(sname);
+			int pos = (int)ss.FindCharacter(':');
+			auto wild_it = db.find(ss.SubStr(0, pos+1));
+			if(wild_it != db.end())
+				new_obj->operator[](sname).Opt = wild_it->second.Opt;
+		}
+
 		auto& cfe = new_obj->operator[](sname);
 		if(_pDB->CreateColumnFamily(cfe.Opt, sname, &cfe.pCF).ok())
 			return RocksDB(_pDB, cfe.pCF);
@@ -177,5 +221,27 @@ void RocksStorage::Close()
 		}
 	}
 }
+
+bool RocksDBStandalone::Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
+{
+	if(_Storage.Open(db_path, robustness, open_existed_only, file_thread_co, logfile_num_max))
+	{
+		auto ret = _Storage.Get("default");
+		ASSERT(!ret.IsEmpty());
+		_pCF = ret._pCF;
+		_pDB = ret._pDB;
+
+		return true;
+	}
+
+	return false;
+}
+
+void RocksDBStandalone::Close()
+{
+	_Storage.Close();
+	RocksDB::Empty();
+}
+
 
 } // namespace ext
