@@ -64,7 +64,7 @@ void rt::UnitTests::rocks_db()
 		ext::RocksStorage::Nuke(fn);
 		ext::RocksStorage store;
 
-		store.SetDBOpenOptionKeyOrder<UINT>("t2");
+		store.SetDBOpenOption("t2", ext::RocksDBOpenOption().SetKeyOrder<UINT>());
 
 		store.Open(fn);
 
@@ -92,7 +92,7 @@ void rt::UnitTests::rocks_db()
 
 	{
 		ext::RocksStorage store;
-		store.SetDBOpenOptionKeyOrder<UINT>("t2");
+		store.SetDBOpenOption("t2", ext::RocksDBOpenOption().SetKeyOrder<UINT>());
 
 		store.Open(fn);
 

@@ -45,7 +45,7 @@ __InitRocksDBOptions	g_InitRocksDBOptions;
 
 } // namespace _details
 
-void RocksStorage::SetDBOpenOption(LPCSTR db_name, const ColumnFamilyOptions& opt)
+void RocksStorage::SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt)
 {
 	THREADSAFEMUTABLE_UPDATE(_AllDBs, new_db);
 	auto& e = new_db->operator[](db_name);
@@ -128,6 +128,8 @@ bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 			auto it = new_obj->find(cfs[i].c_str());
 			if(it == new_obj->end())
 			{
+				new_obj->operator[](cfs[i].c_str()).Opt = _DefaultOpenOpt;
+
 				rt::String_Ref name(cfs[i]);
 				int pos;
 				if((pos = (int)name.FindCharacter(':')) > 0)
@@ -191,6 +193,8 @@ RocksDB	RocksStorage::Get(const rt::String_Ref& name, bool create_auto)
 			auto wild_it = db.find(ss.SubStr(0, pos+1));
 			if(wild_it != db.end())
 				new_obj->operator[](sname).Opt = wild_it->second.Opt;
+			else
+				new_obj->operator[](sname).Opt = _DefaultOpenOpt;
 		}
 
 		auto& cfe = new_obj->operator[](sname);

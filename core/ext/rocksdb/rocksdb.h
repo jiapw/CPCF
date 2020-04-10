@@ -314,6 +314,44 @@ struct _compare
 };
 } // namespace _details
 
+class RocksDBOpenOption
+{
+	::rocksdb::ColumnFamilyOptions	Opt;
+
+public:
+	operator const ::rocksdb::ColumnFamilyOptions*() const { return &Opt; }
+	operator ::rocksdb::ColumnFamilyOptions*(){ return &Opt; }
+	operator const ::rocksdb::ColumnFamilyOptions&() const { return Opt; }
+	operator ::rocksdb::ColumnFamilyOptions&(){ return Opt; }
+
+	auto	SetKeyUnordered(UINT cache_size_mb = 10){ Opt.OptimizeForPointLookup(cache_size_mb); return *this; }
+	template<class KeyType>
+	auto	SetKeyOrder()
+			{	struct cmp: public ::rocksdb::Comparator
+				{	virtual int Compare(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
+					{	ASSERT(a.size()>=sizeof(KeyType));
+						ASSERT(b.size()>=sizeof(KeyType));
+						auto& x = *(const KeyType*)a.data();
+						auto& y = *(const KeyType*)b.data();
+						return _details::_compare::with(x ,y);
+					}
+					virtual bool Equal(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override 
+					{	ASSERT(a.size()>=sizeof(KeyType));
+						ASSERT(b.size()>=sizeof(KeyType));
+						return _details::_compare::equal(*(const KeyType*)a.data(), *(const KeyType*)b.data());
+					}
+					rt::String _keytype_name;
+					cmp(){ _keytype_name = rt::TypeNameToString<KeyType>(); }
+					virtual const char* Name() const { return _keytype_name; }
+					virtual void FindShortestSeparator(std::string* start, const ::rocksdb::Slice& limit) const {}
+					virtual void FindShortSuccessor(std::string* key) const {}
+				};
+				static const cmp _cmp;
+				Opt.comparator = &_cmp;
+				return *this;
+			}
+};
+
 class RocksStorage
 {
 	friend class RocksDB;
@@ -359,6 +397,7 @@ protected:
 	};
 	typedef rt::hash_map<rt::String, CFEntry, rt::String::hash_compare> T_DBS;
 	os::ThreadSafeMutable<T_DBS>	_AllDBs;
+	::rocksdb::ColumnFamilyOptions	_DefaultOpenOpt;
 
 public:
 	RocksStorage(){ _pDB = nullptr; }
@@ -371,39 +410,8 @@ public:
 
 	// first ':' in the name will be treated as wild prefix
 	// so you can set db_name to "abc:" and all column famlity with db_name starts with "abc:" will be applied the specified options
-	void		SetDBOpenOption(LPCSTR db_name, const ::rocksdb::ColumnFamilyOptions& opt); 
-	template<class KeyType>
-	void		SetDBOpenOptionKeyOrder(LPCSTR db_name)
-				{	struct cmp: public ::rocksdb::Comparator
-					{	// Three-way comparison.  Returns value:
-						//   < 0 iff "a" < "b",
-						//   == 0 iff "a" == "b",
-						//   > 0 iff "a" > "b"
-						virtual int Compare(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
-						{	ASSERT(a.size()>=sizeof(KeyType));
-							ASSERT(b.size()>=sizeof(KeyType));
-							auto& x = *(const KeyType*)a.data();
-							auto& y = *(const KeyType*)b.data();
-							return _details::_compare::with(x ,y);
-						}
-						virtual bool Equal(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override 
-						{	ASSERT(a.size()>=sizeof(KeyType));
-							ASSERT(b.size()>=sizeof(KeyType));
-							return _details::_compare::equal(*(const KeyType*)a.data(), *(const KeyType*)b.data());
-						}
-						rt::String _keytype_name;
-						cmp(){ _keytype_name = rt::TypeNameToString<KeyType>(); }
-						virtual const char* Name() const { return _keytype_name; }
-						virtual void FindShortestSeparator(std::string* start, const ::rocksdb::Slice& limit) const {}
-						virtual void FindShortSuccessor(std::string* key) const {}
-					};
-					static const cmp _cmp;
-
-					THREADSAFEMUTABLE_UPDATE(_AllDBs, new_db);
-					auto& e = new_db->operator[](db_name);
-					ASSERT(e.pCF == nullptr);
-					e.Opt.comparator = &_cmp;
-				}
+	void		SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt); 
+	void		SetDBDefaultOpenOption(const RocksDBOpenOption& opt){ _DefaultOpenOpt = opt; }
 
 	static void Nuke(LPCSTR db_path){ os::File::RemovePath(db_path); }
 };
