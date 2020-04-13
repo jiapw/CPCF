@@ -53,7 +53,7 @@ void RocksStorage::SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt)
 	e.Opt = opt;
 }
 
-bool RocksStorage::Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
+bool RocksStorage::Open(LPCSTR db_path, RocksStorageWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
 {
 	ASSERT(_pDB == nullptr);
 
@@ -64,22 +64,22 @@ bool RocksStorage::Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustn
 
 	switch(robustness)
 	{	
-	case DBWR_LEVEL_FASTEST:
+	case ROCKSSTG_FASTEST:
 		opt.disableDataSync = true;
 		opt.use_fsync = false;
 		opt.allow_os_buffer = true;
 		break;
-	case DBWR_LEVEL_DEFAULT:		
+	case ROCKSSTG_DEFAULT:		
 		opt.disableDataSync = false;
 		opt.use_fsync = false;
 		opt.allow_os_buffer = true;
 		break;
-	case DBWR_LEVEL_UNBUFFERED:
+	case ROCKSSTG_UNBUFFERED:
 		opt.disableDataSync = false;
 		opt.use_fsync = false;
 		opt.allow_os_buffer = false;
 		break;
-	case DBWR_LEVEL_STRONG:
+	case ROCKSSTG_STRONG:
 		opt.disableDataSync = false;
 		opt.use_fsync = true;
 		opt.allow_os_buffer = false;
@@ -171,6 +171,8 @@ bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 
 RocksDB	RocksStorage::Get(const rt::String_Ref& name, bool create_auto)
 {
+	if(name.Last() == ':')return RocksDB();
+
 	ASSERT(IsOpen());
 	THREADSAFEMUTABLE_UPDATE(_AllDBs, new_obj);
 	auto& db = _AllDBs.Get();
@@ -206,6 +208,24 @@ RocksDB	RocksStorage::Get(const rt::String_Ref& name, bool create_auto)
 	return RocksDB();
 }
 
+void RocksStorage::Drop(const rt::String_Ref& name) // delete db
+{
+	if(name.Last() == ':')return;
+	ASSERT(IsOpen());
+	
+	LPCSTR sname = ALLOCA_C_STRING(name);
+	THREADSAFEMUTABLE_UPDATE(_AllDBs, new_obj);
+
+	auto it = new_obj->find(name);
+	if(it != new_obj->end() && it->second.pCF)
+	{
+		_pDB->DropColumnFamily(it->second.pCF);
+		_pDB->DestroyColumnFamilyHandle(it->second.pCF);
+		new_obj->erase(it);
+	}
+	else
+		new_obj.Revert();
+}
 
 void RocksStorage::Close()
 {
@@ -226,7 +246,7 @@ void RocksStorage::Close()
 	}
 }
 
-bool RocksDBStandalone::Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
+bool RocksDBStandalone::Open(LPCSTR db_path, RocksStorageWriteRobustness robustness, bool open_existed_only, UINT file_thread_co, UINT logfile_num_max)
 {
 	if(_Storage.Open(db_path, robustness, open_existed_only, file_thread_co, logfile_num_max))
 	{

@@ -275,12 +275,12 @@ public:
 	}
 };
 
-enum RocksStorageScopeWriteRobustness
+enum RocksStorageWriteRobustness
 {								// disableDataSync  use_fsync  allow_os_buffer
-	DBWR_LEVEL_FASTEST = 0,		// true				false		true
-	DBWR_LEVEL_DEFAULT,			// false			false		true
-	DBWR_LEVEL_UNBUFFERED,		// false			false		false
-	DBWR_LEVEL_STRONG			// false			true		false
+	ROCKSSTG_FASTEST = 0,		// true				false		true
+	ROCKSSTG_DEFAULT,			// false			false		true
+	ROCKSSTG_UNBUFFERED,		// false			false		false
+	ROCKSSTG_STRONG			// false			true		false
 };
 
 namespace _details
@@ -324,7 +324,9 @@ public:
 	operator const ::rocksdb::ColumnFamilyOptions&() const { return Opt; }
 	operator ::rocksdb::ColumnFamilyOptions&(){ return Opt; }
 
-	auto	SetKeyUnordered(UINT cache_size_mb = 10){ Opt.OptimizeForPointLookup(cache_size_mb); return *this; }
+	RocksDBOpenOption() = default;
+	RocksDBOpenOption(const ::rocksdb::ColumnFamilyOptions& opt):Opt(opt){}
+	auto	PointLookup(UINT cache_size_mb = 10){ Opt.OptimizeForPointLookup(cache_size_mb); return *this; }
 	template<class KeyType>
 	auto	SetKeyOrder()
 			{	struct cmp: public ::rocksdb::Comparator
@@ -402,11 +404,12 @@ protected:
 public:
 	RocksStorage(){ _pDB = nullptr; }
 	~RocksStorage(){ Close(); }
-	bool		Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
+	bool		Open(LPCSTR db_path, RocksStorageWriteRobustness robustness = ROCKSSTG_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
 	bool		Open(LPCSTR db_path, const Options* opt);
 	bool		IsOpen() const { return _pDB!=nullptr; }
 	void		Close();
-	RocksDB		Get(const rt::String_Ref& name, bool create_auto = true);
+	RocksDB		Get(const rt::String_Ref& name, bool create_auto = true);	// get db
+	void		Drop(const rt::String_Ref& name); // delete db
 
 	// first ':' in the name will be treated as wild prefix
 	// so you can set db_name to "abc:" and all column famlity with db_name starts with "abc:" will be applied the specified options
@@ -425,7 +428,7 @@ private:
 
 public:
 	RocksDBStandalone(){ Close(); }
-	bool	Open(LPCSTR db_path, RocksStorageScopeWriteRobustness robustness = DBWR_LEVEL_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
+	bool	Open(LPCSTR db_path, RocksStorageWriteRobustness robustness = ROCKSSTG_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
 	bool	IsOpen() const { return _Storage.IsOpen(); }
 	void	Close();
 };
