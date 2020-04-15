@@ -356,7 +356,7 @@ aa:aa = 3
    "haha",
    "@"
 ]
-Json Size: 506 = 506
+Json Size: 470 = 470
 {
    "Key:Complex": "complex\" key",
    "name": "this is name",
@@ -415,30 +415,12 @@ empty [string] =
 alive [bool] = true
 age [number] = 20
 char [string] = C
-phone [object] = {
-"number":5235251,
-"ext":432
-}
+phone [object] = {"number":5235251,"ext":432}
 weight [string] = 123.50kg
-state [object] = {
-"paid":false,
-"lastshow":"2007/03/02"
-}
-children [array] = [{
-"name":"jake",
-"age":12
-},{
-"name":"mary",
-"age":7
-},1,false,"haha","@"]
-numbers [array] = [1,2,"hello",{
-"c":1.2000
-},[3,"c",false],<7/InArray>,4.50]
-other [array] = [{
-"f0":0
-},{
-"f1":1
-}]
+state [object] = {"paid":false,"lastshow":"2007/03/02"}
+children [array] = [{"name":"jake","age":12},{"name":"mary","age":7},1,false,"haha","@"]
+numbers [array] = [1,2,"hello",{"c":1.2000},[3,"c",false],<7/InArray>,4.50]
+other [array] = [{"f0":0},{"f1":1}]
 std [string] = std::string
 bin [binary] = 1234567890ABCDEFGHIJK
 raw [null] = null
@@ -458,20 +440,9 @@ c: 8.9
 d: Yes
 Escaped String: \x00\t\\ABC\'\"123
 Unescaped Matches: 1
-{
-"num":100
-,
-"arr":[0,1,"12"],
-"str":"string"
-,
-"bin":<7/ABCDEFG>
-}
-A Json: false{
-"var":1.3000
-}
-A Json:  13{
-"var":1.3000
-} EOF
+{"num":100,"arr":[0,1,"12"],"str":"string","bin":<7/ABCDEFG>}
+A Json: false{"var":1.3000}
+A Json:  13{"var":1.3000} EOF
 {
    "a": "40E20100",
    "b": "123456",

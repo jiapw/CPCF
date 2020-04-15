@@ -36,7 +36,7 @@
 // Composing Json Data
 namespace rt
 {
-
+	
 class _JObj
 {
 	rt::String		__Obj;
@@ -143,7 +143,7 @@ struct _JVar
 	FORCEINL void	_GetLength(UINT& len) const
 					{	_details::_json_GetLengthPrev(prev, len);
 						if(!IsGhost())
-						{	if(len)len += 2;
+						{	if(len)len++;
 							len += (UINT)tagname.GetLength() + 3;
 							len += (UINT)value.GetLength() + (_JObj::VARTYPE_STRING == value_type?2:0);
 						}
@@ -152,8 +152,8 @@ struct _JVar
 					{	_details::_json_CopyPrev(prev, p, len);
 						if(!IsGhost())
 						{	if(len)
-							{	len += 2;	p += len;
-								*(WORD*)(p-2) = 0x0a2c; /* ",\n" */ 
+							{	len++;	p += len;
+								*(p-1) = ',';
 							}
 							int l;
 							*p++='"'; p += (l = (UINT)tagname.CopyTo(p)); *p++='"';
@@ -176,15 +176,15 @@ struct _JVar
 	FORCEINL bool	IsGhost() const { return tagname.IsEmpty(); }
 	FORCEINL UINT	GetLength() const
 					{	UINT len = 0;	_GetLength(len);
-						if(len)return len + 4;
+						if(len)return len + 2;
 						return 2;
 					}
 	FORCEINL UINT	CopyTo(LPSTR p) const
-					{	*(WORD*)p = 0x0a7b; /* "{\n" */	p+=2;
+					{	*p++ = '{';
 						UINT len = 0;
 						_CopyTo(p, len);
-						if(len){ p+=len; *(WORD*)p = 0x7d0a; /* \n} */ return len + 4; }
-						p[-1] = '}';
+						if(len){ p+=len; *p = '}'; return len + 2; }
+						*p = '}';
 						return 2;
 					}
 	FORCEINL void	ToString(rt::String& out) const
