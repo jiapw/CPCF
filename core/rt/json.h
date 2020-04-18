@@ -537,6 +537,7 @@ class JsonEscapeString: public rt::String
 {
 public:
 	JsonEscapeString(const rt::String_Ref& c_string, bool add_quote = false);
+	static void Concat(const rt::String_Ref& input, rt::String& out);
 };
 
 class JsonUnescapeString: public rt::String
@@ -546,6 +547,219 @@ public:
 	{	
 		rt::JsonObject::UnescapeStringValue(json_string, *this);
 	}
+};
+
+// increamental json composing
+class Json
+{
+	rt::String		_String;
+
+protected:
+	char&	Last(){ return _String.Last(); }
+	char	Last() const { return _String.Last(); }
+
+public:
+	class _Appending
+	{	protected:	Json* _pJson;
+		public:		_Appending(Json& j):_pJson(&j){}
+					operator Json& (){ return *_pJson; }
+					template<typename T>
+					void operator << (const T& json_str){ *_pJson << json_str; }
+	};
+	struct _AppendingKeyedValue: public _Appending
+	{	friend class Json;
+		Json& operator ->(){ return *_pJson; }
+		_AppendingKeyedValue(_AppendingKeyedValue&& x):_Appending(x){ x._pJson = nullptr; }
+		~_AppendingKeyedValue()
+		{
+			if(_pJson)_pJson->_String += '}';
+		}
+	protected:
+		_AppendingKeyedValue(Json& j, const rt::String_Ref& key):_Appending(j)
+		{	ASSERT(j.Last() == '}');
+			j._String.Shorten(1);
+			if(j.Last() != '{')j._String += ',';
+			j._String += '"'; JsonEscapeString::Concat(key, j._String); j._String+= '"'; j._String+=':';
+		}
+	};
+	struct _MergingObject: public _Appending
+	{	friend class Json;
+		Json& operator ->(){ return *_pJson; }
+		SIZE_T	_StartPos;
+		_MergingObject(_MergingObject&& x):_Appending(x){ _StartPos = x._StartPos; x._pJson = nullptr; }
+		~_MergingObject()
+		{	if(_pJson)
+			{	if(_StartPos != INFINITE){ ASSERT(_pJson->_String[_StartPos] == '{'); _pJson->_String[_StartPos] = ','; }
+				ASSERT(_pJson->Last() == '}');
+			}
+		}
+	protected:
+		_MergingObject(Json& j):_Appending(j)
+		{	ASSERT(j.Last() == '}');
+			j._String.Shorten(1);
+			if(j.Last() == '{'){ _StartPos = INFINITE; j._String.Shorten(1); }
+			else _StartPos = j._String.GetLength();
+		}
+	};
+	struct _AppendingElement: public _Appending
+	{	friend class Json;
+		Json& operator ->(){ return *_pJson; }
+		_AppendingElement(_AppendingElement&& x):_Appending(x){ x._pJson = nullptr; }
+		~_AppendingElement()
+		{
+			if(_pJson)_pJson->_String += ']';
+		}
+	protected:
+		_AppendingElement(Json& j):_Appending(j)
+		{	ASSERT(j.Last() == ']');
+			j._String.Shorten(1);
+			if(j._String.Last() != '[')j._String += ',';
+		}
+	};
+	struct _AppendingArray: public _Appending
+	{	friend class Json;
+		Json& operator ->(){ return *_pJson; }
+		SIZE_T	_StartPos;
+		_AppendingArray(_AppendingArray&& x):_Appending(x){ _StartPos = x._StartPos; x._pJson = nullptr; }
+		~_AppendingArray()
+		{	if(_pJson)
+			{	if(_StartPos != INFINITE){ ASSERT(_pJson->_String[_StartPos] == '['); _pJson->_String[_StartPos] = ','; }
+				ASSERT(_pJson->Last() == ']');
+			}
+		}
+	protected:
+		_AppendingArray(Json& j):_Appending(j)
+		{	ASSERT(j.Last() == ']');
+			j._String.Shorten(1);
+			if(j.Last() == '['){ _StartPos = INFINITE; j._String.Shorten(1); }
+			else _StartPos = j._String.GetLength();
+		}
+	};
+	struct _WritingStringEscaped: public _Appending
+	{	friend class Json;
+		_WritingStringEscaped(_AppendingArray&& x):_Appending(x){ x._pJson = nullptr; }
+		~_WritingStringEscaped()
+		{
+			if(_pJson)_pJson->_String += '"';
+		}
+		operator	rt::String& (){ return _pJson->_String; }
+		auto&		String(){ return _pJson->_String; }
+	protected:
+		_WritingStringEscaped(Json& j):_Appending(j)
+		{	
+			if(j.Last() == '"'){ j._String.Shorten(1); }
+			else j._String += '"';
+		}
+	};
+	struct _WritingStringAtKey: public _Appending
+	{	friend class Json;
+		Json& operator ->(){ return *_pJson; }
+		_WritingStringAtKey(_AppendingKeyedValue&& x):_Appending(x){ x._pJson = nullptr; }
+		~_WritingStringAtKey()
+		{
+			if(_pJson){ _pJson->_String += '"'; _pJson->_String += '}'; }
+		}
+		operator	rt::String& (){ return _pJson->_String; }
+		auto&		String(){ return _pJson->_String; }
+	protected:
+		_WritingStringAtKey(Json& j, const rt::String_Ref& key):_Appending(j)
+		{	ASSERT(j.Last() == '}');
+			j._String.Shorten(1);
+			if(j.Last() != '{')j._String += ',';
+			j._String += '"'; JsonEscapeString::Concat(key, j._String); j._String+= '"'; j._String+=':'; j._String+='"';
+		}
+	};
+
+public:
+	operator const rt::String&(){ return _String; }
+	SIZE_T	GetLength() const { return _String.GetLength(); }
+	SIZE_T	CopyTo(char* p) const { return _String.CopyTo(p); }
+	LPCSTR	Begin() const { return _String.Begin(); }
+
+	auto&	Empty(){ _String.Empty(); return *this; }
+	auto&	Object(){ _String += '{'; _String += '}'; return *this; }
+	auto&	Array(){ _String += '['; _String += ']'; return *this; }
+
+	template<typename T>
+	void	Object(const T& json_str){ _String += json_str; }
+
+	// Object Operation
+	auto	ScopeAppendingKey(const rt::String_Ref& key){ return _AppendingKeyedValue(*this, key); }
+	auto	ScopeMergingObject(){ return _MergingObject(*this); }
+	template<typename P, typename V>
+	auto&	AppendKey(const rt::String_Ref& key, const _JVar<P,V>& json_str){ _AppendingKeyedValue(*this, key)._pJson->_String += json_str;	return *this; }
+	template<typename P, typename V>
+	auto&	MergeObject(const _JVar<P,V>& json_str){ _MergingObject(*this)._pJson->_String += json_str; return *this; }
+
+	// Array Operation
+	auto	ScopeAppendingElement(){ return _AppendingElement(*this); }
+	auto	ScopeMergingArray(){ return _AppendingArray(*this); }
+
+	template<typename P, typename V>
+	auto&	AppendElement(const _JVar<P,V>& json){ ASSERT(Last() == ']'); _AppendingElement(*this)._pJson->_String += json; return *this; }
+	auto&	AppendElement(const rt::tos::Number& str){ ASSERT(Last() == ']'); _AppendingElement(*this)._pJson->_String += str; return *this; }
+	auto&	AppendElement(const rt::String_Ref& str)
+			{	ASSERT(Last() == ']');
+				auto scope = _AppendingElement(*this);
+				_String += '"'; _String += str; _String += '"';
+				return *this; 
+			}
+	template<typename L, typename R>
+	auto&	AppendElement(const _SE<L, R>& str)
+			{	ASSERT(Last() == ']');
+				auto scope = _AppendingElement(*this);
+				_String += '"'; _String += str; _String += '"';
+				return *this; 
+			}
+
+	template<typename T>
+	auto&	MergeArray(){ _AppendingArray(*this)._pJson->_String += json_str; return *this; }
+
+	template<typename P, typename V>
+	auto&	operator << (const _JVar<P,V>& json)	// merge object or append array element
+			{	
+				if(Last() == '}') // merge with another object
+				{	
+					MergeObject(json);
+				}
+				else // append an element
+				{
+					AppendElement(json);
+				}
+				return *this;
+			}
+
+	auto&	operator << (const rt::String_Ref& s){ return AppendElement(s); }
+	auto&	operator << (LPCSTR s){ return AppendElement(rt::String_Ref(s)); }
+	auto&	operator << (char c){ return AppendElement(rt::String_Ref(&c, 1)); }
+	auto&	operator << (short x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (WORD x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (int x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (UINT x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (LONGLONG x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (ULONGLONG x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (bool x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (float x){ return AppendElement(rt::tos::Number(x)); }
+	auto&	operator << (double x){ return AppendElement(rt::tos::Number(x)); }
+	template<typename L, typename R>
+	auto&	operator <<(const _SE<L, R>& str){ return AppendElement(str); }
+
+	template<typename T>
+	void	Number(T n){ _String += rt::tos::Number(n); }
+	void	Null(){ _String += rt::SS("null"); }
+	void	Boolean(bool b){ _String += b?rt::SS("true"):rt::SS("false"); }
+
+	void	String(const rt::String_Ref& s){ _String += '"'; JsonEscapeString::Concat(s, _String); _String += '"'; }
+	void	StringEscaped(const rt::String_Ref& s){ _String += '"'; _String += s; _String += '"'; }
+	auto	ScopeWritingStringEscaped(){ return _WritingStringEscaped(*this); }
+	auto	ScopeWritingStringEscapedAtKey(const rt::String_Ref& key){ return _WritingStringAtKey(*this, key); }
+	LPSTR	WriteStringEscaped(SIZE_T len)
+			{	_String += '"';
+				SIZE_T org = _String.GetLength();
+				_String.SetLength(org + len + 1);
+				_String.Last() = '"';
+				return &_String[org];
+			}
 };
 
 class JsonBeautified: public rt::String
@@ -562,6 +776,7 @@ public:
 	JsonBeautified(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80){ Beautify(json_string, indent, line_remain); }
 	void Beautify(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80);
 };
+
 
 template<typename TJSON>
 INLFUNC rt::String& JSON_OBJECT_APPEND(rt::String& x, const rt::String_Ref& key, TJSON&& value)

@@ -223,6 +223,38 @@ void rt::UnitTests::json()
 
 		_LOG(rt::JsonBeautified(a));
 	}
+
+	{
+		rt::Json json;
+		json.Object() << (
+			J(key) = 32.1f
+		);
+
+		{	auto u = json.ScopeMergingObject();
+			json.Object() << (
+				J(obj) = "merged"
+			);
+		}
+
+		{	json << (
+				J(obj2) = "merged_scope"
+			);
+		}
+
+		{	auto scope = json.ScopeAppendingKey("array");
+			json.Array();
+			json << false << 1 << 2.1 << "ok" << (rt::SS("NN=") + 3);
+
+			{	auto ele = json.ScopeAppendingElement();
+				json.Object();
+			}
+		}
+
+		json.ScopeWritingStringEscapedAtKey("str").String() += "1234";
+		json.AppendKey("obj3", (J(a) = false));
+
+		_LOG(rt::JsonBeautified(json));
+	}
 }
 
 void rt::UnitTests::xml()

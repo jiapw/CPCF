@@ -456,6 +456,22 @@ A Json:  13{"var":1.3000} EOF
       "0000000000000"
    ]
 }
+{
+   "key": 32.10,
+   "obj": "merged",
+   "obj2": "merged_scope",
+   "array": 
+   [
+      false,
+      1,
+      2.1000,
+      "ok",
+      "NN=3",
+      {}
+   ],
+   "str": "1234",
+   "obj3": {"a": false}
+}
 === UnitTest<json>: END =====
 
 === UnitTest<express_tk>: BEGIN ===

@@ -485,6 +485,27 @@ JsonEscapeString::JsonEscapeString(const rt::String_Ref& c_string, bool add_quot
 	SetLength(open);
 }
 
+void JsonEscapeString::Concat(const rt::String_Ref& input, rt::String& out)
+{
+	for(UINT i=0;i<input.GetLength();i++)
+	{	static const rt::CharacterSet_Escape esc;
+		int c = input[i];
+		if(c)
+		{
+			if(!esc.Has(c))
+			{	out += (char)c;
+			}
+			else
+			{	out += '\\';
+				out += (char)esc.Mapped(c);
+			}
+		}
+		else
+		{	out += rt::SS("\x00");
+		}
+	}
+}
+
 void JsonBeautified::_AppendSpace(UINT count)
 {	
 	UINT org = (UINT)GetLength();
