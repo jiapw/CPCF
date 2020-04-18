@@ -37,7 +37,7 @@
 namespace rt
 {
 	
-class _JObj
+class _JVal
 {
 	rt::String		__Obj;
 	rt::String_Ref	_Ref;
@@ -52,45 +52,45 @@ public:
 		VARTYPE_ARRAY   = 2,
 		VARTYPE_OBJECT  = 3
 	};
-	FORCEINL			_JObj(){ static rt::SS n("null"); _Ref = n; }
-	FORCEINL explicit	_JObj(LPCSTR str, bool bin = false)
+	FORCEINL			_JVal(){ static rt::SS n("null"); _Ref = n; }
+	FORCEINL explicit	_JVal(LPCSTR str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = rt::String_Ref(str); _SetBinLen(); }
 							else _Ref = rt::String_Ref(str).TrimSpace();
 						}
-	FORCEINL explicit	_JObj(const rt::String_Ref& str, bool bin = false)
+	FORCEINL explicit	_JVal(const rt::String_Ref& str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = str; _SetBinLen(); }
 							else _Ref = str.TrimSpace();
 						}
-	FORCEINL explicit	_JObj(const rt::String& str, bool bin = false)
+	FORCEINL explicit	_JVal(const rt::String& str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = str; _SetBinLen(); }
 							else _Ref = str.TrimSpace();
 						}
-	FORCEINL explicit	_JObj(LPSTR str, bool bin = false)
+	FORCEINL explicit	_JVal(LPSTR str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = rt::String_Ref(str); _SetBinLen(); }
 							else _Ref = rt::String_Ref(str).TrimSpace();
 						}
 	template <template<class, class, class> class std_string, class _Traits, class _Alloc>
-	FORCEINL explicit	_JObj(const std_string<char, _Traits, _Alloc>& str, bool bin = false)
+	FORCEINL explicit	_JVal(const std_string<char, _Traits, _Alloc>& str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = str; _SetBinLen(); }
 							else _Ref = rt::String_Ref(str).TrimSpace();
 						}
-	FORCEINL explicit	_JObj(rt::String_Ref& str, bool bin = false)
+	FORCEINL explicit	_JVal(rt::String_Ref& str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = str; _SetBinLen(); }
 							else _Ref = str.TrimSpace();
 						}
-	FORCEINL explicit	_JObj(rt::String& str, bool bin = false)
+	FORCEINL explicit	_JVal(rt::String& str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = str; _SetBinLen(); }
 							else _Ref = str.TrimSpace();
 						}
 	template<typename T>
-	FORCEINL explicit	_JObj(T& j, bool bin = false)
+	FORCEINL explicit	_JVal(T& j, bool bin = false)
 						{	_AsBinary = bin;
 							j.ToString(__Obj);
 							if(bin){ _Ref = __Obj; _SetBinLen(); }
@@ -132,20 +132,19 @@ namespace _details
 	FORCEINL UINT _json_CopyPrev(LPVOID, LPSTR, UINT&){ return 0; }
 } // namespace _details
 
-template<typename t_Prev, typename t_Val>
+template<typename t_Prev, typename t_Val, int t_value_type>
 struct _JVar
 {
 	t_Prev			prev;
 	rt::String_Ref	tagname;
 	t_Val			value;
-	DWORD			value_type;
-	
+
 	FORCEINL void	_GetLength(UINT& len) const
 					{	_details::_json_GetLengthPrev(prev, len);
 						if(!IsGhost())
 						{	if(len)len++;
 							len += (UINT)tagname.GetLength() + 3;
-							len += (UINT)value.GetLength() + (_JObj::VARTYPE_STRING == value_type?2:0);
+							len += (UINT)value.GetLength() + (_JVal::VARTYPE_STRING == t_value_type?2:0);
 						}
 					}
 	FORCEINL void	_CopyTo(LPSTR p, UINT& len) const
@@ -158,7 +157,7 @@ struct _JVar
 							int l;
 							*p++='"'; p += (l = (UINT)tagname.CopyTo(p)); *p++='"';
 							*p++=':'; len += l + 3;
-							if(_JObj::VARTYPE_STRING == value_type)
+							if(_JVal::VARTYPE_STRING == t_value_type)
 							{	*p++='"';
 								p += (l = (UINT)value.CopyTo(p));
 								*p++='"';
@@ -168,10 +167,10 @@ struct _JVar
 						}
 					}
 	template<typename t_V>
-	FORCEINL _JVar(const rt::String_Ref& name, t_V& v, DWORD vt):tagname(name), value(v), value_type(vt){}
+	FORCEINL _JVar(const rt::String_Ref& name, t_V& v):tagname(name), value(v){}
 	FORCEINL _JVar(){}
 	template<typename Prev, typename t_V>
-	FORCEINL _JVar(Prev& n, const rt::String_Ref& name,t_V& v, DWORD vt):tagname(name), value(v), value_type(vt), prev(n){}
+	FORCEINL _JVar(Prev& n, const rt::String_Ref& name, t_V& v):tagname(name), value(v), prev(n){}
 
 	FORCEINL bool	IsGhost() const { return tagname.IsEmpty(); }
 	FORCEINL UINT	GetLength() const
@@ -192,47 +191,48 @@ struct _JVar
 						out.SetLength(CopyTo(out.Begin()));
 					}
 	// override operator , for connecting key-value pairs in declaring json object
-	template<typename t_right>
-	FORCEINL auto operator , (const _JVar<LPVOID, t_right>& right) const
-	{	return _JVar< _JVar<t_Prev,t_Val>, t_right>((const _JVar<t_Prev,t_Val>&)*this, right.tagname, right.value, right.value_type);
+	template<typename t_right, int t_right_vt>
+	FORCEINL auto operator , (const _JVar<LPVOID, t_right, t_right_vt>& right) const
+	{	
+		return _JVar< _JVar<t_Prev,t_Val,t_value_type>, t_right, t_right_vt>
+			   ((const _JVar<t_Prev,t_Val,t_value_type>&)*this, right.tagname, right.value);
+	}
+
+	template<typename t_right_prev, typename t_right, int t_right_vt>
+	FORCEINL auto operator , (const _JVar<t_right_prev, t_right, t_right_vt>& right) const
+	{	
+		return _JVar< _JVar<t_Prev,t_Val,t_value_type>, t_right, t_right_vt>
+			   ((const _JVar<t_Prev,t_Val,t_value_type>&)*this, right.tagname, right.value), right.prev;
+	}
+
+	template<typename STRING>
+	FORCEINL void	_AppendValueToString(STRING& str) const
+	{
+		if(_JVal::VARTYPE_STRING != t_value_type){ str += value; }
+		else { str += '"'; str += value; str += '"'; }
 	}
 };
+
+namespace _details
+{
+	template<typename T, typename STRING>
+	FORCEINL static	void _AppendJsonValueToString(const T& v, STRING& str)
+	{	static rt::_JTag _t("_");
+		(_t = v)._AppendValueToString<STRING>(str);
+	}
+} // namespace _details
 
 template<typename t_String = rt::StringFixed<1024>>  // or StringFixed<LEN>
 class _JArray
 {
 	t_String	_buf;
-
-	template<typename T>
-	FORCEINL void	_Append(const T& obj, bool need_quote)
-					{	if(_buf.GetLength() != 1){ _buf += ',';	}
-						if(need_quote){	_buf += '"'; _buf += obj; _buf += '"'; }
-						else{ _buf += obj; }
-					}
 public:
 	FORCEINL _JArray(){ _buf = "["; }
-
-#define JA_NUMERIC_ITEM(numeric_type)	FORCEINL void Append(numeric_type x){ _Append(rt::tos::Number(x), false); }
-	JA_NUMERIC_ITEM(bool)
-	JA_NUMERIC_ITEM(short)
-	JA_NUMERIC_ITEM(unsigned short)
-	JA_NUMERIC_ITEM(int)
-	JA_NUMERIC_ITEM(UINT)
-#if defined(PLATFORM_WIN)
-	JA_NUMERIC_ITEM(long)
-	JA_NUMERIC_ITEM(unsigned long)
-#endif
-	JA_NUMERIC_ITEM(LONGLONG)
-	JA_NUMERIC_ITEM(ULONGLONG)
-	JA_NUMERIC_ITEM(float)
-	JA_NUMERIC_ITEM(double)
-#undef JA_NUMERIC_ITEM
-		
-	FORCEINL void	Append(LPCSTR x){ _Append(rt::String_Ref(x), true); }
-	FORCEINL void	Append(LPSTR x){ _Append(rt::String_Ref(x), true); }
-	FORCEINL void	Append(char x){ _Append(rt::String_Ref(&x, 1), true); }
 	template<typename T>
-	FORCEINL void	Append(const T& json){ _Append(json, std::is_base_of<rt::String_Ref, T>::value); }
+	FORCEINL void	Append(const T& jval)
+					{	if(_buf.GetLength() != 1){ _buf += ',';	}
+						_details::_AppendJsonValueToString(jval, _buf);
+					}
 
 	FORCEINL UINT	GetLength() const { return (UINT)(_buf.GetLength() + 1); }
 	FORCEINL UINT	CopyTo(LPSTR p) const 
@@ -243,12 +243,12 @@ public:
 };
 
 #define J_EXPR_CONNECT_OP(type, type_in, vt)					\
-FORCEINL _JVar<LPVOID, type>									\
+FORCEINL _JVar<LPVOID, type, vt>								\
 operator = (type_in p)											\
 {	if(tagname.IsEmpty())										\
 	{	static type __empty_p; 									\
-		return _JVar<LPVOID, type>(tagname, __empty_p, vt); 	\
-	} else { return _JVar<LPVOID, type>(tagname, p, vt); }		\
+		return _JVar<LPVOID, type, vt>(tagname, __empty_p);		\
+	} else { return _JVar<LPVOID, type, vt>(tagname, p); }		\
 }																\
 
 struct _JTag
@@ -263,93 +263,61 @@ struct _JTag
 	};
 
 	rt::String_Ref	tagname;
+	FORCEINL _JTag(){}
 	FORCEINL _JTag(const rt::String_Ref& name):tagname(name){}
 
-	J_EXPR_CONNECT_OP(String_Ref,					const String_Ref&	, _JObj::VARTYPE_STRING)
-	J_EXPR_CONNECT_OP(String_Ref,					const char*			, _JObj::VARTYPE_STRING)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,2)>,	char				, _JObj::VARTYPE_STRING)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	int					, _JObj::VARTYPE_BUILTIN)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,7)>,	bool				, _JObj::VARTYPE_BUILTIN)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	unsigned int		, _JObj::VARTYPE_BUILTIN)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,25)>,	LONGLONG			, _JObj::VARTYPE_BUILTIN)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,25)>,	ULONGLONG			, _JObj::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(String_Ref,					const String_Ref&	, _JVal::VARTYPE_STRING)
+	J_EXPR_CONNECT_OP(String_Ref,					const char*			, _JVal::VARTYPE_STRING)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,2)>,	char				, _JVal::VARTYPE_STRING)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	int					, _JVal::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,7)>,	bool				, _JVal::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	unsigned int		, _JVal::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,25)>,	LONGLONG			, _JVal::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,25)>,	ULONGLONG			, _JVal::VARTYPE_BUILTIN)
 #if defined(PLATFORM_WIN)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	long				, _JObj::VARTYPE_BUILTIN)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	unsigned long		, _JObj::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	long				, _JVal::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,12)>,	unsigned long		, _JVal::VARTYPE_BUILTIN)
 #endif
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,32)>,	float				, _JObj::VARTYPE_BUILTIN)
-	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,64)>,	double				, _JObj::VARTYPE_BUILTIN)
-	J_EXPR_CONNECT_OP(_O<_JObj>,					const _JObj& 		, _JObj::VARTYPE_OBJECT)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,32)>,	float				, _JVal::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,64)>,	double				, _JVal::VARTYPE_BUILTIN)
+	J_EXPR_CONNECT_OP(_O<_JVal>,					const _JVal& 		, _JVal::VARTYPE_OBJECT)
 
-	template<typename prev, typename type>
-	FORCEINL auto operator = (const _JVar<prev, type>& p)
-	{	return _JVar<LPVOID, _O<const _JVar<prev, type>> >(tagname, p, _JObj::VARTYPE_OBJECT);
+	template<typename prev, typename type, int val_type>
+	FORCEINL auto operator = (const _JVar<prev, type, val_type>& p)
+	{	return _JVar<LPVOID, _O<const _JVar<prev, type, val_type>>, _JVal::VARTYPE_OBJECT>(tagname, p);
 	}
 
 	template<typename T>
 	FORCEINL auto operator = (const _JArray<T>& p)
-	{	return _JVar<LPVOID, _O<const _JArray<T>> >(tagname, p, _JObj::VARTYPE_ARRAY);
+	{	return _JVar<LPVOID, _O<const _JArray<T>>, _JVal::VARTYPE_ARRAY>(tagname, p);
 	}
 
 	template<typename t_Left, typename t_Right>
 	FORCEINL auto operator = (const _SE<t_Left,t_Right>& p)
-	{	return _JVar<LPVOID, _O<const _SE<t_Left,t_Right>> >(tagname, p, _JObj::VARTYPE_STRING);
+	{	return _JVar<LPVOID, _O<const _SE<t_Left,t_Right>>, _JVal::VARTYPE_STRING>(tagname, p);
 	}
 };
 
 #undef J_EXPR_CONNECT_OP
 
-
-class _JObject
-{
-	rt::String	__Temp;
-	rt::String& _Save;
-public:
-	_JObject():_Save(__Temp){ __Temp = "{}"; }
-	_JObject(rt::String& out):_Save(out)
-	{	if(out.IsEmpty()){ out = "{}"; }
-		_Save = _Save.TrimSpace();
-		ASSERT(_Save.Last() == '}');
-	}
-	template<typename t_left, typename t_right>
-	void operator << (const _JVar<t_left,t_right>& json)
-	{
-		if(_Save.GetLength() <= 2)
-		{
-			_Save = json;
-		}
-		else
-		{	_Save._len--;
-			SIZE_T e = _Save.GetLength();
-			_Save += json;
-			_Save.Begin()[e] = ',';
-		}
-	}
-	const rt::String_Ref& GetString() const { return _Save; }
-	operator const rt::String_Ref&() const { return _Save; }
-};
-
-template<typename LEFT, typename T>
-FORCEINL _SE<String_Ref, _JVar<LEFT, T>>  operator + (const String_Ref& left, const _JVar<LEFT, T>& right)
-{	return _SE<String_Ref, _JVar<LEFT, T>> ( (left), (right) );
+template<typename LEFT, typename T, int VAL_TYPE>
+FORCEINL auto operator + (const String_Ref& left, const _JVar<LEFT, T, VAL_TYPE>& right)
+{	return _SE<String_Ref, _JVar<LEFT, T, VAL_TYPE>>( (left), (right) );
 }
-template<typename t_Left, typename t_Right, typename LEFT, typename T>
-FORCEINL _SE<_JVar<LEFT, T>, _SE<t_Left,t_Right> >								
-operator + (const _JVar<LEFT, T>& p, const _SE<t_Left,t_Right>& x)	
-{	return _SE<_JVar<LEFT, T>, _SE<t_Left,t_Right>>(p,x);
+template<typename t_Left, typename t_Right, typename LEFT, typename T, int VAL_TYPE>
+FORCEINL auto operator + (const _JVar<LEFT, T, VAL_TYPE>& p, const _SE<t_Left,t_Right>& x)	
+{	return _SE<_JVar<LEFT, T, VAL_TYPE>, _SE<t_Left,t_Right>>(p,x);
 }
-template<typename t_Left, typename t_Right, typename LEFT, typename T>
-FORCEINL _SE<_SE<t_Left,t_Right> , _JVar<LEFT, T>>
-operator + (const _SE<t_Left,t_Right>& x, const _JVar<LEFT, T>& p)	
-{	return _SE<_SE<t_Left,t_Right>, _JVar<LEFT, T>>(x, p);
+template<typename t_Left, typename t_Right, typename LEFT, typename T, int VAL_TYPE>
+FORCEINL auto operator + (const _SE<t_Left,t_Right>& x, const _JVar<LEFT, T, VAL_TYPE>& p)	
+{	return _SE<_SE<t_Left,t_Right>, _JVar<LEFT, T, VAL_TYPE>>(x, p);
 }
 
 } // namespace rt
 
 #define J(x)					rt::_JTag(#x)
 #define J_IF(cond, definition)	((cond) ? (definition) : decltype(definition)())
-#define JB(x)					(rt::_JObj((x), true))
-#define JKSTR(x)				(rt::SS("\"" #x "\":"))
+#define JB(x)					(rt::_JVal((x), true))		// Json Binary
 
 template<typename T>
 FORCEINL void _JA(rt::_JArray<>& a, T&& t) {
@@ -484,13 +452,13 @@ public:
 	template<typename T>
 	T				GetValueAs(const rt::String_Ref& xpath) const { return GetValueAs<T>(xpath, 0); }
 
-	template<typename T1,typename T2>
-	void			Derive(const rt::_JVar<T1,T2>& sub, rt::String& derived, bool append = false) const { Override(_Doc, sub, derived, append); }
+	template<typename T1,typename T2,int VT>
+	void			Derive(const rt::_JVar<T1,T2,VT>& sub, rt::String& derived, bool append = false) const { Override(_Doc, sub, derived, append); }
 	void			Derive(const rt::String_Ref& sub, rt::String& derived, bool append = false) const { Override(_Doc, sub, derived, append); }
 	void			Derive(const rt::String_Ref& key, const rt::String_Ref& val_raw, rt::String& derived, bool append = false) const { Override(_Doc, key, val_raw, derived, append); }
 
-	template<typename T1,typename T2>
-	static void		Override(const rt::String_Ref& base, const rt::_JVar<T1,T2>& sub, rt::String& derived, bool append = false){ Override(base, rt::String(sub), derived, append); }
+	template<typename T1,typename T2,int VT>
+	static void		Override(const rt::String_Ref& base, const rt::_JVar<T1,T2,VT>& sub, rt::String& derived, bool append = false){ Override(base, rt::String(sub), derived, append); }
 	static void		Override(const rt::String_Ref& base, const rt::String_Ref& sub, rt::String& derived, bool append = false);
 	static void		Override(const rt::String_Ref& base, const rt::String_Ref& key, const rt::String_Ref& val_raw, rt::String& derived, bool append = false);
 	static void		RemoveKeys(const rt::String_Ref& source, const rt::String_Ref& keys_to_exclude, rt::String& removed);
@@ -555,14 +523,14 @@ class Json
 	rt::String		_String;
 
 protected:
-	char&	Last(){ return _String.Last(); }
-	char	Last() const { return _String.Last(); }
+	bool	IsEndsWith(int c){ return !_String.IsEmpty() && _String.Last() == c; }
 
 public:
 	class _Appending
 	{	protected:	Json* _pJson;
 		public:		_Appending(Json& j):_pJson(&j){}
 					operator Json& (){ return *_pJson; }
+					auto& StringForAppending(){ return _pJson->_String; }
 					template<typename T>
 					void operator << (const T& json_str){ *_pJson << json_str; }
 	};
@@ -576,9 +544,9 @@ public:
 		}
 	protected:
 		_AppendingKeyedValue(Json& j, const rt::String_Ref& key):_Appending(j)
-		{	ASSERT(j.Last() == '}');
+		{	ASSERT(j.IsEndsWith('}'));
 			j._String.Shorten(1);
-			if(j.Last() != '{')j._String += ',';
+			if(!j.IsEndsWith('{'))j._String += ',';
 			j._String += '"'; JsonEscapeString::Concat(key, j._String); j._String+= '"'; j._String+=':';
 		}
 	};
@@ -589,15 +557,25 @@ public:
 		_MergingObject(_MergingObject&& x):_Appending(x){ _StartPos = x._StartPos; x._pJson = nullptr; }
 		~_MergingObject()
 		{	if(_pJson)
-			{	if(_StartPos != INFINITE){ ASSERT(_pJson->_String[_StartPos] == '{'); _pJson->_String[_StartPos] = ','; }
-				ASSERT(_pJson->Last() == '}');
+			{	if(_StartPos != INFINITE)
+				{	ASSERT(_pJson->_String[_StartPos] == '{');
+					if(_pJson->_String.GetLength() > _StartPos + 2)
+					{
+						_pJson->_String[_StartPos] = ','; 
+					}
+					else // merged with an empty object
+					{	_pJson->_String[_StartPos] = '}';
+						_pJson->_String.SetLength(_StartPos + 1);
+					}
+				}
+				ASSERT(_pJson->IsEndsWith('}'));
 			}
 		}
 	protected:
 		_MergingObject(Json& j):_Appending(j)
-		{	ASSERT(j.Last() == '}');
+		{	ASSERT(j.IsEndsWith('}'));
 			j._String.Shorten(1);
-			if(j.Last() == '{'){ _StartPos = INFINITE; j._String.Shorten(1); }
+			if(j.IsEndsWith('{')){ _StartPos = INFINITE; j._String.Shorten(1); }
 			else _StartPos = j._String.GetLength();
 		}
 	};
@@ -611,7 +589,7 @@ public:
 		}
 	protected:
 		_AppendingElement(Json& j):_Appending(j)
-		{	ASSERT(j.Last() == ']');
+		{	ASSERT(j.IsEndsWith(']'));
 			j._String.Shorten(1);
 			if(j._String.Last() != '[')j._String += ',';
 		}
@@ -624,14 +602,14 @@ public:
 		~_AppendingArray()
 		{	if(_pJson)
 			{	if(_StartPos != INFINITE){ ASSERT(_pJson->_String[_StartPos] == '['); _pJson->_String[_StartPos] = ','; }
-				ASSERT(_pJson->Last() == ']');
+				ASSERT(_pJson->IsEndsWith(']'));
 			}
 		}
 	protected:
 		_AppendingArray(Json& j):_Appending(j)
-		{	ASSERT(j.Last() == ']');
+		{	ASSERT(j.IsEndsWith(']'));
 			j._String.Shorten(1);
-			if(j.Last() == '['){ _StartPos = INFINITE; j._String.Shorten(1); }
+			if(j.IsEndsWith('[')){ _StartPos = INFINITE; j._String.Shorten(1); }
 			else _StartPos = j._String.GetLength();
 		}
 	};
@@ -647,7 +625,7 @@ public:
 	protected:
 		_WritingStringEscaped(Json& j):_Appending(j)
 		{	
-			if(j.Last() == '"'){ j._String.Shorten(1); }
+			if(j.IsEndsWith('"')){ j._String.Shorten(1); }
 			else j._String += '"';
 		}
 	};
@@ -663,9 +641,9 @@ public:
 		auto&		String(){ return _pJson->_String; }
 	protected:
 		_WritingStringAtKey(Json& j, const rt::String_Ref& key):_Appending(j)
-		{	ASSERT(j.Last() == '}');
+		{	ASSERT(j.IsEndsWith('}'));
 			j._String.Shorten(1);
-			if(j.Last() != '{')j._String += ',';
+			if(!j.IsEndsWith('{'))j._String += ',';
 			j._String += '"'; JsonEscapeString::Concat(key, j._String); j._String+= '"'; j._String+=':'; j._String+='"';
 		}
 	};
@@ -681,68 +659,41 @@ public:
 	auto&	Array(){ _String += '['; _String += ']'; return *this; }
 
 	template<typename T>
-	void	Object(const T& json_str){ _String += json_str; }
+	void	Object(const T& json_str){ _details::_AppendJsonValueToString(json_str, _String); }
 
 	// Object Operation
-	auto	ScopeAppendingKey(const rt::String_Ref& key){ return _AppendingKeyedValue(*this, key); }
 	auto	ScopeMergingObject(){ return _MergingObject(*this); }
-	template<typename P, typename V>
-	auto&	AppendKey(const rt::String_Ref& key, const _JVar<P,V>& json_str){ _AppendingKeyedValue(*this, key)._pJson->_String += json_str;	return *this; }
-	template<typename P, typename V>
-	auto&	MergeObject(const _JVar<P,V>& json_str){ _MergingObject(*this)._pJson->_String += json_str; return *this; }
+	template<typename P, typename V, int VT>
+	auto&	MergeObject(const _JVar<P,V,VT>& json){ _MergingObject(*this)._pJson->_String += json; return *this; }
+	auto&	MergeObject(const rt::String_Ref& json_str){ ASSERT(json_str.First() == '{' && json_str.Last() == '}'); _MergingObject(*this)._pJson->_String += json_str; return *this; }
 
-	// Array Operation
-	auto	ScopeAppendingElement(){ return _AppendingElement(*this); }
-	auto	ScopeMergingArray(){ return _AppendingArray(*this); }
-
-	template<typename P, typename V>
-	auto&	AppendElement(const _JVar<P,V>& json){ ASSERT(Last() == ']'); _AppendingElement(*this)._pJson->_String += json; return *this; }
-	auto&	AppendElement(const rt::tos::Number& str){ ASSERT(Last() == ']'); _AppendingElement(*this)._pJson->_String += str; return *this; }
-	auto&	AppendElement(const rt::String_Ref& str)
-			{	ASSERT(Last() == ']');
-				auto scope = _AppendingElement(*this);
-				_String += '"'; _String += str; _String += '"';
-				return *this; 
-			}
-	template<typename L, typename R>
-	auto&	AppendElement(const _SE<L, R>& str)
-			{	ASSERT(Last() == ']');
-				auto scope = _AppendingElement(*this);
-				_String += '"'; _String += str; _String += '"';
-				return *this; 
-			}
-
+	auto	ScopeAppendingKey(const rt::String_Ref& key){ return _AppendingKeyedValue(*this, key); }
 	template<typename T>
-	auto&	MergeArray(){ _AppendingArray(*this)._pJson->_String += json_str; return *this; }
-
-	template<typename P, typename V>
-	auto&	operator << (const _JVar<P,V>& json)	// merge object or append array element
-			{	
-				if(Last() == '}') // merge with another object
-				{	
-					MergeObject(json);
-				}
-				else // append an element
-				{
-					AppendElement(json);
-				}
+	auto&	AppendKey(const rt::String_Ref& key, const T& json_value)
+			{	ASSERT(IsEndsWith('}'));
+				_details::_AppendJsonValueToString(json_value, _AppendingKeyedValue(*this, key)._pJson->_String);
 				return *this;
 			}
 
-	auto&	operator << (const rt::String_Ref& s){ return AppendElement(s); }
-	auto&	operator << (LPCSTR s){ return AppendElement(rt::String_Ref(s)); }
-	auto&	operator << (char c){ return AppendElement(rt::String_Ref(&c, 1)); }
-	auto&	operator << (short x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (WORD x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (int x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (UINT x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (LONGLONG x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (ULONGLONG x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (bool x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (float x){ return AppendElement(rt::tos::Number(x)); }
-	auto&	operator << (double x){ return AppendElement(rt::tos::Number(x)); }
-	template<typename L, typename R>
-	auto&	operator <<(const _SE<L, R>& str){ return AppendElement(str); }
+	// Array Operation
+	auto	ScopeAppendingElement(){ return _AppendingElement(*this); }
+	template<typename T>
+	auto&	AppendElement(const T& json_value)
+			{	ASSERT(IsEndsWith(']'));
+				_details::_AppendJsonValueToString(json_value, _AppendingElement(*this)._pJson->_String);
+				return *this;
+			}
+
+	auto	ScopeMergingArray(){ return _AppendingArray(*this); }
+	template<typename T>
+	auto&	MergeArray(const T& json_array){ _AppendingArray(*this)._pJson->_String += json_str; return *this; }
+
+	template<typename P, typename V, int VT>
+	auto&	operator << (const _JVar<P,V,VT>& json)	// merge object or append array element
+			{	return IsEndsWith('}')?MergeObject(json):AppendElement(json);	}
+
+	template<typename T>
+	auto&	operator << (const T& x){ return AppendElement(x); }
 
 	template<typename T>
 	void	Number(T n){ _String += rt::tos::Number(n); }
@@ -776,37 +727,6 @@ public:
 	JsonBeautified(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80){ Beautify(json_string, indent, line_remain); }
 	void Beautify(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80);
 };
-
-
-template<typename TJSON>
-INLFUNC rt::String& JSON_OBJECT_APPEND(rt::String& x, const rt::String_Ref& key, TJSON&& value)
-{	static const rt::SS  _sep("\":");
-	if(x.IsEmpty()){ x = rt::SS("{\"") + key + _sep + value + '}'; }
-	else
-	{	ASSERT(x.Last() == '}');
-		x.Last() = ',';
-		x += rt::SS() + '"' + key + _sep + value + '}';
-	}
-
-	return x;
-}
-
-template<typename TJSON>
-INLFUNC rt::String& JSON_OBJECT_MERGE(rt::String& x, TJSON&& json)
-{	static const rt::SS  _sep("\":");
-	if(x.GetLength()<5 || x.TrimSpace().TrimLeft(1).TrimRight(1).TrimSpace().IsEmpty()){ x = json; }
-	else
-	{	ASSERT(x.Last() == '}');
-		x.Shorten(1);
-		UINT len = (UINT)x.GetLength();
-		x += json;
-		if(x[len+1] != '}'){ x[len] = ','; }
-		else { x[len] = '}'; x.SetLength(len+1); }
-	}
-
-	return x;
-}
-
 
 } // namespace rt
 

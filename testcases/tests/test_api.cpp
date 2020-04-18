@@ -100,7 +100,7 @@ void rt::UnitTests::json()
 					),
 		J(std) = std_string,
 		J(bin) = JB("1234567890ABCDEFGHIJK"),
-		J(raw) = rt::_JObj(""),
+		J(raw) = rt::_JVal(""),
 		J(empty) = JA()
 	);
 
@@ -189,14 +189,6 @@ void rt::UnitTests::json()
 		_LOG("Unescaped Matches: "<<(u == a));
 	}
 
-	{	rt::_JObject a;
-		a << (J(num) = 100);
-		a << (J(arr) = JA(0, 1, "12"), J(str) = "string");
-		a << (J(bin) = JB("ABCDEFG"));
-
-		_LOG(a.GetString());
-	}
-
 	{
 		auto str = rt::SS("A Json: ") + false +
 							(
@@ -232,12 +224,12 @@ void rt::UnitTests::json()
 
 		{	auto u = json.ScopeMergingObject();
 			json.Object() << (
-				J(obj) = "merged"
+				J(key1) = "merged"
 			);
 		}
 
 		{	json << (
-				J(obj2) = "merged_scope"
+				J(key2) = "merged_scope"
 			);
 		}
 
@@ -251,9 +243,40 @@ void rt::UnitTests::json()
 		}
 
 		json.ScopeWritingStringEscapedAtKey("str").String() += "1234";
-		json.AppendKey("obj3", (J(a) = false));
+		json.AppendKey("key3", (J(a) = false));
+		json.AppendKey("key4", 13);
+		json.AppendKey("key5", rt::SS("Hello ") + 1.0f);
 
 		_LOG(rt::JsonBeautified(json));
+	}
+
+	{
+		rt::String j_if;
+		j_if = (
+			J_IF(true, (J(a) = 1))
+		);
+		_LOG("J_IF: "<<rt::JsonBeautified(j_if));
+
+		j_if = (
+			J_IF(false, (J(a) = 2))
+		);
+		_LOG("J_IF: "<<rt::JsonBeautified(j_if));
+
+		j_if = (
+			J(b) = 3,
+			J_IF(false, (J(a) = 2)),
+			J(d) = 4
+		);
+		_LOG("J_IF: "<<rt::JsonBeautified(j_if));
+
+		j_if = (
+			J(b) = 3,
+			J_IF(false, (J(a) = 2, J(c) = 3)),
+			J(d) = 4,
+			J_IF(true, (J(f) = 6, J(g) = 7)),
+			J(e) = 5
+		);
+		_LOG("J_IF: "<<rt::JsonBeautified(j_if));
 	}
 }
 

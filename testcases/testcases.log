@@ -440,7 +440,6 @@ c: 8.9
 d: Yes
 Escaped String: \x00\t\\ABC\'\"123
 Unescaped Matches: 1
-{"num":100,"arr":[0,1,"12"],"str":"string","bin":<7/ABCDEFG>}
 A Json: false{"var":1.3000}
 A Json:  13{"var":1.3000} EOF
 {
@@ -458,8 +457,8 @@ A Json:  13{"var":1.3000} EOF
 }
 {
    "key": 32.10,
-   "obj": "merged",
-   "obj2": "merged_scope",
+   "key1": "merged",
+   "key2": "merged_scope",
    "array": 
    [
       false,
@@ -470,7 +469,19 @@ A Json:  13{"var":1.3000} EOF
       {}
    ],
    "str": "1234",
-   "obj3": {"a": false}
+   "key3": {"a": false},
+   "key4": 13,
+   "key5": "Hello 1.00"
+}
+J_IF: {"a": 1}
+J_IF: {}
+J_IF: {"b": 3, "d": 4}
+J_IF: {
+   "b": 3,
+   "d": 4,
+   "g": 7,
+   "f": 6,
+   "e": 5
 }
 === UnitTest<json>: END =====
 
