@@ -649,7 +649,9 @@ public:
 	};
 
 public:
-	operator const rt::String&(){ return _String; }
+	operator const rt::String&() const { return _String; }
+	auto&	AsString() const { return _String; }
+
 	SIZE_T	GetLength() const { return _String.GetLength(); }
 	SIZE_T	CopyTo(char* p) const { return _String.CopyTo(p); }
 	LPCSTR	Begin() const { return _String.Begin(); }
