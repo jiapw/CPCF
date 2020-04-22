@@ -102,7 +102,7 @@ template<> class Cipher<_METHOD> \
 {	protected: BYTE _Context[_details::_cipher_spec<_METHOD>::ContextSize]; \
 public: static const UINT DataBlockSize = _details::_cipher_spec<_METHOD>::BlockSize; \
 		static const UINT NativeKeySize = _details::_HashSize< _details::_cipher_spec<_METHOD>::KEY_HASHER>::size; \
-	INLFUNC Cipher(){ int len=0; ASSERT(ippStsNoErr == IPPCALL(ipps##MethodName##GetSize)(&len) && len <= sizeof(_Context)); } \
+	INLFUNC Cipher(){ int len=0; ASSERT(ippStsNoErr == IPPCALL(ipps##MethodName##GetSize)(&len) && len <= (int)sizeof(_Context)); } \
 	INLFUNC ~Cipher(){ rt::Zero(_Context); } \
 	INLFUNC static void ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_cipher_spec<_METHOD>::KEY_HASHER>().Calculate(data, size, key); } \
 	INLFUNC void SetKey(LPCVOID key, UINT len) \

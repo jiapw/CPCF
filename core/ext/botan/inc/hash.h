@@ -110,7 +110,7 @@ template<UINT _METHOD = HASH_MD5> class HmacHash;
 						{	public: \
 							static const int HASHSIZE = _details::_HashSize<HASH_##tag>::size; \
 							protected:	BYTE	_Context[_details::_get_hash_context_size<HASH_##tag>::Result]; \
-							public:		Hash(){ int sz; IPPCALL(ipps##tag##GetSize)(&sz); ASSERT(sz <= sizeof(_Context)); Reset(); } \
+							public:		Hash(){ int sz; IPPCALL(ipps##tag##GetSize)(&sz); ASSERT(sz <= (int)sizeof(_Context)); Reset(); } \
 										void Reset(){ IPPCALL(ipps##tag##Init)((Ipps##tag##State*)_Context); } \
 										template<typename T> void Update(const T& x){ Update(&x, sizeof(x)); } \
 										void Update(LPCVOID data, UINT size){ IPPCALL(ipps##tag##Update)((LPCBYTE)data,size,(Ipps##tag##State*)_Context); } \
@@ -121,7 +121,7 @@ template<UINT _METHOD = HASH_MD5> class HmacHash;
 						{	public: \
 							static const int HASHSIZE = _details::_HashSize<HASH_##tag>::size; \
 							protected:	BYTE	_Context[_details::_get_hmachash_context_size<HASH_##tag>::Result]; \
-							public:		HmacHash(LPCVOID key, UINT key_len){ int sz; IPPCALL(ippsHMAC##tag##GetSize)(&sz); ASSERT(sz <= sizeof(_Context)); Reset(key, key_len); } \
+							public:		HmacHash(LPCVOID key, UINT key_len){ int sz; IPPCALL(ippsHMAC##tag##GetSize)(&sz); ASSERT(sz <= (int)sizeof(_Context)); Reset(key, key_len); } \
 										void Reset(LPCVOID key, UINT key_len){ IPPCALL(ippsHMAC##tag##Init)((LPCBYTE)key, key_len, (IppsHMAC##tag##State*)_Context); } \
 										void Update(const rt::String_Ref& x){ Update(x.Begin(), (UINT)x.GetLength()); } \
 										void Update(LPCVOID data, UINT size){ IPPCALL(ippsHMAC##tag##Update)((LPCBYTE)data,size,(IppsHMAC##tag##State*)_Context); } \

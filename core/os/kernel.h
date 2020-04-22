@@ -332,77 +332,75 @@ struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (
 	bool				SetDateTime(const Fields& f, int Timezone);
 
 	FORCEINL bool		SetDateTime(const rt::String_Ref& f)
-	{	Fields fd; 
-		int r=fd.FromString(f);
-		if(r>0)return SetDateTime(Fields(f));
-		if(r==-1)return f.ToNumber(_Timestamp)>0;
-		return false;
-	}
+						{	Fields fd; 
+							int r=fd.FromString(f);
+							if(r>0)return SetDateTime(Fields(f));
+							if(r==-1)return f.ToNumber(_Timestamp)>0;
+							return false;
+						}
 	FORCEINL bool		SetDateTime(const rt::String_Ref& f, int Timezone)
-	{	Fields fd;
-		int r=fd.FromString(f);
-		if(r>0)return SetDateTime(fd, Timezone);
-		LONGLONG	t;
-		if(r==-1 && f.ToNumber(t)>0)
-		{	_Timestamp = t - Timezone*3600000LL;
-			return true;
-		}
-		return false;
-	}
-	FORCEINL bool			SetLocalDateTime(const rt::String_Ref& f){ return SetLocalDateTime(Fields(f)); }
+						{	Fields fd;
+							int r=fd.FromString(f);
+							if(r>0)return SetDateTime(fd, Timezone);
+							LONGLONG	t;
+							if(r==-1 && f.ToNumber(t)>0)
+							{	_Timestamp = t - Timezone*3600000LL;
+								return true;
+							}
+							return false;
+						}
+	FORCEINL bool		SetLocalDateTime(const rt::String_Ref& f){ return SetLocalDateTime(Fields(f)); }
 
-	FORCEINL bool			SetDateTime(int year, int mon, int day, int hour = 0, int min = 0, int sec = 0, int millsecond = 0){ return SetDateTime(Fields(year, mon, day, hour, min, sec, millsecond)); }
-	FORCEINL bool			SetLocalDateTime(int year, int mon, int day, int hour = 0, int min = 0, int sec = 0, int millsecond = 0){ return SetLocalDateTime(Fields(year, mon, day, hour, min, sec, millsecond)); }
-	FORCEINL void			ShiftDays(int days){ _Timestamp += days*24*3600000LL; }
-	FORCEINL void			ShiftHours(int hours){ _Timestamp += hours*3600000LL; }
-	FORCEINL void			ShiftWeeks(int weeks){ _Timestamp += weeks*7*24*3600000LL; }
-	FORCEINL void			ShiftForward(const rt::String_Ref& timespan){ _Timestamp += ParseTimeSpan(timespan); }
-	FORCEINL void			ShiftBackward(const rt::String_Ref& timespan){ _Timestamp -= ParseTimeSpan(timespan); }
+	FORCEINL bool		SetDateTime(int year, int mon, int day, int hour = 0, int min = 0, int sec = 0, int millsecond = 0){ return SetDateTime(Fields(year, mon, day, hour, min, sec, millsecond)); }
+	FORCEINL bool		SetLocalDateTime(int year, int mon, int day, int hour = 0, int min = 0, int sec = 0, int millsecond = 0){ return SetLocalDateTime(Fields(year, mon, day, hour, min, sec, millsecond)); }
+	FORCEINL void		ShiftDays(int days){ _Timestamp += days*24*3600000LL; }
+	FORCEINL void		ShiftHours(int hours){ _Timestamp += hours*3600000LL; }
+	FORCEINL void		ShiftWeeks(int weeks){ _Timestamp += weeks*7*24*3600000LL; }
+	FORCEINL void		ShiftForward(const rt::String_Ref& timespan){ _Timestamp += ParseTimeSpan(timespan); }
+	FORCEINL void		ShiftBackward(const rt::String_Ref& timespan){ _Timestamp -= ParseTimeSpan(timespan); }
 
-	FORCEINL LONGLONG		Difference(const Timestamp& x) const { return _Timestamp - x._Timestamp; } // this - x in millsecond
-	FORCEINL LONGLONG		DifferenceDays(const Timestamp& x) const { return (_Timestamp - x._Timestamp) / (24 * 3600000LL); } // this - x in days
+	FORCEINL LONGLONG	Difference(const Timestamp& x) const { return _Timestamp - x._Timestamp; } // this - x in millsecond
+	FORCEINL LONGLONG	DifferenceDays(const Timestamp& x) const { return (_Timestamp - x._Timestamp) / (24 * 3600000LL); } // this - x in days
 
-	static int				GetMonthFromDays(int DaysSinceJan1, int year);
-	static FORCEINL bool	IsLeapYear(int year){ return (((year&0x3)==0) && (year%100)) || ((year%400)==0); }
-	static FORCEINL UINT	DaysSince1970(int year){ year--; return 365 * year + (year / 400) - (year/100) + (year / 4) - 719162; }
-	static FORCEINL UINT	DaysSinceJan1(int year,int month,int day)
-	{	static const int days[2][12] = {{ 0,31,59,90,120,151,181,212,243,273,304,334},{ 0,31,60,91,121,152,182,213,244,274,305,335}};
-		return days[IsLeapYear(year)][month-1] + day - 1;
-	}
+	static int			GetMonthFromDays(int DaysSinceYear, int year);
+	static bool			IsLeapYear(int year){ return (((year&0x3)==0) && (year%100)) || ((year%400)==0); }
+	static LONGLONG 	DaysSince1970(int year){ year--; return 365LL * year + (year / 400) - (year/100) + (year / 4) - 719162; }
+	static int			DaysSinceYear(int year,int month,int day)  // # of days since the begining of year
+						{	static const int days[2][12] = {{ 0,31,59,90,120,151,181,212,243,273,304,334},{ 0,31,60,91,121,152,182,213,244,274,305,335}};
+							return days[IsLeapYear(year)][month-1] + day - 1;
+						}
+	static FORCEINL int	GetDayOfWeek(int year,int month,int day){ return (DaysSince1970(year) + DaysSinceYear(year,month,day)-3)%7; }
+	static FORCEINL int	GetDayOfMonthMax(int year, int month)
+						{	static const int dm[] = {31,28,31, 30,31,30, 31,31,30, 31,30,31};
+							ASSERT(month>=1 && month<=12);
+							return dm[month-1] + (int)((month==2)&&IsLeapYear(year));
+						}
+	static auto			GetMonthName(int month) -> rt::String_Ref;	// base 1
+	static int			ParseMonthName(LPCSTR b);	// base 1
+	static int			ParseWeekdayName(LPCSTR b);
 
-	static FORCEINL UINT	GetDayOfWeek(int year,int month,int day){ return (DaysSince1970(year) + DaysSinceJan1(year,month,day)-3)%7; }
-	static UINT				GetDayOfMonthMax(int year, int month)
-	{	static const int dm[] = {31,28,31, 30,31,30, 31,31,30, 31,30,31};
-		ASSERT(month>=1 && month<=12);
-		return dm[month-1] + (int)((month==2)&&IsLeapYear(year));
-	}
+	static auto			GetDayOfWeekName(int day_of_week) -> rt::String_Ref; // base 0, Sunday is 0
+	static LONGLONG		ParseTimeSpan(const rt::String_Ref& x);
 
-	static rt::String_Ref	GetMonthName(int month);	// base 1
-	static int				ParseMonthName(LPCSTR b);	// base 1
-	static int				ParseWeekdayName(LPCSTR b);
+	static FORCEINL 	Timestamp Get()
+						{
+						#if defined(PLATFORM_WIN)
+							LONGLONG ft;
+							GetSystemTimeAsFileTime((FILETIME*)&ft);
+							return Timestamp(ft/10000 - 11644473600000LL);
+						#elif defined (PLATFORM_IOS) || defined (PLATFORM_MAC)
+							struct timeval time;
+							gettimeofday(&time, NULL);
+							return Timestamp((time.tv_sec * 1000) + (time.tv_usec / 1000));
+						#else
+							timespec	ts;
+							clock_gettime(CLOCK_REALTIME,&ts);
+							return Timestamp(ts.tv_sec*1000 + ts.tv_nsec/1000000);
+						#endif	
+						}
 
-	static rt::String_Ref	GetDayOfWeekName(int day_of_week); // base 0, Sunday is 0
-	static LONGLONG			ParseTimeSpan(const rt::String_Ref& x);
-
-	static FORCEINL Timestamp Get()
-	{	
-#if defined(PLATFORM_WIN)
-		LONGLONG ft;
-		GetSystemTimeAsFileTime((FILETIME*)&ft);
-		return Timestamp(ft/10000 - 11644473600000LL);
-#elif defined (PLATFORM_IOS) || defined (PLATFORM_MAC)
-        struct timeval time;
-        gettimeofday(&time, NULL);
-        return Timestamp((time.tv_sec * 1000) + (time.tv_usec / 1000));
-#else
-		timespec	ts;
-		clock_gettime(CLOCK_REALTIME,&ts);
-		return Timestamp(ts.tv_sec*1000 + ts.tv_nsec/1000000);
-#endif	
-	}
-
-	static FORCEINL Fields DateTime(){ return Get().GetDateTime(); }
-	static FORCEINL Fields LocalDateTime(){ return Get().GetLocalDateTime(); }
+	static Fields		DateTime(){ return Get().GetDateTime(); }
+	static Fields		LocalDateTime(){ return Get().GetLocalDateTime(); }
 };
 #pragma pack()
 template<typename ostream>
@@ -579,7 +577,7 @@ struct Date32
 	}
 	INLFUNC Date32& operator ++ (int)
 	{
-		if (GetDay() != os::Timestamp::GetDayOfMonthMax(GetYear(), GetMonth())){ _Date++; }
+		if(GetDay() != os::Timestamp::GetDayOfMonthMax(GetYear(), GetMonth())){ _Date++; }
 		else
 		{
 			_Date = (GetMonth() != 12) ? ((_Date & 0xffffff00) + 0x101) : ((_Date & 0xffff0000) + 0x10101);
@@ -926,7 +924,7 @@ template<UINT LEN = 256>
 struct Base32CrockfordFavCharLowercaseOnStack: public ::rt::tos::S_<1, LEN>
 {	typedef ::rt::tos::S_<1, LEN> _SC;
 	Base32CrockfordFavCharLowercaseOnStack(LPCVOID pData, SIZE_T len)
-	{	int slen = (int)os::Base32EncodeLength((UINT)len);
+	{	UINT slen = (UINT)os::Base32EncodeLength((UINT)len);
 		ASSERT(slen < LEN);
 		os::Base32CrockfordFavCharEncodeLowercase(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
@@ -942,7 +940,7 @@ template<UINT LEN = 256>
 struct Base16OnStack: public ::rt::tos::S_<1, LEN>
 {	typedef ::rt::tos::S_<1, LEN> _SC;
 	Base16OnStack(LPCVOID pData, SIZE_T len)
-	{	int slen = (int)os::Base16EncodeLength((UINT)len);
+	{	UINT slen = (UINT)os::Base16EncodeLength((UINT)len);
 		ASSERT(slen < LEN);
 		os::Base16Encode(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;

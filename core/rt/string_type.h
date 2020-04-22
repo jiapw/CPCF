@@ -184,7 +184,7 @@ namespace _details
 	struct _StringPtrStore
 	{	char*	_p;
 		SIZE_T	_len;
-		FORCEINL bool			IsEmpty() const { return this == nullptr || _p==nullptr || _len<2; }
+		FORCEINL bool			IsEmpty() const { return this == nullptr || _p == nullptr || _len<2; }
 		FORCEINL void			Empty(){ _p = nullptr; _len = 0; }
 	};
 	template<SIZE_T SIZE_RESERVED>
@@ -1048,7 +1048,7 @@ public:
 public:
 	template<typename T1, typename T2>
 	FORCEINL String_AddExpr(T1& l, T2& r)
-		:_left(l),_right(r),_pString(nullptr),_len(-1)
+		:_pString(nullptr),_len(-1),_left(l),_right(r)
 	{}
 	FORCEINL ~String_AddExpr(){ _SafeFree32AL(_pString); }
 	FORCEINL const char* Begin() const { return rt::_CastToNonconst(this)->GetSafeString(); }
@@ -1547,7 +1547,7 @@ typedef ::rt::tos::S_<> Number;
 
 struct WhiteSpace:public ::rt::tos::S_<>
 {	INLFUNC WhiteSpace(int len)
-	{	ASSERT(len+1 < sizeof(_string));
+	{	ASSERT(len+1 < (int)sizeof(_string));
 		for(int i=0;i<len;i++)_p[i] = ' ';
 		_p[len] = '\0';
 		_len = len+1;
