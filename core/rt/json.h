@@ -37,6 +37,8 @@
 namespace rt
 {
 	
+class Json;
+
 class _JVal
 {
 	rt::String		__Obj;
@@ -53,42 +55,21 @@ public:
 		VARTYPE_OBJECT  = 3
 	};
 	FORCEINL			_JVal(){ static rt::SS n("null"); _Ref = n; }
-	FORCEINL explicit	_JVal(LPCSTR str, bool bin = false)
-						{	_AsBinary = bin;
-							if(bin){ _Ref = rt::String_Ref(str); _SetBinLen(); }
-							else _Ref = rt::String_Ref(str).TrimSpace();
-						}
 	FORCEINL explicit	_JVal(const rt::String_Ref& str, bool bin = false)
 						{	_AsBinary = bin;
 							if(bin){ _Ref = str; _SetBinLen(); }
 							else _Ref = str.TrimSpace();
 						}
-	FORCEINL explicit	_JVal(const rt::String& str, bool bin = false)
-						{	_AsBinary = bin;
-							if(bin){ _Ref = str; _SetBinLen(); }
-							else _Ref = str.TrimSpace();
-						}
-	FORCEINL explicit	_JVal(LPSTR str, bool bin = false)
-						{	_AsBinary = bin;
-							if(bin){ _Ref = rt::String_Ref(str); _SetBinLen(); }
-							else _Ref = rt::String_Ref(str).TrimSpace();
-						}
+	FORCEINL explicit	_JVal(rt::String_Ref& str, bool bin = false):_JVal((const rt::String_Ref&)str, bin){}
+	FORCEINL explicit	_JVal(const rt::String& str, bool bin = false):_JVal((const rt::String_Ref&)str, bin){}
+	FORCEINL explicit	_JVal(rt::String& str, bool bin = false):_JVal((const rt::String_Ref&)str, bin){}
+	FORCEINL explicit	_JVal(const rt::Json& str, bool bin = false):_JVal((const rt::String_Ref&)str, bin){}
+	FORCEINL explicit	_JVal(rt::Json& str, bool bin = false):_JVal((const rt::String&)str, bin){}
 	template <template<class, class, class> class std_string, class _Traits, class _Alloc>
 	FORCEINL explicit	_JVal(const std_string<char, _Traits, _Alloc>& str, bool bin = false)
-						{	_AsBinary = bin;
-							if(bin){ _Ref = str; _SetBinLen(); }
-							else _Ref = rt::String_Ref(str).TrimSpace();
-						}
-	FORCEINL explicit	_JVal(rt::String_Ref& str, bool bin = false)
-						{	_AsBinary = bin;
-							if(bin){ _Ref = str; _SetBinLen(); }
-							else _Ref = str.TrimSpace();
-						}
-	FORCEINL explicit	_JVal(rt::String& str, bool bin = false)
-						{	_AsBinary = bin;
-							if(bin){ _Ref = str; _SetBinLen(); }
-							else _Ref = str.TrimSpace();
-						}
+						:_JVal(rt::String_Ref(str), bin){}
+	FORCEINL explicit	_JVal(LPCSTR str, bool bin = false):_JVal(rt::String_Ref(str), bin){}
+	FORCEINL explicit	_JVal(LPSTR str, bool bin = false):_JVal(rt::String_Ref(str), bin){}
 	template<typename T>
 	FORCEINL explicit	_JVal(T& j, bool bin = false)
 						{	_AsBinary = bin;
@@ -130,6 +111,8 @@ namespace _details
 	template<typename T>
 	FORCEINL void _json_CopyPrev(T& n, LPSTR p, UINT& l){ n._CopyTo(p, l); }
 	FORCEINL UINT _json_CopyPrev(LPVOID, LPSTR, UINT&){ return 0; }
+
+	bool _json_verify_escaped(LPCSTR p, SIZE_T len);
 } // namespace _details
 
 template<typename t_Prev, typename t_Val, int t_value_type>
@@ -159,7 +142,9 @@ struct _JVar
 							*p++=':'; len += l + 3;
 							if(_JVal::VARTYPE_STRING == t_value_type)
 							{	*p++='"';
-								p += (l = (UINT)value.CopyTo(p));
+								l = (UINT)value.CopyTo(p);
+								ASSERT(_details::_json_verify_escaped(p, l));
+								p += l;
 								*p++='"';
 								len += l + 2;
 							}
@@ -206,10 +191,20 @@ struct _JVar
 	}
 
 	template<typename STRING>
-	FORCEINL void	_AppendValueToString(STRING& str) const
+	FORCEINL void _AppendValueToString(STRING& str) const
 	{
 		if(_JVal::VARTYPE_STRING != t_value_type){ str += value; }
-		else { str += '"'; str += value; str += '"'; }
+		else 
+		{	str += '"';
+#if defined(PLATFORM_DEBUG_BUILD)
+			SIZE_T org = str.GetLength();
+			str += value;
+			ASSERT(_details::_json_verify_escaped(&str[org], str.GetLength() - org));
+#else
+			str += value;
+#endif
+			str += '"'; 
+		}
 	}
 };
 
@@ -279,16 +274,17 @@ struct _JTag
 	J_EXPR_CONNECT_OP(tos::S_<MARCO_CONCAT(1,64)>,	double				, _JVal::VARTYPE_BUILTIN)
 	J_EXPR_CONNECT_OP(_O<_JVal>,					const _JVal& 		, _JVal::VARTYPE_OBJECT)
 
+	FORCEINL auto operator = (const Json& p)
+	{	return _JVar<LPVOID, const rt::String_Ref&, _JVal::VARTYPE_OBJECT>(tagname, (const rt::String_Ref&)p);
+	}
 	template<typename prev, typename type, int val_type>
 	FORCEINL auto operator = (const _JVar<prev, type, val_type>& p)
 	{	return _JVar<LPVOID, _O<const _JVar<prev, type, val_type>>, _JVal::VARTYPE_OBJECT>(tagname, p);
 	}
-
 	template<typename T>
 	FORCEINL auto operator = (const _JArray<T>& p)
 	{	return _JVar<LPVOID, _O<const _JArray<T>>, _JVal::VARTYPE_ARRAY>(tagname, p);
 	}
-
 	template<typename t_Left, typename t_Right>
 	FORCEINL auto operator = (const _SE<t_Left,t_Right>& p)
 	{	return _JVar<LPVOID, _O<const _SE<t_Left,t_Right>>, _JVal::VARTYPE_STRING>(tagname, p);
@@ -655,6 +651,7 @@ public:
 
 public:
 	operator const rt::String&() const { return _String; }
+	operator const rt::String_Ref&() const { return _String; }
 	auto&	AsString() const { return _String; }
 
 	SIZE_T	GetLength() const { return _String.GetLength(); }

@@ -618,4 +618,22 @@ void JsonBeautified::Beautify(const rt::String_Ref& json_string, int indent, int
 	_Beautify(json_string, true, 0, line_remain);
 }
 
+namespace _details
+{
+
+bool _json_verify_escaped(LPCSTR p, SIZE_T len)
+{
+	if(len == 0)return true;
+	if(p[0] == '"' || p[0] < ' ')return false;
+
+	for(UINT i=1; i<len; i++)
+	{
+		if(p[i] == '"' && p[i-1] != '\\')return false;
+		if(p[i] < ' ')return false;
+	}
+
+	return true;
+}
+
+} // namespace _details
 } // namespace rt
