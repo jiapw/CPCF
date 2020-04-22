@@ -216,10 +216,7 @@ struct _JVar
 namespace _details
 {
 	template<typename T, typename STRING>
-	FORCEINL static	void _AppendJsonValueToString(const T& v, STRING& str)
-	{	static rt::_JTag _t("_");
-		(_t = v)._AppendValueToString<STRING>(str);
-	}
+	static	void _AppendJsonValueToString(const T& v, STRING& str);
 } // namespace _details
 
 template<typename t_String = rt::StringFixed<1024>>  // or StringFixed<LEN>
@@ -313,6 +310,14 @@ FORCEINL auto operator + (const _SE<t_Left,t_Right>& x, const _JVar<LEFT, T, VAL
 {	return _SE<_SE<t_Left,t_Right>, _JVar<LEFT, T, VAL_TYPE>>(x, p);
 }
 
+namespace _details
+{
+	template<typename T, typename STRING>
+	FORCEINL static	void _AppendJsonValueToString(const T& v, STRING& str)
+	{	static rt::_JTag _t("_");
+		(_t = v).template _AppendValueToString<STRING>(str);
+	}
+} // namespace _details
 } // namespace rt
 
 #define J(x)					rt::_JTag(#x)
@@ -688,7 +693,7 @@ public:
 
 	auto	ScopeMergingArray(){ return _AppendingArray(*this); }
 	template<typename T>
-	auto&	MergeArray(const T& json_array){ _AppendingArray(*this)._pJson->_String += json_str; return *this; }
+	auto&	MergeArray(const T& json_array){ _AppendingArray(*this)._pJson->_String += json_array; return *this; }
 
 	template<typename P, typename V, int VT>
 	auto&	operator << (const _JVar<P,V,VT>& json)	// merge object or append array element

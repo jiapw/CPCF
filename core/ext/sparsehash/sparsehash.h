@@ -133,14 +133,14 @@ class fast_counter: public fast_map<t_Tag, t_Count, hash_compare>
 {   typedef fast_map<t_Tag, t_Count, hash_compare> _SC;
 public:
 	INLFUNC void Count(const t_Tag& tag, t_Count w = 1)
-	{	auto it = find(tag);
-        if(it == _SC::end())insert(std::pair<t_Tag, t_Count>(tag,w));
+	{	auto it = _SC::find(tag);
+        if(it == _SC::end())_SC::insert(std::pair<t_Tag, t_Count>(tag,w));
 		else
 		{	it->second += w;
 		}
 	}
 	INLFUNC t_Count Get(const t_Tag& tag)
-	{	auto it = find(tag);
+	{	auto it = _SC::find(tag);
 		return it == _SC::end()?0:it->second;
 	}
 };

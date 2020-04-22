@@ -1044,12 +1044,8 @@ namespace _details
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcount((DWORD)x); }
 			static T	ByteOrderSwap(T x) { return __builtin_bswap32((DWORD)x); }
 #endif
-#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
 			static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
 			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return _subborrow_u32(b_in, (UINT)a, (UINT)b, (UINT*)out); }
-#else
-			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return __builtin_ia32_sbb_u32(b_in, (UINT)a, (UINT)b, (UINT*)out); }
-#endif
 		};
 		template<typename T> struct AdvBitOps<T, 64>
 		{
@@ -1066,14 +1062,8 @@ namespace _details
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcountll((ULONGLONG)x); }
 			static T	ByteOrderSwap(T x) { return (T)__builtin_bswap64((ULONGLONG)x); }
 #endif
-#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
-	#if defined(PLATFORM_64BIT)
 			static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
 			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return _subborrow_u64(b_in, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)out); }
-	#endif
-#else
-			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return __builtin_ia32_sbb_u64(b_in, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)out); }
-#endif
 		};
 } // namespace _details
 	

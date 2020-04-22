@@ -237,7 +237,6 @@ public:
 	template<bool sb>
 	INLFUNC const DataBlock<_LEN, sb>& operator = (const DataBlock<_LEN, sb>& x){ From(x); }
 
-public:
 	typedef DataBlockRef<_LEN> RefType;
 	INLFUNC RefType Ref(){ return RefType(*this); }
 	INLFUNC const RefType Ref() const { return RefType(*this); }
