@@ -628,13 +628,11 @@ public:
 		_SC::_len = (SIZE_T)(p-_SC::_p)+1;
 		return *this;
 	}
-	//FORCEINL t_String_Ref TrimBy(CHAR c) const
-	//{	SIZE_T i=0;
-	//	for(;i<_SC::_len;i++)
-	//	{	if(_SC::_p[i] == (char)'.')return t_String_Ref(_SC::_p, &_SC::_p[i]);
-	//	}
-	//	return *this;
-	//}
+	FORCEINL t_String_Ref TrimQuotes() const
+	{	if(GetLength()>1 && First() == Last() && (First() == '"' || First() == '\''))
+			return t_String_Ref(_p+1, GetLength()-2);
+		return *this;
+	}
 	FORCEINL t_String_Ref TrimExtName() const
 	{	SSIZE_T i = (SSIZE_T)GetLength();
 		for(;i>=0;i--)
