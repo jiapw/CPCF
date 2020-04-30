@@ -1134,8 +1134,8 @@ public:
 			{	if(((int)TOP_K) - (int)i - 1 > 0)memmove(&_TopValues[i], &_TopValues[i+1], sizeof(_val)*(TOP_K - i - 1));
 				_TopValues[TOP_K-1].Wei = 0;
 			}
-	bool	IsSignificant(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei >= min_weight && _TopValues[0].Wei > _WeightSum()/2; }
-	UINT	GetSignificantRatio(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei >= min_weight?(UINT)(_TopValues[0].Wei*100/_WeightSum()):0; }
+	bool	IsSignificant(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei > min_weight && _TopValues[0].Wei > _WeightSum()/2; }
+	UINT	GetSignificantRatio(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei > min_weight?(UINT)(_TopValues[0].Wei*100/_WeightSum()):0; }
 };
 	template<typename T, typename T_WEIGHT, bool s>
 	class TopWeightedValues<T, 0, T_WEIGHT, s>

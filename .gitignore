@@ -78,3 +78,5 @@ tools/win_fontgen/Debug/
 tools/win_fontgen/Release/
 
 testcases/proj.mac/tester.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+
+testcases/proj.win/tests.args.json

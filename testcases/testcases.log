@@ -645,6 +645,7 @@ Process Listed 1
 === UnitTest<filelist>: END =====
 
 === UnitTest<multithread>: BEGIN ===
+AtomicOr: 10 -> 1010
 ATOM Result: 456789
 CriticalSection Result: 456789
 Event Set: 0

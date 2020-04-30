@@ -359,6 +359,11 @@ os::Event test_multithread_event;
 
 void rt::UnitTests::multithread()
 {
+	{	DWORD a = 0x0010;
+		DWORD org = os::AtomicOr(0x1000, &a);
+		_LOG("AtomicOr: "<<rt::tos::HexNum<>(org)<<" -> "<<rt::tos::HexNum<>(a));
+	}
+
 	{
 		volatile INT c = 0;
 		bool ends = false;
