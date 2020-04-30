@@ -101,8 +101,8 @@ namespace os
 	FORCEINL void		AtomicSet(int val, volatile int *theValue){ AtomicAdd(val-*theValue, theValue); }
 	FORCEINL __int64	AtomicAdd(__int64 theAmount, volatile __int64 *theValue){ return theAmount + __sync_fetch_and_add(theValue, theAmount); }
 	FORCEINL void		AtomicSet(__int64 val, volatile __int64 *theValue){ AtomicAdd(val-*theValue, theValue); }
-	FORCEINL DWORD		AtomicOr(DWORD bits, volatile DWORD* theValue){ return (DWORD)__sync_fetch_and_or((uint32_t)bits, (volatile uint32_t*)theValue); }
-	FORCEINL ULONGLONG	AtomicOr(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)__sync_fetch_and_or((uint64_t)bits, (volatile uint64_t*)theValue); }
+	FORCEINL DWORD		AtomicOr(DWORD bits, volatile DWORD* theValue){ return (DWORD)__sync_fetch_and_or((volatile uint32_t*)theValue, (uint32_t)bits); }
+	FORCEINL ULONGLONG	AtomicOr(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)__sync_fetch_and_or((volatile uint64_t*)theValue, (uint64_t)bits); }
 #endif
 
 INLFUNC SIZE_T GetCurrentThreadId()

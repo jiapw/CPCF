@@ -62,6 +62,7 @@ extern bool _objc_get_device_uid(char id[64]);
 #include <X11/Xlib.h>
 #endif
 
+#include <sys/resource.h>
 #include <sys/utsname.h>
 #include <sys/mman.h>
 #include <asm/param.h>
@@ -1164,7 +1165,7 @@ void SetProcessPriority(int prio)
 	case PROCPRIO_IDLE: ::SetPriorityClass(::GetCurrentProcess(), IDLE_PRIORITY_CLASS); break;
 	default: ASSERT(0);
 	}
-#elif defined(PLATFORM_MAC)
+#elif defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
 	switch(prio)
 	{
 	case PROCPRIO_REALTIME: ::setpriority(PRIO_PROCESS, 0, 20); break;

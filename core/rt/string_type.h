@@ -630,7 +630,7 @@ public:
 	}
 	FORCEINL t_String_Ref TrimQuotes() const
 	{	if(GetLength()>1 && First() == Last() && (First() == '"' || First() == '\''))
-			return t_String_Ref(_p+1, GetLength()-2);
+			return t_String_Ref(Begin()+1, GetLength()-2);
 		return *this;
 	}
 	FORCEINL t_String_Ref TrimExtName() const
