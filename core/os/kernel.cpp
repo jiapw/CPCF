@@ -92,6 +92,8 @@ void os::HighPerformanceCounter::SetOutputUnit(LONGLONG u)
 #else
 	_Div = u;
 #endif
+
+	_Count = Get();
 }
 
 LPCSTR os::GetBuildSpecificationString()

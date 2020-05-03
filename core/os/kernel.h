@@ -125,7 +125,7 @@ public:
 						return (((ULONGLONG)ts.tv_sec)*1000000000LL + ts.tv_nsec)/_Div;
 				#endif	
 				}
-	HighPerformanceCounter(){ SetOutputUnit(1); _Count = Get(); }
+	HighPerformanceCounter(){ SetOutputUnit(1); }
 	LONGLONG	TimeLapse(LONGLONG later) const { return later - _Count; }
 	LONGLONG	TimeLapse() const{ return TimeLapse(Get()); }
 	LONGLONG	Restart(){ ULONGLONG later = Get(); later -= _Count; _Count += later; return later; }

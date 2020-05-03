@@ -1,4 +1,5 @@
 #pragma once
+#include "../../rt/runtime_base.h"
 
 #ifdef __cplusplus
 extern "C" {

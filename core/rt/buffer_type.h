@@ -774,9 +774,9 @@ public:
 					_Bits[idx.BlockOffset] &= ~idx.Bitmask;
 			}
 	void	Reset(const Index& idx){ Set(idx, false); }
-	void	False(){ memset(_Bits, 0, sizeof(_Bits)); }
-	void	True(){ memset(_Bits, 0xff, sizeof(_Bits)); _ClearTrailingBits(); }
-	bool	IsFalse() const { for(UINT i=0; i<BLOCK_COUNT; i++)if(_Bits[i])return false; return true; }
+	void	ResetAll(){ memset(_Bits, 0, sizeof(_Bits)); }
+	void	SetAll(){ memset(_Bits, 0xff, sizeof(_Bits)); _ClearTrailingBits(); }
+	bool	IsAllReset() const { for(UINT i=0; i<BLOCK_COUNT; i++)if(_Bits[i])return false; return true; }
 	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<BLOCK_COUNT; i++)pc += rt::PopCount(_Bits[i]); return pc; }
 	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_Bits); i++)_Bits[i] ^= x._Bits[i]; }
 	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_Bits); i++)_Bits[i] |= x._Bits[i]; }
@@ -838,7 +838,7 @@ public:
 			}
 	void	Shift(int s){ if(s>0){LeftShift((UINT)s);}else{{RightShift((UINT)-s);}} }
 	void	LeftShift(UINT s)
-			{	if(s == 0)return;				if(s > BIT_SIZE){ False(); return; }
+			{	if(s == 0)return;				if(s > BIT_SIZE){ ResetAll(); return; }
 				UINT offset = s/BLOCK_SIZE;		s = s%BLOCK_SIZE;
 				UINT i = BLOCK_COUNT - 1;
 				for (; 0 < i - offset; i--)
@@ -848,7 +848,7 @@ public:
 				_ClearTrailingBits();
 			}
 	void	RightShift(UINT s)
-			{	if(s == 0)return;				if(s > BIT_SIZE){ False(); return; }
+			{	if(s == 0)return;				if(s > BIT_SIZE){ ResetAll(); return; }
 				UINT offset = s/BLOCK_SIZE;		s = s%BLOCK_SIZE;
 				UINT i = 0;
 				for (; i + offset < BLOCK_COUNT - 1; i++)

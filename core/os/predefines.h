@@ -133,6 +133,13 @@ typedef ULONGLONG	__uint64;
 
 #endif // #ifndef PLATFORM_WIN
 
+#ifdef True
+#undef True
+#endif
+
+#ifdef False
+#undef False
+#endif
 
 #ifndef INFINITE
 #define INFINITE (0xffffffff)
