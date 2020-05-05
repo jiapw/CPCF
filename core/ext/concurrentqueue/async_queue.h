@@ -70,8 +70,9 @@ public:
 		}
 		return false;
 	}
-	SEQNO DeJittered() const { return _Min; }
-	bool  IsJittering() const { return _Min != _Max; }
+	SEQNO	DeJittered() const { return _Min; }
+	bool	IsJittering() const { return _Min != _Max; }
+	SIZE_T	GetMissingCount() const { ASSERT(_Max - _Min >= _GapFilled); return _Max - _Min - _GapFilled; }
 };
 	
 namespace _details

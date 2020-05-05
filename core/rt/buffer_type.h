@@ -744,16 +744,46 @@ t_Ostream& operator<<(t_Ostream& Ostream, const rt::Buffer_Ref<t_Ele> & vec)
 namespace rt
 {
 
-template<UINT BIT_SIZE>
-class BooleanArray
+namespace _details
+{
+template<UINT bit_size>
+class BooleanArrayStg
 {
 protected:
+	static const UINT	BIT_SIZE = bit_size;
 	static const UINT	BLOCK_SIZE = sizeof(SIZE_T)*8;
 	static const UINT	BLOCK_COUNT = (BIT_SIZE + BLOCK_SIZE - 1)/BLOCK_SIZE;
 
 	SIZE_T				_Bits[BLOCK_COUNT];
-	static SIZE_T		_BlockBitmask(SIZE_T idx){ return ((SIZE_T)1)<<(idx%BLOCK_SIZE); }
 	void				_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(SIZE_T)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
+};
+template<>
+class BooleanArrayStg<0>
+{
+protected:
+	static const UINT		BLOCK_SIZE = sizeof(SIZE_T)*8;
+	UINT					BIT_SIZE;
+	UINT					BLOCK_COUNT;
+
+	rt::BufferEx<SIZE_T>	_Bits;
+	void					_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(SIZE_T)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
+public:
+	void	SetBitSize(UINT bit_size, bool keep_existing_data = true)
+			{	
+				BIT_SIZE = bit_size;
+				BLOCK_COUNT = (BIT_SIZE + BLOCK_SIZE - 1)/BLOCK_SIZE;
+				VERIFY(_Bits.ChangeSize(BLOCK_COUNT, keep_existing_data));
+				_ClearTrailingBits();
+			}
+};
+}
+
+template<UINT BIT_SIZE = 0>
+class BooleanArray: public _details::BooleanArrayStg<BIT_SIZE>
+{
+	typedef _details::BooleanArrayStg<BIT_SIZE>	_SC;
+protected:
+	static SIZE_T	_BlockBitmask(SIZE_T idx){ return ((SIZE_T)1)<<(idx%BLOCK_SIZE); }
 public:
 	class Index
 	{	friend class BooleanArray;
@@ -772,6 +802,14 @@ public:
 					_Bits[idx.BlockOffset] |= idx.Bitmask;
 				else
 					_Bits[idx.BlockOffset] &= ~idx.Bitmask;
+			}
+	bool	AtomicSet(const Index& idx) // return the bit value before atomic set
+			{
+				return idx.Bitmask & os::AtomicOr(idx.Bitmask, (volatile ULONGLONG*)&_Bits[idx.BlockOffset]);
+			}
+	bool	AtomicReset(const Index& idx) // return the bit value before atomic set
+			{
+				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile ULONGLONG*)&_Bits[idx.BlockOffset]);
 			}
 	void	Reset(const Index& idx){ Set(idx, false); }
 	void	ResetAll(){ memset(_Bits, 0, sizeof(_Bits)); }

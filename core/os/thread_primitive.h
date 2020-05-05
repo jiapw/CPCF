@@ -74,12 +74,14 @@ namespace os
 	FORCEINL int		AtomicAdd(int theAmount, volatile int *theValue){ return theAmount + _InterlockedExchangeAdd((long volatile *)theValue, (long)theAmount); }
 	FORCEINL void		AtomicSet(int val, volatile int *theValue){ AtomicAdd(val-*theValue, theValue); }
 	FORCEINL DWORD		AtomicOr(DWORD bits, volatile DWORD* theValue){ return (DWORD)_InterlockedOr((volatile long*)theValue, bits); }
+	FORCEINL DWORD		AtomicAnd(DWORD bits, volatile DWORD* theValue){ return (DWORD)_InterlockedAnd((volatile long*)theValue, bits); }
 	#if defined(PLATFORM_64BIT)
 	FORCEINL __int64	AtomicIncrement(volatile __int64 *theValue){ return _InterlockedIncrement64((__int64 volatile *)theValue); }
 	FORCEINL __int64	AtomicDecrement(volatile __int64 *theValue){ return _InterlockedDecrement64((__int64 volatile *)theValue); }
 	FORCEINL __int64	AtomicAdd(__int64 theAmount, volatile __int64 *theValue){ return theAmount + _InterlockedExchangeAdd64((__int64 volatile *)theValue, (__int64)theAmount); }
 	FORCEINL void		AtomicSet(__int64 val, volatile __int64 *theValue){ AtomicAdd(val-*theValue, theValue); }
 	FORCEINL ULONGLONG	AtomicOr(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)_InterlockedOr64((volatile __int64*)theValue, bits); }
+	FORCEINL ULONGLONG	AtomicAnd(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)_InterlockedAnd64((volatile __int64*)theValue, bits); }
 	#endif
 #elif defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 	FORCEINL int		AtomicIncrement(volatile int *theValue){ return OSAtomicIncrement32Barrier(theValue); }
@@ -92,6 +94,8 @@ namespace os
 	FORCEINL void		AtomicSet(__int64 val, volatile __int64 *theValue){ AtomicAdd(val-*theValue, theValue); }
 	FORCEINL DWORD		AtomicOr(DWORD bits, volatile DWORD* theValue){ return (DWORD)OSAtomicOr32((uint32_t)bits, (volatile uint32_t*)theValue); }
 	FORCEINL ULONGLONG	AtomicOr(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)OSAtomicOr64((uint64_t)bits, (volatile uint64_t*)theValue); }
+	FORCEINL DWORD		AtomicAnd(DWORD bits, volatile DWORD* theValue){ return (DWORD)OSAtomicAnd32((uint32_t)bits, (volatile uint32_t*)theValue); }
+	FORCEINL ULONGLONG	AtomicAnd(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)OSAtomicAnd64((uint64_t)bits, (volatile uint64_t*)theValue); }
 #else
 	FORCEINL int		AtomicIncrement(volatile int *theValue){ return 1 + __sync_fetch_and_add(theValue,1); }
 	FORCEINL int		AtomicDecrement(volatile int *theValue){ return __sync_fetch_and_sub(theValue,1) - 1; }
@@ -103,6 +107,8 @@ namespace os
 	FORCEINL void		AtomicSet(__int64 val, volatile __int64 *theValue){ AtomicAdd(val-*theValue, theValue); }
 	FORCEINL DWORD		AtomicOr(DWORD bits, volatile DWORD* theValue){ return (DWORD)__sync_fetch_and_or((volatile uint32_t*)theValue, (uint32_t)bits); }
 	FORCEINL ULONGLONG	AtomicOr(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)__sync_fetch_and_or((volatile uint64_t*)theValue, (uint64_t)bits); }
+	FORCEINL DWORD		AtomicAnd(DWORD bits, volatile DWORD* theValue){ return (DWORD)__sync_fetch_and_and((volatile uint32_t*)theValue, (uint32_t)bits); }
+	FORCEINL ULONGLONG	AtomicAnd(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)__sync_fetch_and_and((volatile uint64_t*)theValue, (uint64_t)bits); }
 #endif
 
 INLFUNC SIZE_T GetCurrentThreadId()
@@ -205,9 +211,9 @@ class TryEnterCSBlock
 	CriticalSection& _CCS;
 public:
 	INLFUNC TryEnterCSBlock(CriticalSection& so):_CCS(so){ _bEntered = so.TryLock(); }
-	INLFUNC TryEnterCSBlock(CriticalSection& so, UINT timeout):_CCS(so){ _bEntered = so.TryLock(); }
 	INLFUNC ~TryEnterCSBlock(){ if(_bEntered)_CCS.Unlock(); }
 	INLFUNC bool IsLocked() const { return _bEntered; }
+	INLFUNC operator bool () const { return _bEntered; }
 };
 
 class Event

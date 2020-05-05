@@ -1239,7 +1239,9 @@ public:
     FORCEINL String(const char c, int count){ _len_reserved = 0; _p = nullptr; _len = 0; for (int i = 0; i < count; i++) *this += c; }
 	template<typename T>
 	FORCEINL String(const T& string_expr){ _p = nullptr; _len_reserved = _len = 0; (*this) = string_expr; }
+	FORCEINL String(String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._len_reserved = 0; }
 
+	FORCEINL	   String& operator = (String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._len_reserved = 0; return *this; }
 	FORCEINL const String& operator = (const char* x){ *this = String_Ref(x); return *this; }
 	FORCEINL const String& operator = (char* x){ *this = String_Ref(x); return *this; }
 	FORCEINL const String& operator = (char x){ SetLength(1); _p[0] = x; return *this; }
