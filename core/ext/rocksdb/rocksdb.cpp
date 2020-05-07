@@ -128,18 +128,21 @@ bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 			auto it = new_obj->find(cfs[i].c_str());
 			if(it == new_obj->end())
 			{
-				new_obj->operator[](cfs[i].c_str()).Opt = _DefaultOpenOpt;
-
 				rt::String_Ref name(cfs[i]);
 				int pos;
 				if((pos = (int)name.FindCharacter(':')) > 0)
-				{	auto wild_it = new_obj->find(ALLOCA_C_STRING(name.SubStr(pos+1)));
+				{
+					auto wild_it = new_obj->find(ALLOCA_C_STRING(name.SubStr(0, pos+1)));
 					if(wild_it != new_obj->end())
 					{
+						new_obj->operator[](cfs[i].c_str()).Opt = wild_it->second.Opt;
 						cfds[i].options = new_obj->operator[](cfs[i].c_str()).Opt = wild_it->second.Opt;
 						continue;
 					}
 				}
+
+				new_obj->operator[](cfs[i].c_str()).Opt = _DefaultOpenOpt;
+				cfds[i].options = _DefaultOpenOpt;
 			}
 
 			cfds[i].options = new_obj->operator[](cfs[i].c_str()).Opt;
