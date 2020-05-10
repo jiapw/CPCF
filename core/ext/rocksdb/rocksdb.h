@@ -96,6 +96,12 @@ public:
 	INLFUNC RocksCursor(const RocksCursor&& x){ iter = x.iter; }	// move constructor, enable return by RocksDB::First/Last
 	INLFUNC	~RocksCursor(){ Empty(); }
 	INLFUNC void				operator = (RocksCursor&& x){ _SafeDel_Untracked(iter); iter = x.iter; x.iter = nullptr; }
+	INLFUNC void				operator ++ (){ Next(); }
+	INLFUNC void				operator -- (){ Prev(); }
+	INLFUNC void				operator += (int step){ if(step>0){ Next(step); }else{ Prev(-step); } }
+	INLFUNC void				operator -= (int step){ if(step>0){ Prev(step); }else{ Next(-step); } }
+	INLFUNC void				operator ++ (int){ Next(); }
+	INLFUNC void				operator -- (int){ Prev(); }
 
 	template<typename T>
 	INLFUNC const T&			Value() const { return *(T*)iter->value().data(); }
@@ -280,7 +286,7 @@ enum RocksStorageWriteRobustness
 	ROCKSSTG_FASTEST = 0,		// true				false		true
 	ROCKSSTG_DEFAULT,			// false			false		true
 	ROCKSSTG_UNBUFFERED,		// false			false		false
-	ROCKSSTG_STRONG			// false			true		false
+	ROCKSSTG_STRONG				// false			true		false
 };
 
 namespace _details
@@ -432,6 +438,179 @@ public:
 	bool	IsOpen() const { return _Storage.IsOpen(); }
 	void	Close();
 };
+
+
+namespace _details
+{
+#pragma pack(push, 1)
+template<int PAGE_METADATA_SIZE, typename T_VALUESIZE>
+struct _ValueInStg
+{	BYTE		Metadata[PAGE_METADATA_SIZE];
+	T_VALUESIZE	TotalSize;
+	BYTE		Data[1];
+};
+	template<typename T_VALUESIZE>
+	struct _ValueInStg<0, T_VALUESIZE>
+	{	T_VALUESIZE	TotalSize;
+		BYTE		Data[1];
+	};
+#pragma pack(pop)
+
+template<typename T_HASHVAL, int METADATA_SIZE = 0, UINT PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT, class DB_CLS = RocksDB>
+class RocksPagedBase: public DB_CLS
+{	typedef DB_CLS _SC;
+protected:
+#pragma pack(push, 1)
+	struct HashKeyPaged
+	{	T_HASHVAL						Hash;
+		rt::ByteOrderSwapped<T_PAGE>	Page;
+		HashKeyPaged(const T_HASHVAL& h, T_PAGE p):Hash(h){ Page = p; }
+		TYPETRAITS_DECLARE_POD;
+	};
+	struct ValueInStg: public _ValueInStg<METADATA_SIZE, T_VALUESIZE>
+	{	bool		IsUnpaged() const { return TotalSize<=PAGING_SIZE; }
+		T_PAGE		GetPageCount() const { T_PAGE ret; ret = (T_PAGE)((TotalSize+PAGING_SIZE+1)/PAGING_SIZE); return ret; }
+	};
+#pragma pack(pop)
+protected:
+	void	_DeleteWrittenPages(const T_HASHVAL& h, T_PAGE last_page)
+			{	_SC::Delete(h);
+				HashKeyPaged key(h, 1);
+				for(T_PAGE p = 1; p <= last_page; key.Page = ++p)
+					_SC::Delete(key);
+			}
+public:
+	static const UINT VALUE_PREFIX_SIZE = offsetof(ValueInStg, Data);
+	void	DeleteAllPages(const T_HASHVAL& b)
+			{	std::string data;
+				auto* vis = Load(b, 0, data);
+				if(vis)
+				{	_SC::Delete(b);
+					if(vis->IsUnpaged())return;
+					HashKeyPaged key(b, 1);
+					T_PAGE end = vis->GetPageCount();
+					for(T_PAGE p = 1; p < end; key.Page = ++p)
+						_SC::Delete(key);
+				}
+			}
+protected:
+	auto	GetPaged(const T_HASHVAL& b, T_PAGE page_no, std::string& ws) const -> const ValueInStg* // first page will have FIRSTPAGE_PREFIX_SIZE bytes in `ws` before actual data
+			{
+				if(page_no == 0){ if(!_SC::Get(b, ws))return nullptr; }
+				else{ if(!_SC::Get(HashKeyPaged(b, page_no), ws))return nullptr; }
+				return (ValueInStg*)ws.data();
+			}
+	bool	LoadAllPages(const T_HASHVAL& b, const ValueInStg* first_page, LPBYTE data_out) const
+			{	
+				if(first_page->IsUnpaged())
+				{	memcpy(data_out, first_page->Data, first_page->TotalSize);
+					return true;
+				}
+				else
+				{	memcpy(data_out, first_page->Data, PAGING_SIZE);
+					data_out += PAGING_SIZE;
+				}
+
+				UINT page_co = first_page->GetPageCount();
+				auto it = _SC::Find(HashKeyPaged(b,1));
+				for(T_PAGE p=1; p<page_co; p++, it++)
+				{	
+					if(!it.IsValid())return false;
+					auto& key = it.Key<HashKeyPaged>();
+					if(key.Hash != b || key.Page != p)return false;
+
+					auto& val = it.Value();
+					UINT data_size = (UINT)(val.size() - VALUE_PREFIX_SIZE);
+					if(	(p<page_co-1 && data_size != PAGING_SIZE) ||
+						(p == page_co-1 && data_size != (first_page->TotalSize%PAGING_SIZE))
+					)return false;
+
+					memcpy(data_out, val.data() + VALUE_PREFIX_SIZE, data_size);
+					data_out += data_size;
+				}
+
+				return true;
+			}
+	bool	SetPaged(const T_HASHVAL& b, LPBYTE data_with_prefixspace, T_VALUESIZE size, LPCBYTE meta) // WARNING: data will be modified, [data-DATA_PREFIX_SIZE] will be written
+			{
+				auto& vis = *(ValueInStg*)(data_with_prefixspace - VALUE_PREFIX_SIZE);
+				rt::Copy<METADATA_SIZE>(&vis, meta);
+				vis.TotalSize = size;
+
+				if(!_SC::Set(b, ext::SliceValue(&vis, rt::min((T_VALUESIZE)PAGING_SIZE, size) + VALUE_PREFIX_SIZE)))
+					return false;
+
+				if(size <= PAGING_SIZE)return true;
+				
+				HashKeyPaged dbkey(b, 1);
+				T_PAGE page = 1;
+				for(UINT i = PAGING_SIZE; i<size; i += PAGING_SIZE, dbkey.Page = ++page)
+				{
+					auto& vis = *(ValueInStg*)(data_with_prefixspace + i - VALUE_PREFIX_SIZE);
+					UINT pagesize = rt::min(PAGING_SIZE, size - i);
+
+					rt::Copy<METADATA_SIZE>(&vis, meta);
+					vis.TotalSize = size;
+
+					if(!_SC::Set(dbkey, ext::SliceValue(&vis, pagesize + VALUE_PREFIX_SIZE)))
+					{
+						_DeleteWrittenPages(b, (size + PAGING_SIZE - 1)/PAGING_SIZE);
+						return false;
+					}
+				}
+
+				return true;
+			}
+};
+
+template<typename T_HASHVAL, typename T_METADATA, int PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT, class DB_CLS = RocksDB>
+class RocksPagedBaseT: public RocksPagedBase<T_HASHVAL, sizeof(T_METADATA), PAGING_SIZE, T_PAGE, T_VALUESIZE, DB_CLS>
+{	typedef RocksPagedBase<T_HASHVAL, sizeof(T_METADATA), PAGING_SIZE, T_PAGE, T_VALUESIZE, DB_CLS> _SC;
+public:
+	struct ValueType: public T_METADATA
+	{	
+		T_VALUESIZE	TotalSize;
+		BYTE		Data[1];
+		bool		IsUnpaged() const { return TotalSize>PAGING_SIZE; }
+		T_PAGE		GetPageCount() const { T_PAGE ret; ret = (T_PAGE)((TotalSize+PAGING_SIZE+1)/PAGING_SIZE); return ret; }
+	};
+
+	ValueType*	GetPaged(const T_HASHVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
+	bool		LoadAllPages(const T_HASHVAL& b, const ValueType* first_page, LPBYTE data_out) const { return _SC::LoadAllPages(b, (_CS::ValueInStg*)first_page, data_out); }
+	bool		SetPaged(const T_HASHVAL& b, const T_METADATA& metadata, LPBYTE data_with_prefixspace_ahead, UINT size) // WARNING: data will be modified, [data-DATA_PREFIX_SIZE] will be written
+				{	return _SC::SetPaged(b, data_with_prefixspace_ahead, size, (LPCBYTE)&metadata);
+				}
+};
+	template<typename T_HASHVAL, int PAGING_SIZE, typename T_PAGE, typename T_VALUESIZE, class DB_CLS>
+	class RocksPagedBaseT<T_HASHVAL, void, PAGING_SIZE, T_PAGE, T_VALUESIZE, DB_CLS>: public RocksPagedBase<T_HASHVAL, 0, PAGING_SIZE, T_PAGE, T_VALUESIZE, DB_CLS>
+	{	typedef RocksPagedBase<T_HASHVAL, 0, PAGING_SIZE, T_PAGE, T_VALUESIZE, DB_CLS> _SC;
+	public:
+		struct ValueType
+		{	
+			T_VALUESIZE	TotalSize;
+			BYTE		Data[1];
+			bool		IsUnpaged() const { return TotalSize>PAGING_SIZE; }
+			T_PAGE		GetPageCount() const { T_PAGE ret; ret = (T_PAGE)((TotalSize+PAGING_SIZE+1)/PAGING_SIZE); return ret; }
+		};
+
+		ValueType*	GetPaged(const T_HASHVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
+		bool		LoadAllPages(const T_HASHVAL& b, const ValueType* first_page, LPBYTE data_out) const { return _SC::LoadAllPages(b, (_SC::ValueInStg*)first_page, data_out); }
+		bool		SetPaged(const T_HASHVAL& b, LPBYTE data_with_prefixspace_ahead, UINT size){ return _SC::SetPaged(b, data_with_prefixspace_ahead, size, nullptr); }
+	};
+} // namespace _details
+
+template<typename T_HASHVAL, typename T_PAGE_METADATA = void, int PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT>
+class RocksDBPaged: public _details::RocksPagedBaseT<T_HASHVAL, T_PAGE_METADATA, PAGING_SIZE, T_PAGE, T_VALUESIZE, RocksDB>
+{
+public:
+	RocksDBPaged(){ RocksDB::Empty(); }
+	RocksDBPaged(const RocksDB& x){ RocksDB::_pDB = x._pDB; RocksDB::_pCF = x._pCF; }
+	auto&	operator = (const ext::RocksDB& x){ RocksDB::_pDB = x._pDB; RocksDB::_pCF = x._pCF; }
+};
+
+template<typename T_HASHVAL, typename T_PAGE_METADATA = void, int PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT>
+using RocksDBStandalonePaged = _details::RocksPagedBaseT<T_HASHVAL, T_PAGE_METADATA, PAGING_SIZE, T_PAGE, T_VALUESIZE, RocksDBStandalone>;
+
 
 
 template<char separator = ':'>

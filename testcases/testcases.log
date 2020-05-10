@@ -18,7 +18,7 @@ sizeof(ULONGLONG)	=8
 sizeof(QWORD)		=8
 rt::MaxPower2Within(2049): 2048
 rt::Swap: <a, b> = <2,1>
-rt::SwitchByteOrder(CEFABEBA00000000) = 00000000BABEFACE
+rt::SwapByteOrder(CEFABEBA00000000) = 00000000BABEFACE
 int is POD: 1
 int[24] is POD: 1
 rt::IsTypeSame<int,int>: 1
@@ -790,5 +790,6 @@ Content Match: 1
 9900
 0
 0
+RocksDBStandalonePaged: Passed
 === UnitTest<rocks_db>: END =====
 

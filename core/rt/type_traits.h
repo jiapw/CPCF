@@ -516,6 +516,18 @@ struct _GetDataSize
 };
 } // namespace _details
 
+
+#pragma pack(push, 1)
+template<typename T>
+struct ByteOrderSwapped
+{	static_assert(TypeTraits<T>::IsPOD, "T must be POD");
+	TYPETRAITS_DECLARE_POD;
+	T	v;
+	T operator = (const T a){ v = SwapByteOrder(a); return a; }
+	operator T() const { return SwapByteOrder(v); }
+};
+#pragma pack(pop)
+
 template<typename T>
 INLFUNC LPVOID GetDataPtr(T& x)
 {	_details::_GetDataPtr p(x);

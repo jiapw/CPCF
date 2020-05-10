@@ -20,7 +20,7 @@ void FileZip::_crc_checksum(LPCVOID pSrc, UINT SrcLen, LPDWORD crc32)
 	sec::Hash<sec::HASH_CRC32>	crc;
 	crc.Update(pSrc,SrcLen);
 	crc.Finalize(crc32);
-	rt::SwitchByteOrder(*crc32);
+	rt::SwapByteOrder(*crc32);
 }
 
 

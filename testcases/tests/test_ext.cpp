@@ -107,6 +107,37 @@ void rt::UnitTests::rocks_db()
 
 		_LOG(db.First().Key<int>());
 		_LOG(db2.First().Key<int>());
+		store.Close();
+	}
+	ext::RocksStorage::Nuke(fn);
+
+	{
+		ext::RocksDBStandalonePaged<UINT, void, 32>	paged;
+		paged.Open(fn);
+
+		rt::Buffer<BYTE> test, org;
+		test.SetSize(1000 + paged.VALUE_PREFIX_SIZE);
+		test.RandomBits();
+
+		org.SetSize(1000);
+		org.CopyFrom(test.Begin() + paged.VALUE_PREFIX_SIZE);
+
+		paged.SetPaged(123, test.Begin() + paged.VALUE_PREFIX_SIZE, 1000);
+
+		std::string ws;
+		auto* d = paged.GetPaged(123, 0, ws);
+		if(d)
+		{
+			rt::Buffer<BYTE> load;
+			load.SetSize(1000);
+			if(paged.LoadAllPages(123, d, load) && memcmp(org, load, 1000) == 0)
+			{	_LOG("RocksDBStandalonePaged: Passed");
+			}
+			else
+			{	_LOG("RocksDBStandalonePaged: Data mismatch");
+			}
+		}
+		else _LOG("RocksDBStandalonePaged: Loading failed");
 	}
 
 	ext::RocksStorage::Nuke(fn);
@@ -279,7 +310,7 @@ void rt::UnitTests::rocks_db()
 		{
 			for(UINT i=0; i<keys.GetSize(); i++)
 			{	keys[i] = i;
-				rt::SwitchByteOrder(keys[i]);
+				rt::SwapByteOrder(keys[i]);
 			}
 
 			os::HighPerformanceCounter hpc;
@@ -378,7 +409,7 @@ void rt::UnitTests::rocks_db()
 
 				for(UINT i=0; i<keys.GetSize(); i++)
 				{	keys[i] = i;
-					rt::SwitchByteOrder(keys[i]);
+					rt::SwapByteOrder(keys[i]);
 				}
 
 				keys.Shuffle(5439);
@@ -489,7 +520,7 @@ void rt::UnitTests::rocks_db()
 		{
 			for(UINT i=0; i<keys.GetSize(); i++)
 			{	keys[i] = i;
-				rt::SwitchByteOrder(keys[i]);
+				rt::SwapByteOrder(keys[i]);
 			}
 
 			os::HighPerformanceCounter hpc;
@@ -540,7 +571,7 @@ void rt::UnitTests::rocks_db()
 
 				for(UINT i=0; i<keys.GetSize(); i++)
 				{	keys[i] = i;
-					rt::SwitchByteOrder(keys[i]);
+					rt::SwapByteOrder(keys[i]);
 				}
 
 				keys.Shuffle(5439);

@@ -1237,12 +1237,12 @@ void rt::UnitTests::buffer()
 
 	rt::BooleanArray<89>	boolvec;
 
-	boolvec.True();
+	boolvec.SetAll();
 
 	rt::String out;
 	boolvec.ToString<>(out);	_LOG(out);	out.Empty();
 
-	boolvec.False();
+	boolvec.ResetAll();
 	boolvec.Set(1);
 	boolvec.Set(5);
 	boolvec.Set(63);
@@ -1444,8 +1444,8 @@ void rt::UnitTests::rt()
 	}
 
 	{	ULONGLONG a = 0xbabeface,b = 0xbabeface;
-		rt::SwitchByteOrder(b);
-		_LOG(	"rt::SwitchByteOrder("<<rt::tos::Binary<>(&a,sizeof(ULONGLONG))<<
+		rt::SwapByteOrder(b);
+		_LOG(	"rt::SwapByteOrder("<<rt::tos::Binary<>(&a,sizeof(ULONGLONG))<<
 				") = "<<rt::tos::Binary<>(&b,sizeof(ULONGLONG)));
 	}
 

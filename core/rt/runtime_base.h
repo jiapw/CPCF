@@ -847,29 +847,29 @@ namespace rt
 namespace _details
 {	
 	template<int sz>
-	FORCEINL void _SwitchByteOrder(LPBYTE p)
+	FORCEINL void _SwapByteOrder(LPBYTE p)
 	{	BYTE t = p[0];
 		p[0] = p[sz-1];
 		p[sz-1] = t;
-		_SwitchByteOrder<sz-2>(p+1);
+		_SwapByteOrder<sz-2>(p+1);
 	}
 	template<>
-	FORCEINL void _SwitchByteOrder<1>(LPBYTE p){}
+	FORCEINL void _SwapByteOrder<1>(LPBYTE p){}
 	template<>
-	FORCEINL void _SwitchByteOrder<0>(LPBYTE p){}
+	FORCEINL void _SwapByteOrder<0>(LPBYTE p){}
 } // namespace _details
 } // namespace rt
 
 namespace rt
 {
 	template<typename T>
-	FORCEINL void SwitchByteOrder(T& x)
-	{	_details::_SwitchByteOrder<sizeof(T)>((LPBYTE)&x);
+	FORCEINL void SwapByteOrder(T& x)
+	{	_details::_SwapByteOrder<sizeof(T)>((LPBYTE)&x);
 	}
 	template<typename T>
-	FORCEINL T ConvertByteOrder(const T& x)
+	FORCEINL T SwapByteOrder(const T& x)
 	{	T out = x;
-		_details::_SwitchByteOrder<sizeof(T)>((LPBYTE)&out);
+		_details::_SwapByteOrder<sizeof(T)>((LPBYTE)&out);
 		return out;
 	}
 }

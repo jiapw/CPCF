@@ -361,7 +361,7 @@ bool ImageDecoder::DecodeHeader(LPCBYTE pData, UINT DataLen, DWORD image_codec)
 		{	// Read png
 			const _details::png_chunk* chunk = (_details::png_chunk*)p;
 			UINT chunk_len = chunk->length;
-			rt::SwitchByteOrder(chunk_len);
+			rt::SwapByteOrder(chunk_len);
 			UINT total_size = chunk_len + sizeof(_details::png_chunk);
 			if(total_size > datasize)return false;
 
@@ -370,8 +370,8 @@ bool ImageDecoder::DecodeHeader(LPCBYTE pData, UINT DataLen, DWORD image_codec)
 				const _details::png_header* hdr = (const _details::png_header*)(chunk->data);
 				m_DecodedImageWidth = hdr->Width;
 				m_DecodedImageHeight = hdr->Height;
-				rt::SwitchByteOrder(m_DecodedImageWidth);
-				rt::SwitchByteOrder(m_DecodedImageHeight);
+				rt::SwapByteOrder(m_DecodedImageWidth);
+				rt::SwapByteOrder(m_DecodedImageHeight);
 				if(m_DecodedImageWidth == 0 || m_DecodedImageHeight == 0)return false;
 
 				if(	hdr->ColorType == 3 && 
