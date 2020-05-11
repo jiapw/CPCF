@@ -92,6 +92,28 @@ bool RocksStorage::Open(LPCSTR db_path, RocksStorageWriteRobustness robustness, 
 	return Open(db_path, &opt);
 }
 
+bool RocksStorage::Nuke(LPCSTR db_path)
+{
+	bool ok = ::rocksdb::DestroyDB(db_path, ::rocksdb::Options()).ok();
+	return ok && os::File::RemovePath(db_path);
+}
+
+bool RocksStorage::Rename(LPCSTR db_old_path, LPCSTR db_new_path)
+{
+	if(!os::File::IsExist(db_old_path))
+		return false;
+
+	for(UINT i=0; i<30; i++) // retry within 3 seconds
+	{
+		if(os::File::Rename(db_old_path, db_new_path))
+			return true;
+
+		os::Sleep(100);
+	}
+
+	return false;
+}
+
 bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 {
 	LPCSTR default_cfname = "default";
@@ -243,9 +265,10 @@ void RocksStorage::Close()
 				}
 
 			_AllDBs.Clear();
-			delete _pDB;
-			_pDB = nullptr;
 		}
+
+		delete _pDB;
+		_pDB = nullptr;
 	}
 }
 
@@ -266,8 +289,8 @@ bool RocksDBStandalone::Open(LPCSTR db_path, RocksStorageWriteRobustness robustn
 
 void RocksDBStandalone::Close()
 {
-	_Storage.Close();
 	RocksDB::Empty();
+	_Storage.Close();
 }
 
 

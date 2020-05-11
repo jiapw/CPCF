@@ -422,7 +422,8 @@ public:
 	void		SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt); 
 	void		SetDBDefaultOpenOption(const RocksDBOpenOption& opt){ _DefaultOpenOpt = opt; }
 
-	static void Nuke(LPCSTR db_path){ os::File::RemovePath(db_path); }
+	static bool Nuke(LPCSTR db_path);
+	static bool Rename(LPCSTR db_old_path, LPCSTR db_new_path);
 };
 
 class RocksDBStandalone: public RocksDB
@@ -576,7 +577,7 @@ public:
 	};
 
 	ValueType*	GetPaged(const T_HASHVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
-	bool		LoadAllPages(const T_HASHVAL& b, const ValueType* first_page, LPBYTE data_out) const { return _SC::LoadAllPages(b, (_CS::ValueInStg*)first_page, data_out); }
+	bool		LoadAllPages(const T_HASHVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (_CS::ValueInStg*)first_page, (LPBYTE)data_out); }
 	bool		SetPaged(const T_HASHVAL& b, const T_METADATA& metadata, LPBYTE data_with_prefixspace_ahead, UINT size) // WARNING: data will be modified, [data-DATA_PREFIX_SIZE] will be written
 				{	return _SC::SetPaged(b, data_with_prefixspace_ahead, size, (LPCBYTE)&metadata);
 				}
@@ -594,7 +595,7 @@ public:
 		};
 
 		ValueType*	GetPaged(const T_HASHVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
-		bool		LoadAllPages(const T_HASHVAL& b, const ValueType* first_page, LPBYTE data_out) const { return _SC::LoadAllPages(b, (_SC::ValueInStg*)first_page, data_out); }
+		bool		LoadAllPages(const T_HASHVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (_SC::ValueInStg*)first_page, (LPBYTE)data_out); }
 		bool		SetPaged(const T_HASHVAL& b, LPBYTE data_with_prefixspace_ahead, UINT size){ return _SC::SetPaged(b, data_with_prefixspace_ahead, size, nullptr); }
 	};
 } // namespace _details
@@ -610,7 +611,6 @@ public:
 
 template<typename T_HASHVAL, typename T_PAGE_METADATA = void, int PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT>
 using RocksDBStandalonePaged = _details::RocksPagedBaseT<T_HASHVAL, T_PAGE_METADATA, PAGING_SIZE, T_PAGE, T_VALUESIZE, RocksDBStandalone>;
-
 
 
 template<char separator = ':'>
