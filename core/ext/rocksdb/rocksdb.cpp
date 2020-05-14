@@ -43,6 +43,12 @@ struct __InitRocksDBOptions
 
 __InitRocksDBOptions	g_InitRocksDBOptions;
 
+rt::BufferEx<BYTE>& ThreadLocalRocksPagedBaseStoreBuffer()
+{
+	thread_local rt::BufferEx<BYTE> _;
+	return _;
+}
+
 } // namespace _details
 
 void RocksStorage::SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt)

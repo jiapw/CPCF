@@ -187,6 +187,7 @@ public:
 	{	DeleteObject(ptr,TTL_msec,dfunc);
 	}
 	static void Exit();
+	static void Flush();
 };
 
 #define _SafeDel_Delayed(x, TTL_msec)		{ if(x){ os::DelayedGarbageCollection::DeleteObj(x,TTL_msec); x=nullptr; } }

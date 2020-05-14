@@ -75,14 +75,17 @@ DWORD os::DelayedGarbageCollection::_DeletionThread(LPVOID)
 	}
 
 DELETION_EXITING:
-	{	EnterCSBlock(_details::g_GCB._PendingGarbagCCS);
-		for(UINT i=0;i<_details::g_GCB._PendingGarbag.GetSize();i++)
-			_details::g_GCB._PendingGarbag[i].Delete();
-
-		_details::g_GCB._PendingGarbag.SetSize();
-	}
-
+	Flush();
 	return 0;
+}
+
+void os::DelayedGarbageCollection::Flush()
+{
+	EnterCSBlock(_details::g_GCB._PendingGarbagCCS);
+	for(UINT i=0;i<_details::g_GCB._PendingGarbag.GetSize();i++)
+		_details::g_GCB._PendingGarbag[i].Delete();
+
+	_details::g_GCB._PendingGarbag.SetSize();
 }
 
 void os::DelayedGarbageCollection::DeleteObject(LPVOID x, DWORD TTL_msec, os::DelayedGarbageCollection::LPFUNC_DELETION delete_func)
