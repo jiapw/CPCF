@@ -1890,10 +1890,88 @@ LPSTR __alloca_string(LPSTR p, const T& x)
 	return p;
 }
 } // namespace rt::_details
-
 } // namespace rt
 
 #define __SS(...)						(rt::SS(#__VA_ARGS__))
 #define ALLOCA_STRING_BUFFER(size)		(rt::String_Ref((LPSTR)alloca(size), size))
 #define ALLOCA_STRING_REF(x)			(rt::_details::__alloca_string_ref((LPSTR)alloca((x).GetLength()), (x)))	// x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
 #define ALLOCA_C_STRING(x)				(rt::_details::__alloca_string((LPSTR)alloca((x).GetLength() + 1), (x)))	// x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
+
+
+//////////////////////////////////////////////////////
+// Stringify Enum
+namespace rt
+{
+namespace _details
+{
+template<typename T>
+struct _EnumStringify;
+template<typename T_Enum>
+struct _EnumString
+{	
+	static LPCSTR	ToString(T_Enum x)
+					{	LPCSTR ret = nullptr;
+						_EnumStringify<T_Enum>::_Iterate(
+							[&ret, x](T_Enum e, const rt::String_Ref& name){
+								if(x == e){ ret = name.Begin(); return false; }
+								return true;
+							}
+						);
+						return ret;
+					}
+	static T_Enum	FromString(const rt::String_Ref& name, T_Enum default_val = (T_Enum)-1)
+					{	
+						_EnumStringify<T_Enum>::_Iterate(
+							[&default_val, &name](T_Enum e, const rt::String_Ref& e_name){
+								if(name == e_name){ default_val = e; return false; }
+								return true;
+							}
+						);
+						return default_val;
+					}
+};
+} // namespace _details
+
+#define STRINGIFY_ENUM_BEGIN(type, ns)	namespace rt {													\
+										namespace _details {											\
+										template<>														\
+										struct _EnumStringify<::ns::type>								\
+										{	template<typename T_FUNC>									\
+											static bool _Iterate(T_FUNC&& c){							\
+												using namespace ::ns;
+#define STRINGIFY_ENUM_ITEM(enum_val)			if(!c(enum_val, rt::SS(#enum_val)))return true;
+#define STRINGIFY_ENUM_END(type, ns)			return false;											\
+											}															\
+										};}}															\
+										namespace ns {													\
+										template<class t_Ostream>										\
+										INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)		\
+										{	LPCSTR str = ::rt::EnumStringify(x);						\
+											if(str){ return Ostream<<str; }								\
+											else{ return Ostream<< #type "(#"<<(int)x<<')'; }			\
+										}}
+
+template<typename T>
+INLFUNC LPCSTR	EnumStringify(T x)
+				{	LPCSTR ret = nullptr;
+					typedef typename rt::Remove_QualiferAndRef<T>::t_Result T_Enum;
+					::rt::_details::_EnumStringify<T_Enum>::_Iterate(
+						[&ret, x](T_Enum e, const rt::String_Ref& name){
+							if(x == e){ ret = name.Begin(); return false; }
+							return true;
+						}
+					);
+					return ret;
+				}
+	
+template<typename T_Enum>
+INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
+				{	return ::rt::_details::_EnumStringify<T_Enum>::_Iterate(
+						[&value_out, &name](T_Enum e, const rt::String_Ref& e_name){
+							if(name == e_name){ value_out = e; return false; }
+							return true;
+						}
+					);
+				}
+
+} // namespace rt
