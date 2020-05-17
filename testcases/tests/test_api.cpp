@@ -1,4 +1,4 @@
-#include "../../core/rt/string_type.h"
+#include "../../core/rt/string_type_ops.h"
 #include "../../core/rt/buffer_type.h"
 #include "../../core/rt/small_math.h"
 #include "../../core/rt/xml_xhtml.h"
@@ -576,6 +576,36 @@ void rt::UnitTests::binary_search()
 	_LOG(a[a.GetSize()-1]+1<<" is at "<<rt::LowerBound(a,a.GetSize(),a[a.GetSize()-1]+1)<<"/"<<rt::BinarySearch(a,a.GetSize(),a[a.GetSize()-1]+1));
 }
 
+namespace rt
+{
+	enum TestEnum
+	{
+		TE_X = 0,
+		TE_Y,
+		TE_MAX,
+	};
+
+	enum TestEnumBitwise
+	{
+		TEB_A = 0x1,
+		TEB_B = 0x2,
+		TEB_C = 0x4,
+		TEB_COM = TEB_B|TEB_C
+	};
+}
+
+STRINGIFY_ENUM_BEGIN(TestEnum, rt)
+	STRINGIFY_ENUM_ITEM(TE_X)
+	STRINGIFY_ENUM_ITEM(TE_Y)
+	STRINGIFY_ENUM_ITEM(TE_MAX)
+STRINGIFY_ENUM_END(TestEnum, rt)
+
+STRINGIFY_BITWISE_BEGIN(TestEnumBitwise, rt)
+	STRINGIFY_ENUM_ITEM(TEB_A)
+	STRINGIFY_ENUM_ITEM(TEB_B)
+	STRINGIFY_ENUM_ITEM(TEB_C)
+	STRINGIFY_ENUM_ITEM(TEB_COM)
+STRINGIFY_BITWISE_END(TestEnumBitwise, rt)
 
 void rt::UnitTests::string_conv()
 {
@@ -591,6 +621,17 @@ void rt::UnitTests::string_conv()
 	_LOG(rt::tos::Number(1.23e45));
 	_LOG(rt::tos::Number(1.0/a));
 
+	_LOG(TE_X);
+	_LOG(TEB_COM);
+
+	_LOG((TEB_A|TEB_B|TEB_C));
+
+	TestEnumBitwise val;
+	rt::BitwiseParse("TEB_B|TEB_C", val);			_LOG(val);
+	rt::BitwiseParse("TEB_A|TEB_B|TEB_C", val);		_LOG(val);
+	
+	TestEnum eval;
+	rt::EnumParse("TE_MAX", eval);					_LOG(eval);
 }
 
 

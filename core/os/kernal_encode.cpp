@@ -1,4 +1,6 @@
+#include "../rt/string_type_ops.h"
 #include "kernel.h"
+
 
 namespace os
 {

@@ -30,7 +30,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////
 
-#include "../rt/string_type.h"
+#include "../rt/string_type_ops.h"
 #include "../rt/buffer_type.h"
 #include "../os/kernel.h"
 #include "../os/multi_thread.h"

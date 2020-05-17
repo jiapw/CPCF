@@ -247,7 +247,7 @@
     <ClInclude Include="..\..\core\rt\runtime_base.h" />
     <ClInclude Include="..\..\core\rt\small_math.h" />
     <ClInclude Include="..\..\core\rt\string_type.h" />
-    <ClInclude Include="..\..\core\rt\string_type_op.h" />
+    <ClInclude Include="..\..\core\rt\string_type_ops.h" />
     <ClInclude Include="..\..\core\rt\type_traits.h" />
     <ClInclude Include="..\..\core\rt\xml_xhtml.h" />
     <ClInclude Include="..\tests\test.h" />

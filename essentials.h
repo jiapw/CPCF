@@ -31,6 +31,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "./core/rt/string_type.h"
+#include "./core/rt/string_type_ops.h"
 #include "./core/rt/buffer_type.h"
 #include "./core/rt/json.h"
 

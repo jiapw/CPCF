@@ -1,9 +1,8 @@
 #pragma once
-
-
 #include "../../rt/small_math.h"
-#include "../../rt/string_type.h"
+#include "../../rt/string_type_ops.h"
 #include "./exprtk/exprtk.hpp"
+
 
 namespace rt
 {

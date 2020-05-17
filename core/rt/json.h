@@ -30,7 +30,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////
 
-#include "string_type.h"
+#include "string_type_ops.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Composing Json Data
@@ -46,7 +46,7 @@ class _JVal
 	bool			_AsBinary;
 	char			_BinLen[10];
 	UINT			_BinLenSize;
-	void			_SetBinLen(){ _BinLenSize = rt::string_ops::itoa((UINT)_Ref.GetLength(), _BinLen); }
+	void			_SetBinLen(){ _BinLenSize = rt::_details::string_ops::itoa((UINT)_Ref.GetLength(), _BinLen); }
 public:
 	enum _tagVARTYPE
 	{	VARTYPE_BUILTIN = 0,

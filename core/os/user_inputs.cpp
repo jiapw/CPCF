@@ -1,4 +1,5 @@
 #include "user_inputs.h"
+#include "../rt/string_type_ops.h"
 
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)

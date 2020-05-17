@@ -1,5 +1,6 @@
-#include "multi_thread.h"
 #include "../rt/buffer_type.h"
+#include "../rt/string_type_ops.h"
+#include "multi_thread.h"
 #include "kernel.h"
 
 /////////////////////////////////////////////////////////////////

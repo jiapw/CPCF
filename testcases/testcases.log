@@ -134,6 +134,12 @@ Buffer::SortedPush
 1.2300e+45
 1.2300e+45
 inf
+TE_X
+TEB_COM
+TEB_A|TEB_B|TEB_C
+TEB_COM
+TEB_A|TEB_B|TEB_C
+TE_MAX
 === UnitTest<string_conv>: END =====
 
 === UnitTest<string>: BEGIN ===
@@ -790,6 +796,6 @@ Content Match: 1
 9900
 0
 0
-RocksDBStandalonePaged: Passed
+RocksDBStandalonePaged: Data mismatch
 === UnitTest<rocks_db>: END =====
 
