@@ -484,29 +484,29 @@ INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 				}
 
 
-#define STRINGIFY_BITWISE_BEGIN(type, ns)	namespace rt {														\
-											namespace _details {												\
-											template<>															\
-											struct _EnumStringify<::ns::type>									\
-											{	static const bool IS_BITWISE = true;							\
-												template<typename T_FUNC>										\
-												static bool _Iterate(T_FUNC&& c){								\
+#define STRINGIFY_BITWISE_BEGIN(type, ns)	namespace rt {																\
+											namespace _details {														\
+											template<>																	\
+											struct _EnumStringify<::ns::type>											\
+											{	static const bool IS_BITWISE = true;									\
+												template<typename T_FUNC>												\
+												static bool _Iterate(T_FUNC&& c){										\
 													using namespace ::ns;
 #define STRINGIFY_BITWISE_ITEM(enum_val)			STRINGIFY_ENUM_ITEM(enum_val)
-#define STRINGIFY_BITWISE_END(type, ns)				return false;												\
-												}																\
-											};}}																\
-											namespace ns {														\
-											template<class t_Ostream>											\
-											INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
-											{	rt::String ws; LPCSTR s = ::rt::BitwiseStringify(x, ws);		\
-												Ostream<<s;	return Ostream;										\
-											}																	\
-											type operator | (type a, type b){ return (type)((int)a|(int)b); }	\
-											type operator & (type a, type b){ return (type)((int)a&(int)b); }	\
-											type operator |= (type& a, type b){ return a = (a|b); }				\
-											type operator &= (type& a, type b){ return a = (a&b); }				\
-											type operator ~ (type a){ return (type)(~(UINT)a); }				\
+#define STRINGIFY_BITWISE_END(type, ns)				return false;														\
+												}																		\
+											};}}																		\
+											namespace ns {																\
+											template<class t_Ostream>													\
+											INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)					\
+											{	rt::String ws; LPCSTR s = ::rt::BitwiseStringify(x, ws);				\
+												Ostream<<s;	return Ostream;												\
+											}																			\
+											INLFUNC type operator | (type a, type b){ return (type)((int)a|(int)b); }	\
+											INLFUNC type operator & (type a, type b){ return (type)((int)a&(int)b); }	\
+											INLFUNC type operator |= (type& a, type b){ return a = (a|b); }				\
+											INLFUNC type operator &= (type& a, type b){ return a = (a&b); }				\
+											INLFUNC type operator ~ (type a){ return (type)(~(UINT)a); }				\
 											}
 
 template<typename T>
