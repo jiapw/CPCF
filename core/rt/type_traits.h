@@ -620,7 +620,7 @@ template<class ThisCallPoly, bool is_void = rt::TypeTraits<typename ThisCallPoly
 struct _InvokeThisCall
 {	template<typename... arg_types>
 	static typename ThisCallPoly::ReturnType Invoke(LPCVOID This, const __ThisCallMemberFunctionPointer& Func, arg_types&&... args)
-	{	
+	{	ASSERT(This);
 		return (((ThisCallPoly*)This)->*((typename ThisCallPoly::FUNC_CALL&)Func))(std::forward<arg_types>(args)...);
 	}
 };
@@ -628,22 +628,34 @@ struct _InvokeThisCall
 	struct _InvokeThisCall<ThisCallPoly, true>
 	{	template<typename... arg_types>
 		static void Invoke(LPCVOID This, const __ThisCallMemberFunctionPointer& Func, arg_types&&... args)
-		{	(((ThisCallPoly*)This)->*((typename ThisCallPoly::FUNC_CALL&)Func))
-				(std::forward<arg_types>(args)...);
+		{	ASSERT(This);
+			(((ThisCallPoly*)This)->*((typename ThisCallPoly::FUNC_CALL&)Func))(std::forward<arg_types>(args)...);
 		}
 	};
 
 } // namespace _details
 
-#define THISCALL_POLYMORPHISM_DECLARE(return_type, name, ...)			\
-						struct __ThisCallPolymorphism_ ## name			\
-						{	typedef return_type ReturnType;				\
-							typedef ReturnType (__thiscall __ThisCallPolymorphism_ ## name::* FUNC_CALL)(__VA_ARGS__); \
-							ReturnType ThisCallFunction(__VA_ARGS__);}	\
+#define THISCALL_MFPTR rt::__ThisCallMemberFunctionPointer
+#define THISCALL_POLYMORPHISM_DECLARE_(return_type, name, ...)												\
+			struct __ThisCallPolymorphism_ ## name															\
+			{	typedef return_type ReturnType;																\
+				typedef ReturnType (__thiscall __ThisCallPolymorphism_ ## name::* FUNC_CALL)(__VA_ARGS__);	\
+				ReturnType ThisCallFunction(__VA_ARGS__);
 
-#define THISCALL_POLYMORPHISM_INVOKE(name, This, Func, ...)	rt::_details::_InvokeThisCall<__ThisCallPolymorphism_ ## name>::Invoke(This, Func, ##__VA_ARGS__)
-#define THISCALL_MFPTR		rt::__ThisCallMemberFunctionPointer
-	
+#define THISCALL_POLYMORPHISM_DECLARE(return_type, default_return, name, ...)								\
+			THISCALL_POLYMORPHISM_DECLARE_(return_type, name, __VA_ARGS__)									\
+				template<typename... arg_types>																\
+				static ReturnType Invoke(LPCVOID This, const THISCALL_MFPTR& Func, arg_types&&... args)		\
+				{ return This?rt::_details::_InvokeThisCall<__ThisCallPolymorphism_ ## name>::Invoke(This, Func, args...):default_return; }}
+
+#define THISCALL_POLYMORPHISM_DECLARE_VOID(name, ...)														\
+			THISCALL_POLYMORPHISM_DECLARE_(void, name, __VA_ARGS__)											\
+				template<typename... arg_types>																\
+				static void Invoke(LPCVOID This, const THISCALL_MFPTR& Func, arg_types&&... args)			\
+				{ if(This)rt::_details::_InvokeThisCall<__ThisCallPolymorphism_ ## name>::Invoke(This, Func, args...); }}
+
+#define THISCALL_POLYMORPHISM_INVOKE(name, This, Func, ...)	(__ThisCallPolymorphism_ ## name::Invoke(This, Func, ##__VA_ARGS__))
+
 } // namespace rt
 
 
