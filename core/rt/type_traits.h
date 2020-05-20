@@ -132,7 +132,7 @@ namespace rt
 {
 
 #define TYPETRAITS_UNITTEST_OPEN_ACCESS	friend struct rt::UnitTests;
-#define TYPETRAITS_UNITTEST(x)	_LOG("=== UnitTest<"<<#x<<">: BEGIN ===");	rt::UnitTests::x(); _LOG("=== UnitTest<"<<#x<<">: END =====\n");
+#define TYPETRAITS_UNITTEST(x)	{ _LOG("=== UnitTest<"<<#x<<">: BEGIN ==="); rt::UnitTests::x(); _LOG("=== UnitTest<"<<#x<<">: END =====\n"); _CheckHeap; }
 struct UnitTests;
 
 }

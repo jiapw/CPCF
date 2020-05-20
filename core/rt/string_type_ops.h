@@ -457,7 +457,7 @@ struct _EnumString
 											INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)		\
 											{	LPCSTR str = ::rt::EnumStringify(x);						\
 												if(str){ Ostream<<str; return Ostream; }					\
-												else{ Ostream<< #type "(#"<<(int)x<<')'; return Ostream; }	\
+												else{ Ostream<< #type ":#"<<(int)x; return Ostream; }		\
 											}}
 
 template<typename T>
