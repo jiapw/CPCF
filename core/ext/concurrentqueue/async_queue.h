@@ -73,6 +73,8 @@ public:
 	SEQNO	DeJittered() const { return _Min; }
 	bool	IsJittering() const { return _Min != _Max; }
 	SIZE_T	GetMissingCount() const { ASSERT(_Max - _Min >= _GapFilled); return _Max - _Min - _GapFilled; }
+	auto	SeqNoMax() const { return _Min; }
+	auto	SeqNoMin() const { return _Max; }
 };
 	
 namespace _details
