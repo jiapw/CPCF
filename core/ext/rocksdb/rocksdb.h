@@ -446,14 +446,14 @@ namespace _details
 #pragma pack(push, 1)
 template<int PAGE_METADATA_SIZE, typename T_VALUESIZE>
 struct _ValueInStg
-{	BYTE		Metadata[PAGE_METADATA_SIZE];
-	T_VALUESIZE	TotalSize;
-	BYTE		Data[1];
+{	BYTE			Metadata[PAGE_METADATA_SIZE];
+	T_VALUESIZE		TotalSize;
+	BYTE			Data[1];
 };
 	template<typename T_VALUESIZE>
 	struct _ValueInStg<0, T_VALUESIZE>
-	{	T_VALUESIZE	TotalSize;
-		BYTE		Data[1];
+	{	T_VALUESIZE		TotalSize;
+		BYTE			Data[1];
 	};
 #pragma pack(pop)
 
@@ -471,8 +471,9 @@ protected:
 		TYPETRAITS_DECLARE_POD;
 	};
 	struct ValueInStg: public _ValueInStg<METADATA_SIZE, T_VALUESIZE>
-	{	bool		IsUnpaged() const { return TotalSize<=PAGING_SIZE; }
-		T_PAGE		GetPageCount() const { T_PAGE ret; ret = (T_PAGE)((TotalSize+PAGING_SIZE+1)/PAGING_SIZE); return ret; }
+	{	typedef _ValueInStg<METADATA_SIZE, T_VALUESIZE> _SC;
+		bool	IsUnpaged() const { return _SC::TotalSize<=PAGING_SIZE; }
+		T_PAGE	GetPageCount() const { T_PAGE ret; ret = (T_PAGE)((_SC::TotalSize+PAGING_SIZE+1)/PAGING_SIZE); return ret; }
 	};
 #pragma pack(pop)
 protected:
@@ -519,7 +520,7 @@ protected:
 				for(T_PAGE p=1; p<page_co; p++, it++)
 				{	
 					if(!it.IsValid())return false;
-					auto& key = it.Key<HashKeyPaged>();
+					auto& key = it.template Key<HashKeyPaged>();
 					if(key.Hash != b || key.Page != p)return false;
 
 					auto& val = it.Value();
@@ -655,7 +656,7 @@ public:
 	};
 
 	ValueType*	GetPaged(const T_KEYVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
-	bool		LoadAllPages(const T_KEYVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (_CS::ValueInStg*)first_page, (LPBYTE)data_out); }
+	bool		LoadAllPages(const T_KEYVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (typename _SC::ValueInStg*)first_page, (LPBYTE)data_out); }
 	bool		SetPagedWithInputRuined(const T_KEYVAL& b, const T_METADATA& metadata, LPVOID data_with_prefixspace_ahead, UINT size) // WARNING: data will be modified, [data-DATA_PREFIX_SIZE] will be written
 				{	return _SC::SetPagedWithInputRuined(b, (LPBYTE)data_with_prefixspace_ahead, size, (LPCBYTE)&metadata);
 				}
@@ -679,7 +680,7 @@ public:
 		};
 
 		ValueType*	GetPaged(const T_KEYVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
-		bool		LoadAllPages(const T_KEYVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (_SC::ValueInStg*)first_page, (LPBYTE)data_out); }
+		bool		LoadAllPages(const T_KEYVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (typename _SC::ValueInStg*)first_page, (LPBYTE)data_out); }
 		bool		SetPagedWithInputRuined(const T_KEYVAL& b, LPVOID data_with_prefixspace_ahead, UINT size){ return _SC::SetPagedWithInputRuined(b, (LPBYTE)data_with_prefixspace_ahead, size, nullptr); }
 		bool		SetPaged(const T_KEYVAL& b, LPCVOID data, UINT size){ return _SC::SetPaged(b, (LPCBYTE)data, size, nullptr); }
 		bool		SetPaged(const T_KEYVAL& b, os::File& file, UINT size){ return _SC::SetPaged(b, file, size, nullptr); }

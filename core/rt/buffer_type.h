@@ -30,9 +30,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////
 
-#include "runtime_base.h"
-#include "type_traits.h"
-#include "string_type.h"
+#include "../os/thread_primitive.h"
+#include "string_type_ops.h"
 #include <algorithm>
 
 namespace rt
@@ -717,7 +716,7 @@ t_Ostream& operator<<(t_Ostream& Ostream, const rt::Buffer_Ref<t_Ele> & vec)
 			Ostream<<'{';
 			for(SIZE_T i=0;i<3;i++)
 				Ostream<<'"'<<vec[i]<<'"'<<',';
-			Ostream<<rt::SS(" ... ,\"");
+			Ostream<<" ... ,\"";
 			Ostream<<vec.End()[-1]<<"\"} // size="<<vec.GetSize();
 			return Ostream;
 		}
@@ -729,7 +728,7 @@ t_Ostream& operator<<(t_Ostream& Ostream, const rt::Buffer_Ref<t_Ele> & vec)
 			Ostream<<'{';
 			for(SIZE_T i=0;i<8;i++)
 				Ostream<<vec[i]<<',';
-			Ostream<<rt::SS(" ... ,");
+			Ostream<<" ... ,";
 			Ostream<<vec.End()[-1]<<"} // size="<<vec.GetSize();
 			return Ostream;
 		}
@@ -737,8 +736,6 @@ t_Ostream& operator<<(t_Ostream& Ostream, const rt::Buffer_Ref<t_Ele> & vec)
 
 	return Ostream << rt::LOG_FULLDATA(vec);
 }
-
-
 } // namespace rt
 
 namespace rt
@@ -782,6 +779,8 @@ template<UINT BIT_SIZE = 0>
 class BooleanArray: public _details::BooleanArrayStg<BIT_SIZE>
 {
 	typedef _details::BooleanArrayStg<BIT_SIZE>	_SC;
+	static const UINT BLOCK_SIZE = _SC::BLOCK_SIZE;
+	
 protected:
 	static SIZE_T	_BlockBitmask(SIZE_T idx){ return ((SIZE_T)1)<<(idx%BLOCK_SIZE); }
 public:
@@ -796,33 +795,33 @@ public:
 		}
 	};
 
-	bool	Get(const Index& idx) const { return _Bits[idx.BlockOffset]&idx.Bitmask; }
+	bool	Get(const Index& idx) const { return _SC::_Bits[idx.BlockOffset]&idx.Bitmask; }
 	void	Set(const Index& idx, bool v = true)
 			{	if(v)
-					_Bits[idx.BlockOffset] |= idx.Bitmask;
+					_SC::_Bits[idx.BlockOffset] |= idx.Bitmask;
 				else
-					_Bits[idx.BlockOffset] &= ~idx.Bitmask;
+					_SC::_Bits[idx.BlockOffset] &= ~idx.Bitmask;
 			}
 	bool	AtomicSet(const Index& idx) // return the bit value before atomic set
 			{
-				return idx.Bitmask & os::AtomicOr(idx.Bitmask, (volatile ULONGLONG*)&_Bits[idx.BlockOffset]);
+				return idx.Bitmask & os::AtomicOr(idx.Bitmask, (volatile ULONGLONG*)&_SC::_Bits[idx.BlockOffset]);
 			}
 	bool	AtomicReset(const Index& idx) // return the bit value before atomic set
 			{
-				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile ULONGLONG*)&_Bits[idx.BlockOffset]);
+				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile ULONGLONG*)&_SC::_Bits[idx.BlockOffset]);
 			}
 	void	Reset(const Index& idx){ Set(idx, false); }
-	void	ResetAll(){ memset(_Bits, 0, sizeof(_Bits)); }
-	void	SetAll(){ memset(_Bits, 0xff, sizeof(_Bits)); _ClearTrailingBits(); }
-	bool	IsAllReset() const { for(UINT i=0; i<BLOCK_COUNT; i++)if(_Bits[i])return false; return true; }
-	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<BLOCK_COUNT; i++)pc += rt::PopCount(_Bits[i]); return pc; }
-	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_Bits); i++)_Bits[i] ^= x._Bits[i]; }
-	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_Bits); i++)_Bits[i] |= x._Bits[i]; }
+	void	ResetAll(){ memset(_SC::_Bits, 0, sizeof(_SC::_Bits)); }
+	void	SetAll(){ memset(_SC::_Bits, 0xff, sizeof(_SC::_Bits)); _SC::_ClearTrailingBits(); }
+	bool	IsAllReset() const { for(UINT i=0; i<_SC::BLOCK_COUNT; i++)if(_SC::_Bits[i])return false; return true; }
+	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<_SC::BLOCK_COUNT; i++)pc += rt::PopCount(_SC::_Bits[i]); return pc; }
+	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_SC::_Bits); i++)_SC::_Bits[i] ^= x._Bits[i]; }
+	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_SC::_Bits); i++)_SC::_Bits[i] |= x._Bits[i]; }
 	template<typename CB>
 	UINT	VisitOnes(CB&& cb)	// visit all ones
 			{	UINT hit = 0;	UINT i=0;
-				for(; i<sizeofArray(_Bits)-1; i++)
-				{	SIZE_T bits = _Bits[i];
+				for(; i<sizeofArray(_SC::_Bits)-1; i++)
+				{	SIZE_T bits = _SC::_Bits[i];
 					if(bits)
 					{	for(UINT b=0; b<BLOCK_SIZE; b++)
 						{	if(bits&(1ULL<<b))
@@ -832,7 +831,7 @@ public:
 						}
 					}
 				}
-				SIZE_T bits = _Bits[i];
+				SIZE_T bits = _SC::_Bits[i];
 				if(bits)
 				{	for(UINT b=0; b<(BIT_SIZE%BLOCK_SIZE); b++)
 					{	if(bits&(1ULL<<b))
@@ -846,11 +845,11 @@ public:
 	template<typename CB>
 	void	ForEach(CB&& cb)	// visit all ones
 			{	UINT i=0;
-				for(; i<sizeofArray(_Bits)-1; i++)
-				{	SIZE_T bits = _Bits[i];
+				for(; i<sizeofArray(_SC::_Bits)-1; i++)
+				{	SIZE_T bits = _SC::_Bits[i];
 					for(UINT b=0; b<BLOCK_SIZE; b++)cb(bits&(1ULL<<b));
 				}
-				SIZE_T bits = _Bits[i];
+				SIZE_T bits = _SC::_Bits[i];
 				for(UINT b=0; b<(BIT_SIZE%BLOCK_SIZE); b++)cb(bits&(1ULL<<b));
 			}
 	template<char one = '1', char zero = '.'>
@@ -870,33 +869,31 @@ public:
 			}
 	BooleanArray(){}
 	BooleanArray(std::initializer_list<bool> a_args)
-			{	rt::Zero(_Bits);
+			{	rt::Zero(_SC::_Bits);
 				UINT i = 0;
 				for(auto b: a_args)Set(i++, b);
 			}
 	void	Shift(int s){ if(s>0){LeftShift((UINT)s);}else{{RightShift((UINT)-s);}} }
 	void	LeftShift(UINT s)
-			{	if(s == 0)return;				if(s > BIT_SIZE){ ResetAll(); return; }
-				UINT offset = s/BLOCK_SIZE;		s = s%BLOCK_SIZE;
-				UINT i = BLOCK_COUNT - 1;
+			{	if(s == 0)return;					if(s > BIT_SIZE){ ResetAll(); return; }
+				UINT offset = s/BLOCK_SIZE;			s = s%BLOCK_SIZE;
+				UINT i = _SC::BLOCK_COUNT - 1;
 				for (; 0 < i - offset; i--)
-					_Bits[i] = (_Bits[i - offset] << s) | (_Bits[i - offset - 1] >> (BLOCK_SIZE - s));
-				_Bits[i] = _Bits[i - offset] << s;
-				if(i)rt::Zero(_Bits, (i-1)*BLOCK_SIZE/8);
-				_ClearTrailingBits();
+					_SC::_Bits[i] = (_SC::_Bits[i - offset] << s) | (_SC::_Bits[i - offset - 1] >> (BLOCK_SIZE - s));
+				_SC::_Bits[i] = _SC::_Bits[i - offset] << s;
+				if(i)rt::Zero(_SC::_Bits, (i-1)*BLOCK_SIZE/8);
+				_SC::_ClearTrailingBits();
 			}
 	void	RightShift(UINT s)
-			{	if(s == 0)return;				if(s > BIT_SIZE){ ResetAll(); return; }
-				UINT offset = s/BLOCK_SIZE;		s = s%BLOCK_SIZE;
+			{	if(s == 0)return;					if(s > BIT_SIZE){ ResetAll(); return; }
+				UINT offset = s/_SC::BLOCK_SIZE;	s = s%BLOCK_SIZE;
 				UINT i = 0;
-				for (; i + offset < BLOCK_COUNT - 1; i++)
-					_Bits[i] = (_Bits[i + offset] >> s) | (_Bits[i + offset + 1] << (BLOCK_SIZE - s));
-				_Bits[i] = _Bits[i + offset] >> s;
-				if(i + 1 < BLOCK_COUNT)rt::Zero(&_Bits[i+1], (BLOCK_COUNT - i - 1)*BLOCK_SIZE/8);
+				for (; i + offset < _SC::BLOCK_COUNT - 1; i++)
+					_SC::_Bits[i] = (_SC::_Bits[i + offset] >> s) | (_SC::_Bits[i + offset + 1] << (BLOCK_SIZE - s));
+				_SC::_Bits[i] = _SC::_Bits[i + offset] >> s;
+				if(i + 1 < _SC::BLOCK_COUNT)rt::Zero(&_SC::_Bits[i+1], (_SC::BLOCK_COUNT - i - 1)*BLOCK_SIZE/8);
 			}
 };
-
-
 } // namespace rt
 
 

@@ -33,7 +33,6 @@
 #include "predefines.h"
 #include "../rt/runtime_base.h"
 #include "../rt/type_traits.h"
-#include "kernel.h"
 
 #if defined(PLATFORM_WIN)
 #include <intrin.h> 
