@@ -1,5 +1,5 @@
 #include "../rt/buffer_type.h"
-#include "../rt/string_type_ops.h"
+#include "../rt/json.h"
 #include "multi_thread.h"
 #include "kernel.h"
 
@@ -301,6 +301,7 @@ struct _TMA
 	struct MemBlock
 	{
 		SIZE_T		Size;
+		UINT		MemoSize;
 		char		Memo[1];
 	};
 
@@ -323,34 +324,35 @@ LPVOID TrackMemoryAllocation(LPVOID p, SIZE_T sz, bool no_ctor, LPCSTR type, UIN
 	ASSERT(_GetTMA()._TrackedMemory.find((SIZE_T&)p) == _GetTMA()._TrackedMemory.end());
 
 	// make sure zero memory footprint on heap
-	LPCSTR s1 = no_ctor?"Malloc ":"New ";
+	LPCSTR s1 = no_ctor?"Malloc<":"New<";
 	LPCSTR s2, s3;
 
 	rt::String_Ref type_trim = rt::String_Ref(type).TrimAfter('(');  // remove ctor arguments
 
 	if(co>1)
-	{	auto x = type_trim + '[' + co + ']';
+	{	auto x = type_trim + '[' + ']';
 		s2 = ALLOCA_C_STRING(x);
 	}
 	else
 	{	s2 = ALLOCA_C_STRING(type_trim);
 	}
 
-	{	auto x = rt::SS(" in ") + rt::String_Ref(fn).GetFilename() + rt::SS(":L") + line + "\n    by " + func + "()";
+	{	auto x = rt::SS("> by ") + func + "() in " + rt::String_Ref(fn).GetFilename() + ':' + line;
 		s3 = ALLOCA_C_STRING(x);
 	}
 
 	auto s = rt::SS() + s1 + s2 + s3;
 
 	_TMA::MemBlock* n;
+	UINT memo_size = (UINT)s.GetLength();
 	if(g_IsMemoryExceptionEnabled)
-		n = (_TMA::MemBlock*) new BYTE[s.GetLength() + sizeof(SIZE_T) + 1];
+		n = (_TMA::MemBlock*) new BYTE[memo_size + sizeof(_TMA::MemBlock)];
 	else
-		n = (_TMA::MemBlock*) new (std::nothrow) BYTE[s.GetLength() + sizeof(SIZE_T) + 1];
+		n = (_TMA::MemBlock*) new (std::nothrow) BYTE[memo_size + sizeof(_TMA::MemBlock)];
 
 	ASSERT(n);
-
 	n->Size = sz;
+	n->MemoSize = memo_size;
 	n->Memo[s.CopyTo(n->Memo)] = 0;
 
 	_GetTMA()._TrackedMemory[(SIZE_T&)p] = n;
@@ -403,6 +405,59 @@ void DumpTrackedMemoryAllocation(bool verbose)
 	}
 	else
 	{	if(verbose)_LOGC("No tracked memory blocks");
+	}
+}
+
+void TrackedMemoryAllocationStatistic(rt::Json& json)
+{
+	static const UINT top_alloc_max = 16;
+
+	rt::TopWeightedValues<rt::String_Ref, top_alloc_max*3, ULONGLONG>	top_alloc;
+
+	ULONGLONG total_size = 0;
+	ULONGLONG total_memo_size = 0;
+	ULONGLONG total_block = 0;
+
+	{	EnterCSBlock(_GetTMA()._CS);
+		for(auto it = _GetTMA()._TrackedMemory.begin(); it != _GetTMA()._TrackedMemory.end(); it++)
+		{
+			total_size += it->second->Size;
+			total_memo_size += it->second->MemoSize + sizeof(_TMA::MemBlock);
+			top_alloc.Sample(rt::String_Ref(it->second->Memo), it->second->Size);
+		}
+		total_block = _GetTMA()._TrackedMemory.size();
+
+		// make sure zero memory footprint on heap
+		// dump strings to stack, so that we can safely release the lock then compose the json output
+		for(UINT i=0; i<top_alloc_max; i++)
+		{
+			rt::String_Ref& a = top_alloc.Get(i);
+			LPSTR memo = (LPSTR)_alloca(a.GetLength());
+			a.CopyTo(memo);
+			a._p = memo;
+		}
+	}
+
+	json.Object((
+		J(TotalAllocation) = total_size,
+		J(TotalBlocks) = total_block,
+		J(TotalMemo) = total_memo_size
+	));
+
+	{	auto scope = json.ScopeAppendingKey("TopAllocators");
+		json.Array();
+		for(UINT i=0; i<10; i++)
+		{
+			rt::String_Ref memo;
+			ULONGLONG size;
+			UINT count;
+			if(!top_alloc.Get(i, &memo, &size, &count))break;
+			json << (
+				J(Allocator) = rt::JsonEscapeString(memo),
+				J(TotalSize) = size,
+				J(TotalBlocks) = count
+			);
+		}
 	}
 }
 

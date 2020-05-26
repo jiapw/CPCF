@@ -1107,6 +1107,7 @@ class TopWeightedValues
 	template<typename _T, UINT _TOP_K, typename _WEIGHT, bool s> friend class TopWeightedValues;
 	struct _val
 	{	T			Val;
+		UINT		Count;
 		T_WEIGHT	Wei;
 	};
 public:
@@ -1119,12 +1120,14 @@ protected:
 			{
 				if(_TopValues[0].Val == val)
 				{	_TopValues[0].Wei += wei;
+					_TopValues[0].Count++;
 					if(keep_latest_value)_TopValues[0].Val = val;
 					return MATCHED_WITH_TOP;
 				}
 				if(_TopValues[0].Wei == 0)
 				{	_TopValues[0].Wei = wei;
 					_TopValues[0].Val = val;
+					_TopValues[0].Count = 1;
 					return MATCHED_WITH_TOP;
 				}
 				int ret = ((TopWeightedValues<T,TOP_K-1,T_WEIGHT>*)&_TopValues[1])->_Match(val, wei);
@@ -1147,6 +1150,7 @@ public:
 				{	if((--_TopValues[TOP_K-1].Wei) < 0)
 					{	_TopValues[TOP_K-1].Val = val;
 						_TopValues[TOP_K-1].Wei = wei;
+						_TopValues[TOP_K-1].Count = 1;
 						return MATCHED;
 					}
 				}
@@ -1155,13 +1159,17 @@ public:
 	bool	IsEmpty() const { return GetWeight() <= 0; }
 	auto	GetWeight() const { return _TopValues[0].Wei; }
 	auto	GetWeight(UINT i) const { return _TopValues[i].Wei; }
+	auto	GetCount() const { return _TopValues[0].Count; }
+	auto	GetCount(UINT i) const { return _TopValues[i].Count; }
 	auto&	operator[](UINT i) const { return Get(i); }
-	auto&	Get() const { return _TopValues[0].Val; }
-	auto&	Get(UINT i) const { return _TopValues[i].Val; }
-	bool	Get(UINT i, T* val, T_WEIGHT* wei) const
+	auto&	Get(UINT i = 0) const { return _TopValues[i].Val; }
+	auto&	operator[](UINT i) { return Get(i); }
+	auto&	Get(UINT i = 0) { return _TopValues[i].Val; }
+	bool	Get(UINT i, T* val, T_WEIGHT* wei, UINT* count = nullptr) const
 			{	if(_TopValues[i].Wei>0)
 				{	*wei = _TopValues[i].Wei;
 					*val = _TopValues[i].Val;
+					if(count)*count = _TopValues[i].Count;
 					return true; 
 				}else return false;
 			}

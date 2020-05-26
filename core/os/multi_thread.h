@@ -133,8 +133,10 @@ public:
 			}
 };
 
-
-
+namespace _details
+{
+extern void	TrackedMemoryAllocationStatistic(rt::Json& json_out);
+} // os::_details
 
 /////////////////////////////////////
 // Daemon/Service/Agent Control
