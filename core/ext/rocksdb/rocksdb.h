@@ -647,6 +647,7 @@ template<typename T_KEYVAL, typename T_METADATA, int PAGING_SIZE = 64*1024, type
 class RocksPagedBaseT: public RocksPagedBase<T_KEYVAL, sizeof(T_METADATA), PAGING_SIZE, T_PAGE, T_VALUESIZE, DB_CLS>
 {	typedef RocksPagedBase<T_KEYVAL, sizeof(T_METADATA), PAGING_SIZE, T_PAGE, T_VALUESIZE, DB_CLS> _SC;
 public:
+#pragma pack(push, 1)
 	struct ValueType: public T_METADATA
 	{	
 		T_VALUESIZE	TotalSize;
@@ -654,7 +655,7 @@ public:
 		bool		IsUnpaged() const { return TotalSize>PAGING_SIZE; }
 		T_PAGE		GetPageCount() const { T_PAGE ret; ret = (T_PAGE)((TotalSize+PAGING_SIZE+1)/PAGING_SIZE); return ret; }
 	};
-
+#pragma pack(pop)
 	ValueType*	GetPaged(const T_KEYVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
 	bool		LoadAllPages(const T_KEYVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (typename _SC::ValueInStg*)first_page, (LPBYTE)data_out); }
 	bool		SetPagedWithInputRuined(const T_KEYVAL& b, const T_METADATA& metadata, LPVOID data_with_prefixspace_ahead, UINT size) // WARNING: data will be modified, [data-DATA_PREFIX_SIZE] will be written

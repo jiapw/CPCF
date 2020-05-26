@@ -62,6 +62,24 @@ void rt::UnitTests::rocks_db()
 
 	{
 		ext::RocksStorage::Nuke(fn);
+	#pragma pack(push, 1)
+		struct TxnMetadata
+		{	WORD	ExtraDataSize;
+		};
+	#pragma pack(pop)
+		typedef ext::RocksDBStandalonePaged<UINT, TxnMetadata, 1024>	t_PagedTxnDB;
+
+		t_PagedTxnDB db;
+		db.Open(fn);
+		db.SetPaged(100, {10}, "123", 3);
+
+		std::string ws;
+		auto* b = db.GetPaged(100, 0, ws);
+		_LOG(b->TotalSize<<", "<<b->ExtraDataSize);
+	}
+
+	{
+		ext::RocksStorage::Nuke(fn);
 		ext::RocksStorage store;
 
 		store.SetDBOpenOption("t2", ext::RocksDBOpenOption().SetKeyOrder<UINT>());
