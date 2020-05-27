@@ -33,6 +33,11 @@
 #include "thread_primitive.h"
 #include "kernel.h"
 
+namespace rt
+{
+class Json;
+};
+
 namespace os
 {
 
