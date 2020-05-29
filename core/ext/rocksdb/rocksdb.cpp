@@ -273,6 +273,7 @@ void RocksStorage::Close()
 			_AllDBs.Clear();
 		}
 
+		CancelAllBackgroundWork(_pDB, false);
 		delete _pDB;
 		_pDB = nullptr;
 	}

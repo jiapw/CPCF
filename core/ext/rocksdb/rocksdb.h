@@ -121,7 +121,6 @@ public:
 	INLFUNC void				Empty(){ _SafeDel_Untracked(iter); }
 };
 
-
 class RocksDB
 {
 	friend class RocksStorage;
