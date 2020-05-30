@@ -138,10 +138,12 @@ public:
 			}
 };
 
+#ifdef PLATFORM_DEBUG_BUILD
 namespace _details
 {
 extern void	TrackedMemoryAllocationStatistic(rt::Json& json_out);
 } // os::_details
+#endif
 
 /////////////////////////////////////
 // Daemon/Service/Agent Control
