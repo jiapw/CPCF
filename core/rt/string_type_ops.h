@@ -440,25 +440,27 @@ struct _EnumString
 };
 } // namespace _details
 
-#define STRINGIFY_ENUM_BEGIN(type, ns)		namespace rt {													\
-											namespace _details {											\
-											template<>														\
-											struct _EnumStringify<::ns::type>								\
-											{	static const bool IS_BITWISE = false;						\
-												template<typename T_FUNC>									\
-												static bool _Iterate(T_FUNC&& c){							\
-													using namespace ::ns;
-#define STRINGIFY_ENUM_ITEM(enum_val)				if(!c(enum_val, rt::SS(#enum_val)))return true;
-#define STRINGIFY_ENUM_END(type, ns)				return false;											\
-												}															\
-											};}}															\
-											namespace ns {													\
-											template<class t_Ostream>										\
-											INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)		\
-											{	LPCSTR str = ::rt::EnumStringify(x);						\
-												if(str){ Ostream<<str; return Ostream; }					\
-												else{ Ostream<< #type ":#"<<(int)x; return Ostream; }		\
-											}}
+#define STRINGIFY_ENUM_BEGIN(type, ns)			namespace rt {													\
+												namespace _details {											\
+												template<>														\
+												struct _EnumStringify<::ns::type>								\
+												{	static const bool IS_BITWISE = false;						\
+													typedef ::ns::type TYPE;									\
+													template<typename T_FUNC>									\
+													static bool _Iterate(T_FUNC&& c){							\
+														using namespace ::ns;
+#define STRINGIFY_ENUM_ITEM(enum_val)					if(!c(enum_val, rt::SS(#enum_val)))return true;
+#define STRINGIFY_ENUM_CLASS_ITEM(enum_val)				if(!c(TYPE::enum_val, rt::SS(#enum_val)))return true;
+#define STRINGIFY_ENUM_END(type, ns)					return false;											\
+													}															\
+												};}}															\
+												namespace ns {													\
+												template<class t_Ostream>										\
+												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)		\
+												{	LPCSTR str = ::rt::EnumStringify(x);						\
+													if(str){ Ostream<<str; return Ostream; }					\
+													else{ Ostream<< #type ":#"<<(int)x; return Ostream; }		\
+												}}
 
 template<typename T>
 INLFUNC LPCSTR	EnumStringify(T x)
