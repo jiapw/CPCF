@@ -537,7 +537,7 @@ public:
 	};
 	struct _AppendingKeyedValue: public _Appending
 	{	friend class Json;
-		Json& operator ->(){ return *_pJson; }
+		Json* operator ->(){ return _pJson; }
 		_AppendingKeyedValue(_AppendingKeyedValue&& x):_Appending(x){ x._pJson = nullptr; }
 		~_AppendingKeyedValue()
 		{
@@ -553,7 +553,7 @@ public:
 	};
 	struct _MergingObject: public _Appending
 	{	friend class Json;
-		Json& operator ->(){ return *_pJson; }
+		Json* operator ->(){ return _pJson; }
 		SIZE_T	_StartPos;
 		_MergingObject(_MergingObject&& x):_Appending(x){ _StartPos = x._StartPos; x._pJson = nullptr; }
 		~_MergingObject()
@@ -582,7 +582,7 @@ public:
 	};
 	struct _AppendingElement: public _Appending
 	{	friend class Json;
-		Json& operator ->(){ return *_pJson; }
+		Json* operator ->(){ return _pJson; }
 		_AppendingElement(_AppendingElement&& x):_Appending(x){ x._pJson = nullptr; }
 		~_AppendingElement()
 		{
@@ -597,7 +597,7 @@ public:
 	};
 	struct _AppendingArray: public _Appending
 	{	friend class Json;
-		Json& operator ->(){ return *_pJson; }
+		Json* operator ->(){ return _pJson; }
 		SIZE_T	_StartPos;
 		_AppendingArray(_AppendingArray&& x):_Appending(x){ _StartPos = x._StartPos; x._pJson = nullptr; }
 		~_AppendingArray()
@@ -632,7 +632,7 @@ public:
 	};
 	struct _WritingStringAtKey: public _Appending
 	{	friend class Json;
-		Json& operator ->(){ return *_pJson; }
+		Json* operator ->(){ return _pJson; }
 		_WritingStringAtKey(_AppendingKeyedValue&& x):_Appending(x){ x._pJson = nullptr; }
 		~_WritingStringAtKey()
 		{
