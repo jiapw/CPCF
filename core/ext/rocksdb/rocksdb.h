@@ -534,28 +534,36 @@ protected:
 
 				return true;
 			}
-	bool	SetPagedWithInputRuined(const T_KEYVAL& b, LPBYTE data_with_prefixspace, T_VALUESIZE size, LPCBYTE meta) // WARNING: input data will be ruined, [data-DATA_PREFIX_SIZE] will be written
+	bool	SetPagedWithInputTouched(const T_KEYVAL& b, LPBYTE data_with_prefixspace, T_VALUESIZE size, LPCBYTE meta) // WARNING: input data will be touch (change and revert back to original value), [data-DATA_PREFIX_SIZE] will be written
 			{
+				ValueInStg touch_orig;
+
 				auto& vis = *(ValueInStg*)(data_with_prefixspace - VALUE_PREFIX_SIZE);
+				touch_orig = vis;
 				rt::Copy<METADATA_SIZE>(&vis, meta);
 				vis.TotalSize = size;
 
-				if(!_SC::Set(b, ext::SliceValue(&vis, rt::min((T_VALUESIZE)PAGING_SIZE, size) + VALUE_PREFIX_SIZE)))
-					return false;
+				bool ret = _SC::Set(b, ext::SliceValue(&vis, rt::min((T_VALUESIZE)PAGING_SIZE, size) + VALUE_PREFIX_SIZE));
+				vis = touch_orig;
 
+				if(!ret)return false;
 				if(size <= PAGING_SIZE)return true;
 				
 				HashKeyPaged dbkey(b, 1);
 				T_PAGE page = 1;
 				for(UINT i = PAGING_SIZE; i<size; i += PAGING_SIZE, dbkey.Page = ++page)
 				{
-					auto& vis = *(ValueInStg*)(data_with_prefixspace + i - VALUE_PREFIX_SIZE);
 					UINT pagesize = rt::min(PAGING_SIZE, size - i);
 
+					auto& vis = *(ValueInStg*)(data_with_prefixspace + i - VALUE_PREFIX_SIZE);
+					touch_orig = vis;
 					rt::Copy<METADATA_SIZE>(&vis, meta);
 					vis.TotalSize = size;
 
-					if(!_SC::Set(dbkey, ext::SliceValue(&vis, pagesize + VALUE_PREFIX_SIZE)))
+					ret = _SC::Set(dbkey, ext::SliceValue(&vis, pagesize + VALUE_PREFIX_SIZE));
+					vis = touch_orig;
+
+					if(!ret)
 					{
 						_DeleteWrittenPages(b, (size + PAGING_SIZE - 1)/PAGING_SIZE);
 						return false;
@@ -657,8 +665,8 @@ public:
 #pragma pack(pop)
 	ValueType*	GetPaged(const T_KEYVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
 	bool		LoadAllPages(const T_KEYVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (typename _SC::ValueInStg*)first_page, (LPBYTE)data_out); }
-	bool		SetPagedWithInputRuined(const T_KEYVAL& b, const T_METADATA& metadata, LPVOID data_with_prefixspace_ahead, UINT size) // WARNING: data will be modified, [data-DATA_PREFIX_SIZE] will be written
-				{	return _SC::SetPagedWithInputRuined(b, (LPBYTE)data_with_prefixspace_ahead, size, (LPCBYTE)&metadata);
+	bool		SetPagedWithInputTouched(const T_KEYVAL& b, const T_METADATA& metadata, LPVOID data_with_prefixspace_ahead, UINT size) // WARNING: input data will be touch (change and revert back to original value), [data-DATA_PREFIX_SIZE] will be written
+				{	return _SC::SetPagedWithInputTouched(b, (LPBYTE)data_with_prefixspace_ahead, size, (LPCBYTE)&metadata);
 				}
 	bool		SetPaged(const T_KEYVAL& b, const T_METADATA& metadata, LPCVOID data, UINT size)
 				{	return _SC::SetPaged(b, (LPBYTE)data, size, (LPCBYTE)&metadata);
@@ -681,7 +689,7 @@ public:
 
 		ValueType*	GetPaged(const T_KEYVAL& b, T_PAGE page_no, std::string& ws) const { return (ValueType*)_SC::GetPaged(b, page_no, ws);	}
 		bool		LoadAllPages(const T_KEYVAL& b, const ValueType* first_page, LPVOID data_out) const { return _SC::LoadAllPages(b, (typename _SC::ValueInStg*)first_page, (LPBYTE)data_out); }
-		bool		SetPagedWithInputRuined(const T_KEYVAL& b, LPVOID data_with_prefixspace_ahead, UINT size){ return _SC::SetPagedWithInputRuined(b, (LPBYTE)data_with_prefixspace_ahead, size, nullptr); }
+		bool		SetPagedWithInputTouched(const T_KEYVAL& b, LPVOID data_with_prefixspace_ahead, UINT size){ return _SC::SetPagedWithInputTouched(b, (LPBYTE)data_with_prefixspace_ahead, size, nullptr); } // WARNING: input data will be touch (change and revert back to original value), [data-DATA_PREFIX_SIZE] will be written
 		bool		SetPaged(const T_KEYVAL& b, LPCVOID data, UINT size){ return _SC::SetPaged(b, (LPCBYTE)data, size, nullptr); }
 		bool		SetPaged(const T_KEYVAL& b, os::File& file, UINT size){ return _SC::SetPaged(b, file, size, nullptr); }
 	};
