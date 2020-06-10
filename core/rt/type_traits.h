@@ -351,19 +351,19 @@ public:
 					typedef void		t_Element;								\
 					typedef Signed_		t_Signed;								\
 					typedef Unsigned_	t_Unsigned;								\
-					static const int Typeid = TypeId_ ;							\
-					static const bool IsPOD = true ;							\
-					static const bool IsNumeric = true ;						\
+					static const int	Typeid = TypeId_ ;						\
+					static const bool	IsPOD = true ;							\
+					static const bool	IsNumeric = true ;						\
 					template<class ostream>										\
 					static void TypeName(ostream & outstr){ outstr<<(#T_); }	\
-		 public:	FORCEINL	 static T_	  	Epsilon(){ return Eps_; }		\
-					FORCEINL	 static T_	  	MinVal(){ return Min_; }		\
-					FORCEINL	 static T_	  	MaxVal(){ return Max_; }		\
-					FORCEINL	 static T_		UnitVal(){ return Unit_; }		\
+		 public:	FORCEINL static constexpr T_	Epsilon(){ return Eps_; }	\
+					FORCEINL static constexpr T_	MinVal(){ return Min_; }	\
+					FORCEINL static constexpr T_	MaxVal(){ return Max_; }	\
+					FORCEINL static constexpr T_	UnitVal(){ return Unit_; }	\
 		};																		\
 
 //all integer types
-#define __NumInt(T_,Val_,Accum_,Signed_,Unsigned_,TypeId_,Min_,Max_,Unit_,tos_tw)			\
+#define __NumInt(T_,Val_,Accum_,Signed_,Unsigned_,TypeId_,Min_,Max_,Unit_,tos_tw)	\
 		__NumT(T_,Val_,Accum_,Signed_,Unsigned_,TypeId_,1,Min_,Max_,Unit_,tos_tw,0)
 //      |Type			 |Value T		  |Accum T		   |Signed Type		|Unsigned Type		|Type Id		|Min		|Max		|Unit			|tot|
 #ifdef _CHAR_UNSIGNED																												

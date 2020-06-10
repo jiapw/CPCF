@@ -652,6 +652,7 @@ public:
 public:
 	operator const rt::String&() const { return _String; }
 	operator const rt::String_Ref&() const { return _String; }
+	auto&	GetInternalString(){ return _String; }
 	auto&	AsString() const { return _String; }
 
 	SIZE_T	GetLength() const { return _String.GetLength(); }
