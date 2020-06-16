@@ -1215,7 +1215,13 @@ public:
 	template<typename... Params>
 	ObjectPlaceHolder<T>&	Init(Params&&... args){ ASSERT(!_bInit); new (_Place) T(std::forward<Params>(args)...); _bInit = true; return *this; }
 	template<typename... Params>
-	ObjectPlaceHolder<T>&	Reinit(Params&&... args){ Term(); new (_Place) T(std::forward<Params>(args)...); _bInit = true; return *this; }
+	ObjectPlaceHolder<T>&	Reinit(Params&&... args){ Term(); return Init(args...); }
+
+	// for virtual classes
+	template<typename DERIVED, typename... Params>
+	ObjectPlaceHolder<T>&	InitByDerived(Params&&... args){ ASSERT(!_bInit); ASSERT(sizeof(T) == sizeof(DERIVED)); new (_Place) DERIVED(std::forward<Params>(args)...); _bInit = true; return *this; }
+	template<typename DERIVED, typename... Params>
+	ObjectPlaceHolder<T>&	ReinitByDerived(Params&&... args){ Term(); return InitByDerived<DERIVED>(args...); }
 
 	T&						Object(){ return *(T*)_Place; }
 	const T&				Object() const { return *(const T*)_Place; }
