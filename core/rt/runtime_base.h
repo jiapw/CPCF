@@ -749,7 +749,7 @@ T*				TrackMemoryNew(T* p, LPCSTR type, LPCSTR fn, LPCSTR func, UINT line){ Trac
 //
 // 1. use 32byte-Aligned Memory is optimized for cache hitting rate on CPUs of PIII and above
 // 2. Add prefix and suffix bytes to allocated memory block to detect buffer overflow
-extern LPVOID	Malloc32AL(size_t size, bool allow_fail);   //size in byte
+extern LPVOID	Malloc32AL(size_t size);   //size in byte
 extern void		Free32AL(LPCVOID ptr_in);
 }
 
@@ -762,7 +762,7 @@ extern bool IsMemoryExceptionEnabledInThread();
 #ifdef PLATFORM_DEBUG_BUILD
 
 #define _Malloc8AL(type, co)		_Malloc32AL(type, co)
-#define _Malloc32AL(type, co)		((type*)os::_details::TrackMemoryAllocation(os::_details::Malloc32AL(sizeof(type)*(co), true), sizeof(type)*(co), true, #type , (UINT)(co), __FILE__, __FUNCTION__, __LINE__))
+#define _Malloc32AL(type, co)		((type*)os::_details::TrackMemoryAllocation(os::_details::Malloc32AL(sizeof(type)*(co)), sizeof(type)*(co), true, #type , (UINT)(co), __FILE__, __FUNCTION__, __LINE__))
 
 #define _SafeFree8AL_ConstPtr(ptr)	_SafeFree32AL_ConstPtr(ptr)
 #define _SafeFree32AL_ConstPtr(ptr)	{ os::_details::UntrackMemoryAllocation(ptr); os::_details::Free32AL(ptr); }
@@ -777,7 +777,7 @@ extern bool IsMemoryExceptionEnabledInThread();
 #else
 
 #define _Malloc8AL(type, co)		((type*)(os::IsMemoryExceptionEnabledInThread()? new BYTE[sizeof(type)*co] : new (std::nothrow) BYTE[sizeof(type)*co]))
-#define _Malloc32AL(type, co)		((type*)os::_details::Malloc32AL(sizeof(type)*(co), true))
+#define _Malloc32AL(type, co)		((type*)os::_details::Malloc32AL(sizeof(type)*(co)))
 
 #define _SafeFree8AL_ConstPtr(ptr)	{ delete [] (LPBYTE)ptr; }
 #define _SafeFree32AL_ConstPtr(ptr)	{ os::_details::Free32AL(ptr); }

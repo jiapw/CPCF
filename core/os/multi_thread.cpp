@@ -150,7 +150,7 @@ namespace _details
 //// UUUUUUUUUUUUUUUUU ......... UUUUUUUUUUUUUUUUUUUUUUUUUU .... UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
 //// ^                                  ^^
 //// |Original                          ||
-//// \ allocated           Saved Offset /\ First aligned address after LEN-BYTE, the return 
+//// \ allocated        reserved offset /\ first aligned address after LEN-BYTE, the return 
 ////
 //// 1. LEN-BYTE (size_t) indicates the size of User block
 //// 
@@ -162,7 +162,7 @@ namespace _details
 ////    no boundary memory written occurred (buffer overflow)
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LPVOID Malloc32AL(size_t size, bool allow_fail)   //size in byte
+LPVOID Malloc32AL(size_t size)   //size in byte
 {
 #pragma warning(disable:4244 4127)	// conversion from 'int' to 'BYTE', possible loss of data
 									// conditional expression is constant
@@ -199,10 +199,10 @@ LPVOID Malloc32AL(size_t size, bool allow_fail)   //size in byte
 		p[offset-1] = offset;	//Store offset
 
 #if defined CPF_MEMORY_LEAK_ADDRESS
-	if( &p[offset] == (LPBYTE)CPF_MEMORY_LEAK_ADDRESS )
-	{	ASSERT(0);
-		//abnormal used memory block is located, check [Call Stack] for high-level code
-	}
+		if( &p[offset] == (LPBYTE)CPF_MEMORY_LEAK_ADDRESS )
+		{	ASSERT(0);
+			//abnormal used memory block is located, check [Call Stack] for high-level code
+		}
 #endif
 		//Additional guard bytes is set for detecting broundry-overwriting, 
 		//which will be checked when memory free. 
