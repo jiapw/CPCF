@@ -337,7 +337,7 @@ LPVOID TrackMemoryAllocation(LPVOID p, SIZE_T sz, bool no_ctor, LPCSTR type, UIN
 	{	s2 = ALLOCA_C_STRING(type_trim);
 	}
 
-	{	auto x = rt::SS("> by ") + func + "() in " + rt::String_Ref(fn).GetFilename() + ':' + line;
+	{	auto x = rt::SS("> by ") + func + "() in " + rt::String_Ref(fn).GetFileName() + ':' + line;
 		s3 = ALLOCA_C_STRING(x);
 	}
 

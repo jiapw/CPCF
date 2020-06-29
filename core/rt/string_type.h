@@ -737,12 +737,20 @@ public:
 		}
 		return t_String_Ref();
 	}
-	FORCEINL t_String_Ref GetFilename() const // return "aaa.bbb"
+	FORCEINL t_String_Ref GetFileName() const // return "aaa.bbb"
 	{	SSIZE_T i=GetLength()-1;
 		for(;i>=0;i--)
 		{	if(_SC::_p[i] == '\\' || _SC::_p[i] == '/')return t_String_Ref(_SC::_p+i+1,End());
 		}
 		return *this;
+	}
+	FORCEINL t_String_Ref GetFilePath() const // return "aaa.bbb"
+	{	SSIZE_T i=GetLength()-1;
+		for(;i>=0;i--)
+		{	if(_SC::_p[i] == '\\' || _SC::_p[i] == '/')return t_String_Ref(Begin(), _SC::_p+i);
+		}
+		static const rt::SS _(".");
+		return _;
 	}
 	FORCEINL t_String_Ref DecodedURL()	// inplace precent-decoding
 	{	SIZE_T c = 0;
