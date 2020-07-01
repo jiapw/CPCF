@@ -748,21 +748,21 @@ class BooleanArrayStg
 {
 protected:
 	static const UINT	BIT_SIZE = bit_size;
-	static const UINT	BLOCK_SIZE = sizeof(SIZE_T)*8;
+	static const UINT	BLOCK_SIZE = sizeof(DWORD)*8;
 	static const UINT	BLOCK_COUNT = (BIT_SIZE + BLOCK_SIZE - 1)/BLOCK_SIZE;
 
-	SIZE_T				_Bits[BLOCK_COUNT];
+	DWORD				_Bits[BLOCK_COUNT];
 	void				_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(SIZE_T)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
 };
 template<>
 class BooleanArrayStg<0>
 {
 protected:
-	static const UINT		BLOCK_SIZE = sizeof(SIZE_T)*8;
+	static const UINT		BLOCK_SIZE = sizeof(DWORD)*8;
 	UINT					BIT_SIZE;
 	UINT					BLOCK_COUNT;
 
-	rt::BufferEx<SIZE_T>	_Bits;
+	rt::BufferEx<DWORD>	    _Bits;
 	void					_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(SIZE_T)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
 public:
 	void	SetBitSize(UINT bit_size, bool keep_existing_data = true)
@@ -804,11 +804,11 @@ public:
 			}
 	bool	AtomicSet(const Index& idx) // return the bit value before atomic set
 			{
-				return idx.Bitmask & os::AtomicOr(idx.Bitmask, (volatile ULONGLONG*)&_SC::_Bits[idx.BlockOffset]);
+				return idx.Bitmask & os::AtomicOr(idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
 	bool	AtomicReset(const Index& idx) // return the bit value before atomic set
 			{
-				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile ULONGLONG*)&_SC::_Bits[idx.BlockOffset]);
+				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
 	void	Reset(const Index& idx){ Set(idx, false); }
 	void	ResetAll(){ memset(_SC::_Bits, 0, sizeof(_SC::_Bits)); }

@@ -1093,7 +1093,7 @@ bool GetDeviceUID(rt::String& str)
 #elif defined(PLATFORM_IOS)
 	char uid_string[64];
 	if(_objc_get_device_uid(uid_string) &&
-	   rt::String_Ref(uid_string).TrimCharacters('-').GetLength() == 32
+	   rt::String_Ref(uid_string).RemoveCharacters('-').GetLength() == 32
 	)
 	{	str = rt::SS("ios-") + uid_string;
 		return true;
@@ -1524,6 +1524,12 @@ bool os::OpenDefaultBrowser(LPCSTR url_in)
     CFRelease(url);
     return ret;
 }
+#elif defined(PLATFORM_IOS)
+bool os::OpenDefaultBrowser(LPCSTR url_in)
+{
+    // TBD
+    return false;
+}
 #else
 
 bool os::OpenDefaultBrowser(LPCSTR url_in)
@@ -1726,8 +1732,8 @@ void ConsoleProgressIndicator::_Display()
 
 #if defined(PLATFORM_IOS)
 
-extern "C" void _setup_debug_textbox(LPVOID pView);
-extern "C" void _set_debug_textbox(LPCSTR text);
+extern void _setup_debug_textbox(LPVOID pView);
+extern void _set_debug_textbox(LPCSTR text);
 
 void os::SetDebugTextBox(const rt::String_Ref& x)
 {

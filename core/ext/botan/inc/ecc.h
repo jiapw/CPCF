@@ -92,10 +92,9 @@ public:
 	const PublicKey& PK() const { return _PK; }
 	const PrivateKey& SK() const { return _SK; }
 	bool operator == (const Keypair& x){ return _SK == x._SK && _PK == x._PK; }
-	
 	bool  Generate(Botan::RandomNumberGenerator* pRNG = NULL)
 	{	try{
-			rt::ObjectPlaceHolder<Botan::System_RNG>	SysRNG;
+			rt::ObjectPlaceHolder<Botan::AutoSeeded_RNG>	SysRNG;
 			if(pRNG == NULL){ pRNG = SysRNG.Init(); }
 
 			Botan::EC_Group group(_details::ECC<CRYTOMETHOD>::ECGroupName());
@@ -140,7 +139,7 @@ namespace _details
 
 struct _RNG_Base
 {
-	rt::ObjectPlaceHolder<Botan::System_RNG>	__SysRNG;
+	rt::ObjectPlaceHolder<Botan::AutoSeeded_RNG>	__SysRNG;
 	Botan::RandomNumberGenerator*	_pRNG;
 	void	_RngCtor(Botan::RandomNumberGenerator* rng)
 	{	if(rng){ _pRNG = rng; }

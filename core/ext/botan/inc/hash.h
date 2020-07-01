@@ -153,7 +153,7 @@ public:
 
 } // namespace sec
 
-#elif defined(PLATFORM_IOS)
+#elif defined(PLATFORM_IOSwww)
 
 //bridge to c interface from botan_objc.mm
 

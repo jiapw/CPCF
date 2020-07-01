@@ -80,3 +80,9 @@ tools/win_fontgen/Release/
 testcases/proj.mac/tester.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 
 testcases/proj.win/tests.args.json
+
+testcases/proj.ios/tester.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+
+*.xcuserstate
+
+testcases/proj.ios/tester.xcodeproj/xcuserdata/jiaping.xcuserdatad/xcschemes/xcschememanagement.plist

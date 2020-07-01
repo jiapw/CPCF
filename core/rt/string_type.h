@@ -744,13 +744,12 @@ public:
 		}
 		return *this;
 	}
-	FORCEINL t_String_Ref GetFilePath() const // return "aaa.bbb"
+	FORCEINL t_String_Ref GetFilePath() const
 	{	SSIZE_T i=GetLength()-1;
 		for(;i>=0;i--)
 		{	if(_SC::_p[i] == '\\' || _SC::_p[i] == '/')return t_String_Ref(Begin(), _SC::_p+i);
 		}
-		static const rt::SS _(".");
-		return _;
+		return ".";
 	}
 	FORCEINL t_String_Ref DecodedURL()	// inplace precent-decoding
 	{	SIZE_T c = 0;
@@ -768,11 +767,11 @@ public:
 		return *this;
 	}
 	FORCEINL t_String_Ref GetFilenameURL() const // return "aaa.bbb"
-	{	t_String_Ref fn = GetFilename();
+	{	t_String_Ref fn = GetFileName();
 		for(SIZE_T i=0;i<fn.GetLength();i++)
 			if(fn[i] == '?' || fn[i] == '#')
-				return t_String_Ref(fn.Begin(), &fn[i]).GetFilename();
-		return GetFilename();
+				return t_String_Ref(fn.Begin(), &fn[i]).GetFileName();
+		return GetFileName();
 	}
 	INLFUNC void SplitURL(t_String_Ref& protocal, t_String_Ref& host, t_String_Ref& path) const
 	{	int s = (int)FindCharacter(':');

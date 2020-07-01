@@ -2229,7 +2229,7 @@ void rt::UnitTests::filelist()
 	_LOG("\nProcess Listed "<<!!list.GetSize());
 	for(UINT i=0;i<list.GetSize();i++)
 	{
-		_LOGC(list[i].Name.GetFilename()<<'('<<list[i].PID<<"), "<<rt::tos::Timestamp<>(list[i].StartTime));
+		_LOGC(list[i].Name.GetFileName()<<'('<<list[i].PID<<"), "<<rt::tos::Timestamp<>(list[i].StartTime));
 	}
 }
 
