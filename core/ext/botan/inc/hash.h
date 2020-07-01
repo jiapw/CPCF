@@ -76,12 +76,9 @@ namespace _details
 } // namespace sec
 
 
-
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-
+#if defined(PLATFORM_INTEL_IPP_SUPPORT)
 namespace sec
 {
-
 namespace _details
 {
 	template<UINT _METHOD>
@@ -156,8 +153,15 @@ public:
 
 } // namespace sec
 
-#else
+#elif defined(PLATFORM_IOS)
 
+//bridge to c interface from botan_objc.mm
+
+namespace sec
+{
+}
+
+#else // back by Botan
 namespace sec
 {
 
@@ -224,11 +228,10 @@ public:
 	}
 };
 
-
 } // namespace sec
 
+#endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT
 
-#endif
 
 
 

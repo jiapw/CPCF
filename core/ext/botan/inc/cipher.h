@@ -130,5 +130,17 @@ DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)
 
 } // namespace sec
 
+
+#elif defined(PLATFORM_IOS)
+
+//bridge to c interface from botan_objc.mm
+
+namespace sec
+{
+
+
+
+} // namespace sec
+
 #else
 #endif
