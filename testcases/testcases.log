@@ -643,7 +643,6 @@ scale = (181.3653,151.6362,120.6062)
 /test_ext.cpp
 /test_http.cpp
 /test_ipp.cpp
-/test_library.cpp
 /test_mkl.cpp
 /test_perf.cpp
 

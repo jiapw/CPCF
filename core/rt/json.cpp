@@ -216,7 +216,7 @@ void JsonObject::UnescapeStringValue(const rt::String_Ref& in, rt::String& val_o
 		}else{ *p++ = *s++; }
 	}
 	if(s<end){ *p++ = *s++; }
-	val_out._len = p - val_out._p + 1;
+	val_out._len = p - val_out._p;
 }
 
 bool JsonObject::GetNextKeyValuePair(JsonKeyValuePair& kvp) const

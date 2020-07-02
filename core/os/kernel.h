@@ -428,19 +428,19 @@ struct Timestamp:public ::rt::tos::S_<1, 70>
 		if(show_date)
 		{
 			if(show_msec)
-			{	_SC::_len = 1+sprintf(_string,"%04d%c%02d%c%02d %02d%c%02d%c%02d.%03d", x.Year, sep_date, x.Month, sep_date, x.Day,x.Hour,sep_time,x.Minute,sep_time,x.Second,x.MillSecond);
+			{	_SC::_len = sprintf(_string,"%04d%c%02d%c%02d %02d%c%02d%c%02d.%03d", x.Year, sep_date, x.Month, sep_date, x.Day,x.Hour,sep_time,x.Minute,sep_time,x.Second,x.MillSecond);
 			}
 			else
-			{	_SC::_len = 1+sprintf(_string,"%04d%c%02d%c%02d %02d%c%02d%c%02d", x.Year, sep_date, x.Month, sep_date, x.Day,x.Hour,sep_time,x.Minute,sep_time,x.Second);
+			{	_SC::_len = sprintf(_string,"%04d%c%02d%c%02d %02d%c%02d%c%02d", x.Year, sep_date, x.Month, sep_date, x.Day,x.Hour,sep_time,x.Minute,sep_time,x.Second);
 			}	
 		}
 		else
 		{
 			if(show_msec)
-			{	_SC::_len = 1+sprintf(_string,"%02d%c%02d%c%02d.%03d", x.Hour,sep_time,x.Minute,sep_time,x.Second,x.MillSecond);
+			{	_SC::_len = sprintf(_string,"%02d%c%02d%c%02d.%03d", x.Hour,sep_time,x.Minute,sep_time,x.Second,x.MillSecond);
 			}
 			else
-			{	_SC::_len = 1+sprintf(_string,"%02d%c%02d%c%02d", x.Hour,sep_time,x.Minute,sep_time,x.Second);
+			{	_SC::_len = sprintf(_string,"%02d%c%02d%c%02d", x.Hour,sep_time,x.Minute,sep_time,x.Second);
 			}
 		}
 	}
@@ -454,7 +454,7 @@ struct TimestampDate:public ::rt::tos::S_<1, 70>
 {
 	TimestampDate(const os::Timestamp::Fields & x)
 	{	typedef ::rt::tos::S_<1,70> _SC;
-		_SC::_len = 1+sprintf(_string,"%04d%c%02d%c%02d", x.Year, sep_date, x.Month, sep_date, x.Day);
+		_SC::_len = sprintf(_string,"%04d%c%02d%c%02d", x.Year, sep_date, x.Month, sep_date, x.Day);
 	}
 	TimestampDate(LONGLONG timestamp, bool local_time = true)
 		:TimestampDate(local_time?os::Timestamp(timestamp).GetLocalDateTime():os::Timestamp(timestamp).GetDateTime())
@@ -746,8 +746,11 @@ struct __UTF8: public rt::String_Ref
 			_utf8[utf8_len] = 0;
 			os::UTF8Encode(x, len, _utf8);
 		}
-		_p = (LPSTR)SafeString();
-		_len = _utf8.GetSize();
+		if(_utf8.GetSize())
+		{	_p = (LPSTR)SafeString();
+			_len = _utf8.GetSize() - 1;
+		}
+		else Empty();
 	}
 	operator LPCSTR(){ return (LPCSTR)_utf8.Begin(); }
 	LPCSTR	 SafeString() const { return _utf8.Begin()?_utf8.Begin():""; }
@@ -757,7 +760,7 @@ private:
 template<UINT bufsize>
 struct __UTF8_S: public rt::String_Ref
 {
-	CHAR			_utf8[bufsize+1];
+	CHAR _utf8[bufsize+1];
 	__UTF8_S(){ _utf8[0] = 0; }
 	__UTF8_S(LPCU16CHAR x, int maxlen = INT_MAX){ Convert(x, maxlen); }
 	void Convert(LPCU16CHAR x, int maxlen = INT_MAX)
@@ -768,7 +771,7 @@ struct __UTF8_S: public rt::String_Ref
 			ASSERT(utf8_len<=bufsize);
 			if(utf8_len<=bufsize)
 			{
-				_len = utf8_len + 1;
+				_len = utf8_len;
 				_utf8[utf8_len] = 0;
 				os::UTF8Encode(x, len, _utf8);
 			}
@@ -832,7 +835,7 @@ struct Base64OnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base64Encode(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base64OnStack(const T& x)
@@ -848,7 +851,7 @@ struct Base32OnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base32Encode(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base32OnStack(const T& x)
@@ -864,7 +867,7 @@ struct Base32LowercaseOnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base32EncodeLowercase(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base32LowercaseOnStack(const T& x)
@@ -880,7 +883,7 @@ struct Base32CrockfordOnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base32CrockfordEncode(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base32CrockfordOnStack(const T& x)
@@ -896,7 +899,7 @@ struct Base32CrockfordLowercaseOnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base32CrockfordEncodeLowercase(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base32CrockfordLowercaseOnStack(const T& x)
@@ -912,7 +915,7 @@ struct Base32CrockfordFavCharOnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base32CrockfordFavCharEncode(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base32CrockfordFavCharOnStack(const T& x)
@@ -928,7 +931,7 @@ struct Base32CrockfordFavCharLowercaseOnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base32CrockfordFavCharEncodeLowercase(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base32CrockfordFavCharLowercaseOnStack(const T& x)
@@ -944,7 +947,7 @@ struct Base16OnStack: public ::rt::tos::S_<1, LEN>
 		ASSERT(slen < LEN);
 		os::Base16Encode(_SC::_p, pData,(UINT)len);
 		_SC::_p[slen] = 0;
-		_SC::_len = slen + 1;
+		_SC::_len = slen;
 	}
 	template<typename T>
 	Base16OnStack(const T& x):Base16OnStack(&x, sizeof(x)){}

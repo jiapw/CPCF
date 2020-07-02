@@ -1246,17 +1246,17 @@ void rt::UnitTests::buffer()
 
 	if(cyc.Push(277) == nullptr)_LOG("Overflow");
 
-	_LOG(rt::String_Ref((LPCSTR)cyc.Peek()->Data, cyc.Peek()->Length));
+	_LOG(rt::String_Ref((LPCSTR)cyc.Peek()->Data, (UINT)cyc.Peek()->Length));
 	cyc.Pop();
 
 	p = cyc.Push(199);
 	memcpy(p,str,str.GetLength());
 	cyc.SetBlockSize(p, str.GetLength()-2);
 
-	_LOG(rt::String_Ref((LPCSTR)cyc.Peek()->Data, cyc.Peek()->Length));
+	_LOG(rt::String_Ref((LPCSTR)cyc.Peek()->Data, (UINT)cyc.Peek()->Length));
 	cyc.Pop();
 
-	_LOG(rt::String_Ref((LPCSTR)cyc.Peek()->Data, cyc.Peek()->Length));
+	_LOG(rt::String_Ref((LPCSTR)cyc.Peek()->Data, (UINT)cyc.Peek()->Length));
 
 	rt::BufferEx<rt::String>	non_pod;
 	non_pod.push_back() = "string1";

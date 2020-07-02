@@ -39,11 +39,11 @@ struct UnitTests
 	static void sortedpush();
 	static void sparsehash();
 	static void async_queue();
-    
+
 #if !defined(PLATFORM_IOS)
 	static void rocks_db();
 #endif
-    
+ 
 	static void httpd();
 
 	static void botan_hash();
@@ -59,7 +59,6 @@ struct UnitTests
 	static void hash_func();
 
 	static void image_to_text();
-
 
 	#if defined(PLATFORM_INTEL_IPP_SUPPORT)
 	static void ipp_matting();

@@ -268,17 +268,17 @@ struct CharacterSet_Printable: public CharacterSet_Symbol
 namespace _details
 {
 	struct _StringPtrStore
-	{	char*	_p;
-		SIZE_T	_len;
-		FORCEINL bool			IsEmpty() const { return this == nullptr || _p == nullptr || _len<2; }
-		FORCEINL void			Empty(){ _p = nullptr; _len = 0; }
+	{	char*	 _p;
+		size_t	 _len;
+		FORCEINL bool		IsEmpty() const { return this == nullptr || _p == nullptr || _len == 0; }
+		FORCEINL void		Empty(){ _p = nullptr; _len = 0; }
 	};
 	template<SIZE_T SIZE_RESERVED>
 	struct _StringArrayStore
-	{	char	_p[SIZE_RESERVED+1];
-		SIZE_T	_len;
-		FORCEINL bool	IsEmpty() const { return this == nullptr || _len<2; }
-		FORCEINL void	Empty(){ _len = 0; }
+	{	char	 _p[SIZE_RESERVED+1];
+		size_t	 _len;
+		FORCEINL bool		IsEmpty() const { return this == nullptr || _len == 0; }
+		FORCEINL void		Empty(){ _len = 0; }
 		static const SIZE_T	_len_reserved = SIZE_RESERVED;
 	};
 };
@@ -289,7 +289,7 @@ template<typename t_StringStore, class t_String_Ref>
 class String_Base: public t_StringStore
 {	typedef t_StringStore _SC;
 public:
-	FORCEINL SIZE_T			GetLength() const { return _SC::_len?_SC::_len-1:0; }
+	FORCEINL SIZE_T			GetLength() const { return _SC::_len; }
 	FORCEINL SIZE_T			CopyTo(char* p) const { 
 		memcpy(p,_SC::_p,GetLength()*sizeof(char)); 
 		return GetLength(); 
@@ -300,19 +300,18 @@ public:
 		return GetLength(); 
 	} // terminate-zero is copied
 
-	FORCEINL const char*	Begin() const { return _SC::_p; }	// may NOT terminated by ZERO !!
-	FORCEINL char*			Begin() { return _SC::_p; }	// may NOT terminated by ZERO !!
-	FORCEINL const char*	GetString() const { if(_SC::IsEmpty())return ""; ASSERT(IsZeroTerminated()); return _SC::_p; }
-	FORCEINL const char*	End() const { return _SC::_p+GetLength(); }
-	FORCEINL char&			Last()		{ ASSERT(GetLength()); return _SC::_p[GetLength()-1]; }
-	FORCEINL const char&	Last()const	{ ASSERT(GetLength()); return _SC::_p[GetLength()-1]; }
-	FORCEINL char&			First()		{ ASSERT(GetLength()); return _SC::_p[0]; }
-	FORCEINL const char&	First()const{ ASSERT(GetLength()); return _SC::_p[0]; }
-	FORCEINL bool			IsZeroTerminated() const { return _SC::_p && _SC::_p[GetLength()] == 0; }
+	FORCEINL const char*	Begin() const			{ return _SC::_p; }	// may NOT terminated by ZERO !!
+	FORCEINL char*			Begin()					{ return _SC::_p; }	// may NOT terminated by ZERO !!
+	FORCEINL const char*	GetString() const		{ if(_SC::IsEmpty())return ""; ASSERT(IsZeroTerminated()); return _SC::_p; }
+	FORCEINL const char*	End() const				{ return _SC::_p+GetLength(); }
+	FORCEINL char&			Last()					{ ASSERT(GetLength()); return _SC::_p[GetLength()-1]; }
+	FORCEINL const char&	Last() const			{ ASSERT(GetLength()); return _SC::_p[GetLength()-1]; }
+	FORCEINL char&			First()					{ ASSERT(GetLength()); return _SC::_p[0]; }
+	FORCEINL const char&	First() const			{ ASSERT(GetLength()); return _SC::_p[0]; }
+	FORCEINL bool			IsZeroTerminated()const	{ return _SC::_p && _SC::_p[GetLength()] == 0; }
 	FORCEINL bool			HasTrailingPathSeparator() const { return Last() == '\\' || Last() == '/'; }
 	template<typename t_Str>
 	FORCEINL void			ToString(t_Str& str){ str = *this; }
-
 	template<typename T>
 	FORCEINL const char&	operator [](T i) const { return _SC::_p[i]; }
 	template<typename T>
@@ -424,7 +423,7 @@ public:
 		LPCSTR p = Begin();	LPCSTR end = End();
 		for(;p<end;p++)
 			if(!s.Has(*p))_SC::_p[open++] = *p;
-		_SC::_len = open+1;
+		_SC::_len = open;
 		return *this;
 	}
 	FORCEINL t_String_Ref Fill(CHAR c = 0)
@@ -700,7 +699,7 @@ public:
 			else{ *p++ = *s; }
 		}
 		if(*s != escape_sign)*p++ = *s;
-		_SC::_len = (SIZE_T)(p-_SC::_p)+1;
+		_SC::_len = (SIZE_T)(p-_SC::_p);
 		return *this;
 	}
 	t_String_Ref UnescapeCharacters(const CharacterSet& unescape, char escape_sign = '\\')
@@ -711,7 +710,7 @@ public:
 			else{ *p++ = *s; }
 		}
 		if(*s != escape_sign)*p++ = *s;
-		_SC::_len = (SIZE_T)(p-_SC::_p)+1;
+		_SC::_len = (SIZE_T)(p-_SC::_p);
 		return *this;
 	}
 	FORCEINL t_String_Ref TrimQuotes() const
@@ -763,7 +762,7 @@ public:
 				i += 2;
 			}
 		}
-		_SC::_len = c+1;
+		_SC::_len = c;
 		return *this;
 	}
 	FORCEINL t_String_Ref GetFilenameURL() const // return "aaa.bbb"
@@ -829,18 +828,18 @@ public:
 			if(i<open-1)p[-1] = '/';
 			i++;
 		}
-		_SC::_len = ((SIZE_T)(p-_SC::_p));
+		_SC::_len = ((SIZE_T)(p-_SC::_p)) - 1;
 		return *this;
 	}
 	FORCEINL t_String_Ref TrimBefore(const CharacterSet& seps) const // separator will also be trimmed
 	{	SIZE_T pos = 0;
-		for(;pos<_SC::_len-1;pos++)
+		for(;pos<_SC::_len;pos++)
 			if(seps.Has(_SC::_p[pos]))return t_String_Ref(&_SC::_p[pos+1], End());
 		return *this;
 	}
 	FORCEINL t_String_Ref TrimAfter(const CharacterSet& seps) const // separator will also be trimmed
 	{	SIZE_T pos = 0;
-		for(;pos<_SC::_len-1;pos++)
+		for(;pos<_SC::_len;pos++)
 			if(seps.Has(_SC::_p[pos]))return t_String_Ref(Begin(), &_SC::_p[pos]);
 		return *this;
 	}
@@ -866,19 +865,19 @@ public:
 	}
 	FORCEINL t_String_Ref TrimLeft(SIZE_T length) const 
 	{	if(length >= GetLength())return t_String_Ref();
-		return t_String_Ref(_SC::_p+length, _SC::_len-length-1);
+		return t_String_Ref(_SC::_p+length, GetLength()-length);
 	}
 	FORCEINL t_String_Ref	TrimRight(SIZE_T length) const
 	{	if(length >= GetLength())return t_String_Ref();
-		return t_String_Ref(_SC::_p, _SC::_len-length-1);
+		return t_String_Ref(_SC::_p, GetLength()-length);
 	}
 	FORCEINL t_String_Ref	TrimLeftSpace() const 
 	{	if(_SC::IsEmpty())return *this;
-		char* p=_SC::_p, *end = _SC::_p+_SC::_len-1; for(;p<end && *p<=0x20 && *p>=0;p++){}; return t_String_Ref(p,end);
+		char* p=_SC::_p, *end = _SC::_p+GetLength(); for(;p<end && *p<=0x20 && *p>=0;p++){}; return t_String_Ref(p,end);
 	}
 	FORCEINL t_String_Ref	TrimRightSpace() const
 	{	if(_SC::IsEmpty())return *this;
-		SIZE_T l = _SC::_len-1; for(;l>1 && _SC::_p[l-1]<=0x20 && _SC::_p[l-1]>=0;l--){}; return t_String_Ref(_SC::_p,l);
+		SIZE_T l = GetLength(); for(;l>1 && _SC::_p[l-1]<=0x20 && _SC::_p[l-1]>=0;l--){}; return t_String_Ref(_SC::_p,l);
 	}
 	FORCEINL t_String_Ref	TrimSpace() const 
 	{	if(_SC::IsEmpty())return *this;
@@ -886,13 +885,13 @@ public:
 	}
 	FORCEINL t_String_Ref	RegularizeUTF8()
 	{	LPSTR p = _SC::_p;
-		for(SIZE_T i=0;i<_SC::_len-1;i++)
+		for(SIZE_T i=0;i<GetLength();i++)
 		{	int c = ((LPCBYTE)_SC::_p)[i];
 			if((c&0x80) == 0){ *p++ = c; continue; }
 			if((c&0xe0) == 0xc0){ *p++ = c; *p++ = 0x80 | (0x3f&_SC::_p[++i]); continue; }
 			if((c&0xf0) == 0xe0){ *p++ = c; *p++ = 0x80 | (0x3f&_SC::_p[++i]); *p++ = 0x80 | (0x3f&_SC::_p[++i]); continue; }
 		}
-		_SC::_len = p - _SC::_p + 1;
+		_SC::_len = p - _SC::_p;
 		return *this;
 	}
 	FORCEINL SIZE_T		Occurrence(const rt::CharacterSet& set) const
@@ -925,29 +924,29 @@ public:
     FORCEINL ~String_Ref(){}
 	template<typename SS, typename SR>
 	FORCEINL String_Ref(const String_Base<SS,SR>& x){ _SC::_p = (LPSTR)x._p; _SC::_len = x._len; }
-	FORCEINL String_Ref(){ _SC::_p = nullptr; _len = 0; }
+	FORCEINL String_Ref(){ _SC::_p = nullptr; _SC::_len = 0; }
 	FORCEINL String_Ref(const String_Ref& x){ *this = x; }
 	FORCEINL String_Ref(const char* x){ operator = (x); }
-	FORCEINL String_Ref(const char* p, SIZE_T len){ _SC::_p = (char*)p; _SC::_len = len+1; }
+	FORCEINL String_Ref(const char* p, size_t len){ _SC::_p = (char*)p; _SC::_len = len; }
 	FORCEINL String_Ref(const char* p, const char* end)
-	{	if(end){ _p = (char*)p; ASSERT(end>=p); _SC::_len = (int)(end-p+1); }
+	{	if(end){ _p = (char*)p; ASSERT(end>=p); _SC::_len = (size_t)(end-p); }
 		else{ *this = p; }
 	}
 	template <template<class, class, class> class std_string, class _Traits, class _Alloc>
 	FORCEINL String_Ref(const std_string<char, _Traits, _Alloc>& str)
-	{	if(str.size()){	_SC::_p = (LPSTR)str.c_str(); _SC::_len = str.size()+1; }
+	{	if(str.size()){	_SC::_p = (LPSTR)str.c_str(); _SC::_len = str.size(); }
 		else{ _SC::_p = nullptr; _SC::_len = 0; }
 	}
 	FORCEINL const String_Ref& operator = (const char* x)
 	{	if(x)
 		{	_SC::_p = (char*)x;
-			_SC::_len = 1 + strlen(x);
+			_SC::_len = strlen(x);
 		}
 		else Empty();
 		return *this;
 	}
 	FORCEINL static const String_Ref& EmptyString(){ static const rt::String_Ref _empty; return _empty; }
-	FORCEINL bool SetLength(SIZE_T len){ if(len<=GetLength()){ _SC::_len = len + 1; return true; } return false; }
+	FORCEINL bool SetLength(SIZE_T len){ if(len<=GetLength()){ _SC::_len = len; return true; } return false; }
 public:
 	FORCEINL String_Ref& Replace(char a, char b){ ((_SC*)this)->Replace(a,b); return *this; }
 	FORCEINL String_Ref& Replace(const CharacterSet& a, char b){ ((_SC*)this)->Replace(a,b); return *this; }
@@ -1039,9 +1038,9 @@ namespace tos
 	public:
 		template<typename T>
 		FORCEINL S_(const T& x)
-		{	_len = 1 + __toS_vec(_string, x);
+		{	_len = __toS_vec(_string, x);
 			_p = _string;
-			ASSERT(_len <= LEN);
+			ASSERT(_len < LEN);
 		}
 		FORCEINL operator LPCSTR() const { return _p; }
 	};
@@ -1062,7 +1061,7 @@ namespace tos
 			if(w > String_Ref::GetLength())
 			{	memmove(&_string[w - String_Ref::GetLength()], _string, String_Ref::GetLength());
 				for(SIZE_T i=0; i<w - GetLength(); i++)_string[i] = pad;
-				_len = w + 1;
+				_len = w;
 				_string[w] = 0;
 			}
 			return *this;
@@ -1071,7 +1070,7 @@ namespace tos
 		{	ASSERT(w <= sizeofArray(_string));
 			if(w > GetLength())
 			{	for(SIZE_T i=GetLength(); i<w; i++)_string[i] = pad;
-				_len = w + 1;
+				_len = w;
 				_string[w] = 0;
 			}
 			return *this;
@@ -1101,19 +1100,19 @@ namespace tos
 		}
 		FORCEINL S_(const S_& x){ _p = _string; _len = x._len; memcpy(_p, x._p, _len); }
 		FORCEINL S_(){ _p = _string; _len = 0; }
-		FORCEINL S_(bool x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(char x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(int x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(unsigned int x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(LONGLONG x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(ULONGLONG x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(bool x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(char x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(int x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(unsigned int x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(LONGLONG x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(ULONGLONG x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 #if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
-		FORCEINL S_(long x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(unsigned long x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(long x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(unsigned long x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 #endif
-		FORCEINL S_(LPCVOID x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(float x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(double x){ _len = 1 + __toS(_string,x); ASSERT(_len <= LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(LPCVOID x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(float x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(double x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 	};
 
 } // namespace tos
@@ -1260,7 +1259,7 @@ public:
 			VERIFY(x.CopyTo(_SC::_p) == x.GetLength());
 	}
 	FORCEINL bool SetLength(SIZE_T sz)
-	{	if(sz <= LEN){ _SC::_len = sz+1; _SC::_p[sz] = 0; return true; }
+	{	if(sz <= LEN){ _SC::_len = sz; _SC::_p[sz] = 0; return true; }
 		else return false;
 	}
 	FORCEINL const StringFixed& operator = (const char* x){ *this = String_Ref(x); return *this; }
@@ -1285,7 +1284,7 @@ public:
 		if(len + _SC::_len < LEN)
 		{	VERIFY(len == string_expr.CopyTo(_SC::_p+_SC::GetLength()));
 			_SC::_p[len+_SC::GetLength()] = '\0';
-			_SC::_len = len + _SC::GetLength() + 1;
+			_SC::_len = len + _SC::GetLength();
 		}
 		return string_expr;
 	}
@@ -1296,14 +1295,14 @@ public:
 class String: public String_Ref
 {
 protected:
-	SIZE_T		_len_reserved;
-	INLFUNC bool _ChangeSize(SIZE_T new_size) //Orignal data at front is preserved
-	{	if( new_size <= _len_reserved){ _len = new_size; return true; }
-		_len_reserved = rt::max(rt::max((SIZE_T)16,new_size),_len_reserved*2);
-		LPBYTE pNewBuffer = _Malloc32AL(BYTE,_len_reserved);
+	SIZE_T		_leng_reserved;
+	INLFUNC bool _ChangeLength(SIZE_T new_size) //Orignal data at front is preserved
+	{	if( new_size <= _leng_reserved){ _len = new_size; return true; }
+		_leng_reserved = rt::max(rt::max((SIZE_T)16,new_size),_leng_reserved*2);
+		LPBYTE pNewBuffer = _Malloc32AL(BYTE,_leng_reserved + 1);
 		if(pNewBuffer){}else{ return false; }
 		// copy old elements
-		memcpy(pNewBuffer,_p,sizeof(char)*_len);
+		memcpy(pNewBuffer, _p, sizeof(char)*_len);
 		_SafeFree32AL(_p);
 		_p = (char*)pNewBuffer;
 		_len = new_size;
@@ -1312,35 +1311,35 @@ protected:
 public:
 	FORCEINL bool SetLength(SIZE_T sz)
 	{	if(sz == 0)
-		{	if(_p && _len>1){ _p[0] = 0; _len = 1; }
+		{	if(_p && _len){ _p[0] = 0; _len = 0; }
 			return true;
 		}
-		if(_ChangeSize(sz+1)){ _p[sz] = 0; return true; }
+		if(_ChangeLength(sz)){ _p[sz] = 0; return true; }
 		else return false;
 	}
 	FORCEINL ~String(){ _SafeFree32AL(_p); }
-	FORCEINL LPSTR DetachBuffer(){ LPSTR p = _p; _len_reserved = _len = 0; _p = nullptr; return p; }
+	FORCEINL LPSTR DetachBuffer(){ LPSTR p = _p; _leng_reserved = _len = 0; _p = nullptr; return p; }
 	FORCEINL String& Empty(){ SetLength(0); return *this; }
-	FORCEINL String& SecureEmpty(){ _len = 0; rt::Zero(_p, _len_reserved); return *this; }
+	FORCEINL String& SecureEmpty(){ _len = 0; rt::Zero(_p, _leng_reserved); return *this; }
 public:
-	FORCEINL String(){ _len_reserved = 0; _p = nullptr; _len = 0; }
-	FORCEINL String(const String& x){ _len_reserved = 0; _p = nullptr; _len = 0; *this = (String_Ref&)x; }
-	FORCEINL String(const String_Ref& x){ _len_reserved = 0; _p = nullptr; _len = 0; *this = x; }
-	FORCEINL String(const char* x){ _len_reserved = 0; _p = nullptr; _len = 0; operator = (x); }
-	FORCEINL String(const char* p, SIZE_T len){ _len_reserved = 0; _p = nullptr; _len = 0; *this = String_Ref(p,len); }
-	FORCEINL String(const char* p, const char* end){ _len_reserved = 0; _p = nullptr; _len = 0; *this = String_Ref(p,end); }
-    FORCEINL String(const char c, int count){ _len_reserved = 0; _p = nullptr; _len = 0; for (int i = 0; i < count; i++) *this += c; }
+	FORCEINL String(){ _leng_reserved = 0; _p = nullptr; _len = 0; }
+	FORCEINL String(const String& x){ _leng_reserved = 0; _p = nullptr; _len = 0; *this = (String_Ref&)x; }
+	FORCEINL String(const String_Ref& x){ _leng_reserved = 0; _p = nullptr; _len = 0; *this = x; }
+	FORCEINL String(const char* x){ _leng_reserved = 0; _p = nullptr; _len = 0; operator = (x); }
+	FORCEINL String(const char* p, SIZE_T len){ _leng_reserved = 0; _p = nullptr; _len = 0; *this = String_Ref(p,len); }
+	FORCEINL String(const char* p, const char* end){ _leng_reserved = 0; _p = nullptr; _len = 0; *this = String_Ref(p,end); }
+    FORCEINL String(const char c, int count){ _leng_reserved = 0; _p = nullptr; _len = 0; for (int i = 0; i < count; i++) *this += c; }
 	template<typename T>
-	FORCEINL String(const T& string_expr){ _p = nullptr; _len_reserved = _len = 0; (*this) = string_expr; }
-	FORCEINL String(String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._len_reserved = 0; }
+	FORCEINL String(const T& string_expr){ _p = nullptr; _leng_reserved = _len = 0; (*this) = string_expr; }
+	FORCEINL String(String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._leng_reserved = 0; }
 
-	FORCEINL	   String& operator = (String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._len_reserved = 0; return *this; }
+	FORCEINL	   String& operator = (String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._leng_reserved = 0; return *this; }
 	FORCEINL const String& operator = (const char* x){ *this = String_Ref(x); return *this; }
 	FORCEINL const String& operator = (char* x){ *this = String_Ref(x); return *this; }
 	FORCEINL const String& operator = (char x){ SetLength(1); _p[0] = x; return *this; }
 	FORCEINL const String& operator = (const String_Ref& x)
 	{	if(!x.IsEmpty())
-		{	if(_ChangeSize(x.GetLength()+1))	// handle the case of x = substring of x
+		{	if(_ChangeLength(x.GetLength()))	// handle the case of x = substring of x
 			{	memcpy(_p,x.Begin(),GetLength());
 				_p[x.GetLength()] = 0;
 			}
@@ -1356,7 +1355,7 @@ public:
 		LPSTR p = _Malloc32AL(char, len+1);
 		p[len] = '\0';
 		VERIFY(len == string_expr.CopyTo(p));
-		_len_reserved = _len = len + 1;
+		_leng_reserved = _len = len;
 		rt::Swap(p, _p);
 		_SafeFree32AL(p);
 		return string_expr;
@@ -1364,19 +1363,19 @@ public:
 	template<typename T>
 	FORCEINL const T& operator += (const T& string_expr)
 	{	SIZE_T len = string_expr.GetLength();
-		if(len + GetLength() + 1 > _len_reserved)
-		{	LPSTR p = _Malloc32AL(char, len + GetLength()+1);
+		if(len + GetLength() > _leng_reserved)
+		{	LPSTR p = _Malloc32AL(char, len + GetLength() + 1);
 			memcpy(p, _p, GetLength());
 			VERIFY(len == string_expr.CopyTo(p+GetLength()));
-			p[len+GetLength()] = '\0';
-			_len_reserved = _len = len + GetLength() + 1;
+			_leng_reserved = _len = len + GetLength();
+			p[_len] = '\0';
 			rt::Swap(p, _p);
 			_SafeFree32AL(p);
 		}
-		else
+		else if(_p)
 		{	VERIFY(len == string_expr.CopyTo(_p+GetLength()));
-			_p[len+GetLength()] = '\0';
-			_len = len + GetLength() + 1;
+			_len = len + GetLength();
+			_p[_len] = '\0';
 		}
 		return string_expr;
 	}
@@ -1387,8 +1386,8 @@ private:
 public:
 	FORCEINL operator LPCSTR () const { ASSERT(!_p || !_p[GetLength()]); return _p; }
 	FORCEINL operator LPSTR () { if(_p){ ASSERT(!_p[GetLength()]); } return _p; }
-	FORCEINL String_Ref RemoveCharacters(const rt::CharacterSet& s){ String_Ref::RemoveCharacters(s); if(!IsEmpty())_p[_len-1] = 0; return *this; }
-	FORCEINL void		RecalculateLength(){ if(_p){ _len = strlen(_p) + 1; }else{ _len = 0; } }
+	FORCEINL String_Ref RemoveCharacters(const rt::CharacterSet& s){ String_Ref::RemoveCharacters(s); if(!IsEmpty())_p[_len] = 0; return *this; }
+	FORCEINL void		RecalculateLength(){ if(_p){ _len = strlen(_p); }else{ _len = 0; } }
 	FORCEINL SSIZE_T	FindString(const char* pSub, SIZE_T skip_first = 0) const // return -1 if not found
 	{	return (skip_first<GetLength() && (pSub=strstr(Begin()+skip_first,pSub)))?(int)(pSub-Begin()):-1;
 	}
@@ -1424,7 +1423,7 @@ public:
 	String& UnescapeCharacters(char escape_sign = '\\')
 	{	if(!IsEmpty())
 		{	String_Ref::UnescapeCharacters(escape_sign);
-			_p[_len-1] = 0;
+			_p[_len] = 0;
 		}
 		return *this;
 	}
@@ -1437,8 +1436,8 @@ public:
 			else{ *p++ = *s; }
 		}
 		if(*s != escape_sign)*p++ = *s;
-		_len = (SIZE_T)(p-_p)+1;
-		_p[_len-1] = 0;
+		_len = (size_t)(p-_p);
+		_p[_len] = 0;
 		return *this;
 	}
 	String& UnescapeCharacters(const rt::String_Ref& input, const CharacterSet& escape, char escape_sign = '\\')
@@ -1450,8 +1449,8 @@ public:
 			else{ *p++ = *s; }
 		}
 		if(*s != escape_sign)*p++ = *s;
-		_len = (SIZE_T)(p-_p)+1;
-		_p[_len-1] = 0;
+		_len = (size_t)(p-_p);
+		_p[_len] = 0;
 		return *this;
 	}
 	String& EscapeCharacters(const rt::String_Ref& input, const CharacterSet& characters_to_be_escaped, char escape_sign = '\\')
@@ -1563,12 +1562,12 @@ public:
 	}
 	INLFUNC String& RegularizeUTF8()
 	{	String_Ref::RegularizeUTF8();
-		if(_len)_p[_len-1] = 0;
+		if(_p)_p[_len] = 0;
 		return *this;
 	}
 	INLFUNC String& DecodedURL()	// inplace precent-decoding
 	{	rt::String_Ref::DecodedURL();
-		if(_len)_p[_len-1] = 0;
+		if(_p)_p[_len] = 0;
         return *this;
 	}
 	INLFUNC String& Shorten(UINT n = 1)

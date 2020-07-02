@@ -37,9 +37,6 @@
     <ClCompile Include="..\tests\test_ipp.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\test_library.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="..\tests\test_mkl.cpp">
       <Filter>Tests</Filter>
     </ClCompile>

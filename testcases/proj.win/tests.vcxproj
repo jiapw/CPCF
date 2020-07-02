@@ -198,12 +198,6 @@
     <ClCompile Include="..\tests\test_ext.cpp" />
     <ClCompile Include="..\tests\test_http.cpp" />
     <ClCompile Include="..\tests\test_ipp.cpp" />
-    <ClCompile Include="..\tests\test_library.cpp">
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
     <ClCompile Include="..\tests\test_mkl.cpp" />
     <ClCompile Include="..\tests\test_perf.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Ob0 %(AdditionalOptions)</AdditionalOptions>

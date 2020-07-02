@@ -747,23 +747,25 @@ template<UINT bit_size>
 class BooleanArrayStg
 {
 protected:
+	typedef DWORD BLOCK_TYPE;
 	static const UINT	BIT_SIZE = bit_size;
-	static const UINT	BLOCK_SIZE = sizeof(DWORD)*8;
+	static const UINT	BLOCK_SIZE = sizeof(BLOCK_TYPE)*8;
 	static const UINT	BLOCK_COUNT = (BIT_SIZE + BLOCK_SIZE - 1)/BLOCK_SIZE;
 
-	DWORD				_Bits[BLOCK_COUNT];
-	void				_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(SIZE_T)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
+	BLOCK_TYPE			_Bits[BLOCK_COUNT];
+	void				_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(BLOCK_TYPE)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
 };
 template<>
 class BooleanArrayStg<0>
 {
 protected:
-	static const UINT		BLOCK_SIZE = sizeof(DWORD)*8;
+	typedef DWORD BLOCK_TYPE;
+	static const UINT		BLOCK_SIZE = sizeof(BLOCK_TYPE)*8;
 	UINT					BIT_SIZE;
 	UINT					BLOCK_COUNT;
 
-	rt::BufferEx<DWORD>	    _Bits;
-	void					_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(SIZE_T)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
+	rt::BufferEx<BLOCK_TYPE>  _Bits;
+	void					_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(BLOCK_TYPE)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
 public:
 	void	SetBitSize(UINT bit_size, bool keep_existing_data = true)
 			{	
@@ -773,7 +775,7 @@ public:
 				_ClearTrailingBits();
 			}
 };
-}
+} // namespace _details
 
 template<UINT BIT_SIZE = 0>
 class BooleanArray: public _details::BooleanArrayStg<BIT_SIZE>
@@ -782,12 +784,12 @@ class BooleanArray: public _details::BooleanArrayStg<BIT_SIZE>
 	static const UINT BLOCK_SIZE = _SC::BLOCK_SIZE;
 	
 protected:
-	static SIZE_T	_BlockBitmask(SIZE_T idx){ return ((SIZE_T)1)<<(idx%BLOCK_SIZE); }
+	static BLOCK_TYPE	_BlockBitmask(UINT idx){ return ((BLOCK_TYPE)1)<<(idx%BLOCK_SIZE); }
 public:
 	class Index
 	{	friend class BooleanArray;
-		UINT	BlockOffset;
-		SIZE_T	Bitmask;
+		UINT		BlockOffset;
+		BLOCK_TYPE	Bitmask;
 	public:
 		Index(UINT idx)
 		{	BlockOffset = idx/BLOCK_SIZE;
@@ -811,17 +813,17 @@ public:
 				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
 	void	Reset(const Index& idx){ Set(idx, false); }
-	void	ResetAll(){ memset(_SC::_Bits, 0, sizeof(_SC::_Bits)); }
-	void	SetAll(){ memset(_SC::_Bits, 0xff, sizeof(_SC::_Bits)); _SC::_ClearTrailingBits(); }
+	void	ResetAll(){ memset(_SC::_Bits, 0, _SC::BLOCK_COUNT*sizeof(_SC::BLOCK_TYPE)); }
+	void	SetAll(){ memset(_SC::_Bits, 0xff, _SC::BLOCK_COUNT*sizeof(_SC::BLOCK_TYPE)); _SC::_ClearTrailingBits(); }
 	bool	IsAllReset() const { for(UINT i=0; i<_SC::BLOCK_COUNT; i++)if(_SC::_Bits[i])return false; return true; }
 	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<_SC::BLOCK_COUNT; i++)pc += rt::PopCount(_SC::_Bits[i]); return pc; }
-	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_SC::_Bits); i++)_SC::_Bits[i] ^= x._Bits[i]; }
-	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<sizeofArray(_SC::_Bits); i++)_SC::_Bits[i] |= x._Bits[i]; }
+	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<_SC::BLOCK_COUNT; i++)_SC::_Bits[i] ^= x._Bits[i]; }
+	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<_SC::BLOCK_COUNT; i++)_SC::_Bits[i] |= x._Bits[i]; }
 	template<typename CB>
 	UINT	VisitOnes(CB&& cb)	// visit all ones
 			{	UINT hit = 0;	UINT i=0;
-				for(; i<sizeofArray(_SC::_Bits)-1; i++)
-				{	SIZE_T bits = _SC::_Bits[i];
+				for(; i<_SC::BLOCK_COUNT-1; i++)
+				{	_SC::BLOCK_TYPE bits = _SC::_Bits[i];
 					if(bits)
 					{	for(UINT b=0; b<BLOCK_SIZE; b++)
 						{	if(bits&(1ULL<<b))
@@ -831,7 +833,7 @@ public:
 						}
 					}
 				}
-				SIZE_T bits = _SC::_Bits[i];
+				_SC::BLOCK_TYPE bits = _SC::_Bits[i];
 				if(bits)
 				{	for(UINT b=0; b<(BIT_SIZE%BLOCK_SIZE); b++)
 					{	if(bits&(1ULL<<b))
@@ -846,11 +848,11 @@ public:
 	void	ForEach(CB&& cb)	// visit all ones
 			{	UINT i=0;
 				for(; i<sizeofArray(_SC::_Bits)-1; i++)
-				{	SIZE_T bits = _SC::_Bits[i];
+				{	_SC::BLOCK_TYPE bits = _SC::_Bits[i];
 					for(UINT b=0; b<BLOCK_SIZE; b++)cb(bits&(1ULL<<b));
 				}
-				SIZE_T bits = _SC::_Bits[i];
-				for(UINT b=0; b<(BIT_SIZE%BLOCK_SIZE); b++)cb(bits&(1ULL<<b));
+				_SC::BLOCK_TYPE bits = _SC::_Bits[i];
+				for(UINT b=0; b<(_SC::BIT_SIZE%BLOCK_SIZE); b++)cb(bits&(1ULL<<b));
 			}
 	template<char one = '1', char zero = '.'>
 	auto	ToString(rt::String& append)
@@ -886,7 +888,7 @@ public:
 			}
 	void	RightShift(UINT s)
 			{	if(s == 0)return;					if(s > BIT_SIZE){ ResetAll(); return; }
-				UINT offset = s/_SC::BLOCK_SIZE;	s = s%BLOCK_SIZE;
+				UINT offset = s/BLOCK_SIZE;	s = s%BLOCK_SIZE;
 				UINT i = 0;
 				for (; i + offset < _SC::BLOCK_COUNT - 1; i++)
 					_SC::_Bits[i] = (_SC::_Bits[i + offset] >> s) | (_SC::_Bits[i + offset + 1] << (BLOCK_SIZE - s));

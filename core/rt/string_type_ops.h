@@ -58,14 +58,14 @@ struct WhiteSpace:public ::rt::tos::S_<>
 	{	ASSERT(len+1 < (int)sizeof(_string));
 		for(int i=0;i<len;i++)_p[i] = ' ';
 		_p[len] = '\0';
-		_len = len+1;
+		_len = len;
 	}
 };
 
 struct character:public ::rt::tos::S_<>
 {	INLFUNC character(char c)
 	{	_p[0] = c;	_p[1] = '\0';
-		_len = 2;
+		_len = 1;
 	}
 };
 
@@ -117,14 +117,13 @@ struct StringOnStack:public ::rt::tos::S_<1,LEN>
 	{	_SC::_len = x.CopyTo(_SC::_p);
 		ASSERT(LEN>=_SC::_len);
 		_SC::_p[_SC::_len] = 0;
-		_SC::_len++;
 	}
 	INLFUNC operator LPCSTR() const { return _SC::_p; }
 	INLFUNC StringOnStack<LEN>& operator += (const rt::String_Ref& x)
 	{	ASSERT(x.GetLength() + _SC::GetLength() < LEN - 1);
-		memcpy(&_SC::_p[_SC::_len-1], x.Begin(), x.GetLength());
+		memcpy(&_SC::_p[_SC::_len], x.Begin(), x.GetLength());
 		_SC::_len+=x.GetLength();
-		_SC::_p[_SC::_len-1] = 0;
+		_SC::_p[_SC::_len] = 0;
 		return *this;
 	}
 };
@@ -155,7 +154,6 @@ private:
 	{	ASSERT(x.GetLength() < sizeofArray(_string)-1);
 		_len = x.CopyTo(_string);
 		_string[_len] = '\0';
-		_len++;
 	}
 };
 
@@ -228,7 +226,7 @@ struct TimeSpan:public ::rt::tos::S_<>
 		}
 END_OF_PRINT:
 		p[0] = '\0';
-		_len = 1+(int)(p-_string);
+		_len = (int)(p-_string);
 	}
 };
 
@@ -241,14 +239,14 @@ struct Date:public ::rt::tos::S_<>
 	{	LPCSTR print_template = "%04d/%02d/%02d";
 		if(!no_year)
 		{
-			_len = 1+sprintf(_string,print_template, x.GetYear(), x.GetMonth(), x.GetDay());
+			_len = sprintf(_string,print_template, x.GetYear(), x.GetMonth(), x.GetDay());
 			if(SEP != '/')
 			{	_string[4] = _string[7] = SEP;
 			}
 		}
 		if(no_year)
 		{
-			_len = 1+sprintf(_string,print_template+5, x.GetMonth(), x.GetDay());
+			_len = sprintf(_string,print_template+5, x.GetMonth(), x.GetDay());
 			if(SEP != '/')
 			{	_string[2] = SEP;
 			}
@@ -277,8 +275,8 @@ struct HexNum:public ::rt::tos::S_<1,LEN>
 			p[1] = (v>=0xa?char_base+(v-0xa):'0'+v);
 		}
 		*p = 0;
-		 _SC::_len = 1+(p-_SC::_string);
-		 _SC::_p[ _SC::_len-1] = 0;
+		 _SC::_len = (p-_SC::_string);
+		 _SC::_p[ _SC::_len] = 0;
 	}
 };
 
@@ -300,8 +298,8 @@ struct Binary:public ::rt::tos::S_<1,LEN>
 			v = v&0xf;
 			p[1] = (v>=0xa?char_base+(v-0xa):'0'+v);
 		}
-		 _SC::_len = 1+len*2;
-		 _SC::_p[ _SC::_len-1] = 0;
+		 _SC::_len = len*2;
+		 _SC::_p[ _SC::_len] = 0;
 	}
 };
 
@@ -324,8 +322,8 @@ struct BinaryCString:public ::rt::tos::S_<1,LEN>
 			v = v&0xf;
 			p[3] = (v>=0xa?'a'+(v-0xa):'0'+v);
 		}
-		 _SC::_len = 1+len*4;
-		 _SC::_p[ _SC::_len-1] = 0;
+		 _SC::_len = len*4;
+		 _SC::_p[ _SC::_len] = 0;
 	}
 };
 
@@ -335,13 +333,13 @@ struct GUID:public ::rt::tos::S_<>
 	{
 		if((&guid) != nullptr)
         {	LPCSTR print_template = "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x";
-			_len = 1+sprintf(_string,print_template, guid.Data1,guid.Data2,guid.Data3,
+			_len = sprintf(_string,print_template, guid.Data1,guid.Data2,guid.Data3,
 							 guid.Data4[0],guid.Data4[1],guid.Data4[2],guid.Data4[3],
 							 guid.Data4[4],guid.Data4[5],guid.Data4[6],guid.Data4[7]);
 		}
 		else
 		{	memcpy(_string,"NULL",5);
-			_len = 5;
+			_len = 4;
 		}
 	}
 };

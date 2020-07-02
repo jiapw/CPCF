@@ -472,7 +472,7 @@ struct ip:public ::rt::tos::S_<>
 	{
 		int len = (int)strlen(x.GetDottedDecimalAddress(_p));
 		_p[len++] = ':';
-		_len += 1 + len + rt::_details::string_ops::itoa(x.GetPort(), _p + len);
+		_len += len + rt::_details::string_ops::itoa(x.GetPort(), _p + len);
 	};
 };
 

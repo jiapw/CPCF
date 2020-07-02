@@ -15,7 +15,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		//TYPETRAITS_UNITTEST(callback_to_member_function);
+		TYPETRAITS_UNITTEST(precompiler);
 		return;
 	}
 	else
@@ -60,7 +60,10 @@ void TestMain()
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
 		TYPETRAITS_UNITTEST(async_write);
-		//TYPETRAITS_UNITTEST(rocks_db);
+
+#if !defined(PLATFORM_IOS)
+		TYPETRAITS_UNITTEST(rocks_db);
+#endif
 	
 		if(0) // non-static test
 		{
