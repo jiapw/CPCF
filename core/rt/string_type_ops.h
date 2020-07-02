@@ -438,130 +438,84 @@ struct _EnumString
 };
 } // namespace _details
 
-#define STRINGIFY_ENUM_BEGIN(type, ns)			namespace rt {													\
-												namespace _details {											\
-												template<>														\
-												struct _EnumStringify<::ns::type>								\
-												{	static const bool IS_BITWISE = false;						\
-													typedef ::ns::type TYPE;									\
-													template<typename T_FUNC>									\
-													static bool _Iterate(T_FUNC&& c){							\
+#define STRINGIFY_ENUM_BEGIN(type, ns)			namespace rt {								\
+												namespace _details {						\
+												using namespace ns;							\
+												template<>									\
+												struct _EnumStringify<type>					\
+												{	typedef ::ns::type TYPE;				\
+													template<typename T_FUNC>				\
+													static bool _Iterate(T_FUNC&& c){		\
 														using namespace ::ns;
-#define STRINGIFY_ENUM_ITEM(enum_val)					if(!c(enum_val, rt::SS(#enum_val)))return true;
-#define STRINGIFY_ENUM_CLASS_ITEM(enum_val)				if(!c(TYPE::enum_val, rt::SS(#enum_val)))return true;
-#define STRINGIFY_ENUM_END(type, ns)					return false;											\
-													}															\
-												};}}															\
-												namespace ns {													\
-												template<class t_Ostream>										\
-												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)		\
-												{	LPCSTR str = ::rt::EnumStringify(x);						\
-													if(str){ Ostream<<str; return Ostream; }					\
-													else{ Ostream<< #type ":#"<<(int)x; return Ostream; }		\
+#define STRINGIFY_ENUM(enum_val)						if(!c(TYPE::enum_val, rt::SS(#enum_val), (TYPE)0xffffffffU))return true;
+#define STRINGIFY_ENUM_BIT(enum_val)					if(!c(TYPE::enum_val, rt::SS(#enum_val), TYPE::enum_val))return true;
+#define STRINGIFY_ENUM_BITS(enum_val, enum_mask)		if(!c(TYPE::enum_val, rt::SS(#enum_val), TYPE::enum_mask))return true;
+#define STRINGIFY_ENUM_END(type, ns)					return false;												\
+													}																\
+												};}}																\
+												namespace ns {														\
+												template<class t_Ostream>											\
+												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
+												{	Ostream<<::rt::EnumStringify(x);								\
+													return Ostream;													\
 												}}
+#define STRINGIFY_ENUM_END2(type, ns1, ns2)				return false;												\
+													}																\
+												};}}																\
+												namespace ns1 { namespace ns2 {										\
+												template<class t_Ostream>											\
+												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
+												{	Ostream<<::rt::EnumStringify(x);								\
+													return Ostream;													\
+												}}}
 
-template<typename T>
-INLFUNC LPCSTR	EnumStringify(T x)
-				{	LPCSTR ret = nullptr;
-					typedef typename rt::Remove_QualiferAndRef<T>::t_Result T_Enum;
-					::rt::_details::_EnumStringify<T_Enum>::_Iterate(
-						[&ret, x](T_Enum e, const rt::String_Ref& name){
-							if(x == e){ ret = name.Begin(); return false; }
-							return true;
-						}
-					);
-					return ret;
+struct EnumStringify: public rt::String
+{
+	template<typename T_Enum>
+	INLFUNC EnumStringify(T_Enum x)
+	{
+		static_assert(sizeof(T_Enum)<=sizeof(UINT), "Enum cannot fit in a DWORD");
+		::rt::_details::_EnumStringify<T_Enum>::_Iterate(
+			[&x, this](T_Enum e, const rt::String_Ref& name, T_Enum mask){
+				if((((UINT)x)&((UINT)mask)) == (UINT)e)
+				{	if(!IsEmpty())*this += '|';
+					*this += name.Begin();
+					x = (T_Enum) (((UINT)x)&(~(UINT)mask));
+					if((UINT)x == 0)return false;
 				}
-	
+				return true;
+			}
+		);
+		if((UINT)x != 0)
+		{	if(!IsEmpty())*this += '|';
+			*this += rt::tos::Number((int)x);
+		}
+	}
+};
+
 template<typename T_Enum>
 INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
-				{	return ::rt::_details::_EnumStringify<T_Enum>::_Iterate(
-						[&value_out, &name](T_Enum e, const rt::String_Ref& e_name){
-							if(name == e_name){ value_out = e; return false; }
-							return true;
-						}
-					);
-				}
-
-
-#define STRINGIFY_BITWISE_BEGIN(type, ns)	namespace rt {																\
-											namespace _details {														\
-											template<>																	\
-											struct _EnumStringify<::ns::type>											\
-											{	static const bool IS_BITWISE = true;									\
-												template<typename T_FUNC>												\
-												static bool _Iterate(T_FUNC&& c){										\
-													using namespace ::ns;
-#define STRINGIFY_BITWISE_ITEM(enum_val)			STRINGIFY_ENUM_ITEM(enum_val)
-#define STRINGIFY_BITWISE_END(type, ns)				return false;														\
-												}																		\
-											};}}																		\
-											namespace ns {																\
-											template<class t_Ostream>													\
-											INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)					\
-											{	rt::String ws; LPCSTR s = ::rt::BitwiseStringify(x, ws);				\
-												Ostream<<s;	return Ostream;												\
-											}																			\
-											INLFUNC type operator | (type a, type b){ return (type)((int)a|(int)b); }	\
-											INLFUNC type operator & (type a, type b){ return (type)((int)a&(int)b); }	\
-											INLFUNC type operator |= (type& a, type b){ return a = (a|b); }				\
-											INLFUNC type operator &= (type& a, type b){ return a = (a&b); }				\
-											INLFUNC type operator ~ (type a){ return (type)(~(UINT)a); }				\
-											}
-
-template<typename T>
-INLFUNC auto	BitwiseStringify(T x, rt::String& append) -> LPCSTR
-				{	typedef typename rt::Remove_QualiferAndRef<T>::t_Result T_Enum;
-					typedef ::rt::_details::_EnumStringify<T_Enum>	T_EnumStringify;
-					if(x == 0)return "";
-					UINT org_pos = (UINT)append.GetLength();
-					if(!T_EnumStringify::_Iterate(
-										[&append, x](T_Enum e, const rt::String_Ref& name){
-											if(x == e){ append+=name; return false; }
-											return true;
-										}
-									) // match againest predefined combination, or single bit 
-					){	T b = (T)1;		T undefined = (T)0;
-						for(UINT i=0; i<sizeof(T)*8; i++,b=(T)(b<<1))
-							if((x&b) && !T_EnumStringify::_Iterate(
-											[&append, b](T_Enum e, const rt::String_Ref& name){
-												if(b == e){ append+=name; append+='|'; return false; }
-												return true;
-											}
-										)
-							)undefined |= b;
-						if(undefined)append += rt::SS("0x") + rt::tos::HexNum<65, false>(x);
-						else append.Shorten(1);
-					}
-					return &append[org_pos];
-				}
-	
-template<typename T_Enum>
-INLFUNC bool	BitwiseParse(const rt::String_Ref& name, T_Enum& value_out)
-				{	if(::rt::_details::_EnumStringify<T_Enum>::_Iterate(
-									[&value_out, &name](T_Enum e, const rt::String_Ref& e_name){
-										if(name == e_name){ value_out = e; return false; }
-										return true;
-									}
-								)
-					)return true; // match againest predefined combination, or single bit
-					rt::String_Ref tags[sizeof(T_Enum)*8];
+				{	rt::String_Ref tags[sizeof(T_Enum)*8];
 					UINT co = name.Split(tags, sizeofArray(tags), "|,+;");
-					T_Enum b = (T_Enum)1;		value_out = (T_Enum)0;
+					value_out = (T_Enum)0;
 					for(UINT i=0; i<co; i++)
 					{	auto tag = tags[i].TrimSpace();
-						if(tag[0] == '0' && (tag[1] == 'x' || tag[1] == 'X'))
-						{	LONGLONG x;
-							if(tag.SubStr(2).ToNumber(x) != tag.GetLength()-2)return false;
-							value_out |= (T_Enum)x;
+						if(tag.IsEmpty())continue;
+						if(tag[0] >= '0' && tag[0] <= '9' || (tag[0] == '-' && tag[1] >= '0' && tag[1] <= '9'))
+						{	UINT x;
+							tag.ToNumber(x);
+							value_out = (T_Enum)((UINT)value_out | (UINT)x);
 						}
 						else
 						{	if(!::rt::_details::_EnumStringify<T_Enum>::_Iterate(
-											[&value_out, &tag](T_Enum e, const rt::String_Ref& e_name){
-												if(PopCount(e) == 1 && tag == e_name){ value_out |= e; return false; }
-												return true;
-											}
-										)
+									[&value_out, &tag](T_Enum e, const rt::String_Ref& e_name, T_Enum mask){
+										if(tag == e_name)
+										{	value_out = (T_Enum)((UINT)value_out | (UINT)e);
+											return false;
+										}
+										return true;
+									}
+								)
 							)return false;
 					}	}
 					return true;
