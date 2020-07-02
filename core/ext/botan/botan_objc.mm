@@ -4,8 +4,6 @@
 //////////////////////////////////////////////////////
 // iOS Stuffs
 #if defined(PLATFORM_IOS)
-#import <UIKit/UIDevice.h>
-#import <UIKit/UIKit.h>
 #import <CommonCrypto/CommonDigest.h>
 
 void _objc_sha1(unsigned char *input, int len, unsigned char output[20]);
