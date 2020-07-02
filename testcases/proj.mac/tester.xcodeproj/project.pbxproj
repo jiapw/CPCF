@@ -15,7 +15,6 @@
 		941D3E382130734F00F97118 /* test_http.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E302130734D00F97118 /* test_http.cpp */; };
 		941D3E3A2130734F00F97118 /* test_api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E332130734E00F97118 /* test_api.cpp */; };
 		941D3E3B2130734F00F97118 /* test_ipp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E342130734E00F97118 /* test_ipp.cpp */; };
-		941D3E3C2130734F00F97118 /* test_library.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E352130734E00F97118 /* test_library.cpp */; };
 		941D3E3D2130734F00F97118 /* entrypoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E362130734E00F97118 /* entrypoint.cpp */; };
 		941D3E3F2130735D00F97118 /* lib_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E3E2130735D00F97118 /* lib_inc.c */; };
 		941D3E482130737100F97118 /* inet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E422130737100F97118 /* inet.cpp */; };
@@ -83,7 +82,6 @@
 		941D3E312130734E00F97118 /* test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = test.h; path = ../../tests/test.h; sourceTree = "<group>"; };
 		941D3E332130734E00F97118 /* test_api.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_api.cpp; path = ../../tests/test_api.cpp; sourceTree = "<group>"; };
 		941D3E342130734E00F97118 /* test_ipp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_ipp.cpp; path = ../../tests/test_ipp.cpp; sourceTree = "<group>"; };
-		941D3E352130734E00F97118 /* test_library.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_library.cpp; path = ../../tests/test_library.cpp; sourceTree = "<group>"; };
 		941D3E362130734E00F97118 /* entrypoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entrypoint.cpp; path = ../../tests/entrypoint.cpp; sourceTree = "<group>"; };
 		941D3E3E2130735D00F97118 /* lib_inc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lib_inc.c; path = ../../../core/ext/lib_inc.c; sourceTree = "<group>"; };
 		941D3E402130737100F97118 /* tinyhttpd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinyhttpd.h; path = ../../../core/inet/tinyhttpd.h; sourceTree = "<group>"; };
@@ -249,7 +247,6 @@
 				941D3E2F2130734D00F97118 /* test_botan.cpp */,
 				941D3E302130734D00F97118 /* test_http.cpp */,
 				941D3E342130734E00F97118 /* test_ipp.cpp */,
-				941D3E352130734E00F97118 /* test_library.cpp */,
 				941D3E312130734E00F97118 /* test.h */,
 				93C4A242169FED0400D3C820 /* inet */,
 				93C4A241169FECE300D3C820 /* os */,
@@ -391,7 +388,6 @@
 				941D3E9A213073E000F97118 /* botan.cpp in Sources */,
 				94A69E9022C0840A00757781 /* test_perf.cpp in Sources */,
 				941D3E612130738800F97118 /* kernel_log.cpp in Sources */,
-				941D3E3C2130734F00F97118 /* test_library.cpp in Sources */,
 				941D3E632130738800F97118 /* file_dir.cpp in Sources */,
 				941D3E3D2130734F00F97118 /* entrypoint.cpp in Sources */,
 				941D3E97213073CD00F97118 /* xml_xhtml.cpp in Sources */,

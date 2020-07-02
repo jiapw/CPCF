@@ -2245,7 +2245,7 @@ public:
 				}
 #else	// PLATFORM_INTEL_IPP_SUPPORT
 				step_size = (int)_EnlargeTo32AL(sizeof(t_Value)*Channel*w);
-				Ref::lpData = (typename Ref::t_Val*)_Malloc32AL(BYTE, step_size*h,);
+				Ref::lpData = (typename Ref::t_Val*)_Malloc32AL(BYTE, step_size*h);
 #endif  // PLATFORM_INTEL_IPP_SUPPORT
 				if(Ref::lpData == nullptr)
 				{	Ref::Width=Ref::Height=0;

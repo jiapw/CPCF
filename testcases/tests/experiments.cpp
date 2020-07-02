@@ -39,7 +39,7 @@ void diff_infoset(os::Process::Info* prev, int prev_co, os::Process::Info* now, 
 		}
 		else
 		{
-			result += rt::SS("NEW,") + n.Name.GetFilename() + ',' + rt::tos::Timestamp<>(n.StartTime) + '\n';
+			result += rt::SS("NEW,") + n.Name.GetFileName() + ',' + rt::tos::Timestamp<>(n.StartTime) + '\n';
 		}
 	}
 
@@ -58,7 +58,7 @@ void diff_infoset(os::Process::Info* prev, int prev_co, os::Process::Info* now, 
 
 		if(match == nullptr)
 		{
-			result += rt::SS("DEL,") + n.Name.GetFilename() + ',' + rt::tos::Timestamp<>(n.StartTime) + '\n';
+			result += rt::SS("DEL,") + n.Name.GetFileName() + ',' + rt::tos::Timestamp<>(n.StartTime) + '\n';
 		}
 	}
 }

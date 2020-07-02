@@ -39,8 +39,11 @@ struct UnitTests
 	static void sortedpush();
 	static void sparsehash();
 	static void async_queue();
+    
+#if !defined(PLATFORM_IOS)
 	static void rocks_db();
-
+#endif
+    
 	static void httpd();
 
 	static void botan_hash();

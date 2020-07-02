@@ -1,7 +1,7 @@
 
 
 #import "ViewController.h"
-#include "../../../shared_api/os/user_inputs.h"
+#include "../../../core/os/user_inputs.h"
 
 os::UserInputEventPump _UIEventPump;
 
@@ -34,7 +34,6 @@ os::UserInputEventPump _UIEventPump;
 
 -(IBAction) Reload
 {
-    /*
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Reload"
                                                 message:@"Testing Message, lol."
                                                 delegate:nil
@@ -45,7 +44,7 @@ os::UserInputEventPump _UIEventPump;
     
     
     os::SetDebugTextBox("Hello World");
-    */
+    os::SetDebugTextBox("Hello World 2");
     
     _UIEventPump.SendEvent_Command(1);
 }
