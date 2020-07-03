@@ -894,10 +894,16 @@ public:
 		_SC::_len = p - _SC::_p;
 		return *this;
 	}
-	FORCEINL SIZE_T		Occurrence(const rt::CharacterSet& set) const
+	FORCEINL SIZE_T		Occurrence(const rt::CharacterSet& set) const // count # of char included in the set
 	{	SIZE_T c = 0;
 		for(SIZE_T i=0;i<GetLength();i++)
 			if(set.Has(_SC::_p[i]))c++;
+		return c;
+	}
+	FORCEINL SIZE_T		OccurrenceExcluded(const rt::CharacterSet& set) const // count # of char excluded in the set
+	{	SIZE_T c = 0;
+		for(SIZE_T i=0;i<GetLength();i++)
+			if(!set.Has(_SC::_p[i]))c++;
 		return c;
 	}
 };

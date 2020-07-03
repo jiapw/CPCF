@@ -781,6 +781,7 @@ template<UINT BIT_SIZE = 0>
 class BooleanArray: public _details::BooleanArrayStg<BIT_SIZE>
 {
 	typedef _details::BooleanArrayStg<BIT_SIZE>	_SC;
+    typedef typename _SC::BLOCK_TYPE BLOCK_TYPE;
 	static const UINT BLOCK_SIZE = _SC::BLOCK_SIZE;
 	
 protected:
@@ -813,8 +814,8 @@ public:
 				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
 	void	Reset(const Index& idx){ Set(idx, false); }
-	void	ResetAll(){ memset(_SC::_Bits, 0, _SC::BLOCK_COUNT*sizeof(_SC::BLOCK_TYPE)); }
-	void	SetAll(){ memset(_SC::_Bits, 0xff, _SC::BLOCK_COUNT*sizeof(_SC::BLOCK_TYPE)); _SC::_ClearTrailingBits(); }
+	void	ResetAll(){ memset(_SC::_Bits, 0, _SC::BLOCK_COUNT*sizeof(BLOCK_TYPE)); }
+	void	SetAll(){ memset(_SC::_Bits, 0xff, _SC::BLOCK_COUNT*sizeof(BLOCK_TYPE)); _SC::_ClearTrailingBits(); }
 	bool	IsAllReset() const { for(UINT i=0; i<_SC::BLOCK_COUNT; i++)if(_SC::_Bits[i])return false; return true; }
 	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<_SC::BLOCK_COUNT; i++)pc += rt::PopCount(_SC::_Bits[i]); return pc; }
 	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<_SC::BLOCK_COUNT; i++)_SC::_Bits[i] ^= x._Bits[i]; }
@@ -823,7 +824,7 @@ public:
 	UINT	VisitOnes(CB&& cb)	// visit all ones
 			{	UINT hit = 0;	UINT i=0;
 				for(; i<_SC::BLOCK_COUNT-1; i++)
-				{	_SC::BLOCK_TYPE bits = _SC::_Bits[i];
+				{	BLOCK_TYPE bits = _SC::_Bits[i];
 					if(bits)
 					{	for(UINT b=0; b<BLOCK_SIZE; b++)
 						{	if(bits&(1ULL<<b))
@@ -833,7 +834,7 @@ public:
 						}
 					}
 				}
-				_SC::BLOCK_TYPE bits = _SC::_Bits[i];
+				BLOCK_TYPE bits = _SC::_Bits[i];
 				if(bits)
 				{	for(UINT b=0; b<(BIT_SIZE%BLOCK_SIZE); b++)
 					{	if(bits&(1ULL<<b))
@@ -848,10 +849,10 @@ public:
 	void	ForEach(CB&& cb)	// visit all ones
 			{	UINT i=0;
 				for(; i<sizeofArray(_SC::_Bits)-1; i++)
-				{	_SC::BLOCK_TYPE bits = _SC::_Bits[i];
+				{	BLOCK_TYPE bits = _SC::_Bits[i];
 					for(UINT b=0; b<BLOCK_SIZE; b++)cb(bits&(1ULL<<b));
 				}
-				_SC::BLOCK_TYPE bits = _SC::_Bits[i];
+				BLOCK_TYPE bits = _SC::_Bits[i];
 				for(UINT b=0; b<(_SC::BIT_SIZE%BLOCK_SIZE); b++)cb(bits&(1ULL<<b));
 			}
 	template<char one = '1', char zero = '.'>
