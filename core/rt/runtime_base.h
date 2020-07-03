@@ -46,8 +46,11 @@
 #include <intrin.h>
 #endif
 
-#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+#if defined(PLATFORM_MAC)
 #include <x86intrin.h>
+#endif
+
+#if defined(PLATFORM_IOS)
 #endif
 
 #if defined(PLATFORM_LINUX)
@@ -1038,15 +1041,17 @@ namespace _details
 			static UINT TrailingZeroBits(T x) { ULONG index; return _BitScanForward(&index, (DWORD)x) ? (UINT)index : 32U; }
 			static UINT NonzeroBits(T x) { return (UINT)__popcnt((DWORD)x); }
 			static T	ByteOrderSwap(T x) { return _byteswap_ulong((DWORD)x); }
+            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
+            static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
 #else
 			static UINT LeadingZeroBits(T x) { if(0 == x)return 32; return (UINT)__builtin_clz((DWORD)x); }
 			static UINT TrailingZeroBits(T x) { if(0 == x)return 32; return (UINT)__builtin_ctz((DWORD)x); }
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcount((DWORD)x); }
 			static T	ByteOrderSwap(T x) { return __builtin_bswap32((DWORD)x); }
+            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ UINT carry_out; *(UINT*)c = __builtin_addc((UINT)a, (UINT)b, carry, &carry_out); return (BYTE)carry_out; }
+			static BYTE SubBorrow(BYTE carry, T a, T b, T* c){ UINT carry_out; *(UINT*)c = __builtin_subc((UINT)a, (UINT)b, carry, &carry_out); return (BYTE)carry_out; }
 #endif
-			static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
-			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return _subborrow_u32(b_in, (UINT)a, (UINT)b, (UINT*)out); }
-		};
+        };
 		template<typename T> struct AdvBitOps<T, 64>
 		{
 #if defined(PLATFORM_WIN)
@@ -1055,15 +1060,17 @@ namespace _details
 			static UINT TrailingZeroBits(T x) { ULONG index; return _BitScanForward64(&index, (ULONGLONG)x) ? (UINT)index : 64U; }
 			static UINT NonzeroBits(T x) { return (UINT)__popcnt64((ULONGLONG)x); }
 			static T	ByteOrderSwap(T x) { return (T)_byteswap_uint64((ULONGLONG)x); }
+            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
+            static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
 	#endif
 #else
 			static UINT LeadingZeroBits(T x) { if(0 == x)return 64; return (UINT)__builtin_clzll((ULONGLONG)x); }
 			static UINT TrailingZeroBits(T x) { if(0 == x)return 64; return (UINT)__builtin_ctzll((ULONGLONG)x); }
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcountll((ULONGLONG)x); }
 			static T	ByteOrderSwap(T x) { return (T)__builtin_bswap64((ULONGLONG)x); }
+            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ ULONGLONG carry_out; *(ULONGLONG*)c = __builtin_addcll((ULONGLONG)a, (ULONGLONG)b, carry, &carry_out); return (BYTE)carry_out; }
+            static BYTE SubBorrow(BYTE carry, T a, T b, T* c){ ULONGLONG carry_out; *(ULONGLONG*)c = __builtin_subcll((ULONGLONG)a, (ULONGLONG)b, carry, &carry_out); return (BYTE)carry_out; }
 #endif
-			static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
-			static BYTE SubBorrow(BYTE b_in, T a, T b, T* out) { return _subborrow_u64(b_in, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)out); }
 		};
 } // namespace _details
 	
