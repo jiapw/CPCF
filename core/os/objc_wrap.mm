@@ -173,6 +173,17 @@ bool _objc_get_device_uid(char id[64])
 	return false;
 }
 
+void _objc_open_url(char *urlCString);
+void _objc_open_url(char *urlCString) {
+    NSString *urlString = [NSString stringWithUTF8String:urlCString];
+    NSURL *URL = [NSURL URLWithString:urlString];
+    if (@available(iOS 10, *)) {
+        [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:nil];
+    } else {
+        [[UIApplication sharedApplication] openURL:URL];
+    }
+}
+
 int _objc_get_bundle_path(char* pOut, int OutSize);
 
 #endif
