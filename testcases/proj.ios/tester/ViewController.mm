@@ -1,9 +1,12 @@
 
-
 #import "ViewController.h"
-#include "../../../core/os/user_inputs.h"
+#import "DeviceConsole.h"
 
-os::UserInputEventPump _UIEventPump;
+// 把 C 字符串用 NSLog 输出，使得可以显示到屏幕
+void logCString(char *chars) {
+    NSString *string = [NSString stringWithUTF8String:chars];
+    NSLog(@"%@", string);
+}
 
 @interface ViewController ()
 
@@ -11,42 +14,12 @@ os::UserInputEventPump _UIEventPump;
 
 @implementation ViewController
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-    UIView* _pView = [self view];
-    _UIEventPump.Init(_pView);
+    [DeviceConsole showConsoleInView:self.view];
     
-    os::SetupDebugTextBox(_pTextView);
-}
-
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-	return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-}
-
--(IBAction) Reload
-{
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Reload"
-                                                message:@"Testing Message, lol."
-                                                delegate:nil
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil];
-    [alert show];
-    [alert release];
-    
-    
-    os::SetDebugTextBox("Hello World");
-    os::SetDebugTextBox("Hello World 2");
-    
-    _UIEventPump.SendEvent_Command(1);
+    char *test = "test";
+    logCString(test);
 }
 
 @end

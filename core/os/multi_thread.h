@@ -241,21 +241,22 @@ class ThreadSafeMutable
 	T*		_p;
 	os::CriticalSection _cs;
 protected:
-	INLFUNC bool	BeginUpdate(bool just_try = false){ if(just_try)return _cs.TryLock(); _cs.Lock(); return true; }
-	INLFUNC void	EndUpdate(T* pNew = nullptr)/* nullptr indicates no change */
-					{	if(pNew){	T* pOld = _p; _p = pNew; _SafeDel_Delayed(pOld, old_TTL); }
-						_cs.Unlock();
-					}
+	INLFUNC bool		BeginUpdate(bool just_try = false){ if(just_try)return _cs.TryLock(); _cs.Lock(); return true; }
+	INLFUNC void		EndUpdate(T* pNew = nullptr)/* nullptr indicates no change */
+						{	if(pNew){	T* pOld = _p; _p = pNew; _SafeDel_Delayed(pOld, old_TTL); }
+							_cs.Unlock();
+						}
 public:
 	typedef T			t_Object;
 	INLFUNC	ThreadSafeMutable(){ _p = nullptr; }
 	INLFUNC ~ThreadSafeMutable(){ Clear();	}
 
-	INLFUNC const T&	Get() const { static T _t; return _p?*_p:_t; }
+	INLFUNC const T&	Get() const { static const T _t; return _p?*_p:_t; }
 	INLFUNC const T*	operator -> () const { return &Get(); }
 	INLFUNC T*			Clone() const { return _p?_New(T(*_p)):_New(T); }
 	INLFUNC T*			New() const { return _New(T); }
 	INLFUNC void		Clear(){ _cs.Lock(); _SafeDel(_p); _cs.Unlock(); }
+	INLFUNC bool		IsEmpty() const { return _p == nullptr; }
 	
 	//unsafe in multi-thread
 	INLFUNC T&			GetObject(){ ASSERT(_cs.IsOwnedByCurrentThread()); return (T&)Get(); }
