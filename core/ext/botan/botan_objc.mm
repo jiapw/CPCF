@@ -181,7 +181,7 @@ int _objc_AES128Decrypt(const char *input, const char *key, const char **output,
     }
 
     NSString *outputString = _objc_utf8String(result);
-    const char *outputCString=[outputString UTF8String];
+    const char *outputCString = [outputString UTF8String];
     *output = outputCString;
     *outputLen = strlen(outputCString);
     
