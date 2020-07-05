@@ -12,7 +12,6 @@
 		93C4A2AA16A013F000D3C820 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C4A2A916A013F000D3C820 /* Foundation.framework */; };
 		93C4A2AC16A013F000D3C820 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C4A2AB16A013F000D3C820 /* CoreGraphics.framework */; };
 		93C4A2B216A013F000D3C820 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 93C4A2B016A013F000D3C820 /* InfoPlist.strings */; };
-		93C4A2B416A013F000D3C820 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C4A2B316A013F000D3C820 /* main.m */; };
 		93C4A2B816A013F000D3C820 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93C4A2B716A013F000D3C820 /* AppDelegate.mm */; };
 		93C4A2BB16A013F000D3C820 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93C4A2BA16A013F000D3C820 /* ViewController.mm */; };
 		93F4DCAD1A6278F60000C706 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F4DCAC1A6278F60000C706 /* AdSupport.framework */; };
@@ -43,6 +42,7 @@
 		942515A824AD0A3200A8222C /* precompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515A724AD0A3200A8222C /* precompiler.cpp */; };
 		942515AA24AD0AAB00A8222C /* test_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515A924AD0AAB00A8222C /* test_ext.cpp */; };
 		942515AD24AD0D7D00A8222C /* exprtk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515AC24AD0D7D00A8222C /* exprtk.cpp */; };
+		94EA1D7D24B19FD0005BD2C7 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94EA1D7C24B19FD0005BD2C7 /* main.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,7 +54,6 @@
 		93C4A2AB16A013F000D3C820 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		93C4A2AF16A013F000D3C820 /* tester-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "tester-Info.plist"; sourceTree = "<group>"; };
 		93C4A2B116A013F000D3C820 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		93C4A2B316A013F000D3C820 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		93C4A2B516A013F000D3C820 /* tester-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "tester-Prefix.pch"; sourceTree = "<group>"; };
 		93C4A2B616A013F000D3C820 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		93C4A2B716A013F000D3C820 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -112,6 +111,7 @@
 		942515A924AD0AAB00A8222C /* test_ext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_ext.cpp; path = ../../tests/test_ext.cpp; sourceTree = "<group>"; };
 		942515AB24AD0D7D00A8222C /* exprtk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = exprtk.h; path = ../../core/ext/exprtk/exprtk.h; sourceTree = "<group>"; };
 		942515AC24AD0D7D00A8222C /* exprtk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exprtk.cpp; path = ../../core/ext/exprtk/exprtk.cpp; sourceTree = "<group>"; };
+		94EA1D7C24B19FD0005BD2C7 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		94FEE4B719C162D9002E9EC3 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		94FEE4BA19C16573002E9EC3 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -193,7 +193,6 @@
 				93C4A2B716A013F000D3C820 /* AppDelegate.mm */,
 				93C4A2B916A013F000D3C820 /* ViewController.h */,
 				93C4A2BA16A013F000D3C820 /* ViewController.mm */,
-				93C4A2B316A013F000D3C820 /* main.m */,
 				93C4A2AE16A013F000D3C820 /* Supporting Files */,
 			);
 			path = tester;
@@ -202,6 +201,7 @@
 		93C4A2AE16A013F000D3C820 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				94EA1D7C24B19FD0005BD2C7 /* main.mm */,
 				93C4A2AF16A013F000D3C820 /* tester-Info.plist */,
 				93C4A2B016A013F000D3C820 /* InfoPlist.strings */,
 				93C4A2B516A013F000D3C820 /* tester-Prefix.pch */,
@@ -358,12 +358,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				93C4A2B416A013F000D3C820 /* main.m in Sources */,
 				942515AD24AD0D7D00A8222C /* exprtk.cpp in Sources */,
 				93C4A2B816A013F000D3C820 /* AppDelegate.mm in Sources */,
 				93C4A2BB16A013F000D3C820 /* ViewController.mm in Sources */,
 				9425157024AD00F400A8222C /* botan.cpp in Sources */,
 				9425156824AD007D00A8222C /* experiments.cpp in Sources */,
+				94EA1D7D24B19FD0005BD2C7 /* main.mm in Sources */,
 				9425157A24AD010900A8222C /* http_client.cpp in Sources */,
 				942515A824AD0A3200A8222C /* precompiler.cpp in Sources */,
 				942515A024AD015800A8222C /* xml_xhtml.cpp in Sources */,

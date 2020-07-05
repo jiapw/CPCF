@@ -45,9 +45,8 @@ void TestMain()
 		TYPETRAITS_UNITTEST(express_tk);
 		TYPETRAITS_UNITTEST(xml);
 		//TYPETRAITS_UNITTEST(html);
-		TYPETRAITS_UNITTEST(file);
 		TYPETRAITS_UNITTEST(precompiler);
-		TYPETRAITS_UNITTEST(vm);
+		
 		TYPETRAITS_UNITTEST(timedate);
 		TYPETRAITS_UNITTEST(smallmath);
 		TYPETRAITS_UNITTEST(filelist);
@@ -59,10 +58,12 @@ void TestMain()
 		TYPETRAITS_UNITTEST(botan_hash);
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
-		TYPETRAITS_UNITTEST(async_write);
 
 #if !defined(PLATFORM_IOS)
+        TYPETRAITS_UNITTEST(file);
 		TYPETRAITS_UNITTEST(rocks_db);
+        TYPETRAITS_UNITTEST(vm);
+        TYPETRAITS_UNITTEST(async_write);
 #endif
 	
 		if(0) // non-static test

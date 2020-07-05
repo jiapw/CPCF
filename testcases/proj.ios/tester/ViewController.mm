@@ -1,15 +1,20 @@
 
 #import "ViewController.h"
 #import "DeviceConsole.h"
+#include "../../../core/os/multi_thread.h"
+#include "../../tests/test.h"
 
-// 把 C 字符串用 NSLog 输出，使得可以显示到屏幕
-void logCString(char *chars) {
-    NSString *string = [NSString stringWithUTF8String:chars];
+void ConsoleWriter(LPCSTR log, int type, LPVOID cookie)
+{
+    NSString *string = [NSString stringWithUTF8String:log];
     NSLog(@"%@", string);
 }
 
-@interface ViewController ()
+extern "C" void TestMain();
 
+@interface ViewController () {
+    os::Thread  _Worker;
+}
 @end
 
 @implementation ViewController
@@ -18,8 +23,12 @@ void logCString(char *chars) {
     [super viewDidLoad];
     [DeviceConsole showConsoleInView:self.view];
     
-    char *test = "test";
-    logCString(test);
+    os::_details::SetConsoleLogWriteFunction(ConsoleWriter, nullptr);
+    
+    _Worker.Create([](){
+        TestMain();
+        _LOG("\n\nAll tests are done.");
+    });
 }
 
 @end
