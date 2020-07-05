@@ -173,8 +173,8 @@ bool _objc_get_device_uid(char id[64])
 	return false;
 }
 
-void _objc_open_url(char *urlCString);
-void _objc_open_url(char *urlCString) {
+void _objc_open_url(const char *urlCString);
+void _objc_open_url(const char *urlCString) {
     NSString *urlString = [NSString stringWithUTF8String:urlCString];
     NSURL *URL = [NSURL URLWithString:urlString];
     if (@available(iOS 10, *)) {

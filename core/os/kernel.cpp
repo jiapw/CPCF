@@ -1525,10 +1525,12 @@ bool os::OpenDefaultBrowser(LPCSTR url_in)
     return ret;
 }
 #elif defined(PLATFORM_IOS)
+
+extern void _objc_open_url(const char *urlCString);
 bool os::OpenDefaultBrowser(LPCSTR url_in)
 {
-    // TBD
-    return false;
+    _objc_open_url(url_in);
+    return true;
 }
 #else
 

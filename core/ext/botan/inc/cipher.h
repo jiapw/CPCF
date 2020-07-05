@@ -201,20 +201,25 @@ struct	_cipher_spec;
 template<UINT _METHOD>
 class Cipher
 {
-	typename _cipher_spec<_METHOD>::Cipher	_Cipher;
+	typename _details::_cipher_spec<_METHOD>::Cipher	_Cipher;
 public:
     static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockSize;
     static const UINT NativeKeySize = _details::_HashSize<_details::_AES_Traits<_METHOD>::KEY_HASHER>::size;
 
     static void     ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key); }
-	void            SetKey(LPCVOID key, UINT len){ ASSERT(len == NativeKeySize); _Cipher.set_key((LPCBYTE), len); }
+	void            SetKey(LPCVOID key, UINT len)
+                    {   BYTE hash[NativeKeySize];
+                        if(len != NativeKeySize){ ComputeKey(hash, key, len); key = hash; }
+                        _Cipher.set_key((LPCBYTE)key, NativeKeySize);
+                        if(len != NativeKeySize)rt::Zero(hash);
+                    }
     void            Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len)
                     {	ASSERT((Len%DataBlockSize) == 0);
-						_Cipher.encrypt_n(pPlain, pCrypt, Len/DataBlockSize);
+						_Cipher.encrypt_n((LPCBYTE)pPlain, (LPBYTE)pCrypt, Len/DataBlockSize);
                     }
     void            Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len)
                     {	ASSERT((Len%DataBlockSize) == 0);
-						_Cipher.decrypt_n(pPlain, pCrypt, Len/DataBlockSize);
+						_Cipher.decrypt_n((LPCBYTE)pPlain, (LPBYTE)pCrypt, Len/DataBlockSize);
                     }
 };
 
