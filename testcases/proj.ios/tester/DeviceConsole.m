@@ -10,14 +10,16 @@
 @interface DeviceConsole ()
 
 @property (nonatomic, weak) UIView *superView;
+@property (nonatomic, assign) CGRect frame;
 @property (nonatomic, strong) UITextView *textView;
 
 @end
 
 @implementation DeviceConsole
 
-+ (void)showConsoleInView:(UIView *)superView {
++ (void)showConsoleInView:(UIView *)superView frame:(CGRect)frame {
     [DeviceConsole sharedInstance].superView = superView;
+    [DeviceConsole sharedInstance].frame = frame;
     [[DeviceConsole sharedInstance] showConsole];
 }
 
@@ -54,7 +56,7 @@
 	if (self.textView != nil) {
         return;
 	}
-    self.textView = [[UITextView alloc] initWithFrame:self.superView.bounds];
+    self.textView = [[UITextView alloc] initWithFrame:self.frame];
     self.textView.backgroundColor = UIColor.blackColor;
     self.textView.textColor = UIColor.whiteColor;
     self.textView.font = [UIFont systemFontOfSize:10];

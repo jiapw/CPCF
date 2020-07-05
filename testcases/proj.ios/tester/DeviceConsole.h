@@ -10,7 +10,7 @@
 
 @interface DeviceConsole : NSObject
 
-+ (void)showConsoleInView:(UIView *)superView;
++ (void)showConsoleInView:(UIView *)superView frame:(CGRect)frame;
 
 @end
 

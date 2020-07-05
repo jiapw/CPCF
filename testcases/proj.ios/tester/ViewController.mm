@@ -1,6 +1,7 @@
 
 #import "ViewController.h"
 #import "DeviceConsole.h"
+#import "TXTUIMacros.h"
 
 // 把 C 字符串用 NSLog 输出，使得可以显示到屏幕
 void logCString(char *chars) {
@@ -16,7 +17,10 @@ void logCString(char *chars) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [DeviceConsole showConsoleInView:self.view];
+    
+    CGRect frame = self.view.bounds;
+    frame = CGRectMake(0, mStatusBarHeight, frame.size.width, frame.size.height - mStatusBarHeight - mTabbarAdditionalHeight);
+    [DeviceConsole showConsoleInView:self.view frame:frame];
     
     char *test = "test";
     logCString(test);

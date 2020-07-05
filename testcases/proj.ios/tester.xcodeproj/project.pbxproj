@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3CBA17F524B1A6C9001CF6DB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3CBA17F424B1A6C9001CF6DB /* LaunchScreen.storyboard */; };
 		3CD4FDA224AF9DA100942565 /* DeviceConsole.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CD4FDA124AF9DA100942565 /* DeviceConsole.m */; };
 		93C4A2A816A013F000D3C820 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C4A2A716A013F000D3C820 /* UIKit.framework */; };
 		93C4A2AA16A013F000D3C820 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C4A2A916A013F000D3C820 /* Foundation.framework */; };
@@ -46,6 +47,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3CBA17F424B1A6C9001CF6DB /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		3CBA17F624B1ABFB001CF6DB /* TXTUIMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TXTUIMacros.h; sourceTree = "<group>"; };
 		3CD4FDA024AF9DA100942565 /* DeviceConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceConsole.h; sourceTree = "<group>"; };
 		3CD4FDA124AF9DA100942565 /* DeviceConsole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceConsole.m; sourceTree = "<group>"; };
 		93C4A2A316A013F000D3C820 /* tester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tester.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -193,7 +196,9 @@
 				93C4A2B716A013F000D3C820 /* AppDelegate.mm */,
 				93C4A2B916A013F000D3C820 /* ViewController.h */,
 				93C4A2BA16A013F000D3C820 /* ViewController.mm */,
+				3CBA17F624B1ABFB001CF6DB /* TXTUIMacros.h */,
 				93C4A2B316A013F000D3C820 /* main.m */,
+				3CBA17F424B1A6C9001CF6DB /* LaunchScreen.storyboard */,
 				93C4A2AE16A013F000D3C820 /* Supporting Files */,
 			);
 			path = tester;
@@ -331,6 +336,7 @@
 			knownRegions = (
 				English,
 				en,
+				Base,
 			);
 			mainGroup = 93C4A29816A013F000D3C820;
 			productRefGroup = 93C4A2A416A013F000D3C820 /* Products */;
@@ -348,6 +354,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				93C4A2B216A013F000D3C820 /* InfoPlist.strings in Resources */,
+				3CBA17F524B1A6C9001CF6DB /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
