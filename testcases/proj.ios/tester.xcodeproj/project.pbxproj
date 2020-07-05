@@ -26,7 +26,6 @@
 		9425156A24AD00C000A8222C /* lib_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = 9425156924AD00BF00A8222C /* lib_inc.c */; };
 		9425156C24AD00D500A8222C /* experiments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425156B24AD00D500A8222C /* experiments.cpp */; };
 		9425157024AD00F400A8222C /* botan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425156E24AD00F400A8222C /* botan.cpp */; };
-		9425157124AD00F400A8222C /* botan_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9425156F24AD00F400A8222C /* botan_objc.mm */; };
 		9425157A24AD010900A8222C /* http_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425157224AD010800A8222C /* http_client.cpp */; };
 		9425157B24AD010900A8222C /* tinyhttpd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425157424AD010800A8222C /* tinyhttpd.cpp */; };
 		9425157C24AD010900A8222C /* tinyhttpd_fileserv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425157624AD010800A8222C /* tinyhttpd_fileserv.cpp */; };
@@ -77,7 +76,6 @@
 		9425156B24AD00D500A8222C /* experiments.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = experiments.cpp; path = ../../tests/experiments.cpp; sourceTree = "<group>"; };
 		9425156D24AD00F400A8222C /* botan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = botan.h; path = ../../../core/ext/botan/botan.h; sourceTree = "<group>"; };
 		9425156E24AD00F400A8222C /* botan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = botan.cpp; path = ../../../core/ext/botan/botan.cpp; sourceTree = "<group>"; };
-		9425156F24AD00F400A8222C /* botan_objc.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = botan_objc.mm; path = ../../../core/ext/botan/botan_objc.mm; sourceTree = "<group>"; };
 		9425157224AD010800A8222C /* http_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_client.cpp; path = ../../../core/inet/http_client.cpp; sourceTree = "<group>"; };
 		9425157324AD010800A8222C /* tinyhttpd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinyhttpd.h; path = ../../../core/inet/tinyhttpd.h; sourceTree = "<group>"; };
 		9425157424AD010800A8222C /* tinyhttpd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tinyhttpd.cpp; path = ../../../core/inet/tinyhttpd.cpp; sourceTree = "<group>"; };
@@ -279,7 +277,6 @@
 		93C4A2EB16A0158100D3C820 /* botan */ = {
 			isa = PBXGroup;
 			children = (
-				9425156F24AD00F400A8222C /* botan_objc.mm */,
 				9425156E24AD00F400A8222C /* botan.cpp */,
 				9425156D24AD00F400A8222C /* botan.h */,
 			);
@@ -390,7 +387,6 @@
 				9425159024AD013800A8222C /* kernel.cpp in Sources */,
 				9425156724AD007D00A8222C /* test_http.cpp in Sources */,
 				942515AA24AD0AAB00A8222C /* test_ext.cpp in Sources */,
-				9425157124AD00F400A8222C /* botan_objc.mm in Sources */,
 				9425156C24AD00D500A8222C /* experiments.cpp in Sources */,
 				942515A124AD015800A8222C /* json.cpp in Sources */,
 				9425157D24AD010900A8222C /* inet.cpp in Sources */,
