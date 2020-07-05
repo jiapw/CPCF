@@ -3,6 +3,7 @@
 #import "DeviceConsole.h"
 #include "../../../core/os/multi_thread.h"
 #include "../../tests/test.h"
+#import "TXTUIMacros.h"
 
 void ConsoleWriter(LPCSTR log, int type, LPVOID cookie)
 {
@@ -21,7 +22,10 @@ extern "C" void TestMain();
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [DeviceConsole showConsoleInView:self.view];
+    
+    CGRect frame = self.view.bounds;
+    frame = CGRectMake(0, mStatusBarHeight, frame.size.width, frame.size.height - mStatusBarHeight - mTabbarAdditionalHeight);
+    [DeviceConsole showConsoleInView:self.view frame:frame];
     
     os::_details::SetConsoleLogWriteFunction(ConsoleWriter, nullptr);
     
