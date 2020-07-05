@@ -7,6 +7,12 @@
 //
 #import "DeviceConsole.h"
 
+NSString * const DeviceConsolePrefix = @"[DeviceConsole]";
+NSString * const DeviceConsoleLogType = @"[LogType]";
+NSString * const DeviceConsoleLogString = @"[LogString]";
+
+static const NSUInteger kLogTypeStringLenth = 2;
+
 @interface DeviceConsole ()
 
 @property (nonatomic, weak) UIView *superView;
@@ -90,7 +96,7 @@
 	}
 	NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     self.textView.editable = YES;
-    self.textView.text = [self.textView.text stringByAppendingString:string];
+    self.textView.attributedText = [self attributedStringWithNewString:string];
     self.textView.editable = NO;
     double delayInSeconds = 1.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
@@ -102,6 +108,58 @@
 
 - (void)refreshLog:(NSNotification *)notification {
 	[notification.object readInBackgroundAndNotify];
+}
+
+#pragma mark - log text ui
+
+- (NSAttributedString *)attributedStringWithNewString:(NSString *)newString {
+    if (newString.length == 0) {
+        return self.textView.attributedText;
+    }
+    NSArray<NSString *> *strings = [newString componentsSeparatedByString:@"\n"];
+    
+    NSMutableAttributedString *totalString = [[NSMutableAttributedString alloc] init];
+    [totalString appendAttributedString:self.textView.attributedText];
+    
+    [strings enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        
+        NSRange prefixRange = [obj rangeOfString:DeviceConsolePrefix];
+        if (prefixRange.location != NSNotFound) {
+            obj = [obj substringFromIndex:prefixRange.location + prefixRange.length];
+        }
+        
+        UIColor *color = UIColor.whiteColor;
+        NSRange logTypeRange = [obj rangeOfString:DeviceConsoleLogType];
+        if (logTypeRange.location != NSNotFound) {
+            NSUInteger typeStartIndex = logTypeRange.location + logTypeRange.length;
+            NSAssert((typeStartIndex + kLogTypeStringLenth) < obj.length, @"typeStartIndex + kLogTypeStringLenth out of range");
+            NSString *typeString = [obj substringWithRange:NSMakeRange(typeStartIndex, kLogTypeStringLenth)];
+            color = [self colorWithLogType:typeString.integerValue];
+            obj = [obj substringFromIndex:logTypeRange.location + logTypeRange.length];
+        }
+        
+        NSRange logStringRange = [obj rangeOfString:DeviceConsoleLogString];
+        if (logStringRange.location != NSNotFound) {
+            obj = [obj substringFromIndex:logStringRange.location + logStringRange.length];
+            obj = [NSString stringWithFormat:@"%@\n", obj];
+        }
+        
+        NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:obj];
+        [string addAttribute:NSForegroundColorAttributeName value:color range:NSMakeRange(0, obj.length)];
+        [totalString appendAttributedString:string];
+    }];
+    
+    return totalString;
+}
+
+- (UIColor *)colorWithLogType:(ConsoleLogType)logType {
+    switch (logType) {
+        case ConsoleLogTypeVerbose: return UIColor.lightGrayColor;
+        case ConsoleLogTypeHighlight: return UIColor.greenColor;
+        case ConsoleLogTypeWarning: return UIColor.yellowColor;
+        case ConsoleLogTypeError: return UIColor.redColor;
+        default: return UIColor.whiteColor;
+    }
 }
 
 @end

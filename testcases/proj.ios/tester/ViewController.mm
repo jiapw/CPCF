@@ -1,14 +1,17 @@
 
 #import "ViewController.h"
 #import "DeviceConsole.h"
+#import "ConsoleService.h"
+#import "TXTUIMacros.h"
+
 #include "../../../core/os/multi_thread.h"
 #include "../../tests/test.h"
-#import "TXTUIMacros.h"
 
 void ConsoleWriter(LPCSTR log, int type, LPVOID cookie)
 {
     NSString *string = [NSString stringWithUTF8String:log];
-    NSLog(@"%@", string);
+    type = type & 0xFF;
+    [ConsoleService logString:string type:(ConsoleLogType)type];
 }
 
 extern "C" void TestMain();
