@@ -8,6 +8,14 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonCryptor.h>
 
+// md5
+
+unsigned char *_objc_MD5(const void *data, unsigned int len, unsigned char *result);
+unsigned char *_objc_MD5(const void *data, unsigned int len, unsigned char *result)
+{
+    return CC_MD5(data, len, result);
+}
+
 // sha
 
 void _objc_sha1(unsigned char *input, int len, unsigned char output[20]);
