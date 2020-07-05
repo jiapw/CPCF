@@ -26,8 +26,7 @@ void rt::UnitTests::botan_hash()
 
 void rt::UnitTests::botan_cipher()
 {
-    #ifdef PLATFORM_INTEL_IPP_SUPPORT
-    
+  
 /*
 	{
 		sec::BigNum a("0xf234567890abcdef1e");
@@ -86,6 +85,7 @@ void rt::UnitTests::botan_cipher()
 		_LOG("Decrypted: "<<rt::String_Ref(decrypt, sizeof(crypt)));
 	}
 
+    /*
 	{	BYTE pp[16*3];	rt::Zero(pp);
 		BYTE cp[16*3];
 		sec::Cipher<sec::CIPHER_AES128>	cipher;
@@ -104,7 +104,5 @@ void rt::UnitTests::botan_cipher()
 		_LOG("    "<<rt::tos::Binary<>(&cp[ 0], 16));
 		_LOG("    "<<rt::tos::Binary<>(&cp[16], 16));
 		_LOG("    "<<rt::tos::Binary<>(&cp[32], 16));
-	}
-
-#endif
+	}*/
 }
