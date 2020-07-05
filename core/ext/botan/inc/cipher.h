@@ -71,8 +71,6 @@ struct CipherInitVec
 } // namespace _details
 } // namespace sec
 
-
-
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
 
 namespace sec
@@ -126,9 +124,10 @@ DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)
 
 #undef DEF_AES_CIPHER
 
+
 } // namespace sec
 
-#elif defined(PLATFORM_IOS)
+#elif defined(PLATFORM_IOS_just_disable)  // TBD
 
 #include <CommonCrypto/CommonCryptor.h>
 
@@ -181,4 +180,45 @@ public:
 } // namespace sec
 
 #else
+
+namespace sec
+{
+namespace _details
+{
+
+template<UINT _METHOD>
+struct	_cipher_spec;
+	template<> struct _cipher_spec<CIPHER_AES128>
+	{	typedef Botan::AES_128		Cipher;
+	};
+	template<> struct _cipher_spec<CIPHER_AES256>
+	{	typedef Botan::AES_256		Cipher;
+	};
+
+} // namespace _details
+
+
+template<UINT _METHOD>
+class Cipher
+{
+	typename _cipher_spec<_METHOD>::Cipher	_Cipher;
+public:
+    static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockSize;
+    static const UINT NativeKeySize = _details::_HashSize<_details::_AES_Traits<_METHOD>::KEY_HASHER>::size;
+
+    static void     ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key); }
+	void            SetKey(LPCVOID key, UINT len){ ASSERT(len == NativeKeySize); _Cipher.set_key((LPCBYTE), len); }
+    void            Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len)
+                    {	ASSERT((Len%DataBlockSize) == 0);
+						_Cipher.encrypt_n(pPlain, pCrypt, Len/DataBlockSize);
+                    }
+    void            Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len)
+                    {	ASSERT((Len%DataBlockSize) == 0);
+						_Cipher.decrypt_n(pPlain, pCrypt, Len/DataBlockSize);
+                    }
+};
+
+} // namespace sec
+
+
 #endif
