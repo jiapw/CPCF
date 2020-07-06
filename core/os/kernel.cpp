@@ -1525,10 +1525,23 @@ bool os::OpenDefaultBrowser(LPCSTR url_in)
     return ret;
 }
 #elif defined(PLATFORM_IOS)
+
+extern void _objc_open_url(const char *urlCString, void (*completionHandler)(bool success, void* c), void* cookie);
 bool os::OpenDefaultBrowser(LPCSTR url_in)
 {
-    // TBD
-    return false;
+    struct _cb
+    {   bool ret;
+        os::Event _wait;
+        static void on_complete(bool ret, void *c)
+        {   ((_cb*)c)->ret = ret;
+            ((_cb*)c)->_wait.Set();
+        }
+    };
+    
+    _cb _;
+    _objc_open_url(url_in, _cb::on_complete, &_);
+    _._wait.WaitSignal();
+    return _.ret;
 }
 #else
 
