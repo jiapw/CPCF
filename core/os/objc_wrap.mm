@@ -180,11 +180,27 @@ bool _objc_get_device_uid(char id[64])
 	return false;
 }
 
-void _objc_open_url(char *urlCString, void (*completionHandler)(int success));
-void _objc_open_url(char *urlCString, void (*completionHandler)(int success)) {
+int _objc_can_open_url(NSURL *URL) {
+    return [[UIApplication sharedApplication] canOpenURL:URL];
+}
+
+int _objc_can_open_urlString(char *urlCString) {
     NSString *urlString = [NSString stringWithUTF8String:urlCString];
     NSURL *URL = [NSURL URLWithString:urlString];
+    return _objc_can_open_url(URL);
+}
+
+void _objc_open_url(char *urlCString, void (*completionHandler)(bool success));
+void _objc_open_url(char *urlCString, void (*completionHandler)(bool success)) {
     DispatchMainThreadAsync(^{
+        NSString *urlString = [NSString stringWithUTF8String:urlCString];
+        NSURL *URL = [NSURL URLWithString:urlString];
+        if (!_objc_can_open_url(URL)) {
+            if (completionHandler) {
+                completionHandler(0);
+            }
+            return;
+        }
         if (@available(iOS 10, *)) {
             [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
                 if (completionHandler) {
@@ -192,15 +208,9 @@ void _objc_open_url(char *urlCString, void (*completionHandler)(int success)) {
                 }
             }];
         } else {
-            if ([[UIApplication sharedApplication] canOpenURL:URL]) {
-                BOOL success = [[UIApplication sharedApplication] openURL:URL];
-                if (completionHandler) {
-                    completionHandler(success);
-                }
-            } else {
-                if (completionHandler) {
-                    completionHandler(0);
-                }
+            [[UIApplication sharedApplication] openURL:URL];
+            if (completionHandler) {
+                completionHandler(1);
             }
         }
     });
