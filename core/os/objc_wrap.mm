@@ -110,6 +110,13 @@ UINT _objc_get_screens_dim(rt::Vec2i* p, UINT co)
 #import <AdSupport/ASIdentifierManager.h>
 #include "user_inputs.h"
 
+#define DispatchMainThreadAsync(block)\
+if ([NSThread isMainThread]) {\
+block();\
+} else {\
+dispatch_async(dispatch_get_main_queue(), block);\
+}
+
 int _objc_get_battery_state();
 int _objc_get_battery_state()
 {
@@ -177,11 +184,13 @@ void _objc_open_url(char *urlCString);
 void _objc_open_url(char *urlCString) {
     NSString *urlString = [NSString stringWithUTF8String:urlCString];
     NSURL *URL = [NSURL URLWithString:urlString];
-    if (@available(iOS 10, *)) {
-        [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:nil];
-    } else {
-        [[UIApplication sharedApplication] openURL:URL];
-    }
+    DispatchMainThreadAsync(^{
+        if (@available(iOS 10, *)) {
+            [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:nil];
+        } else {
+            [[UIApplication sharedApplication] openURL:URL];
+        }
+    });
 }
 
 int _objc_get_bundle_path(char* pOut, int OutSize);
