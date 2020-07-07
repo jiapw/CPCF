@@ -190,6 +190,16 @@ extern ULONGLONG GetFreeDiskSpace(LPCSTR path, ULONGLONG* pTotal = nullptr); // 
 extern void		 GetAppSandbox(rt::String& out_path, LPCSTR app_name);	// app_name not necessarily appears in the path
 extern void		 SetAppSandboxAsCurrentDirectory(LPCSTR app_name);
 
+class CurrentDirectoryStack
+{
+	rt::BufferEx<rt::String>	_DirStack;
+public:
+	CurrentDirectoryStack(LPCSTR dir = nullptr){ if(dir)PushCurrentDirectory(dir); }
+	~CurrentDirectoryStack();
+	bool		PushCurrentDirectory(LPCSTR dir);
+	void		Pop();
+};
+
 ///////////////////////////////////////////
 // FileRead
 template<typename T = BYTE>
@@ -502,6 +512,7 @@ protected:
 	rt::BufferEx<rt::String>	_Arguments; // Text
 	rt::BufferEx<_opt>			_Options;
 	void						_Parse(int argc, char* argv[]);	// for _tmain
+	void						_ParseCompleteLine();
 
 public:
 	CommandLine();

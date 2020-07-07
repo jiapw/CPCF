@@ -171,7 +171,7 @@ public:
 	typedef void (*LPFUNC_DELETION)(LPVOID x);
 protected:
 	static DWORD _DeletionThread(LPVOID);
-	static void	DeleteObject(LPVOID x, DWORD TTL_msec, LPFUNC_DELETION delete_func);
+	static void	DeleteObject(LPCVOID x, DWORD TTL_msec, LPFUNC_DELETION delete_func);
 public:
 	template<typename OBJ>
 	static void DeleteObj(OBJ * ptr, int TTL_msec)
