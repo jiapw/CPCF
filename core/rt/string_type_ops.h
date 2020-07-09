@@ -306,8 +306,7 @@ struct Binary:public ::rt::tos::S_<1,LEN>
 template<SIZE_T LEN = 65>
 struct BinaryCString:public ::rt::tos::S_<1,LEN>
 {
-	template<typename T>
-	INLFUNC BinaryCString(const T& x){ new (this) BinaryCString(&x, sizeof(x)); }
+	INLFUNC BinaryCString(const rt::String_Ref& d){ new (this) BinaryCString(d.Begin(), (UINT)d.GetLength()); }
 	INLFUNC BinaryCString(LPCVOID pbyte, int len)
 	{	
 		typedef ::rt::tos::S_<1,LEN> _SC;

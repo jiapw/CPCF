@@ -192,11 +192,11 @@ public:
 };
 
 struct CharacterSet_Escape: public CharacterSet	// Escape for C/Json string
-{	CharacterSet_Escape():CharacterSet("\b\f\r\n\t\v\'\"\\","bfrntv\'\"\\"){}
+{	CharacterSet_Escape():CharacterSet("\b\f\r\n\t\v\"\\","bfrntv\"\\"){}
 };
 
 struct CharacterSet_Unescape: public CharacterSet	// Unescape for C/Json string
-{	CharacterSet_Unescape():CharacterSet("bfrntv\'\"\\","\b\f\r\n\t\v\'\"\\"){}
+{	CharacterSet_Unescape():CharacterSet("bfrntv\"\\","\b\f\r\n\t\v\"\\"){}
 };
 
 
