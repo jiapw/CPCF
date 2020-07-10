@@ -93,8 +93,6 @@ LPCSTR inet::TinyHttpd::_GetMIME(const rt::String_Ref& filename)
 
 inet::TinyHttpd::TinyHttpd(void)
 {
-	_pEndPoints = nullptr;
-
 	m_IOHangTimeout = 1000;
 	m_Concurrency = 0;
 	__ConcurrencyCount = 0;
@@ -104,7 +102,7 @@ inet::TinyHttpd::TinyHttpd(void)
 inet::TinyHttpd::~TinyHttpd(void)
 {
 	Stop();
-	_SafeDel(_pEndPoints);
+	_EndPoints.Clear();
 }
 
 void inet::TinyHttpd::SetConcurrencyRestricted(bool restricted)
@@ -219,9 +217,8 @@ DWORD inet::TinyHttpd::GetBindedPort() const
 
 void inet::TinyHttpd::ReplaceEndpoint(LPHTTPENDPOINT ep)
 {
-	t_EndPoints* eps = _pEndPoints;
-	ASSERT(eps);
-	
+	THREADSAFEMUTABLE_UPDATE(_EndPoints, eps);
+
 	t_EndPoints::iterator it = eps->find(ep->GetEndPoint());
 	ASSERT(it != eps->end());
 	it->second = ep;
@@ -229,21 +226,34 @@ void inet::TinyHttpd::ReplaceEndpoint(LPHTTPENDPOINT ep)
 
 bool inet::TinyHttpd::SetEndpoints(LPHTTPENDPOINT* ep, UINT count)
 {
-	//_LOG("BEING SetEndpoints");
-	t_EndPoints* neweps = _New(t_EndPoints);
+	THREADSAFEMUTABLE_UPDATE(_EndPoints, neweps);
+	neweps.ReadyModify(true);
+
 	for(UINT i=0;i<count;i++)
 	{
 		auto it = neweps->find(ep[i]->GetEndPoint());
-		if(it != neweps->end())return false;  // duplicated endpoint
+		if(it != neweps->end())
+		{
+			neweps.Revert();
+			return false;  // duplicated endpoint
+		}
 
-		(*neweps)[ep[i]->GetEndPoint()] = ep[i];
-		//_LOG(ep[i]->GetEndPoint());
+		neweps->operator[](ep[i]->GetEndPoint()) = ep[i];
 	}
-	//_LOG("END SetEndpoints");
 
-	rt::Swap(_pEndPoints, neweps);
-	_SafeDel_Delayed(neweps, 5000);
+	return true;
+}
 
+bool inet::TinyHttpd::AddEndpoint(LPHTTPENDPOINT ep)		// httpd will NOT manage the lifecycle of eps
+{
+	THREADSAFEMUTABLE_UPDATE(_EndPoints, neweps);
+	if(neweps->find(ep->GetEndPoint()) != neweps->end())
+	{
+		neweps.Revert();
+		return false;
+	}
+
+	neweps->operator[](ep->GetEndPoint()) = ep;
 	return true;
 }
 
@@ -914,10 +924,10 @@ REQUEST_IS_READY:
 		while(response.URI[len] != '/' && len < response.URI.GetLength())
 			len++;
 
-		t_EndPoints* eps = _pEndPoints;
-		if(eps)
-		{	t_EndPoints& EndPoints = *eps;
-			t_EndPoints::iterator p = EndPoints.find(rt::String_Ref(response.URI.Begin(),len));
+		if(!_EndPoints.IsEmpty())
+		{	
+			auto& EndPoints = _EndPoints.Get();
+			auto p = EndPoints.find(rt::String_Ref(response.URI.Begin(),len));
 
 			if(p == EndPoints.end())
 				p = EndPoints.find(rt::String_Ref("/",1));

@@ -264,20 +264,21 @@ public:
 	};
 protected:
 	typedef rt::hash_map<rt::String_Ref,HttpEndpoint*,rt::String_Ref::hash_compare> t_EndPoints;
-	t_EndPoints*			_pEndPoints;
+	os::ThreadSafeMutable<t_EndPoints> _EndPoints;
 
 public:
 	TinyHttpd(void);
 	~TinyHttpd(void);
-	void	ReplaceEndpoint(LPHTTPENDPOINT ep);
-	bool	SetEndpoints(LPHTTPENDPOINT* ep, UINT count);	// httpd will NOT manage the lifecycle of eps
-	bool	Start(int port, int concurrency = 0);	 // bind to all local addresses
-	void	SetConcurrencyRestricted(bool restricted = true);
-	bool	Start(const InetAddr& bind, int concurrency = 0){ return Start(&bind, 1, concurrency); }
-	bool	Start(const InetAddr* pBindAddress, int address_count, int concurrency = 0);
-	bool	IsRunning() const { return m_Listeners.GetSize(); }
-	void	Stop();
-	void	SetHangingTimeout(UINT msec = 10000){ m_IOHangTimeout = msec; }
+	void			ReplaceEndpoint(LPHTTPENDPOINT ep);
+	bool			AddEndpoint(LPHTTPENDPOINT ep);			// httpd will NOT manage the lifecycle of eps
+	bool			SetEndpoints(LPHTTPENDPOINT* ep, UINT count); // httpd will NOT manage the lifecycle of eps
+	bool			Start(int port, int concurrency = 0);	// bind to all local addresses
+	void			SetConcurrencyRestricted(bool restricted = true);
+	bool			Start(const InetAddr& bind, int concurrency = 0){ return Start(&bind, 1, concurrency); }
+	bool			Start(const InetAddr* pBindAddress, int address_count, int concurrency = 0);
+	bool			IsRunning() const { return m_Listeners.GetSize(); }
+	void			Stop();
+	void			SetHangingTimeout(UINT msec = 10000){ m_IOHangTimeout = msec; }
 
 	UINT			GetBindedAddresses(inet::InetAddr* pOut, UINT OutLen);	// return # of InetAddr copied
 	inet::InetAddr	GetBindedAddress() const;
