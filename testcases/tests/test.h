@@ -56,7 +56,7 @@ struct UnitTests
 	static void ipp_zip();
 
 	static void callback_to_member_function();
-	static void hash_func();
+	static void crypto_func();
 
 	static void image_to_text();
 
