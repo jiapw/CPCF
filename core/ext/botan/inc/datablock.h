@@ -206,7 +206,6 @@ public:
 	INLFUNC bool		IsZero() const { return dwop::equ(GetDWords(), (DWORD)0); }
 	INLFUNC bool		IsVoid() const { return dwop::equ(GetDWords(), (DWORD)0xffffffff); }
 	INLFUNC DataBlock&	Random(UINT seed){ rt::Randomizer(seed).Randomize(GetBytes(), _LEN); return *this; }
-	INLFUNC	DataBlock&	UnseededRandom(){ randombytes_buf(GetBytes(), _LEN); return *this; }
 
 	template<bool sb> INLFUNC void	From(const DataBlock<_LEN, sb>& x){	ASSERT(!IsEmpty()); dwop::set(DWords, x.GetDWords()); }
 	template<bool sb> INLFUNC int	Compare(const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }

@@ -86,3 +86,5 @@ testcases/proj.ios/tester.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspac
 *.xcuserstate
 
 testcases/proj.ios/tester.xcodeproj/xcuserdata/jiaping.xcuserdatad/xcschemes/xcschememanagement.plist
+
+*.xcbkptlist

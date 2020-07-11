@@ -93,6 +93,6 @@ INLFUNC void Randomize(LPVOID p, UINT len)
 	Botan::AutoSeeded_RNG().randomize((LPBYTE)p, len);
 }
 template<typename T>
-INLFUNC void Randomize(T& d){	Randomize(&d, sizeof(T)); }
+INLFUNC void Randomize(T& d){ Randomize(&d, sizeof(T)); }
 
 } // namespace sec
