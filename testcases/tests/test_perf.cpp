@@ -104,33 +104,33 @@ void rt::UnitTests::hash_func()
 	BYTE h[64];
 
 	os::HighPerformanceCounter tm;
-
+	tm.SetOutputMillisecond();
 	tm.Restart();
 	for(size_t i=0; i<t; i++)
 	{
 		sec::Hash<sec::HASH_SHA256>().Calculate(data, data.GetSize(), h);
 	}
-	_LOG("HASH_SHA256: "<<t*1000000/tm.TimeLapse()<<" cps");
+	_LOG("HASH_SHA256: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
 	tm.Restart();
 	for(size_t i=0; i<t; i++)
 	{
 		sec::Hash<sec::HASH_SHA256>().Calculate(data, 64, h);
 	}
-	_LOG("HASH_SHA256-64: "<<t*1000000/tm.TimeLapse()<<" cps");
+	_LOG("HASH_SHA256-64: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
 	tm.Restart();
 	for(size_t i=0; i<t; i++)
 	{
 		sec::Hash<sec::HASH_CRC32>().Calculate(data, data.GetSize(), h);
 	}
-	_LOG("HASH_CRC32: "<<t*1000000/tm.TimeLapse()<<" cps");
+	_LOG("HASH_CRC32: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
 	tm.Restart();
 	for(size_t i=0; i<t; i++)
 	{
 		sec::Hash<sec::HASH_CRC32>().Calculate(data, 8, h);
 	}
-	_LOG("HASH_CRC32-8: "<<t*1000000/tm.TimeLapse()<<" cps");
+	_LOG("HASH_CRC32-8: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
 }

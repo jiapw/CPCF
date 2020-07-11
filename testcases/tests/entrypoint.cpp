@@ -15,7 +15,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(string_conv);
+		TYPETRAITS_UNITTEST(hash_func);
 		return;
 	}
 	else
