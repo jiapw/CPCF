@@ -192,11 +192,11 @@ public:
 };
 
 struct CharacterSet_Escape: public CharacterSet	// Escape for C/Json string
-{	CharacterSet_Escape():CharacterSet("\b\f\r\n\t\v\'\"\\","bfrntv\'\"\\"){}
+{	CharacterSet_Escape():CharacterSet("\b\f\r\n\t\v\"\\","bfrntv\"\\"){}
 };
 
 struct CharacterSet_Unescape: public CharacterSet	// Unescape for C/Json string
-{	CharacterSet_Unescape():CharacterSet("bfrntv\'\"\\","\b\f\r\n\t\v\'\"\\"){}
+{	CharacterSet_Unescape():CharacterSet("bfrntv\"\\","\b\f\r\n\t\v\"\\"){}
 };
 
 
@@ -800,6 +800,24 @@ public:
 			file_path.SetLength(off);
 		}
 		else cgi_param.Empty();
+	}
+	INLFUNC t_String_Ref GetUrlParam(const t_String_Ref& tag, const t_String_Ref& def_val = nullptr) const
+	{	auto off = FindCharacter('?');
+		if(off<0)return def_val;
+		while(off<(SSIZE_T)_SC::_len-1)
+		{
+			off++;
+			if(memcmp(&_SC::_p[off], tag.Begin(), tag.GetLength()) == 0 && _SC::_p[off + tag.GetLength()] == '=')
+			{
+				auto end = FindCharacter('&', off);
+				return t_String_Ref(&_SC::_p[off + tag.GetLength() + 1], end>0?&_SC::_p[end]:End());
+			}
+			else
+			{	off = FindCharacter('&', off);
+				if(off<0)return def_val;
+			}
+		}
+		return def_val;
 	}
 	INLFUNC t_String_Ref ResolveRelativePath()
 	{

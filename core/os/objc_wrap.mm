@@ -184,27 +184,27 @@ bool _objc_can_open_url(NSURL *URL) {
     return [[UIApplication sharedApplication] canOpenURL:URL];
 }
 
-void _objc_open_url(char *urlCString, void (*completionHandler)(bool success));
-void _objc_open_url(char *urlCString, void (*completionHandler)(bool success)) {
+void _objc_open_url(const char *urlCString, void (*completionHandler)(bool success, void* c), void* cookie);
+void _objc_open_url(const char *urlCString, void (*completionHandler)(bool success, void* c), void* cookie) {
     DispatchMainThreadAsync(^{
         NSString *urlString = [NSString stringWithUTF8String:urlCString];
         NSURL *URL = [NSURL URLWithString:urlString];
         if (!_objc_can_open_url(URL)) {
             if (completionHandler) {
-                completionHandler(FALSE);
+                completionHandler(FALSE, cookie);
             }
             return;
         }
         if (@available(iOS 10, *)) {
             [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
                 if (completionHandler) {
-                    completionHandler(success);
+                    completionHandler(success, cookie);
                 }
             }];
         } else {
             [[UIApplication sharedApplication] openURL:URL];
             if (completionHandler) {
-                completionHandler(TRUE);
+                completionHandler(TRUE, cookie);
             }
         }
     });

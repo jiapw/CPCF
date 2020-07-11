@@ -601,10 +601,10 @@ STRINGIFY_ENUM_BEGIN(TestEnum, rt)
 STRINGIFY_ENUM_END(TestEnum, rt)
 
 STRINGIFY_ENUM_BEGIN(TestEnumBitwise, rt)
+	STRINGIFY_ENUM_BIT(TEB_COM)
 	STRINGIFY_ENUM_BIT(TEB_A)
 	STRINGIFY_ENUM_BIT(TEB_B)
 	STRINGIFY_ENUM_BIT(TEB_C)
-	STRINGIFY_ENUM_BIT(TEB_COM)
 STRINGIFY_ENUM_END(TestEnumBitwise, rt)
 
 void rt::UnitTests::string_conv()
@@ -648,6 +648,12 @@ void rt::UnitTests::string()
 		rt::String_Ref b;
 		b = a;
 		_LOG("std::string = "<<b);
+	}
+
+	{	rt::SS url("https://aaa.bb.ccc:99/?a=232=11&b=&c=val_c");
+		_LOG("a="<<url.GetUrlParam("a"));
+		_LOG("b="<<url.GetUrlParam("b"));
+		_LOG("c="<<url.GetUrlParam("c"));
 	}
 
 	{	LPCSTR code = 

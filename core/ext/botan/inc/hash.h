@@ -153,14 +153,6 @@ public:
 
 } // namespace sec
 
-#elif defined(PLATFORM_IOSwww)
-
-//bridge to c interface from botan_objc.mm
-
-namespace sec
-{
-}
-
 #else // back by Botan
 namespace sec
 {
@@ -230,6 +222,35 @@ public:
 
 } // namespace sec
 
+#if defined(PLATFORM_IOS)
+#include <CommonCrypto/CommonDigest.h>
+
+namespace sec
+{
+
+#define HASH_CC(tag, ctxtag)    template<> class Hash<HASH_##tag>   \
+                        {   typedef CC_##ctxtag##_CTX CTX;     \
+                        public: static const int HASHSIZE = _details::_HashSize<HASH_##tag>::size;  \
+                        protected:  CTX _Ctx; \
+                        public:     Hash(){ Reset(); }  \
+                                    void Reset(){ CC_##tag##_Init(&_Ctx); } \
+                                    template<typename T> void Update(const T& x){ Update(&x, sizeof(x)); } \
+                                    void Update(LPCVOID data, UINT size){ CC_##tag##_Update(&_Ctx, data, size); } \
+                                    void Finalize(LPVOID HashValue){ CC_##tag##_Final((LPBYTE)HashValue, &_Ctx); } \
+                                    void Calculate(LPCVOID data, UINT size, LPVOID HashValue){ CC_##tag(data, size, (LPBYTE)HashValue); } \
+                        };
+   
+    HASH_CC(MD5,   MD5)
+    HASH_CC(SHA1,   SHA1)
+    HASH_CC(SHA224, SHA256)
+    HASH_CC(SHA256, SHA256)
+    HASH_CC(SHA384, SHA512)
+    HASH_CC(SHA512, SHA512)
+
+} // namespace sec
+
+
+#endif // #if defined(PLATFORM_IOS)
 #endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT
 
 

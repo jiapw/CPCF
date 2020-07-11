@@ -10,8 +10,7 @@
 void ConsoleWriter(LPCSTR log, int type, LPVOID cookie)
 {
     NSString *string = [NSString stringWithUTF8String:log];
-    type = type & 0xFF;
-    [ConsoleService logString:string type:(ConsoleLogType)type];
+    [ConsoleService logString:string type:(ConsoleLogType)(type & 0xFF)];
 }
 
 extern "C" void TestMain();
@@ -35,7 +34,11 @@ extern "C" void TestMain();
     _Worker.Create([](){
         TestMain();
         _LOG("\n\nAll tests are done.");
+        
+        os::OpenDefaultBrowser("https://google.com");
     });
+    
+    //os::OpenDefaultBrowser("https://google.com");
 }
 
 @end

@@ -12,10 +12,10 @@ namespace os
 namespace _details
 {
 	struct _GarbagItem
-	{	LPVOID			pObj;
+	{	LPCVOID			pObj;
 		os::DelayedGarbageCollection::LPFUNC_DELETION	pDeletionFunction;
 		int				TTL;
-		void			Delete(){ pDeletionFunction(pObj); }
+		void			Delete(){ pDeletionFunction((LPVOID)pObj); }
 		bool			Tick() // return true when the item should be NOT deleted
 		{	if(TTL)TTL--;
 			return TTL;
@@ -89,13 +89,13 @@ void os::DelayedGarbageCollection::Flush()
 	_details::g_GCB._PendingGarbag.SetSize();
 }
 
-void os::DelayedGarbageCollection::DeleteObject(LPVOID x, DWORD TTL_msec, os::DelayedGarbageCollection::LPFUNC_DELETION delete_func)
+void os::DelayedGarbageCollection::DeleteObject(LPCVOID x, DWORD TTL_msec, os::DelayedGarbageCollection::LPFUNC_DELETION delete_func)
 {
 	ASSERT(delete_func);
 
 	if(x == nullptr)return;
 	if(TTL_msec == 0)
-	{	delete_func(x);
+	{	delete_func((LPVOID)x);
 		return;
 	}
 

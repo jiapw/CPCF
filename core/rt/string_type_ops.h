@@ -306,8 +306,7 @@ struct Binary:public ::rt::tos::S_<1,LEN>
 template<SIZE_T LEN = 65>
 struct BinaryCString:public ::rt::tos::S_<1,LEN>
 {
-	template<typename T>
-	INLFUNC BinaryCString(const T& x){ new (this) BinaryCString(&x, sizeof(x)); }
+	INLFUNC BinaryCString(const rt::String_Ref& d){ new (this) BinaryCString(d.Begin(), (UINT)d.GetLength()); }
 	INLFUNC BinaryCString(LPCVOID pbyte, int len)
 	{	
 		typedef ::rt::tos::S_<1,LEN> _SC;
@@ -458,7 +457,8 @@ struct _EnumString
 												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
 												{	Ostream<<::rt::EnumStringify(x);								\
 													return Ostream;													\
-												}}
+												}	STRINGIFY_ENUM_OPS(type)										\
+												}
 #define STRINGIFY_ENUM_END2(type, ns1, ns2)				return false;												\
 													}																\
 												};}}																\
@@ -467,14 +467,16 @@ struct _EnumString
 												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
 												{	Ostream<<::rt::EnumStringify(x);								\
 													return Ostream;													\
-												}}}
+												}	STRINGIFY_ENUM_OPS(type)										\
+												}}
+#define STRINGIFY_ENUM_OPS(type)				INLFUNC type operator | (type a, type b){ return (type)((UINT)a|(UINT)b); }	\
+												INLFUNC type operator & (type a, type b){ return (type)((UINT)a&(UINT)b); }
 
 struct EnumStringify: public rt::String
 {
 	template<typename T_Enum>
 	INLFUNC EnumStringify(T_Enum x)
-	{
-		static_assert(sizeof(T_Enum)<=sizeof(UINT), "Enum cannot fit in a DWORD");
+	{	static_assert(sizeof(T_Enum)<=sizeof(UINT), "Enum cannot fit in a DWORD");
 		::rt::_details::_EnumStringify<T_Enum>::_Iterate(
 			[&x, this](T_Enum e, const rt::String_Ref& name, T_Enum mask){
 				if((((UINT)x)&((UINT)mask)) == (UINT)e)
