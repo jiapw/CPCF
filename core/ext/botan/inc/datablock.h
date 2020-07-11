@@ -201,7 +201,7 @@ public:
 	INLFUNC bool		FromBase32(const rt::String_Ref& str){ return os::Base32CrockfordDecode(this, sizeof(*this), str.Begin(), str.GetLength()); }
 	INLFUNC bool		FromBase64(const rt::String_Ref& str){ SIZE_T len; return os::Base64DecodeLength(str.Begin(), str.GetLength()) == _LEN && os::Base64Decode(GetBytes(), &len, str.Begin(), str.GetLength()) && len == _LEN; }
 	INLFUNC void		ToBase64(rt::String& str) const	{ str.SetLength(os::Base64EncodeLength(_LEN)); os::Base64Encode(str, GetBytes(), _LEN); }
-	INLFUNC bool		ToBase32(const rt::String_Ref& str){ str.SetLength(os::Base32EncodeLength(_LEN)); return os::Base32CrockfordFavCharEncode(str, GetBytes(), _LEN); }
+	INLFUNC bool		ToBase32(rt::String& str) const { str.SetLength(os::Base32EncodeLength(_LEN)); return os::Base32CrockfordFavCharEncode(str, GetBytes(), _LEN); }
 	INLFUNC void		ToBase16(rt::String& str) const	{ str.SetLength(os::Base16EncodeLength(_LEN)); os::Base16Encode(str, GetBytes(), _LEN); }
 	INLFUNC bool		IsZero() const { return dwop::equ(GetDWords(), (DWORD)0); }
 	INLFUNC bool		IsVoid() const { return dwop::equ(GetDWords(), (DWORD)0xffffffff); }

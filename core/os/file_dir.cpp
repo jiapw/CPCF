@@ -2667,28 +2667,33 @@ void os::Process::Populate(rt::Buffer<Info>& list_out)
     size_t miblen = 4;
 	UINT self = os::GetProcessId();
     
-    size_t size;
+    size_t size = 0;
     int st = sysctl(mib, (u_int)miblen, NULL, &size, NULL, 0);
     
-    rt::Buffer<BYTE> buf;
-    VERIFY(buf.SetSize((size_t)(size*1.25f)));
-    
-    struct kinfo_proc * process = (struct kinfo_proc *)buf.Begin();
-    
-    st = sysctl(mib, (u_int)miblen, process, &size, NULL, 0);
-    
-    UINT co = (UINT)(size/sizeof(kinfo_proc));
-    list_out.SetSize(co);
-    for(UINT i=0;i<co;i++)
+    if(st==0)
     {
-		if(self == process[i].kp_proc.p_pid)continue;
+        rt::Buffer<BYTE> buf;
+        VERIFY(buf.SetSize((size_t)(size*1.25f)));
+        
+        struct kinfo_proc * process = (struct kinfo_proc *)buf.Begin();
+        
+        st = sysctl(mib, (u_int)miblen, process, &size, NULL, 0);
+        
+        UINT co = (UINT)(size/sizeof(kinfo_proc));
+        list_out.SetSize(co);
+        for(UINT i=0;i<co;i++)
+        {
+            if(self == process[i].kp_proc.p_pid)continue;
 
-        list_out[i].Name = process[i].kp_proc.p_comm;
-        list_out[i].StartTime._Timestamp =
-            ((LONGLONG)process[i].kp_proc.p_un.__p_starttime.tv_sec)*1000LL +
-            process[i].kp_proc.p_un.__p_starttime.tv_sec/1000;
-        list_out[i].PID = (UINT)process[i].kp_proc.p_pid;
+            list_out[i].Name = process[i].kp_proc.p_comm;
+            list_out[i].StartTime._Timestamp =
+                ((LONGLONG)process[i].kp_proc.p_un.__p_starttime.tv_sec)*1000LL +
+                process[i].kp_proc.p_un.__p_starttime.tv_sec/1000;
+            list_out[i].PID = (UINT)process[i].kp_proc.p_pid;
+        }
     }
+    else
+        list_out.ShrinkSize(0);
 }
 
 bool os::Process::IsRunning(UINT pid)
@@ -2699,18 +2704,20 @@ bool os::Process::IsRunning(UINT pid)
     
     size_t size;
     int st = sysctl(mib, (u_int)miblen, NULL, &size, NULL, 0);
+    if(st==0)
+    {
+        rt::Buffer<BYTE> buf;
+        VERIFY(buf.SetSize((size_t)(size*1.25f)));
+        
+        struct kinfo_proc * process = (struct kinfo_proc *)buf.Begin();
+        
+        st = sysctl(mib, (u_int)miblen, process, &size, NULL, 0);
+        
+        UINT co = (UINT)(size/sizeof(kinfo_proc));
+        for(UINT i=0;i<co;i++)
+            if(process[i].kp_proc.p_pid == pid)return true;
+    }
     
-    rt::Buffer<BYTE> buf;
-    VERIFY(buf.SetSize((size_t)(size*1.25f)));
-    
-    struct kinfo_proc * process = (struct kinfo_proc *)buf.Begin();
-    
-    st = sysctl(mib, (u_int)miblen, process, &size, NULL, 0);
-    
-    UINT co = (UINT)(size/sizeof(kinfo_proc));
-	for(UINT i=0;i<co;i++)
-		if(process[i].kp_proc.p_pid == pid)return true;
-
 	return false;
 }
 
@@ -2724,25 +2731,28 @@ bool os::Process::Search(Info& list_out, const rt::String_Ref& process_substr)
     size_t size;
     int st = sysctl(mib, (u_int)miblen, NULL, &size, NULL, 0);
     
-    rt::Buffer<BYTE> buf;
-    VERIFY(buf.SetSize((size_t)(size*1.25f)));
-    
-    struct kinfo_proc * process = (struct kinfo_proc *)buf.Begin();
-    
-    st = sysctl(mib, (u_int)miblen, process, &size, NULL, 0);
-    
-    UINT co = (UINT)(size/sizeof(kinfo_proc));
-    for(UINT i=0;i<co;i++)
+    if(st==0)
     {
-		if(strstr(process[i].kp_proc.p_comm, pn))
-		{
-			list_out.Name = process[i].kp_proc.p_comm;
-			list_out.StartTime._Timestamp =
-			    ((LONGLONG)process[i].kp_proc.p_un.__p_starttime.tv_sec)*1000LL +
-			    process[i].kp_proc.p_un.__p_starttime.tv_sec/1000;
-			list_out.PID = (UINT)process[i].kp_proc.p_pid;
-			return true;
-		}
+        rt::Buffer<BYTE> buf;
+        VERIFY(buf.SetSize((size_t)(size*1.25f)));
+        
+        struct kinfo_proc * process = (struct kinfo_proc *)buf.Begin();
+        
+        st = sysctl(mib, (u_int)miblen, process, &size, NULL, 0);
+        
+        UINT co = (UINT)(size/sizeof(kinfo_proc));
+        for(UINT i=0;i<co;i++)
+        {
+            if(strstr(process[i].kp_proc.p_comm, pn))
+            {
+                list_out.Name = process[i].kp_proc.p_comm;
+                list_out.StartTime._Timestamp =
+                    ((LONGLONG)process[i].kp_proc.p_un.__p_starttime.tv_sec)*1000LL +
+                    process[i].kp_proc.p_un.__p_starttime.tv_sec/1000;
+                list_out.PID = (UINT)process[i].kp_proc.p_pid;
+                return true;
+            }
+        }
     }
 	return false;
 }

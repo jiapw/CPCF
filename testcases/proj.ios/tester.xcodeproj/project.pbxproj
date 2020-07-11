@@ -322,7 +322,7 @@
 				LastUpgradeCheck = 0510;
 				TargetAttributes = {
 					93C4A2A216A013F000D3C820 = {
-						DevelopmentTeam = GGE4D57U57;
+						DevelopmentTeam = S9Q5ACPK4D;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -486,7 +486,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = GGE4D57U57;
+				DEVELOPMENT_TEAM = S9Q5ACPK4D;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "tester/tester-Prefix.pch";
 				INFOPLIST_FILE = "tester/tester-Info.plist";
@@ -505,7 +505,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = GGE4D57U57;
+				DEVELOPMENT_TEAM = S9Q5ACPK4D;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "tester/tester-Prefix.pch";
 				INFOPLIST_FILE = "tester/tester-Info.plist";

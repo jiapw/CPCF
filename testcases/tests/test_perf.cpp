@@ -104,7 +104,7 @@ void rt::UnitTests::hash_func()
 	BYTE h[64];
 
 	os::HighPerformanceCounter tm;
-	tm.SetOutputMillisecond();
+
 	tm.Restart();
 	for(size_t i=0; i<t; i++)
 	{

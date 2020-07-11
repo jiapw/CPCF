@@ -34,11 +34,7 @@ extern "C" void TestMain();
     _Worker.Create([](){
         TestMain();
         _LOG("\n\nAll tests are done.");
-        
-        os::OpenDefaultBrowser("https://google.com");
     });
-    
-    //os::OpenDefaultBrowser("https://google.com");
 }
 
 @end
