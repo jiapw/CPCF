@@ -7,6 +7,13 @@
 //
 #import "DeviceConsole.h"
 
+#define DispatchMainThreadAsync(block)\
+if ([NSThread isMainThread]) {\
+block();\
+} else {\
+dispatch_async(dispatch_get_main_queue(), block);\
+}
+
 @interface DeviceConsole ()
 
 @property (nonatomic, weak) UIView *superView;
@@ -61,14 +68,16 @@
 }
 
 - (void)logString:(NSString *)string type:(ConsoleLogType)type {
-    self.textView.editable = YES;
-    self.textView.attributedText = [self attributedStringWithNewString:string type:type];
-    self.textView.editable = NO;
-    double delayInSeconds = 1.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-        [self scrollToLast];
-    });
+    DispatchMainThreadAsync(^{
+        self.textView.editable = YES;
+        self.textView.attributedText = [self attributedStringWithNewString:string type:type];
+        self.textView.editable = NO;
+        double delayInSeconds = 1.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+            [self scrollToLast];
+        });
+    })
 }
 
 - (NSAttributedString *)attributedStringWithNewString:(NSString *)newString type:(ConsoleLogType)type {
