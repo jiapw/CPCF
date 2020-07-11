@@ -7,12 +7,6 @@
 //
 #import "DeviceConsole.h"
 
-NSString * const DeviceConsolePrefix = @"[DeviceConsole]";
-NSString * const DeviceConsoleLogType = @"[LogType]";
-NSString * const DeviceConsoleLogString = @"[LogString]";
-
-static const NSUInteger kLogTypeStringLenth = 2;
-
 @interface DeviceConsole ()
 
 @property (nonatomic, weak) UIView *superView;
@@ -48,8 +42,6 @@ static const NSUInteger kLogTypeStringLenth = 2;
     self.textView.font = [UIFont systemFontOfSize:10];
     self.textView.editable = NO;
     [self.superView addSubview:self.textView];
-    
-    [self scrollToLast];
 }
 
 - (void)scrollToLast {
@@ -72,7 +64,9 @@ static const NSUInteger kLogTypeStringLenth = 2;
     self.textView.editable = YES;
     self.textView.attributedText = [self attributedStringWithNewString:string type:type];
     self.textView.editable = NO;
-    dispatch_async(dispatch_get_main_queue(), ^{
+    double delayInSeconds = 1.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
         [self scrollToLast];
     });
 }
