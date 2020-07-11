@@ -146,6 +146,7 @@ static const NSUInteger kLogTypeStringLenth = 2;
         
         NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:obj];
         [string addAttribute:NSForegroundColorAttributeName value:color range:NSMakeRange(0, obj.length)];
+        [string addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"AvenirNext-Regular" size:15] range:NSMakeRange(0, obj.length)];
         [totalString appendAttributedString:string];
     }];
     
