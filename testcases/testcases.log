@@ -136,9 +136,9 @@ Buffer::SortedPush
 inf
 TE_X
 TEB_COM
-TEB_A|TEB_B|TEB_C
+TEB_COM|TEB_A
 TEB_COM
-TEB_A|TEB_B|TEB_C
+TEB_COM|TEB_A
 TE_MAX
 === UnitTest<string_conv>: END =====
 
@@ -146,6 +146,9 @@ TE_MAX
 123📢好的 456
 123好的 456
 std::string = 1234!!
+a=232=11
+b=
+c=val_c
 int i=110; i/=2;
 _LOG("/*some comment*/");
 i += 32;
@@ -444,7 +447,7 @@ a: 5
 b: [2,3,4]
 c: 8.9
 d: Yes
-Escaped String: \x00\t\\ABC\'\"123
+Escaped String: \x00\t\\ABC'\"123
 Unescaped Matches: 1
 A Json: false{"var":1.3000}
 A Json:  13{"var":1.3000} EOF
@@ -513,22 +516,6 @@ mixed inner text: /*Some Inner Text*/ Another Node
   <item> [ key="no" ]
 === UnitTest<xml>: END =====
 
-=== UnitTest<file>: BEGIN ===
-
-test_(1).txt
-test_(2).txt
-test_(3).txt
-test_(4).txt
-test_(5).txt
-test_(6).txt
-test_(7).txt
-test_(8).txt
-test_(9).txt
-File Content: Testing String wrote to file !!
-File Remove: 1
-File Remove: 0
-=== UnitTest<file>: END =====
-
 === UnitTest<precompiler>: BEGIN ===
 
 Precompiled:
@@ -585,13 +572,6 @@ End of File
 
 
 === UnitTest<precompiler>: END =====
-
-=== UnitTest<vm>: BEGIN ===
-1G VM: 1
-100M File Mapping: 1
-Write Head
-Write Tail
-=== UnitTest<vm>: END =====
 
 === UnitTest<timedate>: BEGIN ===
 1980/03/02 12:21:33.321
@@ -704,14 +684,6 @@ Decrypted: 1234567890ABCDEF
 PlainText: 1234567890ABCDEFfedcba0987654321
 Encrypted: F0E61C603FE645B13759D0964C3C4D8671FB8616AAB8F859587826B5924DBD07
 Decrypted: 1234567890ABCDEFfedcba0987654321
-Encrypted Unchained:
-    D14A48202BE61B909692353D24801E26
-    D14A48202BE61B909692353D24801E26
-    D14A48202BE61B909692353D24801E26
-Encrypted Chained:
-    D14A48202BE61B909692353D24801E26
-    A3C5672648E11E8F1D8EE33F3ABE773C
-    DA79435CA167F68C9FC27CB2470E1E3C
 === UnitTest<botan_cipher>: END =====
 
 === UnitTest<botan_hash>: BEGIN ===
@@ -777,14 +749,21 @@ DeJittered: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
 DeJittered at Boundary: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
 === UnitTest<async_queue>: END =====
 
-=== UnitTest<async_write>: BEGIN ===
-Size Header: 8
-Header = 12345678DEADBEEF
-Content Match: 1
-Size Header: 3
-Header = EFBBBF
-Content Match: 1
-=== UnitTest<async_write>: END =====
+=== UnitTest<file>: BEGIN ===
+
+test_(1).txt
+test_(2).txt
+test_(3).txt
+test_(4).txt
+test_(5).txt
+test_(6).txt
+test_(7).txt
+test_(8).txt
+test_(9).txt
+File Content: Testing String wrote to file !!
+File Remove: 1
+File Remove: 0
+=== UnitTest<file>: END =====
 
 === UnitTest<rocks_db>: BEGIN ===
 3, 10
@@ -798,4 +777,20 @@ Content Match: 1
 0
 RocksDBStandalonePaged: Data mismatch
 === UnitTest<rocks_db>: END =====
+
+=== UnitTest<vm>: BEGIN ===
+1G VM: 1
+100M File Mapping: 1
+Write Head
+Write Tail
+=== UnitTest<vm>: END =====
+
+=== UnitTest<async_write>: BEGIN ===
+Size Header: 8
+Header = 12345678DEADBEEF
+Content Match: 1
+Size Header: 3
+Header = EFBBBF
+Content Match: 1
+=== UnitTest<async_write>: END =====
 

@@ -15,7 +15,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(botan_cipher);
+		TYPETRAITS_UNITTEST(string_conv);
 		return;
 	}
 	else

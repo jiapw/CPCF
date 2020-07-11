@@ -457,7 +457,8 @@ struct _EnumString
 												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
 												{	Ostream<<::rt::EnumStringify(x);								\
 													return Ostream;													\
-												}}
+												}	STRINGIFY_ENUM_OPS(type)										\
+												}
 #define STRINGIFY_ENUM_END2(type, ns1, ns2)				return false;												\
 													}																\
 												};}}																\
@@ -466,14 +467,16 @@ struct _EnumString
 												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
 												{	Ostream<<::rt::EnumStringify(x);								\
 													return Ostream;													\
-												}}}
+												}	STRINGIFY_ENUM_OPS(type)										\
+												}}
+#define STRINGIFY_ENUM_OPS(type)				INLFUNC type operator | (type a, type b){ return (type)((UINT)a|(UINT)b); }	\
+												INLFUNC type operator & (type a, type b){ return (type)((UINT)a&(UINT)b); }
 
 struct EnumStringify: public rt::String
 {
 	template<typename T_Enum>
 	INLFUNC EnumStringify(T_Enum x)
-	{
-		static_assert(sizeof(T_Enum)<=sizeof(UINT), "Enum cannot fit in a DWORD");
+	{	static_assert(sizeof(T_Enum)<=sizeof(UINT), "Enum cannot fit in a DWORD");
 		::rt::_details::_EnumStringify<T_Enum>::_Iterate(
 			[&x, this](T_Enum e, const rt::String_Ref& name, T_Enum mask){
 				if((((UINT)x)&((UINT)mask)) == (UINT)e)
