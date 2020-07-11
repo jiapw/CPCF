@@ -1,7 +1,7 @@
 
 #import "ViewController.h"
 #import "DeviceConsole.h"
-#import "ConsoleService.h"
+#import "DeviceConsole.h"
 #import "TXTUIMacros.h"
 
 #include "../../../core/os/multi_thread.h"
@@ -19,7 +19,7 @@ void ConsoleWriter(LPCSTR log, int type, LPVOID cookie)
     }
     
     NSString *string = [NSString stringWithUTF8String:str.Begin()];
-    [ConsoleService logString:string type:(ConsoleLogType)(type & 0xFF)];
+    [DeviceConsole logString:string type:(ConsoleLogType)(type & 0xFF)];
 }
 
 extern "C" void TestMain();

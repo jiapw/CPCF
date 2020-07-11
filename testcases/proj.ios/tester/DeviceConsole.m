@@ -38,26 +38,6 @@ static const NSUInteger kLogTypeStringLenth = 2;
     return sharedInstance;
 }
 
-- (id)init {
-    if (self = [super init]) {
-        [self resetLogData];
-    }
-    return self;
-}
-
-- (void)resetLogData {
-    [NSFileManager.defaultManager removeItemAtPath:[self logFilePath] error:nil];
-    freopen([[self logFilePath] fileSystemRepresentation], "a", stderr);
-}
-
-- (NSString *)logFilePath {
-    return [[DeviceConsole documentsDirectory] stringByAppendingPathComponent:@"ns.log"];
-}
-
-+ (NSString *)documentsDirectory {
-	return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)objectAtIndex:0];
-}
-
 - (void)showConsole {
 	if (self.textView != nil) {
         return;
@@ -68,8 +48,7 @@ static const NSUInteger kLogTypeStringLenth = 2;
     self.textView.font = [UIFont systemFontOfSize:10];
     self.textView.editable = NO;
     [self.superView addSubview:self.textView];
-
-    [self setUpToGetLogData];
+    
     [self scrollToLast];
 }
 
@@ -82,75 +61,39 @@ static const NSUInteger kLogTypeStringLenth = 2;
     self.textView.selectedRange = txtOutputRange;
 	self.textView.editable = NO;
 }
-- (void)setUpToGetLogData { 
-	NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:[self logFilePath]];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(getData:) name:@"NSFileHandleReadCompletionNotification" object:fileHandle];
-	[fileHandle readInBackgroundAndNotify];
-}
-
-- (void)getData:(NSNotification *)notification {
-	NSData *data = notification.userInfo[NSFileHandleNotificationDataItem];
-	if (data.length == 0) {
-        [self performSelector:@selector(refreshLog:) withObject:notification afterDelay:1.0];
-        return;
-	}
-	NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    self.textView.editable = YES;
-    self.textView.attributedText = [self attributedStringWithNewString:string];
-    self.textView.editable = NO;
-    double delayInSeconds = 1.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-        [self scrollToLast];
-    });
-    [notification.object readInBackgroundAndNotify];
-}
-
-- (void)refreshLog:(NSNotification *)notification {
-	[notification.object readInBackgroundAndNotify];
-}
 
 #pragma mark - log text ui
 
-- (NSAttributedString *)attributedStringWithNewString:(NSString *)newString {
++ (void)logString:(NSString *)string type:(ConsoleLogType)type {
+    [[self sharedInstance] logString:string type:type];
+}
+
+- (void)logString:(NSString *)string type:(ConsoleLogType)type {
+    self.textView.editable = YES;
+    self.textView.attributedText = [self attributedStringWithNewString:string type:type];
+    self.textView.editable = NO;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self scrollToLast];
+    });
+}
+
+- (NSAttributedString *)attributedStringWithNewString:(NSString *)newString type:(ConsoleLogType)type {
     if (newString.length == 0) {
         return self.textView.attributedText;
     }
-    NSArray<NSString *> *strings = [newString componentsSeparatedByString:@"\n"];
-    
+    newString = [NSString stringWithFormat:@"%@\n", newString];
     NSMutableAttributedString *totalString = [[NSMutableAttributedString alloc] init];
     [totalString appendAttributedString:self.textView.attributedText];
-    
-    [strings enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        
-        NSRange prefixRange = [obj rangeOfString:DeviceConsolePrefix];
-        if (prefixRange.location != NSNotFound) {
-            obj = [obj substringFromIndex:prefixRange.location + prefixRange.length];
-        }
-        
-        UIColor *color = UIColor.whiteColor;
-        NSRange logTypeRange = [obj rangeOfString:DeviceConsoleLogType];
-        if (logTypeRange.location != NSNotFound) {
-            NSUInteger typeStartIndex = logTypeRange.location + logTypeRange.length;
-            NSAssert((typeStartIndex + kLogTypeStringLenth) < obj.length, @"typeStartIndex + kLogTypeStringLenth out of range");
-            NSString *typeString = [obj substringWithRange:NSMakeRange(typeStartIndex, kLogTypeStringLenth)];
-            color = [self colorWithLogType:typeString.integerValue];
-            obj = [obj substringFromIndex:logTypeRange.location + logTypeRange.length];
-        }
-        
-        NSRange logStringRange = [obj rangeOfString:DeviceConsoleLogString];
-        if (logStringRange.location != NSNotFound) {
-            obj = [obj substringFromIndex:logStringRange.location + logStringRange.length];
-            obj = [NSString stringWithFormat:@"%@\n", obj];
-        }
-        
-        NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:obj];
-        [string addAttribute:NSForegroundColorAttributeName value:color range:NSMakeRange(0, obj.length)];
-        [string addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"Menlo-Regular" size:11] range:NSMakeRange(0, obj.length)];
-        [totalString appendAttributedString:string];
-    }];
-    
+    NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:newString];
+    UIColor *color = [self colorWithLogType:type];
+    [string addAttribute:NSForegroundColorAttributeName value:color range:NSMakeRange(0, newString.length)];
+    [string addAttribute:NSFontAttributeName value:[self font] range:NSMakeRange(0, newString.length)];
+    [totalString appendAttributedString:string];
     return totalString;
+}
+
+- (UIFont *)font {
+    return [UIFont fontWithName:@"Menlo-Regular" size:11];
 }
 
 - (UIColor *)colorWithLogType:(ConsoleLogType)logType {

@@ -24,6 +24,7 @@ extern NSString * const DeviceConsoleLogString;
 @interface DeviceConsole : NSObject
 
 + (void)showConsoleInView:(UIView *)superView frame:(CGRect)frame;
++ (void)logString:(NSString *)string type:(ConsoleLogType)type;
 
 @end
 
