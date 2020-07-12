@@ -331,9 +331,9 @@ public:
 
 	RocksDBOpenOption() = default;
 	RocksDBOpenOption(const ::rocksdb::ColumnFamilyOptions& opt):Opt(opt){}
-	auto	PointLookup(UINT cache_size_mb = 10){ Opt.OptimizeForPointLookup(cache_size_mb); return *this; }
+	auto	PointLookup(UINT cache_size_mb = 10) -> RocksDBOpenOption&;
 	template<class KeyType>
-	auto	SetKeyOrder()
+	auto&	SetKeyOrder()
 			{	struct cmp: public ::rocksdb::Comparator
 				{	virtual int Compare(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
 					{	ASSERT(a.size()>=sizeof(KeyType));

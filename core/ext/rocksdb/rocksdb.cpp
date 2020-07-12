@@ -51,6 +51,14 @@ rt::BufferEx<BYTE>& ThreadLocalRocksPagedBaseStoreBuffer()
 
 } // namespace _details
 
+RocksDBOpenOption& RocksDBOpenOption::PointLookup(UINT cache_size_mb)
+{	
+#if !defined(ROCKSDB_LITE)
+	Opt.OptimizeForPointLookup(cache_size_mb);
+#endif	
+	return *this; 
+}
+
 void RocksStorage::SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt)
 {
 	THREADSAFEMUTABLE_UPDATE(_AllDBs, new_db);
@@ -273,7 +281,9 @@ void RocksStorage::Close()
 			_AllDBs.Clear();
 		}
 
+#if !defined(ROCKSDB_LITE)
 		CancelAllBackgroundWork(_pDB, false);
+#endif
 		delete _pDB;
 		_pDB = nullptr;
 	}

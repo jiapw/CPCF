@@ -15,7 +15,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(crypto_func);
+		TYPETRAITS_UNITTEST(rocks_db);
 		return;
 	}
 	else

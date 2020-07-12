@@ -1762,4 +1762,52 @@ void os::SetupDebugTextBox(LPVOID param){}
 
 #endif
 
+#if defined(PLATFORM_WIN)
+
+#include <Wincrypt.h>
+namespace os
+{
+namespace _details
+{	
+	struct __InitCryptProv
+	{	HCRYPTPROV	_hCryptProv;
+		__InitCryptProv(){ ::CryptAcquireContextW(&_hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT); }
+		~__InitCryptProv(){ ::CryptReleaseContext(_hCryptProv, 0); _hCryptProv = NULL; }
+	};
+};
+
+bool Randomize(LPVOID p, UINT len)
+{
+	thread_local _details::__InitCryptProv _;
+	return ::CryptGenRandom(_._hCryptProv, len, (LPBYTE)p);
+}
+}	// namespace sec
+
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+
+namespace os
+{
+void Randomize(LPVOID p_in, UINT len)
+{	LPBYTE p = (LPBYTE)p_in;
+	int randomData = open("/dev/urandom", O_RDONLY);
+	if(randomData >= 0)
+	{	size_t copied = 0;
+		while(copied < len)
+		{
+			ssize_t result = read(randomData, p + copied, len - copied);
+			if(result < 0)return false;
+			copied += result;
+		}
+		close(randomData);
+		return true;
+	}
+	return false;
+}	
+} // namespace sec
+
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+// implemented by _objc_randomize
+#else
+static_assert(0, "os::Randomize is not implemented");
+#endif 
 

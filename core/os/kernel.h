@@ -189,6 +189,15 @@ extern rt::String_Ref GetLogFilename();
 extern void SetLogPrefix(const LogPrefix& prefix); // use together with _LOGFORMAT and os::_LOG_TIME, etc.
                                                    // for example: os::SetLogPrefix(_LOGFORMAT << '[' << os::_LOG_TIME << "] File:" << os::_LOG_FILE << " Line:" << os::_LOG_LINE << " Func:" << os::_LOG_FUNC << " FreeMem:" << os::_LOG_MEM << "   ");
 
+#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+} // namespace os
+extern bool _objc_randomize(unsigned char* p, size_t size);
+namespace os
+{
+INLFUNC bool Randomize(LPVOID p, UINT len){ return _objc_randomize((unsigned char*)p, len); }
+#else
+extern bool Randomize(LPVOID p, UINT len);
+#endif
 
 extern int  GetLastError();
 extern void GetHostName(rt::String& name);
