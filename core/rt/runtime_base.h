@@ -1048,8 +1048,13 @@ namespace _details
 			static UINT TrailingZeroBits(T x) { if(0 == x)return 32; return (UINT)__builtin_ctz((DWORD)x); }
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcount((DWORD)x); }
 			static T	ByteOrderSwap(T x) { return __builtin_bswap32((DWORD)x); }
+#if defined(PLATFORM_LINUX)	|| defined(PLATFORM_ANDRIOD)
+            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
+            static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
+#else
             static BYTE AddCarry(BYTE carry, T a, T b, T* c){ UINT carry_out; *(UINT*)c = __builtin_addc((UINT)a, (UINT)b, carry, &carry_out); return (BYTE)carry_out; }
 			static BYTE SubBorrow(BYTE carry, T a, T b, T* c){ UINT carry_out; *(UINT*)c = __builtin_subc((UINT)a, (UINT)b, carry, &carry_out); return (BYTE)carry_out; }
+#endif
 #endif
         };
 		template<typename T> struct AdvBitOps<T, 64>
@@ -1068,8 +1073,13 @@ namespace _details
 			static UINT TrailingZeroBits(T x) { if(0 == x)return 64; return (UINT)__builtin_ctzll((ULONGLONG)x); }
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcountll((ULONGLONG)x); }
 			static T	ByteOrderSwap(T x) { return (T)__builtin_bswap64((ULONGLONG)x); }
+#if defined(PLATFORM_LINUX)	|| defined(PLATFORM_ANDRIOD)
+            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
+            static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
+#else
             static BYTE AddCarry(BYTE carry, T a, T b, T* c){ ULONGLONG carry_out; *(ULONGLONG*)c = __builtin_addcll((ULONGLONG)a, (ULONGLONG)b, carry, &carry_out); return (BYTE)carry_out; }
             static BYTE SubBorrow(BYTE carry, T a, T b, T* c){ ULONGLONG carry_out; *(ULONGLONG*)c = __builtin_subcll((ULONGLONG)a, (ULONGLONG)b, carry, &carry_out); return (BYTE)carry_out; }
+#endif			
 #endif
 		};
 } // namespace _details

@@ -262,6 +262,27 @@ void Randomize(LPVOID p, UINT len)
 	Botan::AutoSeeded_RNG().randomize((LPBYTE)p, len);
 }
 }	// namespace sec
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+namespace sec
+{
+void Randomize(LPVOID p_in, UINT len)
+{	LPBYTE p = (LPBYTE)p_in;
+	int randomData = open("/dev/urandom", O_RDONLY);
+	if(randomData >= 0)
+	{	size_t copied = 0;
+		while(copied < len)
+		{
+			ssize_t result = read(randomData, p + copied, len - copied);
+			if(result < 0)goto ERROR;
+			copied += result;
+		}
+		close(randomData);
+		return;
+	}
+ERROR:	// fallback to Botan
+	Botan::AutoSeeded_RNG().randomize(p, len);
+}	
+} // namespace sec
 #else
 namespace sec
 {
