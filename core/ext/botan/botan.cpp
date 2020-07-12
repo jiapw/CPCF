@@ -239,6 +239,34 @@ void TLS::Destroy()
 		__RecvAteSize = 0;
 	}
 }
-
-
 } // namespace sec
+
+#if defined(PLATFORM_WIN)
+#include <Wincrypt.h>
+namespace sec
+{
+namespace _details
+{	
+	struct __InitCryptProv
+	{	HCRYPTPROV	_hCryptProv;
+		__InitCryptProv(){ ::CryptAcquireContextW(&_hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT); }
+		~__InitCryptProv(){ ::CryptReleaseContext(_hCryptProv, 0); _hCryptProv = NULL; }
+	};
+};
+
+void Randomize(LPVOID p, UINT len)
+{
+	thread_local _details::__InitCryptProv _;
+	if(::CryptGenRandom(_._hCryptProv, len, (LPBYTE)p))return;
+	// fallback to Botan
+	Botan::AutoSeeded_RNG().randomize((LPBYTE)p, len);
+}
+}	// namespace sec
+#else
+namespace sec
+{
+void Randomize(LPVOID p, UINT len){ Botan::AutoSeeded_RNG().randomize((LPBYTE)p, len); }
+}
+#endif 
+
+

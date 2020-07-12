@@ -97,6 +97,12 @@ void rt::UnitTests::crypto_func()
 {
 	static const size_t t = 100000;
 
+	{
+		char b[30];
+		sec::Randomize(b);
+		_LOGC("Rand: "<<rt::tos::Base16OnStack<>(b));
+	}
+
 	rt::Buffer<BYTE>	data, out;
 	data.SetSize(10*1024);
 	data.RandomBits(4);
@@ -158,6 +164,15 @@ void rt::UnitTests::crypto_func()
 	BYTE h[64];
 
 	os::HighPerformanceCounter tm;
+
+	{	BYTE b[256];
+		tm.Restart();
+		for(size_t i=0; i<t; i++)
+		{
+			sec::Randomize(b);
+		}
+		_LOGC("sec::Randomize/256: "<<t*1000000/tm.TimeLapse()<<" kcps");
+	}
 
 	{
 		sec::Cipher<sec::CIPHER_AES128> cipher;

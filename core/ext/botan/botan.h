@@ -88,10 +88,8 @@ public:
 	bool HasCertificateError() const { return _CertificateError; }
 };
 
-INLFUNC void Randomize(LPVOID p, UINT len)
-{
-	Botan::AutoSeeded_RNG().randomize((LPBYTE)p, len);
-}
+extern void Randomize(LPVOID p, UINT len);
+
 template<typename T>
 INLFUNC void Randomize(T& d){ Randomize(&d, sizeof(T)); }
 
