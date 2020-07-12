@@ -152,7 +152,7 @@ protected:
     
     void            _EnsureInit(int op)
                     {   if(_CCRef && op == _CCRef_Op)return;
-                        Empty();
+                        if(_CCRef)CCCryptorRelease(_CCRef);
                         CCCryptorCreate(op, kCCAlgorithmAES, DataBlockSize, _Hash, NativeKeySize, nullptr, &_CCRef);
                     }
 public:
