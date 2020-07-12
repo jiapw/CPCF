@@ -66,13 +66,10 @@ void TestMain()
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
 		TYPETRAITS_UNITTEST(crypto_func);
-
-#if !defined(PLATFORM_IOS)
         TYPETRAITS_UNITTEST(file);
 		TYPETRAITS_UNITTEST(rocks_db);
         TYPETRAITS_UNITTEST(vm);
         TYPETRAITS_UNITTEST(async_write);
-#endif
 	
 		if(0) // non-static test
 		{

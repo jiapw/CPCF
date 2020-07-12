@@ -108,8 +108,15 @@ bool RocksStorage::Open(LPCSTR db_path, RocksStorageWriteRobustness robustness, 
 
 bool RocksStorage::Nuke(LPCSTR db_path)
 {
-	bool ok = ::rocksdb::DestroyDB(db_path, ::rocksdb::Options()).ok();
-	return ok && os::File::RemovePath(db_path);
+	for(UINT i=0; i<10; i++)
+	{
+		bool ok = ::rocksdb::DestroyDB(db_path, ::rocksdb::Options()).ok() &&
+				  os::File::RemovePath(db_path);
+		os::Sleep(100);
+		if(ok)return true;
+	}
+
+	return false;
 }
 
 bool RocksStorage::Rename(LPCSTR db_old_path, LPCSTR db_new_path)

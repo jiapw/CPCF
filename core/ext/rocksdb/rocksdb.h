@@ -581,7 +581,7 @@ protected:
 
 				auto& vis = *(ValueInStg*)buf.Begin();
 				rt::Copy<METADATA_SIZE>(&vis, meta);
-				vis.TotalSize = page_size;
+				vis.TotalSize = size;
 				memcpy(vis.Data, data, page_size);
 
 				if(!_SC::Set(b, ext::SliceValue(&vis, page_size + VALUE_PREFIX_SIZE)))
@@ -620,7 +620,7 @@ protected:
 
 				auto& vis = *(ValueInStg*)buf.Begin();
 				rt::Copy<METADATA_SIZE>(&vis, meta);
-				vis.TotalSize = page_size;
+				vis.TotalSize = size;
 				if(	file.Read(vis.Data, page_size) != page_size || 
 					!_SC::Set(b, ext::SliceValue(&vis, page_size + VALUE_PREFIX_SIZE))
 				)return false;

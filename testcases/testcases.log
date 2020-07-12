@@ -791,7 +791,7 @@ File Remove: 0
 9900
 0
 0
-RocksDBStandalonePaged: Data mismatch
+RocksDBStandalonePaged: Passed
 === UnitTest<rocks_db>: END =====
 
 === UnitTest<vm>: BEGIN ===
