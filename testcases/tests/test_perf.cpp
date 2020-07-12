@@ -125,6 +125,17 @@ void rt::UnitTests::crypto_func()
 	}
 
 	{
+		sec::Cipher<sec::CIPHER_AES128> cipher;
+		cipher.SetKey("123",3);
+		_LOG("ORG: "<<rt::tos::Base16OnStack<>(data, 64));
+		cipher.Encrypt(data, out, 64);
+		_LOG("CIF: "<<rt::tos::Base16OnStack<>(out, 64));
+		data.GetSub(0, 64).Zero();
+		cipher.Decrypt(out, data, 64);
+		_LOG("DEC: "<<rt::tos::Base16OnStack<>(data, 64));
+	}
+
+	{
 		sec::Cipher<sec::CIPHER_AES256> cipher;
 		cipher.SetKey("123",3);
 		_LOG("ORG: "<<rt::tos::Base16OnStack<>(data, 64));
@@ -154,9 +165,20 @@ void rt::UnitTests::crypto_func()
 		tm.Restart();
 		for(size_t i=0; i<t; i++)
 		{
-			cipher.EncryptBlockChained(data, out, data.GetSize(), 1);
+			cipher.Encrypt(data, out, data.GetSize());
 		}
 		_LOGC("AES128-ECB/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
+	}
+
+	{
+		sec::Cipher<sec::CIPHER_AES256> cipher;
+		cipher.SetKey("123",3);
+		tm.Restart();
+		for(size_t i=0; i<t; i++)
+		{
+			cipher.Encrypt(data, out, data.GetSize());
+		}
+		_LOGC("AES256-ECB/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
 	}
 
 	tm.Restart();

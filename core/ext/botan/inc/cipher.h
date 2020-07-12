@@ -72,7 +72,10 @@ struct CipherInitVec: public DataBlock<_LEN>
 } // namespace _details
 } // namespace sec
 
-#ifdef PLATFORM_INTEL_IPP_SUPPORT00
+
+#ifdef PLATFORM_INTEL_IPP_SUPPORT_disabled 
+// TBD: IPP's AES256 produce inconsistent ciphertext that don't match with ones 
+// from Botan and CommonCrypto, and also the IPP Rijndael functions are unexpected slow !!!
 
 namespace sec
 {
@@ -90,7 +93,7 @@ struct	_cipher_spec;
 
 } // namespace _details
 
-template<UINT _METHOD, UINT _MODE = CIPHER_ECB>
+template<UINT _METHOD>
 class Cipher;
 
 #define DEF_AES_CIPHER(_METHOD, MethodName) \
@@ -107,8 +110,8 @@ public: static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockS
 		IPPCALL(ipps##MethodName##Init)((LPCBYTE)key, (IppsRijndaelKeyLength)(sizeof(hash)*8), (Ipps##MethodName##Spec*)_Context); \
         if(len != NativeKeySize)rt::Zero(hash); \
 	} \
-	INLFUNC void Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len){ ASSERT((Len%DataBlockSize) == 0); IPPCALL(ipps##MethodName##EncryptECB)((LPCBYTE)pPlain,(LPBYTE)pCrypt,(int)Len,(Ipps##MethodName##Spec*)_Context,IppsCPPaddingNONE); } \
-	INLFUNC void Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len){ ASSERT((Len%DataBlockSize) == 0); IPPCALL(ipps##MethodName##DecryptECB)((LPCBYTE)pCrypt,(LPBYTE)pPlain,(int)Len,(Ipps##MethodName##Spec*)_Context,IppsCPPaddingNONE); } \
+	INLFUNC void Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len){ ASSERT((Len%DataBlockSize) == 0); IPPCALL(ipps##MethodName##EncryptECB)((LPCBYTE)pPlain,(LPBYTE)pCrypt,(int)Len,(Ipps##MethodName##Spec*)_Context,IppsCPPaddingPKCS7); } \
+	INLFUNC void Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len){ ASSERT((Len%DataBlockSize) == 0); IPPCALL(ipps##MethodName##DecryptECB)((LPCBYTE)pCrypt,(LPBYTE)pPlain,(int)Len,(Ipps##MethodName##Spec*)_Context,IppsCPPaddingPKCS7); } \
 	INLFUNC void EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce) \
 	{	_details::CipherInitVec<DataBlockSize> IV(nonce); \
 		ASSERT((Len%DataBlockSize) == 0); \
@@ -131,7 +134,7 @@ DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)
 
 #else
 
-#if defined(PLATFORM_IOS)  // TBD
+#if defined(PLATFORM_IOS)
 
 #include <CommonCrypto/CommonCryptor.h>
 

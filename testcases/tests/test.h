@@ -39,6 +39,7 @@ struct UnitTests
 	static void sortedpush();
 	static void sparsehash();
 	static void async_queue();
+	static void crypto_func();
 
 #if !defined(PLATFORM_IOS)
 	static void rocks_db();
@@ -56,7 +57,6 @@ struct UnitTests
 	static void ipp_zip();
 
 	static void callback_to_member_function();
-	static void crypto_func();
 
 	static void image_to_text();
 

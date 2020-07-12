@@ -58,6 +58,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(botan_hash);
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
+		TYPETRAITS_UNITTEST(crypto_func);
 
 #if !defined(PLATFORM_IOS)
         TYPETRAITS_UNITTEST(file);
