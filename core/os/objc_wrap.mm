@@ -117,7 +117,6 @@ block();\
 dispatch_async(dispatch_get_main_queue(), block);\
 }
 
-int _objc_get_battery_state();
 int _objc_get_battery_state()
 {
 	if([UIDevice currentDevice].batteryState == UIDeviceBatteryStateUnplugged)
@@ -126,7 +125,6 @@ int _objc_get_battery_state()
 	else return 100;
 }
 
-int _objc_get_app_sandbox_path(char * path_out, int path_len);
 int _objc_get_app_sandbox_path(char * path_out, int path_len)
 {
 	NSString* path = @"~/Documents";
@@ -140,7 +138,6 @@ int _objc_get_app_sandbox_path(char * path_out, int path_len)
 	else return 0;
 }
 
-void _objc_view_get_size(LPVOID pUIView, int* w, int *h);
 void _objc_view_get_size(LPVOID pUIView, int* w, int *h)
 {	*w = (int)(((__bridge UIView*)pUIView).bounds.size.width + 0.5f);
 	*h = (int)(((__bridge UIView*)pUIView).bounds.size.height + 0.5f);
@@ -148,13 +145,11 @@ void _objc_view_get_size(LPVOID pUIView, int* w, int *h)
 
 LPVOID __p_debug_textbox = NULL;
 
-void _setup_debug_textbox(LPVOID pView);
 void _setup_debug_textbox(LPVOID pView)
 {
     __p_debug_textbox = pView;
 }
 
-void _set_debug_textbox(LPCSTR text);
 void _set_debug_textbox(LPCSTR text)
 {
     if(__p_debug_textbox)
@@ -163,28 +158,10 @@ void _set_debug_textbox(LPCSTR text)
     }
 }
 
-// add the AdSupport frameworks to your "Link with Binaries" build phase.
-bool _objc_get_device_uid(char id[64]);
-bool _objc_get_device_uid(char id[64])
-{
-	NSString *adId = NULL;
-	const char* str = [adId UTF8String];
-	int len;
-	if(	(adId = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString]) &&
-		(str = [adId UTF8String]) &&
-	    (len = (int)strlen(str)) < 64
-	)
-	{	memcpy(id, str, len+1);
-		return true;
-	}
-	return false;
-}
-
 bool _objc_can_open_url(NSURL *URL) {
     return [[UIApplication sharedApplication] canOpenURL:URL];
 }
 
-void _objc_open_url(const char *urlCString, void (*completionHandler)(bool success, void* c), void* cookie);
 void _objc_open_url(const char *urlCString, void (*completionHandler)(bool success, void* c), void* cookie) {
     DispatchMainThreadAsync(^{
         NSString *urlString = [NSString stringWithUTF8String:urlCString];
@@ -230,6 +207,12 @@ int _objc_get_bundle_path(char* pOut, int OutSize)
 		return len;
 	}
 	else return 0;
+}
+
+bool _objc_randomize(unsigned char* p, size_t size)
+{   // used in sec::Randomize
+    // add security.framework
+    return errSecSuccess == SecRandomCopyBytes(kSecRandomDefault, size, p);
 }
 
 #endif

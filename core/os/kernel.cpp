@@ -1091,14 +1091,7 @@ bool GetDeviceUID(rt::String& str)
 	if(ioRegistryRoot)IOObjectRelease(ioRegistryRoot);
 	return ret;
 #elif defined(PLATFORM_IOS)
-	char uid_string[64];
-	if(_objc_get_device_uid(uid_string) &&
-	   rt::String_Ref(uid_string).RemoveCharacters('-').GetLength() == 32
-	)
-	{	str = rt::SS("ios-") + uid_string;
-		return true;
-	}
-	else return false;
+    // TBD, don't rely on adsupport.framework
 #elif defined(PLATFORM_LINUX)
 	rt::String board_serial, product_uuid;
 	if(	os::File::LoadText("/sys/class/dmi/id/board_serial", board_serial) ||

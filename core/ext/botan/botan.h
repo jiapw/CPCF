@@ -88,7 +88,18 @@ public:
 	bool HasCertificateError() const { return _CertificateError; }
 };
 
+#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+} // namespace sec
+extern bool _objc_randomize(unsigned char* p, size_t size);
+namespace sec
+{
+INLFUNC void Randomize(LPVOID p, UINT len)
+{   if(_objc_randomize((unsigned char*)p, len))return;
+    Botan::AutoSeeded_RNG().randomize((LPBYTE)p, len);
+}
+#else
 extern void Randomize(LPVOID p, UINT len);
+#endif
 
 template<typename T>
 INLFUNC void Randomize(T& d){ Randomize(&d, sizeof(T)); }

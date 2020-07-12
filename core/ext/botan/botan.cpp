@@ -283,6 +283,8 @@ ERROR:	// fallback to Botan
 	Botan::AutoSeeded_RNG().randomize(p, len);
 }	
 } // namespace sec
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+// implemented by _objc_randomize
 #else
 namespace sec
 {

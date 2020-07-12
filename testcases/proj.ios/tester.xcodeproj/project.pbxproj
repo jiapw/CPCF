@@ -15,7 +15,6 @@
 		93C4A2B216A013F000D3C820 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 93C4A2B016A013F000D3C820 /* InfoPlist.strings */; };
 		93C4A2B816A013F000D3C820 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93C4A2B716A013F000D3C820 /* AppDelegate.mm */; };
 		93C4A2BB16A013F000D3C820 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93C4A2BA16A013F000D3C820 /* ViewController.mm */; };
-		93F4DCAD1A6278F60000C706 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F4DCAC1A6278F60000C706 /* AdSupport.framework */; };
 		9425156224AD007D00A8222C /* test_api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425155A24AD007B00A8222C /* test_api.cpp */; };
 		9425156324AD007D00A8222C /* test_perf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425155B24AD007B00A8222C /* test_perf.cpp */; };
 		9425156424AD007D00A8222C /* test_botan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9425155C24AD007B00A8222C /* test_botan.cpp */; };
@@ -42,6 +41,7 @@
 		942515A824AD0A3200A8222C /* precompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515A724AD0A3200A8222C /* precompiler.cpp */; };
 		942515AA24AD0AAB00A8222C /* test_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515A924AD0AAB00A8222C /* test_ext.cpp */; };
 		942515AD24AD0D7D00A8222C /* exprtk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515AC24AD0D7D00A8222C /* exprtk.cpp */; };
+		9455454124BACAFA009A9796 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9455454024BACAF9009A9796 /* Security.framework */; };
 		94EA1D7D24B19FD0005BD2C7 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94EA1D7C24B19FD0005BD2C7 /* main.mm */; };
 /* End PBXBuildFile section */
 
@@ -112,6 +112,7 @@
 		942515A924AD0AAB00A8222C /* test_ext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_ext.cpp; path = ../../tests/test_ext.cpp; sourceTree = "<group>"; };
 		942515AB24AD0D7D00A8222C /* exprtk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = exprtk.h; path = ../../core/ext/exprtk/exprtk.h; sourceTree = "<group>"; };
 		942515AC24AD0D7D00A8222C /* exprtk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exprtk.cpp; path = ../../core/ext/exprtk/exprtk.cpp; sourceTree = "<group>"; };
+		9455454024BACAF9009A9796 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94EA1D7C24B19FD0005BD2C7 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		94FEE4B719C162D9002E9EC3 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		94FEE4BA19C16573002E9EC3 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
@@ -122,7 +123,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				93F4DCAD1A6278F60000C706 /* AdSupport.framework in Frameworks */,
+				9455454124BACAFA009A9796 /* Security.framework in Frameworks */,
 				93C4A2A816A013F000D3C820 /* UIKit.framework in Frameworks */,
 				93C4A2AA16A013F000D3C820 /* Foundation.framework in Frameworks */,
 				93C4A2AC16A013F000D3C820 /* CoreGraphics.framework in Frameworks */,
@@ -163,6 +164,7 @@
 		93C4A2A616A013F000D3C820 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9455454024BACAF9009A9796 /* Security.framework */,
 				93F4DCAC1A6278F60000C706 /* AdSupport.framework */,
 				93C4A2A716A013F000D3C820 /* UIKit.framework */,
 				93C4A2A916A013F000D3C820 /* Foundation.framework */,
@@ -485,7 +487,7 @@
 				GCC_PREFIX_HEADER = "tester/tester-Prefix.pch";
 				INFOPLIST_FILE = "tester/tester-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.PTEz.ConsoleDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cpcf.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -504,7 +506,7 @@
 				GCC_PREFIX_HEADER = "tester/tester-Prefix.pch";
 				INFOPLIST_FILE = "tester/tester-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.PTEz.ConsoleDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cpcf.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
