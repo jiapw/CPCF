@@ -51,6 +51,7 @@
 		941D3E9A213073E000F97118 /* botan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E98213073E000F97118 /* botan.cpp */; };
 		941D3E9D2130779000F97118 /* exprtk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E9B2130779000F97118 /* exprtk.cpp */; };
 		9429576E241709C500A5A0A3 /* test_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9429576D241709C500A5A0A3 /* test_ext.cpp */; };
+		945545D524BB924B009A9796 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 945545D424BB924B009A9796 /* Security.framework */; };
 		946C4501243E881D009D8581 /* rocksdb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946C4500243E881D009D8581 /* rocksdb.cpp */; };
 		94A69E9022C0840A00757781 /* test_perf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A69E8F22C0840A00757781 /* test_perf.cpp */; };
 		95C9EC94232A3D5D002A4B91 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC93232A3D5D002A4B91 /* json.cpp */; };
@@ -143,6 +144,7 @@
 		941D3E9B2130779000F97118 /* exprtk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exprtk.cpp; path = ../../../core/ext/exprtk/exprtk.cpp; sourceTree = "<group>"; };
 		941D3E9C2130779000F97118 /* exprtk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = exprtk.h; path = ../../../core/ext/exprtk/exprtk.h; sourceTree = "<group>"; };
 		9429576D241709C500A5A0A3 /* test_ext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_ext.cpp; path = ../../tests/test_ext.cpp; sourceTree = "<group>"; };
+		945545D424BB924B009A9796 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		946C44FF243E881D009D8581 /* rocksdb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rocksdb.h; path = ../../../core/ext/rocksdb/rocksdb.h; sourceTree = "<group>"; };
 		946C4500243E881D009D8581 /* rocksdb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rocksdb.cpp; path = ../../../core/ext/rocksdb/rocksdb.cpp; sourceTree = "<group>"; };
 		94A69E8F22C0840A00757781 /* test_perf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_perf.cpp; path = ../../tests/test_perf.cpp; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 				941D3E80213073A100F97118 /* libippcore_l.a in Frameworks */,
 				941D3E79213073A100F97118 /* libippcc_l.a in Frameworks */,
 				9339FFC4175C8D6E005A3FA2 /* AppKit.framework in Frameworks */,
+				945545D524BB924B009A9796 /* Security.framework in Frameworks */,
 				93C4A270169FF68100D3C820 /* IOKit.framework in Frameworks */,
 				941D3E81213073A100F97118 /* libippdi_l.a in Frameworks */,
 				941D3E88213073A100F97118 /* libippcv_l.a in Frameworks */,
@@ -225,6 +228,7 @@
 				93C4A26F169FF68100D3C820 /* IOKit.framework */,
 				93C4A231169FEC7A00D3C820 /* tester */,
 				93C4A22F169FEC7A00D3C820 /* Products */,
+				945545D324BB924B009A9796 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -326,6 +330,14 @@
 				941D3E99213073E000F97118 /* botan.h */,
 			);
 			name = ext;
+			sourceTree = "<group>";
+		};
+		945545D324BB924B009A9796 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				945545D424BB924B009A9796 /* Security.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -439,6 +451,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					PLATFORM_APPLICATION,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -474,6 +487,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = PLATFORM_APPLICATION;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;

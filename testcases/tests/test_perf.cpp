@@ -195,33 +195,32 @@ void rt::UnitTests::crypto_func()
 		}
 		_LOGC("AES256-ECB/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
 	}
+    
+#define HASH_PREF_TEST(algo)    \
+    tm.Restart();   \
+    for(size_t i=0; i<t; i++)   \
+       sec::Hash<sec::algo>().Calculate(data, data.GetSize(), h); \
+    _LOGC(#algo "/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");     \
+    tm.Restart();   \
+    for(size_t i=0; i<t; i++)   \
+    {   sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+        sec::Hash<sec::algo>().Calculate(data, 64, h); \
+    } \
+    _LOGC(#algo "/64: "<<t*10000000/tm.TimeLapse()<<" kcps");
 
-	tm.Restart();
-	for(size_t i=0; i<t; i++)
-	{
-		sec::Hash<sec::HASH_SHA256>().Calculate(data, data.GetSize(), h);
-	}
-	_LOGC("HASH_SHA256/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
-
-	tm.Restart();
-	for(size_t i=0; i<t; i++)
-	{
-		sec::Hash<sec::HASH_SHA256>().Calculate(data, 64, h);
-	}
-	_LOGC("HASH_SHA256/64: "<<t*1000000/tm.TimeLapse()<<" kcps");
-
-	tm.Restart();
-	for(size_t i=0; i<t; i++)
-	{
-		sec::Hash<sec::HASH_CRC32>().Calculate(data, data.GetSize(), h);
-	}
-	_LOGC("HASH_CRC32/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
-
-	tm.Restart();
-	for(size_t i=0; i<t; i++)
-	{
-		sec::Hash<sec::HASH_CRC32>().Calculate(data, 8, h);
-	}
-	_LOGC("HASH_CRC32/8: "<<t*1000000/tm.TimeLapse()<<" kcps");
-
+    HASH_PREF_TEST(HASH_SHA512);
+    HASH_PREF_TEST(HASH_SHA384);
+    HASH_PREF_TEST(HASH_SHA256);
+    HASH_PREF_TEST(HASH_SHA224);
+    HASH_PREF_TEST(HASH_SHA1);
+    HASH_PREF_TEST(HASH_MD5);
+    HASH_PREF_TEST(HASH_CRC32);
 }
