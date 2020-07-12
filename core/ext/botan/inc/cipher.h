@@ -131,7 +131,7 @@ DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)
 
 #else
 
-#if defined(PLATFORM_IOS_just_disable)  // TBD
+#if defined(PLATFORM_IOS)  // TBD
 
 #include <CommonCrypto/CommonCryptor.h>
 
@@ -150,17 +150,14 @@ protected:
     CCCryptorRef    _CCRef;
     BYTE            _Hash[NativeKeySize];
     
-    void            _EnsureInit(int op, LPCVOID iv = nullptr)
-                    {   if(_CCRef && op == _CCRef_Op)
-                        {   if(iv)CCCryptorReset(_CCRef, iv);
-                            return;
-                        }
+    void            _EnsureInit(int op)
+                    {   if(_CCRef && op == _CCRef_Op)return;
                         Empty();
-                        CCCryptorCreate(op, kCCAlgorithmAES, DataBlockSize, _Hash, NativeKeySize, iv, &_CCRef);
+                        CCCryptorCreate(op, kCCAlgorithmAES, DataBlockSize, _Hash, NativeKeySize, nullptr, &_CCRef);
                     }
 public:
-    Cipher(){ _CCRef = nullptr; }
-    ~Cipher(){ Empty(); }
+    CipherBase(){ _CCRef = nullptr; }
+    ~CipherBase(){ Empty(); }
     void            Empty(){ if(_CCRef){ CCCryptorRelease(_CCRef); _CCRef = nullptr; } rt::Zero(_Hash); }
     static void     ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key); }
     void            SetKey(LPCVOID key, UINT len)
@@ -204,10 +201,6 @@ template<UINT _METHOD>
 class CipherBase
 {
 	typename _details::_cipher_spec<_METHOD>::Cipher	_Cipher;
-protected:
-	void            _EncryptBlock(LPCVOID pPlain, LPVOID pCrypt){ _Cipher.encrypt((LPCBYTE)pPlain, (LPBYTE)pCrypt); }
-	void            _DecryptBlock(LPCVOID pCrypt, LPVOID pPlain){ _Cipher.decrypt((LPCBYTE)pCrypt, (LPBYTE)pPlain); }
-
 public:
     static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockSize;
     static const UINT NativeKeySize = _details::_HashSize<_details::_AES_Traits<_METHOD>::KEY_HASHER>::size;
@@ -238,26 +231,26 @@ class Cipher: public _details::CipherBase<_METHOD>
 {	typedef _details::CipherBase<_METHOD> _SC;
 public:
 	void EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce)
-	{	_details::CipherInitVec<DataBlockSize> IV(nonce);
+	{	_details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
 		ASSERT((Len%_SC::DataBlockSize) == 0);
 		auto* p = (DataBlock<_SC::DataBlockSize>*)pPlain;
 		auto* c = (DataBlock<_SC::DataBlockSize>*)pCrypt;
 		Len /= _SC::DataBlockSize;
 		for(UINT i=0; i<Len; i++, p++, c++)
 		{	IV ^= *p;
-			_SC::_EncryptBlock(&IV, c);
+			_SC::Encrypt(&IV, c, _SC::DataBlockSize);
 			c->CopyTo(IV);
 		}
 	}
 	void DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
-	{	_details::CipherInitVec<DataBlockSize> IV(nonce);
+	{	_details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
 		ASSERT((Len%_SC::DataBlockSize) == 0);
 		DataBlock<_SC::DataBlockSize>* iv = &IV;
 		auto* p = (DataBlock<_SC::DataBlockSize>*)pPlain;
 		auto* c = (DataBlock<_SC::DataBlockSize>*)pCrypt;
 		Len /= _SC::DataBlockSize;
 		for(UINT i=0; i<Len; i++, p++, c++)
-		{	_SC::_DecryptBlock(c, p);
+		{	_SC::Decrypt(c, p, _SC::DataBlockSize);
 			*p ^= *iv;
 			iv = c;
 		}
