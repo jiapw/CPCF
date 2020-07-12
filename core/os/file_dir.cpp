@@ -43,7 +43,7 @@ struct _stat:public stat{};
 #endif
 
 #if defined(PLATFORM_IOS)
-extern "C" int _objc_get_app_sandbox_path(char * path_out, int path_len);
+int _objc_get_app_sandbox_path(char * path_out, int path_len);
 #endif
 
 #endif

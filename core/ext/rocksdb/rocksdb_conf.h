@@ -8,7 +8,7 @@
 
 #if defined(PLATFORM_WIN)
     #define OS_WIN 1
-#elif defined(PLATFORM_MAC)
+#elif defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
     #define OS_MACOSX 1
     #define ROCKSDB_PLATFORM_POSIX 1
 #else

@@ -40,11 +40,7 @@ struct UnitTests
 	static void sparsehash();
 	static void async_queue();
 	static void crypto_func();
-
-#if !defined(PLATFORM_IOS)
 	static void rocks_db();
-#endif
- 
 	static void httpd();
 
 	static void botan_hash();

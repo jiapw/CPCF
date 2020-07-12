@@ -1160,7 +1160,7 @@ void SetProcessPriority(int prio)
 	case PROCPRIO_IDLE: ::SetPriorityClass(::GetCurrentProcess(), IDLE_PRIORITY_CLASS); break;
 	default: ASSERT(0);
 	}
-#elif defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_IOS)
 	switch(prio)
 	{
 	case PROCPRIO_REALTIME: ::setpriority(PRIO_PROCESS, 0, 20); break;
@@ -1171,7 +1171,7 @@ void SetProcessPriority(int prio)
 	default: ASSERT(0);
 	}
 #else
-	ASSERT(0);
+	static_assert(0, "os::SetProcessPriority not implemented");
 #endif
 }
 

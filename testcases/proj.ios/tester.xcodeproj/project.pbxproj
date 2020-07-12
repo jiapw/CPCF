@@ -42,6 +42,7 @@
 		942515AA24AD0AAB00A8222C /* test_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515A924AD0AAB00A8222C /* test_ext.cpp */; };
 		942515AD24AD0D7D00A8222C /* exprtk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515AC24AD0D7D00A8222C /* exprtk.cpp */; };
 		9455454124BACAFA009A9796 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9455454024BACAF9009A9796 /* Security.framework */; };
+		9455454A24BAD6F9009A9796 /* rocksdb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9455454924BAD6F9009A9796 /* rocksdb.cpp */; };
 		94EA1D7D24B19FD0005BD2C7 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94EA1D7C24B19FD0005BD2C7 /* main.mm */; };
 /* End PBXBuildFile section */
 
@@ -113,6 +114,8 @@
 		942515AB24AD0D7D00A8222C /* exprtk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = exprtk.h; path = ../../core/ext/exprtk/exprtk.h; sourceTree = "<group>"; };
 		942515AC24AD0D7D00A8222C /* exprtk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exprtk.cpp; path = ../../core/ext/exprtk/exprtk.cpp; sourceTree = "<group>"; };
 		9455454024BACAF9009A9796 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		9455454824BAD6F9009A9796 /* rocksdb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rocksdb.h; path = ../../core/ext/rocksdb/rocksdb.h; sourceTree = "<group>"; };
+		9455454924BAD6F9009A9796 /* rocksdb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rocksdb.cpp; path = ../../core/ext/rocksdb/rocksdb.cpp; sourceTree = "<group>"; };
 		94EA1D7C24B19FD0005BD2C7 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		94FEE4B719C162D9002E9EC3 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		94FEE4BA19C16573002E9EC3 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
@@ -283,6 +286,8 @@
 		942515A224AD07D700A8222C /* externs */ = {
 			isa = PBXGroup;
 			children = (
+				9455454924BAD6F9009A9796 /* rocksdb.cpp */,
+				9455454824BAD6F9009A9796 /* rocksdb.h */,
 				942515AC24AD0D7D00A8222C /* exprtk.cpp */,
 				942515AB24AD0D7D00A8222C /* exprtk.h */,
 			);
@@ -384,6 +389,7 @@
 				9425156724AD007D00A8222C /* test_http.cpp in Sources */,
 				942515AA24AD0AAB00A8222C /* test_ext.cpp in Sources */,
 				9425156C24AD00D500A8222C /* experiments.cpp in Sources */,
+				9455454A24BAD6F9009A9796 /* rocksdb.cpp in Sources */,
 				942515A124AD015800A8222C /* json.cpp in Sources */,
 				9425157D24AD010900A8222C /* inet.cpp in Sources */,
 				9425159424AD013800A8222C /* file_zip.cpp in Sources */,

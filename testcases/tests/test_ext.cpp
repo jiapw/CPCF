@@ -105,10 +105,9 @@ void rt::UnitTests::sparsehash()
 	}
 }
 
-#if !defined(PLATFORM_IOS)
 void rt::UnitTests::rocks_db()
 {
-	LPCSTR fn = "test.db";
+	LPCSTR fn = "test.db";   
 
 	{
 		ext::RocksStorage::Nuke(fn);
@@ -700,7 +699,6 @@ void rt::UnitTests::rocks_db()
 	}
 	*/
 }
-#endif // exclude iOS
 
 void rt::UnitTests::async_queue()
 {

@@ -13,6 +13,13 @@ void TestMain()
 	os::SetLogFile(logfile, false);
 	os::SetLogPrefix(os::LogPrefix());
 
+#if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
+    {   rt::String cd;
+        os::GetAppSandbox(cd, nullptr);
+        os::File::SetCurrentDirectory(cd);
+    }
+#endif
+
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
 		TYPETRAITS_UNITTEST(rocks_db);
