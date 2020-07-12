@@ -9,16 +9,7 @@
 
 void ConsoleWriter(LPCSTR log, int type, LPVOID cookie)
 {
-    thread_local rt::String str;
-    rt::String_Ref s(log);
-    str.Empty();
-    for(SIZE_T i=0; i<s.GetLength(); i++)
-    {
-        if(s[i] == '\n' && (s[i+1] != '\r' || s[i+1] == '\x0'))str += rt::SS("\n\r");
-        else str += s[i];
-    }
-    
-    NSString *string = [NSString stringWithUTF8String:str.Begin()];
+    NSString *string = [NSString stringWithUTF8String:log];
     [DeviceConsole logString:string type:(ConsoleLogType)(type & 0xFF)];
 }
 
