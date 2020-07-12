@@ -613,6 +613,9 @@ TYPETRAITS_DEFINE(os::Timestamp,void,true,false)
 namespace os
 {
 
+extern DWORD		crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0);
+extern ULONGLONG	crc64(LPCVOID stream, SIZE_T n, ULONGLONG crc_init = 0);
+
 #if defined(PLATFORM_WIN)
 #else
 typedef char16_t        WCHAR;
@@ -624,10 +627,10 @@ typedef WCHAR*          LPU16CHAR;
 
 // UTF16 to UTF8
 extern SIZE_T	UTF8EncodeLength(LPCU16CHAR pIn, SIZE_T len);			// return number of char
-extern SIZE_T	UTF8Encode(LPCU16CHAR pIn, SIZE_T len, LPSTR pOut);	// return number of char
+extern SIZE_T	UTF8Encode(LPCU16CHAR pIn, SIZE_T len, LPSTR pOut);		// return number of char
 // UTF8 to UTF16
 extern SIZE_T	UTF8DecodeLength(LPCSTR pIn, SIZE_T len);				// return number of wchar
-extern SIZE_T	UTF8Decode(LPCSTR pIn, SIZE_T len, LPU16CHAR pOut);	// return number of wchar
+extern SIZE_T	UTF8Decode(LPCSTR pIn, SIZE_T len, LPU16CHAR pOut);		// return number of wchar
 extern U16CHAR	UTF8Decode(LPCSTR& pIn);
 extern SIZE_T	UTF8ByteOffset(LPCSTR pIn, SIZE_T len, SIZE_T num_of_utf8_char); // counting number of utf8 chatactors
 

@@ -31,6 +31,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "../../rt/small_math.h"
+#include "../../os/kernel.h"
 #include "ipp_config.h"
 
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
@@ -218,11 +219,10 @@ struct Rect:public IppiRect
 	IPP_TYPE_EXT(Ipp64f);
 #undef IPP_TYPE_EXT
 
-
-extern ULONGLONG crc64(LPCVOID stream, SIZE_T n, ULONGLONG crc = 0);
+INLFUNC ULONGLONG crc64(LPCVOID stream, SIZE_T n, ULONGLONG crc_init = 0){ return os::crc64(stream, n, crc_init); }
 
 #ifndef PLATFORM_INTEL_IPP_SUPPORT
-extern  DWORD crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0);
+INLFUNC DWORD crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0){ return os::crc32c(data, length, crc_init); }
 #else
 INLFUNC DWORD crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0)
 {	crc_init = ~crc_init;
