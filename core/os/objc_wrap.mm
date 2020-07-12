@@ -29,6 +29,7 @@ void _objc_view_accept_mousemove(LPVOID pNSView, bool set)
 {	[[(__bridge NSView*)pNSView window] setAcceptsMouseMovedEvents: set];
 }
 
+#if defined(PLATFORM_APPLICATION)
 bool _objc_pumpevents()
 {
 	bool hadevent = FALSE;
@@ -46,6 +47,7 @@ bool _objc_pumpevents()
 	}
 	return hadevent;
 }
+#endif // #if defined(PLATFORM_APPLICATION)
 
 void _objc_preference_save_string(LPCSTR key, LPCSTR val)
 {
@@ -83,6 +85,7 @@ UINT _objc_preference_load_string(LPCSTR key, LPSTR val_out, UINT val_size)
 	return len;
 }
 
+#if defined(PLATFORM_APPLICATION)
 UINT _objc_get_screens_dim(rt::Vec2i* p, UINT co)
 {
     NSArray *screenArray = [NSScreen screens];
@@ -98,6 +101,7 @@ UINT _objc_get_screens_dim(rt::Vec2i* p, UINT co)
     
     return index;
 }
+#endif // #if defined(PLATFORM_APPLICATION)
 
 #endif
 
@@ -117,6 +121,7 @@ block();\
 dispatch_async(dispatch_get_main_queue(), block);\
 }
 
+#if defined(PLATFORM_APPLICATION)
 int _objc_get_battery_state()
 {
 	if([UIDevice currentDevice].batteryState == UIDeviceBatteryStateUnplugged)
@@ -124,6 +129,7 @@ int _objc_get_battery_state()
 	}
 	else return 100;
 }
+#endif // #if defined(PLATFORM_APPLICATION)
 
 int _objc_get_app_sandbox_path(char * path_out, int path_len)
 {
@@ -143,21 +149,7 @@ void _objc_view_get_size(LPVOID pUIView, int* w, int *h)
 	*h = (int)(((__bridge UIView*)pUIView).bounds.size.height + 0.5f);
 }
 
-LPVOID __p_debug_textbox = NULL;
-
-void _setup_debug_textbox(LPVOID pView)
-{
-    __p_debug_textbox = pView;
-}
-
-void _set_debug_textbox(LPCSTR text)
-{
-    if(__p_debug_textbox)
-    {
-        [((__bridge UITextView*)__p_debug_textbox) setText:[NSString stringWithUTF8String:text] ];
-    }
-}
-
+#if defined(PLATFORM_APPLICATION)
 bool _objc_can_open_url(NSURL *URL) {
     return [[UIApplication sharedApplication] canOpenURL:URL];
 }
@@ -186,8 +178,7 @@ void _objc_open_url(const char *urlCString, void (*completionHandler)(bool succe
         }
     });
 }
-
-int _objc_get_bundle_path(char* pOut, int OutSize);
+#endif // #if defined(PLATFORM_APPLICATION)
 
 #endif
 

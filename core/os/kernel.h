@@ -229,9 +229,6 @@ extern bool	  GetDeviceUID(rt::String& uid);
 extern DWORD  GetRandomSeed();
 
 extern LPCSTR GetBuildSpecificationString();
-extern void	  SetDebugTextBox(const rt::String_Ref& x);
-extern void	  SetupDebugTextBox(LPVOID param = nullptr);
-
 extern void	  BruteforceExit();
 
 #if defined(PLATFORM_WIN)

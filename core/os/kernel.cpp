@@ -29,7 +29,10 @@
 #include <unistd.h>
 
 extern int _objc_get_bundle_path(char* pOut, int OutSize);
+
+#if defined(PLATFORM_APPLICATION)
 extern UINT _objc_get_screens_dim(rt::Vec2i* p, UINT co);
+#endif
 
 #define MAP_ANONYMOUS MAP_ANON
 
@@ -45,9 +48,8 @@ extern void _objc_preference_save_string(LPCSTR key, LPCSTR val);
 #endif
 
 
-#if defined(PLATFORM_IOS)
+#if defined(PLATFORM_IOS) && defined(PLATFORM_APPLICATION)
 extern int _objc_get_battery_state();
-extern bool _objc_get_device_uid(char id[64]);
 #endif
 
 #elif defined(PLATFORM_ANDROID) || defined(PLATFORM_LINUX)
@@ -580,13 +582,17 @@ UINT os::GetPowerState()		// precentage of battery remaining
 	if(tiv == kIOPSTimeRemainingUnlimited || tiv == kIOPSTimeRemainingUnknown)return 100;
 	return rt::min(2*3600.0, tiv)*100/(2*3600);
 #elif defined(PLATFORM_IOS)
+    #if defined(PLATFORM_APPLICATION)
 	return _objc_get_battery_state();
+    #else
+    return 60;
+    #endif
 #elif defined(PLATFORM_ANDROID)
-	return 100; // not supported for Android
+	return 60; // not supported for Android
 #elif defined(PLATFORM_LINUX)
 	//  /sys/class/power_supply/BAT0...
 	//  /proc/acpi/battery/BAT1/state
-	return 100; // not supported for Android
+	return 60; // not supported for Android
 #else
 	#error TBD
 #endif
@@ -1519,6 +1525,7 @@ bool os::OpenDefaultBrowser(LPCSTR url_in)
 }
 #elif defined(PLATFORM_IOS)
 
+#if defined(PLATFORM_APPLICATION)
 extern void _objc_open_url(const char *urlCString, void (*completionHandler)(bool success, void* c), void* cookie);
 bool os::OpenDefaultBrowser(LPCSTR url_in)
 {
@@ -1536,6 +1543,8 @@ bool os::OpenDefaultBrowser(LPCSTR url_in)
     _._wait.WaitSignal();
     return _.ret;
 }
+#endif // #if defined(PLATFORM_APPLICATION)
+
 #else
 
 bool os::OpenDefaultBrowser(LPCSTR url_in)
@@ -1736,34 +1745,7 @@ void ConsoleProgressIndicator::_Display()
 
 }
 
-#if defined(PLATFORM_IOS)
-
-extern void _setup_debug_textbox(LPVOID pView);
-extern void _set_debug_textbox(LPCSTR text);
-
-void os::SetDebugTextBox(const rt::String_Ref& x)
-{
-    if(x.IsEmpty())_set_debug_textbox("");
-    else if(x.IsZeroTerminated())_set_debug_textbox(x.Begin());
-    else
-    {   _set_debug_textbox(ALLOCA_C_STRING(x));
-    }
-}
-void os::SetupDebugTextBox(LPVOID param){ _setup_debug_textbox(param); }
-
-#else
-
-void os::SetDebugTextBox(const rt::String_Ref& x)
-{
-	_LOG("DebugTextBox: \n"<<x);
-}
-
-void os::SetupDebugTextBox(LPVOID param){}
-
-#endif
-
 #if defined(PLATFORM_WIN)
-
 #include <Wincrypt.h>
 namespace os
 {

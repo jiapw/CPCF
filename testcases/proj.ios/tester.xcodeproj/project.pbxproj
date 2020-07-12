@@ -41,8 +41,8 @@
 		942515A824AD0A3200A8222C /* precompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515A724AD0A3200A8222C /* precompiler.cpp */; };
 		942515AA24AD0AAB00A8222C /* test_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515A924AD0AAB00A8222C /* test_ext.cpp */; };
 		942515AD24AD0D7D00A8222C /* exprtk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 942515AC24AD0D7D00A8222C /* exprtk.cpp */; };
-		9455454124BACAFA009A9796 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9455454024BACAF9009A9796 /* Security.framework */; };
 		9455454A24BAD6F9009A9796 /* rocksdb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9455454924BAD6F9009A9796 /* rocksdb.cpp */; };
+		9455456324BAEC0B009A9796 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9455454024BACAF9009A9796 /* Security.framework */; };
 		94EA1D7D24B19FD0005BD2C7 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94EA1D7C24B19FD0005BD2C7 /* main.mm */; };
 /* End PBXBuildFile section */
 
@@ -126,9 +126,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9455454124BACAFA009A9796 /* Security.framework in Frameworks */,
 				93C4A2A816A013F000D3C820 /* UIKit.framework in Frameworks */,
 				93C4A2AA16A013F000D3C820 /* Foundation.framework in Frameworks */,
+				9455456324BAEC0B009A9796 /* Security.framework in Frameworks */,
 				93C4A2AC16A013F000D3C820 /* CoreGraphics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
