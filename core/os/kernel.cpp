@@ -72,6 +72,7 @@ extern int _objc_get_battery_state();
 #include <unistd.h>
 #include <dlfcn.h>
 #include <fstream>
+#include <fcntl.h>
 
 #endif
 
@@ -1769,7 +1770,7 @@ bool Randomize(LPVOID p, UINT len)
 
 namespace os
 {
-void Randomize(LPVOID p_in, UINT len)
+bool Randomize(LPVOID p_in, UINT len)
 {	LPBYTE p = (LPBYTE)p_in;
 	int randomData = open("/dev/urandom", O_RDONLY);
 	if(randomData >= 0)
