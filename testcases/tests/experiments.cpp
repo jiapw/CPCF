@@ -73,7 +73,7 @@ void exp_tracking_proc_ip()
     {
         void OnUserInputEvent(const os::UserInputEvent& x)
         {
-            os::SetDebugTextBox(all);
+            _LOG(all);
         }
     };
     

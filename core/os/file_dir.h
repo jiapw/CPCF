@@ -571,7 +571,7 @@ public:
 	LPCSTR			GetText(UINT idx, LPCSTR default_val = nullptr) const { return _Arguments.GetSize()>idx?(LPCSTR)_Arguments[idx]:default_val; }
 	void			AppendText(const rt::String_Ref& arg);
 
-	LPCSTR			GetOriginalLine() const { return _CommandLine; }
+	auto&			GetOriginalLine() const { return _CommandLine; }
 
 	UINT			GetOptionCount()const{ return (UINT)_Options.GetSize(); }
 	LPCSTR			GetOptionName(UINT idx)const{ return _Options[idx].Name; }
