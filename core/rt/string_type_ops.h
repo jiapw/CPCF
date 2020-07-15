@@ -437,6 +437,13 @@ struct _EnumString
 };
 } // namespace _details
 
+#define STRINGIFY_ENUM_BEGIN_(type)				namespace rt {								\
+												namespace _details {						\
+												template<>									\
+												struct _EnumStringify<type>					\
+												{	typedef ::type TYPE;					\
+													template<typename T_FUNC>				\
+													static bool _Iterate(T_FUNC&& c){		
 #define STRINGIFY_ENUM_BEGIN(type, ns)			namespace rt {								\
 												namespace _details {						\
 												using namespace ns;							\
@@ -459,6 +466,14 @@ struct _EnumString
 													return Ostream;													\
 												}	STRINGIFY_ENUM_OPS(type)										\
 												}
+#define STRINGIFY_ENUM_END_(type)						return false;												\
+													}																\
+												};}}																\
+												template<class t_Ostream>											\
+												INLFUNC t_Ostream& operator<<(t_Ostream& Ostream, type x)			\
+												{	Ostream<<::rt::EnumStringify(x);								\
+													return Ostream;													\
+												}	STRINGIFY_ENUM_OPS(type)
 #define STRINGIFY_ENUM_END2(type, ns1, ns2)				return false;												\
 													}																\
 												};}}																\
