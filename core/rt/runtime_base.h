@@ -768,7 +768,7 @@ extern bool IsMemoryExceptionEnabledInThread();
 #define _Malloc32AL(type, co)		((type*)os::_details::TrackMemoryAllocation(os::_details::Malloc32AL(sizeof(type)*(co)), sizeof(type)*(co), true, #type , (UINT)(co), __FILE__, __FUNCTION__, __LINE__))
 
 #define _SafeFree8AL_ConstPtr(ptr)	_SafeFree32AL_ConstPtr(ptr)
-#define _SafeFree32AL_ConstPtr(ptr)	{ os::_details::UntrackMemoryAllocation(ptr); os::_details::Free32AL(ptr); }
+#define _SafeFree32AL_ConstPtr(ptr)	{ if(ptr){ os::_details::UntrackMemoryAllocation(ptr); os::_details::Free32AL(ptr); }}
 #define _SafeDel_ConstPtr(x)		{ if(x){ os::_details::UntrackMemoryAllocation(x); delete x; } }
 #define _SafeDelArray_ConstPtr(x)	{ if(x){ os::_details::UntrackMemoryAllocation(x); delete [] x; } }
 

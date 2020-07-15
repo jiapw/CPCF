@@ -743,6 +743,16 @@ namespace rt
 
 namespace _details
 {
+template<bool has_trailing = true>
+struct Trailing
+{	template<typename X>
+	static void Clear(X& x){ x._Bits[X::BLOCK_COUNT - 1] &= (~(X::BLOCK_TYPE)0)>>(X::BLOCK_SIZE - (X::BIT_SIZE%X::BLOCK_SIZE)); }
+};	
+	template<> struct Trailing<false>
+	{	template<typename X>
+		static void Clear(X& x){};
+	};
+
 template<UINT bit_size>
 class BooleanArrayStg
 {
@@ -753,7 +763,7 @@ protected:
 	static const UINT	BLOCK_COUNT = (BIT_SIZE + BLOCK_SIZE - 1)/BLOCK_SIZE;
 
 	BLOCK_TYPE			_Bits[BLOCK_COUNT];
-	void				_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(BLOCK_TYPE)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
+	void				_ClearTrailingBits(){ Trailing<(bit_size%BLOCK_SIZE)!=0>::Clear(*this); }
 };
 template<>
 class BooleanArrayStg<0>
@@ -764,7 +774,7 @@ protected:
 	UINT					BIT_SIZE;
 	UINT					BLOCK_COUNT;
 
-	rt::BufferEx<BLOCK_TYPE>  _Bits;
+	rt::BufferEx<BLOCK_TYPE>_Bits;
 	void					_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(BLOCK_TYPE)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
 public:
 	void	SetBitSize(UINT bit_size, bool keep_existing_data = true)
