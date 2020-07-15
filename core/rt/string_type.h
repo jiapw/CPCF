@@ -803,7 +803,6 @@ public:
 	}
 	INLFUNC t_String_Ref GetUrlParam(const t_String_Ref& tag, const t_String_Ref& def_val = nullptr) const
 	{	auto off = FindCharacter('?');
-		if(off<0)return def_val;
 		while(off<(SSIZE_T)_SC::_len-1)
 		{
 			off++;
