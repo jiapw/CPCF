@@ -746,7 +746,7 @@ namespace _details
 template<bool has_trailing = true>
 struct Trailing
 {	template<typename X>
-	static void Clear(X& x){ x._Bits[X::BLOCK_COUNT - 1] &= (~(X::BLOCK_TYPE)0)>>(X::BLOCK_SIZE - (X::BIT_SIZE%X::BLOCK_SIZE)); }
+	static void Clear(X& x){ x._Bits[X::BLOCK_COUNT - 1] &= (~(X::BLOCK_TYPE)(0))>>(X::BLOCK_SIZE - (X::BIT_SIZE%X::BLOCK_SIZE)); }
 };	
 	template<> struct Trailing<false>
 	{	template<typename X>
