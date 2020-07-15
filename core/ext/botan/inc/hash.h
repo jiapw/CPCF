@@ -178,35 +178,25 @@ public:
 	static const int HASHSIZE = _details::_HashSize<HASH_METHOD>::size;
 	typedef typename _details::_HashTrait<HASH_METHOD>::type HashType;
 protected:
-	HashType*	Hasher;
+	HashType	Hasher;
 public:
-	INLFUNC Hash()
-	{	Hasher = NULL;
-		try
-		{	Hasher = _New(HashType);
-		}catch(std::exception& e){ _LOG_EXPCEPTION(e.what()); }
-	}
-	INLFUNC ~Hash()
-	{	try{ _SafeDel(Hasher); }
-		catch(std::exception& e){ _LOG_EXPCEPTION(e.what()); }
-	}
 	INLFUNC void Reset()
-	{	try{ Hasher->clear(); return; }
+    {	try{ Hasher.clear(); return; }
 		catch(std::exception& e){ _LOG_EXPCEPTION(e.what()); }
 	}
 	INLFUNC void Update(LPCVOID data, SIZE_T size)
-	{	try{ Hasher->update((LPCBYTE)data, size); return; }
+    {	try{ Hasher.update((LPCBYTE)data, size); return; }
 		catch(std::exception& e){ _LOG_EXPCEPTION(e.what()); }
 	}
 	INLFUNC void Finalize(LPVOID HashValue)
-	{	try{ Hasher->final((LPBYTE)HashValue); return; }
+    {	try{ Hasher.final((LPBYTE)HashValue); return; }
 		catch(std::exception& e){ _LOG_EXPCEPTION(e.what()); }			
 	}
 	INLFUNC void Calculate(LPCVOID data, SIZE_T size, LPVOID HashValue)
 	{	try
-		{	Hasher->clear();
-			Hasher->update((LPCBYTE)data, size);
-			Hasher->final((LPBYTE)HashValue);
+        {	Hasher.clear();
+            Hasher.update((LPCBYTE)data, size);
+            Hasher.final((LPBYTE)HashValue);
 		}
 		catch(std::exception& e){ _LOG_EXPCEPTION(e.what()); }
 	}
