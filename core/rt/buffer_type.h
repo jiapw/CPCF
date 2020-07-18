@@ -755,7 +755,7 @@ struct Trailing
 
 template<UINT bit_size>
 class BooleanArrayStg
-{
+{	template<bool> friend struct Trailing;
 protected:
 	typedef DWORD BLOCK_TYPE;
 	static const UINT	BIT_SIZE = bit_size;

@@ -255,7 +255,7 @@ public:
 	INLFUNC const T*	operator -> () const { return &Get(); }
 	INLFUNC T*			Clone() const { return _p?_New(T(*_p)):_New(T); }
 	INLFUNC T*			New() const { return _New(T); }
-	INLFUNC void		Clear(){ _cs.Lock(); _SafeDel(_p); _cs.Unlock(); }
+	INLFUNC void		Clear(){ _cs.Lock(); _SafeDel_Delayed(_p, old_TTL); _cs.Unlock(); }
 	INLFUNC bool		IsEmpty() const { return _p == nullptr; }
 	
 	//unsafe in multi-thread

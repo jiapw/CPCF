@@ -485,7 +485,9 @@ struct _EnumString
 												}	STRINGIFY_ENUM_OPS(type)										\
 												}}
 #define STRINGIFY_ENUM_OPS(type)				INLFUNC type operator | (type a, type b){ return (type)((UINT)a|(UINT)b); }	\
-												INLFUNC type operator & (type a, type b){ return (type)((UINT)a&(UINT)b); }
+												INLFUNC type operator & (type a, type b){ return (type)((UINT)a&(UINT)b); } \
+												INLFUNC type& operator |= (type& a, const type& b){ return a = (type)((UINT)a|(UINT)b); }	\
+												INLFUNC type& operator &= (type& a, const type& b){ return a = (type)((UINT)a&(UINT)b); }
 
 struct EnumStringify: public rt::String
 {

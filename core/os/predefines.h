@@ -86,17 +86,19 @@
 ///////////////////////////////////////////////////////
 // Basic data types
 #ifndef PLATFORM_WIN
+#include <stdint.h>
+
 typedef void*               	LPVOID;
 typedef const void*         	LPCVOID;
-typedef unsigned char			BYTE;
+typedef uint8_t					BYTE;
 typedef char					CHAR;
-typedef signed short            SHORT;
-typedef unsigned short			WORD;
-typedef unsigned int			DWORD;
-typedef unsigned int			UINT;
-typedef signed int             	INT;
-typedef signed long long int	LONGLONG;
-typedef unsigned long long int 	ULONGLONG;
+typedef int16_t		            SHORT;
+typedef uint16_t				WORD;
+typedef uint32_t				DWORD;
+typedef uint32_t				UINT;
+typedef int32_t	             	INT;
+typedef int64_t					LONGLONG;
+typedef uint64_t			 	ULONGLONG;
 typedef LPVOID					HANDLE;
 typedef BYTE*               	LPBYTE;
 typedef char*               	LPSTR;
