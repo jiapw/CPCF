@@ -1074,8 +1074,8 @@ namespace _details
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcountll((ULONGLONG)x); }
 			static T	ByteOrderSwap(T x) { return (T)__builtin_bswap64((ULONGLONG)x); }
 #if defined(PLATFORM_LINUX)	|| defined(PLATFORM_ANDRIOD)
-            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
-            static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (ULONGLONG*)c); }
+            static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (unsigned long long*)c); }
+            static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (unsigned long long*)c); }
 #else
             static BYTE AddCarry(BYTE carry, T a, T b, T* c){ ULONGLONG carry_out; *(ULONGLONG*)c = __builtin_addcll((ULONGLONG)a, (ULONGLONG)b, carry, &carry_out); return (BYTE)carry_out; }
             static BYTE SubBorrow(BYTE carry, T a, T b, T* c){ ULONGLONG carry_out; *(ULONGLONG*)c = __builtin_subcll((ULONGLONG)a, (ULONGLONG)b, carry, &carry_out); return (BYTE)carry_out; }
