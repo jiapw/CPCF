@@ -1143,7 +1143,7 @@ protected:
 					_TopValues[0].Count = 1;
 					return MATCHED_WITH_TOP;
 				}
-				int ret = ((TopWeightedValues<T,TOP_K-1,T_WEIGHT>*)&_TopValues[1])->_Match(val, wei);
+				int ret = ((TopWeightedValues<T,TOP_K-1,T_WEIGHT>*)(void*)&_TopValues[1])->_Match(val, wei);
 				if(ret == MATCHED_WITH_TOP)
 				{	if(_TopValues[1].Wei > _TopValues[0].Wei)
 					{	rt::Swap(_TopValues[1], _TopValues[0]);
