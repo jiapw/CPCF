@@ -1133,6 +1133,10 @@ namespace tos
 		FORCEINL S_(long x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 		FORCEINL S_(unsigned long x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 #endif
+#if defined(PLATFORM_LINUX)
+		FORCEINL S_(long long int x){ _len = __toS(_string,(LONGLONG)x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(unsigned long long int x){ _len = __toS(_string,(ULONGLONG)x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+#endif
 		FORCEINL S_(LPCVOID x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 		FORCEINL S_(float x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 		FORCEINL S_(double x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
