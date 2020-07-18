@@ -378,6 +378,10 @@ __NumInt(bool			 ,int			  ,int			   ,bool			,bool				,_typeid_bool	,0			,1			,1	
 __NumInt(unsigned char	 ,int			  ,int			   ,signed char		,unsigned char		,_typeid_8u	  	,0			,UCHAR_MAX	,UCHAR_MAX		,3	)	
 __NumInt(unsigned short	 ,int			  ,int			   ,signed short	,unsigned short		,_typeid_16u	,0			,USHRT_MAX	,SHRT_MAX		,5	)	
 __NumInt(unsigned int	 ,unsigned int	  ,__uint64		   ,signed int		,unsigned int		,_typeid_32u	,0			,UINT_MAX	,SHRT_MAX		,5	)
+#if defined(PLATFORM_WIN)
+__NumInt(long			 ,int			  ,__int64		   ,signed int		,unsigned int		,_typeid_32s	,INT_MIN	,INT_MAX	,SHRT_MAX		,6	)	
+__NumInt(unsigned long	 ,unsigned int	  ,__uint64		   ,signed int		,unsigned int		,_typeid_32u	,0			,UINT_MAX	,SHRT_MAX		,5	)
+#endif
 #if !defined(PLATFORM_LINUX)
 __NumInt(__int64		 ,__int64		  ,__int64		   ,__int64         ,__uint64           ,_typeid_64s	,LLONG_MIN	,LLONG_MAX	,SHRT_MAX		,8	)
 __NumInt(__uint64		 ,__uint64		  ,__uint64		   ,__int64			,__uint64           ,_typeid_64u	,0			,ULLONG_MAX	,SHRT_MAX		,7	)
