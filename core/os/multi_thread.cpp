@@ -621,6 +621,13 @@ void os::Thread::TerminateForcely()
 	}
 }
 
+bool os::Thread::IsRunning() const
+{
+	if(_hThread == NULL)return false;
+	return ::WaitForSingleObject(_hThread, 0) == WAIT_TIMEOUT;
+}
+
+
 #else
 //////////////////////////////////////////////////////////
 // All linux/BSD implementations
@@ -628,6 +635,11 @@ void os::Thread::TerminateForcely()
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 #import <mach/thread_act.h>
 #endif
+
+bool os::Thread::IsRunning() const
+{
+	return _hThread != NULL;
+}
 
 bool os::Thread::_Create(UINT stack_size, ULONGLONG CPU_affinity)
 {

@@ -94,7 +94,7 @@ public:
 
 	bool	WaitForEnding(UINT time_wait_ms = INFINITE, bool terminate_if_timeout = false);
 	DWORD	GetExitCode() const { return _ExitCode; }
-	bool	IsRunning() const { return _hThread != NULL; }
+	bool	IsRunning() const;
 	bool&	WantExit(){ return _bWantExit; }
 	bool	WantExit() const { return _bWantExit; }
 	void	TerminateForcely();

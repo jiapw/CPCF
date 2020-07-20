@@ -529,15 +529,8 @@ public:
 		VERIFY(_add_entry(count));
 		for(;sz<_SC::_len;sz++){ _SC::_xt::ctor(&_SC::_p[sz], *x++); }
 	}
-	template<typename T>
-	INLFUNC void push_back(const T& x, SIZE_T count)
-	{	
-		SIZE_T sz = _SC::GetSize();
-		VERIFY(_add_entry(count));
-		for(;sz<_SC::_len;sz++){ _SC::_xt::ctor(&_SC::_p[sz], x); }
-	}
 	INLFUNC t_Val* push_back_n(SIZE_T count)
-	{	
+	{
 		SIZE_T sz = _SC::GetSize();
 		return ChangeSize(sz + count)?&_SC::_p[sz]:nullptr;
 	}
