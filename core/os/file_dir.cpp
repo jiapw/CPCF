@@ -1887,27 +1887,27 @@ namespace os
 {
 	namespace _details
 	{
-		os::CommandLine* __FirstCommandLine = nullptr;
+		os::CommandLine* __FirstParsedCommandLine = nullptr;
 	}
-}
-
-os::CommandLine::CommandLine()
-{
 }
 
 os::CommandLine::~CommandLine()
 {
-	if(_details::__FirstCommandLine == this)
-		_details::__FirstCommandLine = nullptr;
+	if(_details::__FirstParsedCommandLine == this)
+		_details::__FirstParsedCommandLine = nullptr;
 }
 
+void os::CommandLine::SetOptionInitial(LPCSTR opt_init)
+{
+	_OptionInitial.Init(opt_init, (UINT)strlen(opt_init));
+}
 
 #if defined(PLATFORM_WIN)
 
 void os::CommandLine::Parse(int argc, WCHAR* argv[])	// for _tmain
 {
-	if(!_details::__FirstCommandLine)
-		_details::__FirstCommandLine = this;
+	if(!_details::__FirstParsedCommandLine)
+		_details::__FirstParsedCommandLine = this;
 
 	LPSTR * s = (LPSTR *)alloca(sizeof(LPCSTR)*argc);
 	__UTF8* p = (__UTF8*)alloca(sizeof(__UTF8)*argc);
@@ -1936,8 +1936,8 @@ void os::CommandLine::Parse(int argc, char* argv[])	// for _tmain
 {
 	Empty();
 
-	if(!_details::__FirstCommandLine)
-		_details::__FirstCommandLine = this;
+	if(!_details::__FirstParsedCommandLine)
+		_details::__FirstParsedCommandLine = this;
 
 	_Parse(argc, argv);
 
@@ -1954,11 +1954,11 @@ void os::CommandLine::_Parse(int argc, char* argv[])	// for _tmain
 		
 	for(int i=1;i<argc;i++)
 	{	
-		if(argv[i][0] == '/' || argv[i][0] == '-')
+		if(_OptionInitial.Has(argv[i][0]))
 		{	// is option
 			_opt& opt = _Options.push_back();
 			LPCSTR optstr = argv[i] + 1;
-			if(optstr[-1] == '-' && optstr[0] == '-')
+			if(optstr[-1] == optstr[0])
 				optstr++; // linux style cmdline option --xxxx
 
 			rt::String_Ref seg(optstr); // = rt::String_Ref(optstr).TrimSpace();
@@ -2062,13 +2062,13 @@ void os::CommandLine::SubstituteOptions(rt::String& string, const rt::String_Ref
 const os::CommandLine& os::CommandLine::Get()
 {
 	static const os::CommandLine _;
-	return _details::__FirstCommandLine?*_details::__FirstCommandLine:_;
+	return _details::__FirstParsedCommandLine?*_details::__FirstParsedCommandLine:_;
 }
 
 os::CommandLine& os::CommandLine::GetMutable()
 {
-	ASSERT(_details::__FirstCommandLine);
-	return *_details::__FirstCommandLine;
+	ASSERT(_details::__FirstParsedCommandLine);
+	return *_details::__FirstParsedCommandLine;
 }
 
 bool os::CommandLine::HasOption(const rt::String_Ref& option_name) const

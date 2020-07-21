@@ -508,6 +508,7 @@ class CommandLine
 		rt::String	Value;
 	};
 protected:
+	rt::CharacterSet			_OptionInitial;
 	rt::String					_CommandLine;
 	rt::BufferEx<rt::String>	_Arguments; // Text
 	rt::BufferEx<_opt>			_Options;
@@ -515,7 +516,7 @@ protected:
 	void						_ParseCompleteLine();
 
 public:
-	CommandLine();
+	CommandLine(){ SetOptionInitial(); }
 	~CommandLine();
 	static const CommandLine& Get();
 	static CommandLine& GetMutable();
@@ -523,16 +524,22 @@ public:
 #if defined(PLATFORM_WIN)
 	void			Parse(int argc, WCHAR* argv[]);	// for _tmain
 	void			Parse(LPCWSTR pCmdLine);		// for _twmain
-	explicit		CommandLine(int argc, WCHAR* argv[]){ Parse(argc, argv); }
-	explicit		CommandLine(LPCWSTR pCmdLine){ Parse(pCmdLine); }
+	explicit		CommandLine(int argc, WCHAR* argv[]){ SetOptionInitial(); Parse(argc, argv); }
+	explicit		CommandLine(LPCWSTR pCmdLine){ SetOptionInitial(); Parse(pCmdLine); }
+#endif
+
+#if defined(PLATFORM_WIN)
+	void			SetOptionInitial(LPCSTR opt_init = "/-");
+#else
+	void			SetOptionInitial(LPCSTR opt_init = "-");
 #endif
 
 	void			Empty();
 	void			ParseURI(const rt::String_Ref& path, const rt::String_Ref& query);
 	void			Parse(int argc, char* argv[]);	// for _tmain
 	void			Parse(LPCSTR pCmdLine);			// for _twmain
-	explicit		CommandLine(int argc, char* argv[]){ Parse(argc, argv); }
-	explicit		CommandLine(LPCSTR pCmdLine){ Parse(pCmdLine); }
+	explicit		CommandLine(int argc, char* argv[]){ SetOptionInitial(); Parse(argc, argv); }
+	explicit		CommandLine(LPCSTR pCmdLine){ SetOptionInitial(); Parse(pCmdLine); }
 
 	void			SubstituteOptions(rt::String& string, const rt::String_Ref& prefix = rt::SS("%"), const rt::String_Ref& suffix = rt::SS("%")) const;
 
