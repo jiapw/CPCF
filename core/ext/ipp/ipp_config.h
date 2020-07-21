@@ -67,10 +67,9 @@
 //y8	SSE4.1, SSE4.2, AES-NI	Penryn, Nehalem, Westmere	see notes below
 //e9	AVX	Sandy Bridge Architecture	new in 6.1
 
-
-
 #include "../../os/predefines.h"
 
+#define IPP_LINK_STATIC_LIB_M8
 
 #define PNG_USE_GLOBAL_ARRAYS
 #define PNG_SETJMP_SUPPORTED
