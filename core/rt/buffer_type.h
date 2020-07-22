@@ -537,7 +537,7 @@ public:
 	INLFUNC bool push_back_n(SIZE_T count, const t_Val&& v)
 	{
 		SIZE_T sz = _SC::GetSize();
-		if(ChangeSize(sz + count)){ for(SIZE_T i=0; i<count; i++)_p[i+sz] = v; return true; }
+		if(ChangeSize(sz + count)){ for(SIZE_T i=0; i<count; i++) _SC::_p[i+sz] = v; return true; }
 		return false;
 	}
 	INLFUNC void erase(const t_Val* p)
