@@ -42,6 +42,7 @@ extern UINT _objc_get_screens_dim(rt::Vec2i* p, UINT co);
 #include <IOKit/ps/IOPowerSources.h>
 #include <IOKit/IOKitLib.h>
 #include <sys/resource.h>
+#include <CoreGraphics/CGDisplayConfiguration.h>
 
 extern UINT _objc_preference_load_string(LPCSTR key, LPSTR val_out, UINT val_size);
 extern void _objc_preference_save_string(LPCSTR key, LPCSTR val);
@@ -402,7 +403,17 @@ int os::GetDimensionOfScreens(rt::Vec2i* pDim, UINT dim_size) // return # of scr
 #elif defined(PLATFORM_IOS)
 	ASSERT(0);
 #elif defined(PLATFORM_MAC)
-    return _objc_get_screens_dim(pDim, dim_size);
+    uint32_t numDisplay;
+    CGDirectDisplayID displayIDs[10];
+    CGGetActiveDisplayList(10, displayIDs, &numDisplay);
+    if (numDisplay > dim_size)
+        numDisplay = dim_size;
+    for (uint32_t i = 0; i < numDisplay; i++)
+    {
+        pDim[i].width = (int)CGDisplayPixelsWide(displayIDs[i]);
+        pDim[i].height = (int)CGDisplayPixelsHigh(displayIDs[i]);
+    }
+    return (int)numDisplay;
 #elif defined(PLATFORM_LINUX)
 	Display* d = XOpenDisplay(NULL);
 	dim_size = rt::min(XScreenCount(d), (int)dim_size);
