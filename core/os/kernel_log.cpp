@@ -16,7 +16,6 @@ namespace _details
 static CriticalSection	_LogWriteCS;
 static File				_LogFile;
 static Timestamp		_LogTime;
-static LogPrefix		_LogPrefix(os::LogPrefix() << '[' << os::_LOG_TIME << "] "); // default value here is moved to its ctor, GCC is not happy with that
 static rt::String		_LogPrompt;
 
 #endif
@@ -216,13 +215,6 @@ rt::String_Ref GetLogFilename()
 	return _details::_LogFile.GetFilename();
 #else
 	return nullptr;
-#endif
-}
-
-void SetLogPrefix(const LogPrefix& prefix)
-{
-#ifndef PLATFORM_DISABLE_LOG
-    _details::_LogPrefix = prefix;
 #endif
 }
 
@@ -514,54 +506,6 @@ void LogWriteDefault(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int typ
 	if(type&(rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_CONSOLE_FORCE|rt::LOGTYPE_IN_CONSOLE_PROMPT))os::_details::__ConsoleLogWrite(log, type);
 	if((type&rt::LOGTYPE_IN_LOGFILE) && _LogFile.IsOpen())
 	{
-        for (int i = 0; i < (int)_LogPrefix.items.GetSize(); i++)
-        {
-            const LogPrefix::_item& item = _LogPrefix.items[i];
-            if (item.code)
-            {   switch (item.code)
-                {
-                case _LOG_TIME:
-                    _LogTime.LoadCurrentTime();
-                    _LogFile.Write(rt::tos::Timestamp<false,true>(_LogTime));
-                    break;
-                case _LOG_FILE:
-                    _LogFile.Write(file);
-                    break;
-                case _LOG_LINE:
-                    _LogFile.Write(rt::tos::Number(line_num));
-                    break;
-                case _LOG_FUNC:
-                    _LogFile.Write(func);
-                    break;
-                case _LOG_MEM:
-					ULONGLONG free;
-					os::GetSystemMemoryInfo(&free);
-					_LogFile.Write("MEM(");
-                    _LogFile.Write(rt::tos::Number(free / 1024 / 1024));
-                    _LogFile.Write("MB)");
-                    break;
-                case _LOG_CPU:
-					{   thread_local ULONGLONG last_p[2] = {0, 0};
-						ULONGLONG p[2] = {0, 0};
-                        GetProcessorTimes(p);
-
-						_LogFile.Write("CPU(");
-						_LogFile.Write(rt::tos::Number(((p[0] - last_p[0])*100/(float)(p[1] - last_p[1]))));
-						_LogFile.Write("%)");
-
-						if(last_p[1] + 2000 < p[1])
-						{	ULONGLONG shift = p[1] - last_p[1] - 2000;
-							last_p[1] += shift;
-							last_p[0] = rt::min(p[0], last_p[0] + shift*last_p[0]/last_p[1]);
-						}
-                    }
-                    break;
-                }
-            }
-            else
-            {   _LogFile.Write(item.string);
-            }
-        }
 		_LogFile.Write(rt::String_Ref(log));
 		_LogFile.Write("\x0d\x0a", 2);
 		_LogFile.Flush();
@@ -569,7 +513,6 @@ void LogWriteDefault(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int typ
 
 #endif
 }
-
 
 static FUNC_LOG_WRITE	__LogWrtieFunc = LogWriteDefault;
 static LPVOID			__LogWrtieFuncCookie = nullptr;

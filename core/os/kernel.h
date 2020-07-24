@@ -186,8 +186,6 @@ extern void EnableConsoleInput(ConsoleInputHandler* input_handler = nullptr, LPC
 extern bool SetLogFile(LPCSTR filename, bool append = true); // filename = nullptr to disable Log File
 extern void SetLogConsolePrompt(LPCSTR prompt);
 extern rt::String_Ref GetLogFilename();
-extern void SetLogPrefix(const LogPrefix& prefix); // use together with _LOGFORMAT and os::_LOG_TIME, etc.
-                                                   // for example: os::SetLogPrefix(_LOGFORMAT << '[' << os::_LOG_TIME << "] File:" << os::_LOG_FILE << " Line:" << os::_LOG_LINE << " Func:" << os::_LOG_FUNC << " FreeMem:" << os::_LOG_MEM << "   ");
 
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 } // namespace os

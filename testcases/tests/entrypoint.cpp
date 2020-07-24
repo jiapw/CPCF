@@ -11,7 +11,6 @@ void TestMain()
 {
 	LPCSTR logfile = "../testcases.log";
 	os::SetLogFile(logfile, false);
-	os::SetLogPrefix(os::LogPrefix());
 
 #if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
     {   rt::String cd;
