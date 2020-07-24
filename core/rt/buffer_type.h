@@ -1158,13 +1158,15 @@ public:
 	void	Reset(){ rt::Zero(*this); }
 	int		Sample(const T& val, T_WEIGHT wei = 1)		// UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
 			{	int ret = _Match(val, wei);
-				if(ret == UNMATCHED)
-				{	if((--_TopValues[TOP_K-1].Wei) < 0)
-					{	_TopValues[TOP_K-1].Val = val;
-						_TopValues[TOP_K-1].Wei = wei;
-						_TopValues[TOP_K-1].Count = 1;
-						return MATCHED;
+				if(ret == UNMATCHED && wei > _TopValues[TOP_K-1].Wei)
+				{	UINT i=TOP_K-1;
+					for(; i>0; i--)
+					{	if(_TopValues[i-1].Wei < wei){ _TopValues[i] = _TopValues[i-1]; }
+						else break;
 					}
+					_TopValues[i].Val = val;
+					_TopValues[i].Wei = wei;
+					_TopValues[i].Count = 1;
 				}
 				return ret;
 			}
