@@ -830,7 +830,7 @@ public:
 	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<_SC::BLOCK_COUNT; i++)_SC::_Bits[i] ^= x._Bits[i]; }
 	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<_SC::BLOCK_COUNT; i++)_SC::_Bits[i] |= x._Bits[i]; }
 	template<typename CB>
-	UINT	VisitOnes(CB&& cb)	// visit all ones
+	UINT	VisitOnes(CB&& cb) const	// visit all ones
 			{	UINT hit = 0;	UINT i=0;
 				for(; i<_SC::BLOCK_COUNT-1; i++)
 				{	BLOCK_TYPE bits = _SC::_Bits[i];
@@ -855,7 +855,7 @@ public:
 				return hit;
 			}
 	template<typename CB>
-	void	ForEach(CB&& cb)	// visit all ones
+	void	ForEach(CB&& cb) const	// visit all ones
 			{	UINT i=0;
 				for(; i<sizeofArray(_SC::_Bits)-1; i++)
 				{	BLOCK_TYPE bits = _SC::_Bits[i];
@@ -865,14 +865,14 @@ public:
 				for(UINT b=0; b<(_SC::BIT_SIZE%BLOCK_SIZE); b++)cb(bits&(1ULL<<b));
 			}
 	template<char one = '1', char zero = '.'>
-	auto	ToString(rt::String& append)
+	auto	ToString(rt::String& append) const
 			{	ForEach([&append](bool v){
 					append += v?one:zero;
 				});
 				return append;
 			}
 	template<char sep = ','>
-	auto	ToStringWithIndex(rt::String& append)
+	auto	ToStringWithIndex(rt::String& append) const
 			{	if(VisitOnes([&append](UINT v){
 					append += rt::tos::Number(v);
 					append += sep;
