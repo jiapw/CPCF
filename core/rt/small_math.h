@@ -292,6 +292,21 @@ struct Vec<t_Val, 3>
 		z =  (a.x-c.x)*(b.y-c.y) - (a.y-c.y)*(b.x-c.x);
 	}
 
+	template<typename t_Val2>	// (a-org) x (b-org) -> This
+	INLFUNC void SphericalToEuclidean(const Vec<t_Val2, 2>& s) // s = <theta, phi>
+	{	x = sin(s.x);
+		y = sin(s.y)*x;
+		x = cos(s.y)*x;
+		z = cos(s.x);
+	}
+	template<typename t_Val2>	// (a-org) x (b-org) -> This
+	INLFUNC void SphericalToEuclidean(const Vec<t_Val2, 3>& s) // s = <theta, phi, r>
+	{	x = sin(s.x)*s.z;
+		y = sin(s.y)*x;
+		x = cos(s.y)*x;
+		z = cos(s.x)*s.z;
+	}
+
 	DEF_VEC_FUNC;
 	INLFUNC t_Val Min(){ return rt::min(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Min()); }
 	INLFUNC t_Val Max(){ return rt::max(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Max()); }
