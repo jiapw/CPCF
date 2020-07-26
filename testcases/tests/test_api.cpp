@@ -1996,7 +1996,15 @@ void rt::UnitTests::socket()
 		}
 	};
 
-
+    inet::InetAddr ips[4];
+    UINT co = inet::GetLocalAddresses(ips, 4, true, nullptr, nullptr, "en");
+    
+    for(UINT i=0; i<co; i++)
+    {
+        _LOG(ips[i]);
+    }
+    
+    return;
 
 	inet::InetAddr addr;
 	addr.SetAsLocal();
