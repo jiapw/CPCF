@@ -214,7 +214,7 @@ extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT Size_InOut, boo
 #ifdef PLATFORM_IPV6_SUPPORT
 extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopback, InetAddrV6* pOut_Broadcast, LPCSTR interface_prefix)
 {
-	UINT co = GetLocalAddressT<InetAddrV6>(pOut, Size_InOut, no_loopback, pOut_Broadcast, interface_prefix);
+	UINT co = GetLocalAddressT<InetAddrV6>(pOut, Size_InOut, no_loopback, pOut_Broadcast, nullptr, interface_prefix);
 	return co;
 }
 #endif
