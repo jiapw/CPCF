@@ -61,14 +61,14 @@ void GetHostName(rt::String& name_out)
 }
 
 template<typename t_ADDR>
-UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr)
+UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr)
 {
 	typedef _details::InetAddrT_Op<typename t_ADDR::ADDRESS_TYPE>	OP;
 	ASSERT(OutSize);
+    rt::String_Ref iinit = interface_prefix;
 
 	UINT nextAddr = 0;
 #if defined(PLATFORM_WIN)
-
 	if(OP::SIN_FAMILY == AF_INET)
 	{	// IP v4
 		ULONG buflen = sizeof(MIB_IPADDRROW)*128;
@@ -131,23 +131,6 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 		}
 		if(aiList)freeaddrinfo(aiList);
 	}
-
-//#elif defined(PLATFORM_ANDROID)
-	//char szHostname[256];
-	//gethostname(szHostname, sizeof(szHostname));
-	//struct hostent* _pHostInfo = gethostbyname(szHostname);
-
-	//if(_pHostInfo)
-	//{
-	//	for(int i=0; _pHostInfo->h_addr_list[i] != 0 && nextAddr<(int)OutSize; i++)
-	//	{	
-	//		pOut[nextAddr].sin_addr.s_addr = *((u_long*)_pHostInfo->h_addr_list[i]);
-	//		if(	addr127 != pOut[nextAddr].sin_addr.s_addr &&
-	//			0 != pOut[nextAddr].sin_addr.s_addr
-	//		)
-	//		{	nextAddr++;	}
-	//	}
-	//}
 #else
 	SOCKET sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	VERIFY(sockfd != INVALID_SOCKET);
@@ -177,7 +160,10 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 						
 			struct ifreq ifrcopy = *ifr;
 			ioctl(sockfd, SIOCGIFFLAGS, &ifrcopy);
-			if ((ifrcopy.ifr_flags & IFF_UP) == 0)continue;  // ignore if interface not up		
+			if ((ifrcopy.ifr_flags & IFF_UP) == 0)continue;  // ignore if interface not up
+            
+            if(!iinit.IsEmpty() && !rt::String_Ref(ifr->ifr_name).StartsWith(iinit))
+                continue;
 		
 			t_ADDR& addr = *(t_ADDR*)&ifr->ifr_addr;
 			if(	!OP::IsAddressNone(addr) &&
@@ -219,16 +205,16 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 }
 
 
-extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT Size_InOut, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast, DWORD* subnet_mask)
+extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT Size_InOut, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast, DWORD* subnet_mask, LPCSTR interface_prefix)
 {
-	UINT co = GetLocalAddressT<InetAddrT<sockaddr_in>>(pOut, Size_InOut, no_loopback, pOut_Broadcast, subnet_mask);
+	UINT co = GetLocalAddressT<InetAddrT<sockaddr_in>>(pOut, Size_InOut, no_loopback, pOut_Broadcast, subnet_mask, interface_prefix);
 	return co;
 }
 
 #ifdef PLATFORM_IPV6_SUPPORT
-extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopback, InetAddrV6* pOut_Broadcast)
+extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopback, InetAddrV6* pOut_Broadcast, LPCSTR interface_prefix)
 {
-	UINT co = GetLocalAddressT<InetAddrV6>(pOut, Size_InOut, no_loopback, pOut_Broadcast);
+	UINT co = GetLocalAddressT<InetAddrV6>(pOut, Size_InOut, no_loopback, pOut_Broadcast, interface_prefix);
 	return co;
 }
 #endif
