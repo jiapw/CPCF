@@ -66,7 +66,7 @@ struct	_AES_Traits;
 template<int _LEN>
 struct CipherInitVec: public DataBlock<_LEN>
 {    CipherInitVec(UINT random_seed){ Init(random_seed); }
-     void Init(DWORD s){ return rt::Randomizer().Randomize(*this); }
+     void Init(DWORD s){ return rt::Randomizer(s).Randomize(*this); }
 };
 
 } // namespace _details
@@ -140,27 +140,30 @@ DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)
 
 namespace sec
 {
-namespace _details
-{
 template<UINT _METHOD>
-class CipherBase
+class Cipher
 {
 public:
     static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockSize;
     static const UINT NativeKeySize = _details::_HashSize<_details::_AES_Traits<_METHOD>::KEY_HASHER>::size;
 protected:
-    int             _CCRef_Op; // false: Decrypt
+    int             _CCRef_Op;   // kCCEncrypt or kCCDecrypt
+    int             _CCRef_Opt;  // 0 or kCCOptionECBMode   // its default is CBC
     CCCryptorRef    _CCRef;
     BYTE            _Hash[NativeKeySize];
     
-    void            _EnsureInit(int op)
-                    {   if(_CCRef && op == _CCRef_Op)return;
+    void            _EnsureInit(int op, int opt, LPCVOID vi = nullptr)
+                    {   if(_CCRef && op == _CCRef_Op && opt == _CCRef_Opt)
+                        {   if(vi){ ASSERT(_CCRef_Opt == 0); CCCryptorReset(_CCRef, vi); }
+                            return;
+                        }
+                        _CCRef_Op = op;     _CCRef_Opt = opt;
                         if(_CCRef)CCCryptorRelease(_CCRef);
-                        CCCryptorCreate(op, kCCAlgorithmAES, DataBlockSize, _Hash, NativeKeySize, nullptr, &_CCRef);
+                        CCCryptorCreate(_CCRef_Op, kCCAlgorithmAES, _CCRef_Opt, _Hash, NativeKeySize, vi, &_CCRef);
                     }
 public:
-    CipherBase(){ _CCRef = nullptr; }
-    ~CipherBase(){ Empty(); }
+    Cipher(){ _CCRef = nullptr; }
+    ~Cipher(){ Empty(); }
     void            Empty(){ if(_CCRef){ CCCryptorRelease(_CCRef); _CCRef = nullptr; } rt::Zero(_Hash); }
     static void     ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key); }
     void            SetKey(LPCVOID key, UINT len)
@@ -168,29 +171,48 @@ public:
                         else { memcpy(_Hash, key, len); }
                     }
     void            Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len)
-                    {   _EnsureInit(kCCEncrypt);
+                    {   _EnsureInit(kCCEncrypt, kCCOptionECBMode);
                         size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
                         CCCryptorUpdate(_CCRef, pPlain, Len, pCrypt, Len, &out);
                         ASSERT(out == Len);
                     }
     void            Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len)
-                    {   _EnsureInit(kCCDecrypt);
+                    {   _EnsureInit(kCCDecrypt, kCCOptionECBMode);
                         size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
                         CCCryptorUpdate(_CCRef, pCrypt, Len, pPlain, Len, &out);
                         ASSERT(out == Len);
                     }
-    // TBD: Enc/DecryptBlockChained
+    void            EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce)
+                    {   _details::CipherInitVec<DataBlockSize> IV(nonce);
+                        _EnsureInit(kCCEncrypt, 0, &IV);
+                        size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        CCCryptorUpdate(_CCRef, pPlain, Len, pCrypt, Len, &out);
+                        if(out<Len)
+                        {   size_t fin = 0;
+                            CCCryptorFinal(_CCRef, ((LPBYTE)pCrypt) + out, Len - out, &fin);
+                            out += fin;
+                        }
+                        ASSERT(out == Len);
+                    }
+    void            DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
+                    {   _details::CipherInitVec<DataBlockSize> IV(nonce);
+                        _EnsureInit(kCCDecrypt, 0, &IV);
+                        size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        CCCryptorUpdate(_CCRef, pCrypt, Len, pPlain, Len, &out);
+                        if(out<Len)
+                        {   size_t fin = 0;
+                            CCCryptorFinal(_CCRef, ((LPBYTE)pCrypt) + out, Len - out, &fin);
+                            out += fin;
+                        }
+                        ASSERT(out == Len);
+                    }
 };
-} // namespace _details
 } // namespace sec
 
 #else
 
 namespace sec
 {
-namespace _details
-{
-
 template<UINT _METHOD>
 struct	_cipher_spec;
 	template<> struct _cipher_spec<CIPHER_AES128>
@@ -222,44 +244,33 @@ public:
                     {	ASSERT((Len%DataBlockSize) == 0);
 						_Cipher.decrypt_n((LPCBYTE)pCrypt, (LPBYTE)pPlain, Len/DataBlockSize);
                     }
+    void            EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce)
+                    {   _details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
+                        ASSERT((Len%_SC::DataBlockSize) == 0);
+                        auto* p = (const DataBlock<_SC::DataBlockSize>*)pPlain;
+                        auto* c = (DataBlock<_SC::DataBlockSize>*)pCrypt;
+                        Len /= _SC::DataBlockSize;
+                        for(UINT i=0; i<Len; i++, p++, c++)
+                        {    IV ^= *p;
+                            _SC::Encrypt(&IV, c, _SC::DataBlockSize);
+                            c->CopyTo(IV);
+                        }
+                    }
+    void            DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
+                    {   _details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
+                        ASSERT((Len%_SC::DataBlockSize) == 0);
+                        const DataBlock<_SC::DataBlockSize>* iv = &IV;
+                        auto* p = (DataBlock<_SC::DataBlockSize>*)pPlain;
+                        auto* c = (const DataBlock<_SC::DataBlockSize>*)pCrypt;
+                        Len /= _SC::DataBlockSize;
+                        for(UINT i=0; i<Len; i++, p++, c++)
+                        {    _SC::Decrypt(c, p, _SC::DataBlockSize);
+                            *p ^= *iv;
+                            iv = c;
+                        }
+                    }
 };
-} // namespace _details
 } // namespace sec
 #endif // #ifdef defined(PLATFORM_IOS)
-
-namespace sec
-{
-template<UINT _METHOD>
-class Cipher: public _details::CipherBase<_METHOD>
-{	typedef _details::CipherBase<_METHOD> _SC;
-public:
-	void EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce)
-	{	_details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
-		ASSERT((Len%_SC::DataBlockSize) == 0);
-		auto* p = (DataBlock<_SC::DataBlockSize>*)pPlain;
-		auto* c = (DataBlock<_SC::DataBlockSize>*)pCrypt;
-		Len /= _SC::DataBlockSize;
-		for(UINT i=0; i<Len; i++, p++, c++)
-		{	IV ^= *p;
-			_SC::Encrypt(&IV, c, _SC::DataBlockSize);
-			c->CopyTo(IV);
-		}
-	}
-	void DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
-	{	_details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
-		ASSERT((Len%_SC::DataBlockSize) == 0);
-		DataBlock<_SC::DataBlockSize>* iv = &IV;
-		auto* p = (DataBlock<_SC::DataBlockSize>*)pPlain;
-		auto* c = (DataBlock<_SC::DataBlockSize>*)pCrypt;
-		Len /= _SC::DataBlockSize;
-		for(UINT i=0; i<Len; i++, p++, c++)
-		{	_SC::Decrypt(c, p, _SC::DataBlockSize);
-			*p ^= *iv;
-			iv = c;
-		}
-	}
-};
-} // namespace sec
-
 #endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT
 
