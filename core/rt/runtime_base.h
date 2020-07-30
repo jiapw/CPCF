@@ -684,15 +684,16 @@ namespace _details
 
 
 template<typename T_POD>
-struct PodRef
+struct PodRef		// caution: map.insert(std::make_pair(x->y,x)) is incorrect, should use map[x->y] = x;
 {	const T_POD* _p;
 	PodRef(){ _p = nullptr; }
 	PodRef(const PodRef& x):_p(x._p){}
 	PodRef(const T_POD* p):_p(p){}
 	PodRef(const T_POD& p):_p(&p){}
 
-	operator const T_POD& () const { return *_p; }
-	operator const T_POD* () const { return _p; }
+	const T_POD&	Get() const { ASSERT(_p); return *_p; }
+	operator const	T_POD& () const { ASSERT(_p); return *_p; }
+	operator const	T_POD* () const { return _p; }
 
 	const T_POD*	operator = (const T_POD* x){ _p = x; return x; }
 	const T_POD&	operator = (const T_POD& x){ _p = &x; return x; }
