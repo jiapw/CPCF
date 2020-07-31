@@ -213,6 +213,8 @@ public:
 
 namespace sec
 {
+namespace _details
+{
 template<UINT _METHOD>
 struct	_cipher_spec;
 	template<> struct _cipher_spec<CIPHER_AES128>
@@ -221,9 +223,10 @@ struct	_cipher_spec;
 	template<> struct _cipher_spec<CIPHER_AES256>
 	{	typedef Botan::AES_256		Cipher;
 	};
+} // namespace _details
 
 template<UINT _METHOD>
-class CipherBase
+class Cipher
 {
 	typename _details::_cipher_spec<_METHOD>::Cipher	_Cipher;
 public:
@@ -245,26 +248,26 @@ public:
 						_Cipher.decrypt_n((LPCBYTE)pCrypt, (LPBYTE)pPlain, Len/DataBlockSize);
                     }
     void            EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce)
-                    {   _details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
-                        ASSERT((Len%_SC::DataBlockSize) == 0);
-                        auto* p = (const DataBlock<_SC::DataBlockSize>*)pPlain;
-                        auto* c = (DataBlock<_SC::DataBlockSize>*)pCrypt;
-                        Len /= _SC::DataBlockSize;
+                    {   _details::CipherInitVec<DataBlockSize> IV(nonce);
+                        ASSERT((Len%DataBlockSize) == 0);
+                        auto* p = (const DataBlock<DataBlockSize>*)pPlain;
+                        auto* c = (DataBlock<DataBlockSize>*)pCrypt;
+                        Len /= DataBlockSize;
                         for(UINT i=0; i<Len; i++, p++, c++)
                         {    IV ^= *p;
-                            _SC::Encrypt(&IV, c, _SC::DataBlockSize);
+                            Encrypt(&IV, c, DataBlockSize);
                             c->CopyTo(IV);
                         }
                     }
     void            DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
-                    {   _details::CipherInitVec<_SC::DataBlockSize> IV(nonce);
+                    {   _details::CipherInitVec<DataBlockSize> IV(nonce);
                         ASSERT((Len%_SC::DataBlockSize) == 0);
-                        const DataBlock<_SC::DataBlockSize>* iv = &IV;
-                        auto* p = (DataBlock<_SC::DataBlockSize>*)pPlain;
-                        auto* c = (const DataBlock<_SC::DataBlockSize>*)pCrypt;
-                        Len /= _SC::DataBlockSize;
+                        const DataBlock<DataBlockSize>* iv = &IV;
+                        auto* p = (DataBlock<DataBlockSize>*)pPlain;
+                        auto* c = (const DataBlock<DataBlockSize>*)pCrypt;
+                        Len /= DataBlockSize;
                         for(UINT i=0; i<Len; i++, p++, c++)
-                        {    _SC::Decrypt(c, p, _SC::DataBlockSize);
+                        {   Decrypt(c, p, DataBlockSize);
                             *p ^= *iv;
                             iv = c;
                         }
