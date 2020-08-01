@@ -261,7 +261,7 @@ public:
                     }
     void            DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
                     {   _details::CipherInitVec<DataBlockSize> IV(nonce);
-                        ASSERT((Len%_SC::DataBlockSize) == 0);
+                        ASSERT((Len%DataBlockSize) == 0);
                         const DataBlock<DataBlockSize>* iv = &IV;
                         auto* p = (DataBlock<DataBlockSize>*)pPlain;
                         auto* c = (const DataBlock<DataBlockSize>*)pCrypt;
