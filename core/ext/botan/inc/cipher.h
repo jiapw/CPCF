@@ -151,7 +151,6 @@ protected:
     int             _CCRef_Opt;  // 0 or kCCOptionECBMode   // its default is CBC
     CCCryptorRef    _CCRef;
     BYTE            _Hash[NativeKeySize];
-    
     void            _EnsureInit(int op, int opt, LPCVOID vi = nullptr)
                     {   if(_CCRef && op == _CCRef_Op && opt == _CCRef_Opt)
                         {   if(vi){ ASSERT(_CCRef_Opt == 0); CCCryptorReset(_CCRef, vi); }
@@ -169,23 +168,24 @@ public:
     void            SetKey(LPCVOID key, UINT len)
                     {   if(len != NativeKeySize){ ComputeKey(_Hash, key, len); }
                         else { memcpy(_Hash, key, len); }
+                        _CCRef_Op = -1;  // force _EnsureInit re-create the _CCRef
                     }
     void            Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len)
                     {   _EnsureInit(kCCEncrypt, kCCOptionECBMode);
-                        size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
                         CCCryptorUpdate(_CCRef, pPlain, Len, pCrypt, Len, &out);
                         ASSERT(out == Len);
                     }
     void            Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len)
                     {   _EnsureInit(kCCDecrypt, kCCOptionECBMode);
-                        size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
                         CCCryptorUpdate(_CCRef, pCrypt, Len, pPlain, Len, &out);
                         ASSERT(out == Len);
                     }
     void            EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce)
                     {   _details::CipherInitVec<DataBlockSize> IV(nonce);
                         _EnsureInit(kCCEncrypt, 0, &IV);
-                        size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
                         CCCryptorUpdate(_CCRef, pPlain, Len, pCrypt, Len, &out);
                         if(out<Len)
                         {   size_t fin = 0;
@@ -197,7 +197,7 @@ public:
     void            DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
                     {   _details::CipherInitVec<DataBlockSize> IV(nonce);
                         _EnsureInit(kCCDecrypt, 0, &IV);
-                        size_t out = 0;     ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
                         CCCryptorUpdate(_CCRef, pCrypt, Len, pPlain, Len, &out);
                         if(out<Len)
                         {   size_t fin = 0;
