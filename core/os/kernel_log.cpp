@@ -2,6 +2,14 @@
 #include "multi_thread.h"
 #include "file_dir.h"
 
+namespace rt
+{
+namespace _details
+{
+LPCSTR _UnitTestOutputFilePrefix = nullptr;
+}}
+
+
 #if defined(PLATFORM_WIN)
 #include <conio.h>
 #endif

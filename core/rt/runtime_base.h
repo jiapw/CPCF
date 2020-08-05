@@ -840,6 +840,14 @@ FORCEINL T* _CastToNonconst(const T * p)
 	return (T*)((size_t)p);
 }
 
+template<typename T>
+FORCEINL T* _RelocatePointer(LPCVOID new_base, LPCVOID old_base, T* old_p)
+{
+	ASSERT(new_base);
+	if(new_base == nullptr || old_p == nullptr)return nullptr;
+	return (T*)(((LPBYTE)old_p) + ((LPCBYTE)new_base - (LPCBYTE)old_base));
+}
+
 } // namespace rt
 
 

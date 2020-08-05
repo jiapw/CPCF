@@ -130,12 +130,19 @@ namespace rt
 // Allows access to protected/private members in Unit Test
 namespace rt
 {
+namespace _details
+{	extern LPCSTR _UnitTestOutputFilePrefix;
+} // namespace _details
 
 #define TYPETRAITS_UNITTEST_OPEN_ACCESS	friend struct rt::UnitTests;
-#define TYPETRAITS_UNITTEST(x)	{ _LOG("=== UnitTest<"<<#x<<">: BEGIN ==="); rt::UnitTests::x(); _LOG("=== UnitTest<"<<#x<<">: END =====\n"); _CheckHeap; }
+#define TYPETRAITS_UNITTEST_OUTPUT(x)	rt::_details::_UnitTestOutputFilePrefix = x;
+#define TYPETRAITS_UNITTEST(x)			{	os::SetLogFile(rt::String_Ref(rt::_details::_UnitTestOutputFilePrefix) + #x ".log", false);	\
+											_LOG("=== UnitTest<"<<#x<<">: BEGIN ===");												\
+											rt::UnitTests::x(); _LOG("=== UnitTest<"<<#x<<">: END =====\n");						\
+											_CheckHeap; }
 struct UnitTests;
 
-}
+} // namespace rt
 
 
 namespace rt
