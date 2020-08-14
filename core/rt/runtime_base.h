@@ -1188,6 +1188,12 @@ template<typename T>
 struct Singleton
 {
 	static T& Get(){ static T ret; return ret; }
+#if defined(PLATFORM_DEBUG_BUILD)
+protected:
+	static bool& __inited(){ static bool _ = false; return _; };
+	Singleton(){ ASSERT(__inited() == false); __inited() = true; }
+	~Singleton(){ ASSERT(__inited() == true); __inited() = false; }
+#endif
 };
 
 template<UINT INIT_INTERVAL>
