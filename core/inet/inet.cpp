@@ -65,10 +65,10 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 {
 	typedef _details::InetAddrT_Op<typename t_ADDR::ADDRESS_TYPE>	OP;
 	ASSERT(OutSize);
-    rt::String_Ref iinit = interface_prefix;
-
+    
 	UINT nextAddr = 0;
 #if defined(PLATFORM_WIN)
+    ASSERT(interface_prefix == nullptr); // not supported on Windows
 	if(OP::SIN_FAMILY == AF_INET)
 	{	// IP v4
 		ULONG buflen = sizeof(MIB_IPADDRROW)*128;
@@ -84,7 +84,8 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 					!OP::IsAddressAny(pOut[nextAddr]) &&
 					!OP::IsAddressGhost(pOut[nextAddr])
 				)
-				{	if(pOut_Broadcast)
+				{
+                    if(pOut_Broadcast)
 					{	DWORD bcast = ipt.dwAddr|~ipt.dwMask;
 						pOut_Broadcast[nextAddr].SetBinaryAddress(&bcast);
 					}
@@ -132,13 +133,18 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 		if(aiList)freeaddrinfo(aiList);
 	}
 #else
-	SOCKET sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    rt::String_Ref nic_prefix[64];
+    int nic_prefix_co = rt::String_Ref(interface_prefix).Split(nic_prefix, sizeofArray(nic_prefix), ",;");
+
+    SOCKET sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	VERIFY(sockfd != INVALID_SOCKET);
 
 	char ioctl_buffer[4096];
 	struct ifconf ifc;
 	ifc.ifc_len = sizeof(ioctl_buffer);
 	ifc.ifc_buf = ioctl_buffer;
+    
+    int top_nic_idx = 100;
 	
 	if(ioctl(sockfd, SIOCGIFCONF, &ifc) >= 0)
 	{
@@ -162,33 +168,59 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 			ioctl(sockfd, SIOCGIFFLAGS, &ifrcopy);
 			if ((ifrcopy.ifr_flags & IFF_UP) == 0)continue;  // ignore if interface not up
             
-            if(!iinit.IsEmpty() && !rt::String_Ref(ifr->ifr_name).StartsWith(iinit))
+            int prefix_idx = -1;
+            if(nic_prefix_co)
+            {
+                for(UINT i=0; i<nic_prefix_co; i++)
+                    if(rt::String_Ref(ifr->ifr_name).StartsWith(nic_prefix[i]))
+                    {   prefix_idx = (int)i;
+                        goto GET_LISTED;
+                    }
+                
                 continue;
-		
+            }
+            
+GET_LISTED:
 			t_ADDR& addr = *(t_ADDR*)&ifr->ifr_addr;
 			if(	!OP::IsAddressNone(addr) &&
 				!OP::IsAddressLoopback(addr) &&
 				!OP::IsAddressAny(addr) &&
 				!OP::IsAddressGhost(addr)
 			)
-			{	if(pOut_Broadcast)
-				{
-					ifrcopy = *ifr;
-					if (ioctl(sockfd, SIOCGIFBRDADDR, &ifrcopy) == 0)
-					{
-						pOut_Broadcast[nextAddr] = *(t_ADDR*)&ifrcopy.ifr_broadaddr;
-					}
-					if(subnet_mask)
-					{
-						ifrcopy = *ifr;
-						if (ioctl(sockfd, SIOCGIFNETMASK, &ifrcopy) == 0)
-						{
-							subnet_mask[nextAddr] = *(DWORD*)(ifrcopy.ifr_broadaddr.sa_data+2);
-						}
-					}
-				}
-			
-				pOut[nextAddr] = addr;
+            {   UINT add_idx = nextAddr;
+                
+                if(prefix_idx < top_nic_idx)
+                {   // add in front if a preferred NIC found
+                    add_idx = 0;
+                    top_nic_idx = prefix_idx;
+		
+                    pOut[nextAddr] = pOut[0];
+                    if(pOut_Broadcast)
+                    {
+                        pOut_Broadcast[nextAddr] = pOut_Broadcast[0];
+                        if(subnet_mask)
+                            subnet_mask[nextAddr] = subnet_mask[0];
+                    }
+                }
+                
+                pOut[add_idx] = addr;
+                if(pOut_Broadcast)
+                {
+                    ifrcopy = *ifr;
+                    if (ioctl(sockfd, SIOCGIFBRDADDR, &ifrcopy) == 0)
+                    {
+                        pOut_Broadcast[add_idx] = *(t_ADDR*)&ifrcopy.ifr_broadaddr;
+                    }
+                    if(subnet_mask)
+                    {
+                        ifrcopy = *ifr;
+                        if (ioctl(sockfd, SIOCGIFNETMASK, &ifrcopy) == 0)
+                        {
+                            subnet_mask[add_idx] = *(DWORD*)(ifrcopy.ifr_broadaddr.sa_data+2);
+                        }
+                    }
+                }
+
 				nextAddr++;
 				if(nextAddr >= OutSize)break;
 			}
