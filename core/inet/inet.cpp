@@ -380,6 +380,8 @@ bool Socket::__ConnectTo(const struct sockaddr &target, int addr_len)
 
 bool Socket::IsValid() const
 {
+    if(INVALID_SOCKET == m_hSocket)return false;
+
 	int val;
 	SOCKET_SIZE_T len = sizeof(val);
 	return getsockopt(m_hSocket,SOL_SOCKET,SO_TYPE,(char*)&val,&len) == 0;
@@ -412,7 +414,15 @@ bool Socket::__SendTo(LPCVOID pData, UINT len,const struct sockaddr &target, int
 bool Socket::Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek)
 {
 	UINT l = (UINT)recv(m_hSocket,(char*)pData,len,Peek?MSG_PEEK:0);
-	if(l==SOCKET_ERROR || (!Peek && l<=0))return false;
+    if(l==SOCKET_ERROR)
+    {
+#if defined(PLATFORM_WIN)
+        if(WSAENOTSOCK == GetLastError()){ closesocket(m_hSocket); m_hSocket = INVALID_SOCKET; }
+#else
+        if(ENOTSOCK == GetLastError()){ close(m_hSocket); m_hSocket = INVALID_SOCKET; }
+#endif
+        return false;
+    }
 	len_out = l;
 	return true;
 }
@@ -421,7 +431,15 @@ bool Socket::__RecvFrom(LPVOID pData, UINT len, UINT& len_out, struct sockaddr &
 {
 	SOCKET_SIZE_T la = addr_len;
 	int l = (int)recvfrom(m_hSocket,(char*)pData,len,Peek?MSG_PEEK:0,&target,&la);
-	if(l==SOCKET_ERROR)return false;
+    if(l==SOCKET_ERROR)
+    {
+#if defined(PLATFORM_WIN)
+        if(WSAENOTSOCK == GetLastError()){ closesocket(m_hSocket); m_hSocket = INVALID_SOCKET; }
+#else
+        if(ENOTSOCK == GetLastError()){ close(m_hSocket); m_hSocket = INVALID_SOCKET; }
+#endif
+        return false;
+    }
 	len_out = l;
 	return la == addr_len;
 }
