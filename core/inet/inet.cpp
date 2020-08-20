@@ -415,12 +415,7 @@ bool Socket::Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek)
 {
 	UINT l = (UINT)recv(m_hSocket,(char*)pData,len,Peek?MSG_PEEK:0);
     if(l==SOCKET_ERROR)
-    {
-#if defined(PLATFORM_WIN)
-        if(WSAENOTSOCK == GetLastError()){ closesocket(m_hSocket); m_hSocket = INVALID_SOCKET; }
-#else
-        if(ENOTSOCK == GetLastError()){ close(m_hSocket); m_hSocket = INVALID_SOCKET; }
-#endif
+    {   len_out = 0;
         return false;
     }
 	len_out = l;
@@ -432,12 +427,7 @@ bool Socket::__RecvFrom(LPVOID pData, UINT len, UINT& len_out, struct sockaddr &
 	SOCKET_SIZE_T la = addr_len;
 	int l = (int)recvfrom(m_hSocket,(char*)pData,len,Peek?MSG_PEEK:0,&target,&la);
     if(l==SOCKET_ERROR)
-    {
-#if defined(PLATFORM_WIN)
-        if(WSAENOTSOCK == GetLastError()){ closesocket(m_hSocket); m_hSocket = INVALID_SOCKET; }
-#else
-        if(ENOTSOCK == GetLastError()){ close(m_hSocket); m_hSocket = INVALID_SOCKET; }
-#endif
+    {   len_out = 0;
         return false;
     }
 	len_out = l;
