@@ -300,6 +300,7 @@ public:
 
 public: //helpers
 	static	int		GetLastError();
+	static  bool	IsLastErrorUnrecoverable();
 	static	bool	IsLastOpPending();
 
 public:

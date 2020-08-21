@@ -262,6 +262,16 @@ int Socket::GetLastError()
 #endif
 }
 
+bool Socket::IsLastErrorUnrecoverable()
+{
+	auto errcode = GetLastError();
+#if defined(PLATFORM_WIN)
+	return errcode != WSAECONNRESET;
+#else
+	return true;
+#endif
+}
+
 bool Socket::IsLastOpPending()
 {
 	int e = GetLastError();
