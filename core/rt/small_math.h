@@ -60,7 +60,7 @@ struct Vec
 	INLFUNC t_Val&	operator [](int i){ ASSERT(i<LEN); return _p[i]; } \
 	INLFUNC void Set(t_Val x){ ((Vec<t_Val, LEN-1>&)(*this)).Set(x); _p[LEN-1] = x; } \
 	INLFUNC void CopyTo(t_Val* x) const { ((Vec<t_Val, LEN-1>&)(*this)).CopyTo(x); x[LEN-1] = _p[LEN-1]; } \
-	INLFUNC void CopyFrom(const t_Val* x){ ((Vec<t_Val, LEN-1>&)(*this)).CopyTo(x); _p[LEN-1] = x[LEN-1]; } \
+	INLFUNC void CopyFrom(const t_Val* x){ ((Vec<t_Val, LEN-1>&)(*this)).CopyFrom(x); _p[LEN-1] = x[LEN-1]; } \
 	INLFUNC void Random(){ ((Vec<t_Val, LEN-1>&)(*this)).Random(); _p[LEN-1] = rand()*rt::TypeTraits<t_Val>::UnitVal()/(t_Val)RAND_MAX; } \
 	INLFUNC void Clamp(t_Val min, t_Val max){ ((Vec<t_Val, LEN-1>&)(*this)).Clamp(min, max); _p[LEN-1] = rt::max(min, rt::min(max, _p[LEN-1])); } \
 	template<int t_start, int t_len> \
