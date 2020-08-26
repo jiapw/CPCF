@@ -117,7 +117,11 @@ namespace _details
 		INLFUNC static void		SetAny(sockaddr_in6& x){ x.sin6_addr = in6addr_any; }
 		INLFUNC static bool		IsEqual(const sockaddr_in6& x, const sockaddr_in6& y){ return x.sin6_port == y.sin6_port && memcmp(&x.sin6_addr, &y.sin6_addr, SIN_ADDRESS_LEN) == 0; }
 		INLFUNC static LPBYTE	GetAddressPtr(const sockaddr_in6& x){ return rt::_CastToNonconst((LPCBYTE)&x.sin6_addr); }
-		INLFUNC static void		CopyAddress(LPVOID p, const sockaddr_in6& x){ ((__int64*)p)[0] = ((__int64*)&x.sin6_addr)[0]; ((__int64*)p)[0] = ((__int64*)&x.sin6_addr)[1]; }
+		INLFUNC static void		CopyAddress(LPVOID p, const sockaddr_in6& x)
+		{
+			((__int64*)p)[0] = ((__int64*)&x.sin6_addr)[0];
+			((__int64*)p)[1] = ((__int64*)&x.sin6_addr)[1];
+		}
 		INLFUNC static WORD*	GetPortPtr(const sockaddr_in6& x){ return (WORD*)&x.sin6_port; }
 		INLFUNC static void		Init(sockaddr_in6& x){ rt::Zero(x); x.sin6_family = AF_INET6; }
 		INLFUNC static void		SetBinaryAddress(sockaddr_in6& x, LPCVOID data){ memcpy(&x.sin6_addr, data, SIN_ADDRESS_LEN); }
