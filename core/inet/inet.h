@@ -110,7 +110,6 @@ namespace _details
 		INLFUNC	static bool		IsAddressNone(const sockaddr_in& x){ return x.sin_addr.s_addr == INADDR_NONE; }
 		INLFUNC static bool		IsAddressGhost(const sockaddr_in& x){ return false; }
 	};
-#ifdef PLATFORM_IPV6_SUPPORT
 	template<> struct InetAddrT_Op<sockaddr_in6>
 	{	static const int	SIN_ADDRESS_LEN = 16;
 		static const int	SIN_FAMILY = AF_INET6;
@@ -131,7 +130,6 @@ namespace _details
 		INLFUNC	static bool		IsAddressNone(const sockaddr_in6& x){ return ((__int64*)&x.sin6_addr)[0] == -1LL && ((__int64*)&x.sin6_addr)[1] == -1LL; }
 		INLFUNC static bool		IsAddressGhost(const sockaddr_in6& x){ return IN6_IS_ADDR_V4MAPPED(&x.sin6_addr); }
 	};
-#endif
 };
 	
 template<typename t_ADDR>
@@ -257,10 +255,8 @@ struct InetAddr: public InetAddrT<sockaddr_in>
     
 extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT out_size, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr);
 
-#ifdef PLATFORM_IPV6_SUPPORT
 typedef InetAddrT<sockaddr_in6>	InetAddrV6;
 extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT out_size, bool no_loopback, InetAddrV6* pOut_Broadcast = nullptr, LPCSTR interface_prefix = nullptr);
-#endif
 
 class Socket
 {
@@ -283,7 +279,7 @@ public:
 	INLFUNC bool Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
 	INLFUNC bool SendTo(LPCVOID pData, UINT len,const InetAddr &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr)); }
 	INLFUNC bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target, bool Peek = false){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddr));  }
-#ifdef PLATFORM_IPV6_SUPPORT
+
 	INLFUNC bool Create(const InetAddrV6 &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddrV6), nSocketType, reuse_addr, PF_INET6); }
 	INLFUNC bool GetPeerName(InetAddrV6 &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddrV6)); }
 	INLFUNC bool GetBindName(InetAddrV6 &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddrV6)); }
@@ -291,7 +287,7 @@ public:
 	INLFUNC bool Accept(Socket& connected_out, InetAddrV6& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddrV6)); }
 	INLFUNC bool SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddrV6)); }
 	INLFUNC bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target, bool Peek = false){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddrV6));  }
-#endif
+
 	void Close();
 	SOCKET Detach();
 	void Attach(SOCKET hSocket);
@@ -352,13 +348,13 @@ public:
 	INLFUNC bool Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
 	INLFUNC bool SendTo(LPCVOID pData, UINT len,const InetAddr &target, bool drop_if_busy = false){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr), drop_if_busy); }
 	INLFUNC bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target, bool Peek = false){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddr));  }
-#ifdef PLATFORM_IPV6_SUPPORT
+
 	INLFUNC bool Create(const InetAddrV6 &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddrV6), nSocketType, reuse_addr, PF_INET6); }
 	INLFUNC bool ConnectTo(const InetAddrV6 &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
 	INLFUNC bool Accept(Socket& connected_out, InetAddrV6& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddrV6)); }
 	INLFUNC bool SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target, bool drop_if_busy = false){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddrV6), drop_if_busy); }
 	INLFUNC bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target, bool Peek = false){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddrV6));  }
-#endif
+
 	INLFUNC void	SetTimeout(DWORD msec){ SetRecvTimeout(msec); SetSendTimeout(msec); }
 	INLFUNC bool	IsLastOperationTimeout() const { return _LastSelectRet == 0; }
 	void	SetRecvTimeout(DWORD send_msec);

@@ -243,13 +243,11 @@ extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT Size_InOut, boo
 	return co;
 }
 
-#ifdef PLATFORM_IPV6_SUPPORT
 extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopback, InetAddrV6* pOut_Broadcast, LPCSTR interface_prefix)
 {
 	UINT co = GetLocalAddressT<InetAddrV6>(pOut, Size_InOut, no_loopback, pOut_Broadcast, nullptr, interface_prefix);
 	return co;
 }
-#endif
 
 ////////////////////////////////////////////////////////////
 // Socket
@@ -400,15 +398,10 @@ bool Socket::IsValid() const
 bool Socket::IsConnected() const
 {
 	if(!IsValid())return false;
-#ifdef PLATFORM_IPV6_SUPPORT
+
 	InetAddrV6 peeraddr;
 	SOCKET_SIZE_T size = sizeof(InetAddrV6);
 	return getpeername(m_hSocket,peeraddr,&size)==0;
-#else
-	InetAddr peeraddr;
-	SOCKET_SIZE_T size = sizeof(InetAddr);
-	return getpeername(m_hSocket,peeraddr,&size)==0;
-#endif
 }
 
 bool Socket::Send(LPCVOID pData, UINT len)

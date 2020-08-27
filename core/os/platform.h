@@ -77,20 +77,15 @@
 		#define PLATFORM_INTEL_IPP_SUPPORT
 #endif
 
-#ifndef	PLATFORM_DISABLE_IPV6
-		#define PLATFORM_IPV6_SUPPORT
-#endif
-
 		#define PLATFORM_OPENGL_SUPPORT
 
-		#if defined(PLATFORM_WIN)
-			#define PLATFORM_INTEL_MKL_SUPPORT
-		#endif
+#if defined(PLATFORM_WIN)
+		#define PLATFORM_INTEL_MKL_SUPPORT
+#endif
 
 #elif	defined(PLATFORM_IOS) || defined(PLATFORM_DROID)
 		#define PLATFORM_OPENGL_ES_SUPPORT
 #endif
-
 
 #if	(defined(PLATFORM_WIN) && defined(_WIN64)) || defined(__LP64__)
 	#define PLATFORM_64BIT
