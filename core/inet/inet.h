@@ -468,13 +468,20 @@ namespace tos
 
 struct ip:public ::rt::tos::S_<>
 {
-	template<typename T>
-	ip(const ::inet::InetAddrT<T>& x)
+	ip(const ::inet::InetAddr& x)
 	{
 		int len = (int)strlen(x.GetDottedDecimalAddress(_p));
 		_p[len++] = ':';
 		_len += len + rt::_details::string_ops::itoa(x.GetPort(), _p + len);
 	};
+    ip(const ::inet::InetAddrV6& x)
+    {
+        _p[0] = '[';
+        int len = (int)strlen(x.GetDottedDecimalAddress(_p + 1)) + 1;
+        _p[len++] = ']';
+        _p[len++] = ':';
+        _len += len + rt::_details::string_ops::itoa(x.GetPort(), _p + len);
+    };
 };
 
 }
