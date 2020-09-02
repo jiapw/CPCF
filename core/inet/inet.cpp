@@ -260,11 +260,11 @@ int Socket::GetLastError()
 #endif
 }
 
-bool Socket::IsLastErrorUnrecoverable()
+bool Socket::IsLastErrorUnrecoverableForDatagram()
 {
 	auto errcode = GetLastError();
 #if defined(PLATFORM_WIN)
-	return errcode != WSAECONNRESET;
+	return errcode != WSAECONNRESET && errcode != WSAENETRESET;
 #else
 	return true;
 #endif

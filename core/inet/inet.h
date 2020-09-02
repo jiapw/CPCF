@@ -300,7 +300,7 @@ public:
 
 public: //helpers
 	static	int		GetLastError();
-	static  bool	IsLastErrorUnrecoverable();
+	static  bool	IsLastErrorUnrecoverableForDatagram();
 	static	bool	IsLastOpPending();
 
 public:
