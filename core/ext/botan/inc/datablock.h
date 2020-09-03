@@ -102,7 +102,7 @@ public:
 
 	INLFUNC LPDWORD		GetDWords(){ return (LPDWORD)GetBytes(); }
 	INLFUNC LPCDWORD	GetDWords() const { return (LPCDWORD)GetBytes(); }
-	INLFUNC LPBYTE		GetBytes(){ ASSERT(!IsEmpty()); return Bytes; }
+	INLFUNC LPBYTE		GetBytes(){ ASSERT(Bytes); return Bytes; }
 	INLFUNC LPCBYTE		GetBytes() const 
 						{	if(_IsSymbolicZero())return _GetZero();
 							if(_IsSymbolicVoid())return _GetVoid();
