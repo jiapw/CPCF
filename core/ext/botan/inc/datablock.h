@@ -114,7 +114,6 @@ public:
 	template< template<UINT l, bool s> class T >
 	INLFUNC DataBlockRef(const T<_LEN, false>& x){ Bytes = (LPBYTE)x.Bytes; }
 
-	INLFUNC bool		IsEmpty() const { return Bytes == _Zero() || Bytes == _Void(); }
     INLFUNC operator	LPCBYTE () const { return (LPCBYTE)GetBytes(); }
 	INLFUNC operator	LPBYTE () { return (LPBYTE)GetBytes(); }
 	template<typename T>
@@ -179,7 +178,6 @@ struct DataBlock
 	};
 	INLFUNC bool	_IsSymbolicZero() const { return false; }
 	INLFUNC bool	_IsSymbolicVoid() const { return false; }
-	INLFUNC bool	IsEmpty() const { return false; }
 	LPDWORD			GetDWords(){ return DWords; }
 	LPCDWORD		GetDWords() const { return DWords; }
 	LPBYTE			GetBytes(){ return Bytes; }
@@ -207,9 +205,9 @@ public:
 	INLFUNC bool		IsVoid() const { return dwop::equ(GetDWords(), (DWORD)0xffffffff); }
 	INLFUNC DataBlock&	Random(UINT seed){ rt::Randomizer(seed).Randomize(GetBytes(), _LEN); return *this; }
 
-	template<bool sb> INLFUNC void	From(const DataBlock<_LEN, sb>& x){	ASSERT(!IsEmpty()); dwop::set(DWords, x.GetDWords()); }
+	template<bool sb> INLFUNC void	From(const DataBlock<_LEN, sb>& x){	dwop::set(DWords, x.GetDWords()); }
 	template<bool sb> INLFUNC int	Compare(const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }
-	template<bool sb> INLFUNC void	operator ^= (const DataBlock<_LEN, sb>& x){ ASSERT(!IsEmpty()); dwop::xor_to(DWords, x.GetDWords()); }
+	template<bool sb> INLFUNC void	operator ^= (const DataBlock<_LEN, sb>& x){ dwop::xor_to(DWords, x.GetDWords()); }
 	template<bool sb> INLFUNC bool	operator < (const DataBlock<_LEN, sb>& x) const	{ return dwop::cmp(GetDWords(), x.GetDWords()) < 0; }
 	template<bool sb> INLFUNC bool	operator <= (const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) <= 0; }
 	template<bool sb> INLFUNC bool	operator > (const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) > 0; }
