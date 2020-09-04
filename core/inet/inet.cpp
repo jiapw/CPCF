@@ -16,6 +16,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <net/if.h>
+#include <ifaddrs.h>
 
 
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
@@ -133,100 +134,88 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 		if(aiList)freeaddrinfo(aiList);
 	}
 #else
+
     rt::String_Ref nic_prefix[64];
     int nic_prefix_co = rt::String_Ref(interface_prefix).Split(nic_prefix, sizeofArray(nic_prefix), ",;");
-
-    SOCKET sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-	VERIFY(sockfd != INVALID_SOCKET);
-
-	char ioctl_buffer[4096];
-	struct ifconf ifc;
-	ifc.ifc_len = sizeof(ioctl_buffer);
-	ifc.ifc_buf = ioctl_buffer;
-    
     int top_nic_idx = 100;
-	
-	if(ioctl(sockfd, SIOCGIFCONF, &ifc) >= 0)
-	{
-		LPSTR ptr = ioctl_buffer;
-		LPSTR end = &ioctl_buffer[ifc.ifc_len];
-		while(ptr < end)
-		{
-			struct ifreq *ifr = (struct ifreq *)ptr;
-	
-#if defined(PLATFORM_ANDROID) || defined(PLATFORM_LINUX)
-			int len = (int)sizeof(struct ifreq);
-#else
 
-			int len = sizeof(ifr->ifr_name) + rt::max((int)sizeof(struct sockaddr), (int)ifr->ifr_addr.sa_len);
-#endif
-			ptr += len;	// for next one in buffer
-			
-			if(ifr->ifr_addr.sa_family != OP::SIN_FAMILY)continue;
-						
-			struct ifreq ifrcopy = *ifr;
-			ioctl(sockfd, SIOCGIFFLAGS, &ifrcopy);
-			if ((ifrcopy.ifr_flags & IFF_UP) == 0)continue;  // ignore if interface not up
-            
-            int prefix_idx = -1;
-            if(nic_prefix_co)
-            {
-                for(UINT i=0; i<nic_prefix_co; i++)
-                    if(rt::String_Ref(ifr->ifr_name).StartsWith(nic_prefix[i]))
-                    {   prefix_idx = (int)i;
-                        goto GET_LISTED;
-                    }
-                
-                continue;
-            }
-            
-GET_LISTED:
-			t_ADDR& addr = *(t_ADDR*)&ifr->ifr_addr;
-			if(	!OP::IsAddressNone(addr) &&
-				!OP::IsAddressLoopback(addr) &&
-				!OP::IsAddressAny(addr) &&
-				!OP::IsAddressGhost(addr)
-			)
-            {   UINT add_idx = nextAddr;
-                
-                if(prefix_idx < top_nic_idx)
-                {   // add in front if a preferred NIC found
-                    add_idx = 0;
-                    top_nic_idx = prefix_idx;
-		
-                    pOut[nextAddr] = pOut[0];
-                    if(pOut_Broadcast)
-                    {
-                        pOut_Broadcast[nextAddr] = pOut_Broadcast[0];
-                        if(subnet_mask)
-                            subnet_mask[nextAddr] = subnet_mask[0];
-                    }
+    struct ifaddrs * ifAddrStruct=NULL;
+    struct ifaddrs * ifa=NULL;
+    void * tmpAddrPtr=NULL;
+
+    getifaddrs(&ifAddrStruct);
+
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        if(!ifa->ifa_addr)continue;
+        if(ifa->ifa_addr->sa_family != OP::SIN_FAMILY)continue;
+        if((ifa->ifa_flags & IFF_UP) == 0)continue;  // ignore if interface not up
+/*
+        if(ifa->ifa_addr->sa_family == AF_INET) { // check it is IP4
+             // is a valid IP4 Address
+             tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+             char addressBuffer[INET_ADDRSTRLEN];
+             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+             printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer);
+        } else if (ifa->ifa_addr->sa_family == AF_INET6) { // check it is IP6
+             // is a valid IP6 Address
+             tmpAddrPtr=&((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr;
+             char addressBuffer[INET6_ADDRSTRLEN];
+             inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer, INET6_ADDRSTRLEN);
+             printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer);
+        }
+*/
+        int prefix_idx = -1;
+        if(nic_prefix_co)
+        {
+            for(UINT i=0; i<nic_prefix_co; i++)
+                if(rt::String_Ref(ifa->ifa_name).StartsWith(nic_prefix[i]))
+                {   prefix_idx = (int)i;
+                    goto GET_LISTED;
                 }
-                
-                pOut[add_idx] = addr;
+            
+            continue;
+        }
+        
+GET_LISTED:
+        t_ADDR& addr = *(t_ADDR*)ifa->ifa_addr;
+        if( !OP::IsAddressNone(addr) &&
+            !OP::IsAddressLoopback(addr) &&
+            !OP::IsAddressAny(addr) &&
+            !OP::IsAddressGhost(addr)
+        )
+        {   UINT add_idx = nextAddr;
+            if(prefix_idx <= top_nic_idx)  // take the last IP for a weird scenario that the real IPv6 IP of dpd_ip on iOS is the last one.
+            {   // add in front if a preferred NIC found
+                add_idx = 0;
+                top_nic_idx = prefix_idx;
+        
+                pOut[nextAddr] = pOut[0];
                 if(pOut_Broadcast)
                 {
-                    ifrcopy = *ifr;
-                    if (ioctl(sockfd, SIOCGIFBRDADDR, &ifrcopy) == 0)
-                    {
-                        pOut_Broadcast[add_idx] = *(t_ADDR*)&ifrcopy.ifr_broadaddr;
-                    }
+                    pOut_Broadcast[nextAddr] = pOut_Broadcast[0];
                     if(subnet_mask)
-                    {
-                        ifrcopy = *ifr;
-                        if (ioctl(sockfd, SIOCGIFNETMASK, &ifrcopy) == 0)
-                        {
-                            subnet_mask[add_idx] = *(DWORD*)(ifrcopy.ifr_broadaddr.sa_data+2);
-                        }
-                    }
+                        subnet_mask[nextAddr] = subnet_mask[0];
                 }
+            }
+                          
+            pOut[add_idx] = addr;
+            if(pOut_Broadcast)
+            {
+                pOut_Broadcast[add_idx] = *(t_ADDR*)ifa->ifa_broadaddr;
 
-				nextAddr++;
-				if(nextAddr >= OutSize)break;
-			}
-		}		
-	}
-	Socket(sockfd).Close();
+                if(subnet_mask)
+                {
+                    ASSERT(ifa->ifa_addr->sa_family == AF_INET);
+                    subnet_mask[add_idx] = *(DWORD*)(ifa->ifa_netmask->sa_data+2);
+                }
+            }
+
+            nextAddr++;
+            if(nextAddr >= OutSize)break;
+        }
+     }
+     if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
 #endif
 
 	if(!no_loopback && OutSize>(UINT)nextAddr)

@@ -466,7 +466,7 @@ namespace rt
 namespace tos
 {
 
-struct ip:public ::rt::tos::S_<>
+struct ip:public ::rt::tos::S_<100>
 {
 	ip(const ::inet::InetAddr& x)
 	{
