@@ -253,7 +253,7 @@ bool Socket::IsLastErrorUnrecoverableForDatagram()
 {
 	auto errcode = GetLastError();
 #if defined(PLATFORM_WIN)
-	return errcode != WSAECONNRESET && errcode != WSAENETRESET;
+	return errcode != WSAECONNRESET && errcode != WSAENETRESET && errcode != WSAEMSGSIZE && errcode != 0;
 #else
 	return true;
 #endif
