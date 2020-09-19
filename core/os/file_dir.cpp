@@ -708,20 +708,24 @@ bool os::File::Truncate(SIZE_T len)
 SIZE_T os::File::GetCurrentPosition() const
 { 
 	ASSERT(IsOpen());
-	return rt::_CastToNonconst(this)->Seek(0, Seek_Current);
+#if defined(PLATFORM_WIN)
+    _fseeki64(_hFile, offset, nFrom);
+    return _ftelli64_nolock(_hFile);
+#else
+    return ftello(_hFile);
+#endif
 }
 
 SIZE_T os::File::Seek(SSIZE_T offset, UINT nFrom)
 {
 	ASSERT(IsOpen());
-	ASSERT(offset<0x7fffffff);
 #if defined(PLATFORM_WIN)
-	return _fseeki64(_hFile, offset, nFrom) == 0?_ftelli64_nolock(_hFile):-1;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-    return lseek64(GetFD(), offset, nFrom);
+    _fseeki64(_hFile, offset, nFrom);
 #else
-	return lseek(GetFD(), offset, nFrom);
+    fseeko(_hFile, offset, nFrom);
 #endif
+    
+    return GetCurrentPosition();
 }
 
 void os::File::SeekToBegin()

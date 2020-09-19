@@ -721,7 +721,7 @@ bool FileZip::ExtractFile(UINT idx, LPVOID pData)
 	LocalFileHeader LFH;
 	
 	if(	_pZipFile->Seek(e->OffsetToLocalFileHeader) == e->OffsetToLocalFileHeader &&
-		_pZipFile->Read(&LFH,sizeof(LocalFileHeader)-1) == sizeof(LocalFileHeader)-1 &&
+		_pZipFile->Read(&LFH, offsetof(LocalFileHeader, FileName)) == offsetof(LocalFileHeader, FileName) &&
 		LFH.Signature == LocalFileHeader::header_magic
 	)
 	{	// decompress
@@ -733,7 +733,7 @@ bool FileZip::ExtractFile(UINT idx, LPVOID pData)
 			bool succ = false;
 			LPCBYTE  p = nullptr;
 			rt::Buffer<BYTE> compressed;
-
+            
 			if(	compressed.SetSize(e->Size) &&
 				_pZipFile->Seek(begin) == begin &&
 				_pZipFile->Read(compressed,(UINT)compressed.GetSize()) == compressed.GetSize()

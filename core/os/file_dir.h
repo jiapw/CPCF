@@ -57,7 +57,7 @@ public:
 
 	virtual SIZE_T Read(LPVOID lpBuf,SIZE_T nCount);
 	virtual SIZE_T Write(LPCVOID lpBuf,SIZE_T nCount);
-	virtual SIZE_T Seek(SSIZE_T offset,UINT nFrom = rt::_File::Seek_Begin); // return ULLONG_MAX for failure.
+	virtual SIZE_T Seek(SSIZE_T offset, UINT nFrom = rt::_File::Seek_Begin); // return ULLONG_MAX for failure.
 	virtual SIZE_T GetLength() const;
 };
 
@@ -72,7 +72,7 @@ public:
 
 	SIZE_T	Read(LPVOID pBuf, SIZE_T sz){ return MemoryFileRef::Read(pBuf,sz); }
 	SIZE_T	Write(LPCVOID pBuf, SIZE_T sz){ return MemoryFileRef::Write(pBuf,sz); }
-	SIZE_T	Seek(SSIZE_T offset=0, DWORD where = SEEK_SET){ return MemoryFileRef::Seek(offset,where); } //return INFINITE if not seekable
+	SIZE_T	Seek(SSIZE_T offset=0, UINT where = SEEK_SET){ return MemoryFileRef::Seek(offset,where); } //return INFINITE if not seekable
 	LPBYTE	GetBuffer(){ return _pData; }
 	LPCBYTE GetBuffer() const { return  _pData; }
 };
@@ -132,7 +132,7 @@ public:
 	SIZE_T		GetLength() const;
 	bool		Truncate(SIZE_T len);
 	SIZE_T		GetCurrentPosition() const;
-	SIZE_T		Seek(SSIZE_T offset,UINT nFrom = Seek_Begin);
+	SIZE_T		Seek(SSIZE_T offset, UINT nFrom = Seek_Begin);
 	void		SeekToBegin();
 	SIZE_T		SeekToEnd();
 	void        Flush();
