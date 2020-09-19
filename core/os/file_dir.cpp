@@ -716,7 +716,7 @@ SIZE_T os::File::Seek(SSIZE_T offset, UINT nFrom)
 	ASSERT(IsOpen());
 	ASSERT(offset<0x7fffffff);
 #if defined(PLATFORM_WIN)
-	return _fseeki64(_hFile, offset, nFrom);
+	return _fseeki64(_hFile, offset, nFrom) == 0?_ftelli64_nolock(_hFile):-1;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
     return lseek64(GetFD(), offset, nFrom);
 #else
