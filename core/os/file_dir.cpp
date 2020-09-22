@@ -709,8 +709,7 @@ SIZE_T os::File::GetCurrentPosition() const
 { 
 	ASSERT(IsOpen());
 #if defined(PLATFORM_WIN)
-    _fseeki64(_hFile, offset, nFrom);
-    return _ftelli64_nolock(_hFile);
+    return _ftelli64(_hFile);
 #else
     return ftello(_hFile);
 #endif

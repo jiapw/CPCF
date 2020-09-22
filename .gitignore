@@ -91,3 +91,7 @@ testcases/proj.ios/tester.xcodeproj/xcuserdata/jiaping.xcuserdatad/xcschemes/xcs
 /testcases/proj.linux/compile_flags.txt
 
 testcases/proj.mac/tester.xcodeproj/xcshareddata/xcschemes/tester.xcscheme
+
+*.csv
+
+*.zip
