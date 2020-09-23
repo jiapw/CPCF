@@ -472,41 +472,64 @@ void os::File::ResolveRelativePath(LPCSTR path, rt::String& fn_out)
 	}
 	fn_out = path;
 #else
-    // realpath(3) don't works for path that not exist on the disk
-    rt::String_Ref input = path;
-    rt::String temp;
-    if(path[0] != '/')
-    {   // relative path
-        os::File::GetCurrentDirectory(temp);
-        temp += '/';
-        temp += input;
-        input = temp;
-		fn_out.Empty();
-    }
-    else
-    {   rt::Swap(temp, fn_out);
-    }
-    
-    ASSERT(input[0] == '/');
-    
-    rt::String_Ref seg[1024];
-    UINT co = input.Split<true>(seg, sizeofArray(seg), "/\\");
-    int parsed = 0;
-    for(UINT i=0; i<co; i++)
+    rt::String __homed;
+    if(path[0] == '~')
     {
-        if(seg[i].IsEmpty() || seg[i] == ".")continue;
-        if(seg[i] == ".."){ parsed--; continue; }
-        if(parsed<0)return;
-        seg[parsed++] = seg[i];
+        const char *homedir = getenv("HOME");
+        if(homedir == nullptr)
+        {
+            fn_out = path;
+            return;
+        }
+        
+        __homed = rt::String_Ref(homedir) + (path+1);
+        path = __homed;
     }
     
-    for(UINT i=0; i<parsed; i++)
+    if(os::File::IsExist(path))
     {
-        fn_out += rt::SS() + '/' + seg[i];
+        fn_out.SetLength(PATH_MAX);
+        realpath(path, fn_out);
+        fn_out.RecalculateLength();
+        return;
     }
-    
-    if(input.Last() == '/' || input.Last() == '\\')fn_out += '/';
-	return;
+    else // realpath(3) don't works for path that not exist on the disk
+    {
+        rt::String_Ref input = path;
+        rt::String temp;
+        if(path[0] != '/')
+        {   // relative path
+            os::File::GetCurrentDirectory(temp);
+            temp += '/';
+            temp += input;
+            input = temp;
+            fn_out.Empty();
+        }
+        else
+        {   rt::Swap(temp, fn_out);
+        }
+        
+        ASSERT(input[0] == '/');
+        
+        rt::String_Ref seg[1024];
+        UINT co = input.Split<true>(seg, sizeofArray(seg), "/\\");
+        int parsed = 0;
+        for(UINT i=0; i<co; i++)
+        {
+            if(seg[i].IsEmpty() || seg[i] == ".")continue;
+            if(seg[i] == ".."){ parsed--; continue; }
+            if(parsed<0)return;
+            seg[parsed++] = seg[i];
+        }
+        
+        for(UINT i=0; i<parsed; i++)
+        {
+            fn_out += rt::SS() + '/' + seg[i];
+        }
+        
+        if(input.Last() == '/' || input.Last() == '\\')fn_out += '/';
+        return;
+    }
 #endif
 }
 
