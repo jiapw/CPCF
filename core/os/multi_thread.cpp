@@ -27,9 +27,14 @@ namespace _details
 		rt::BufferEx<_GarbagItem>		_PendingGarbag;
 		os::CriticalSection				_PendingGarbagCCS;
 		os::Thread						_GarbagDeletionThread;
+		bool							_bExit;
+		_GarbagBin(){ _bExit = false; }
 		~_GarbagBin(){ Exit(); }
 		void Exit()
 		{
+			_bExit = true;
+			os::Sleep(10);
+
 			if(_GarbagDeletionThread.IsRunning())
 			{
 				_GarbagDeletionThread.WantExit() = true;
@@ -94,7 +99,7 @@ void os::DelayedGarbageCollection::DeleteObject(LPCVOID x, DWORD TTL_msec, os::D
 	ASSERT(delete_func);
 
 	if(x == nullptr)return;
-	if(TTL_msec == 0)
+	if(TTL_msec == 0 || _details::g_GCB._bExit)
 	{	delete_func((LPVOID)x);
 		return;
 	}
