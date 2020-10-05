@@ -31,31 +31,32 @@ static rt::String		_LogPrompt;
 #if defined(PLATFORM_WIN) && !defined(PLATFORM_DISABLE_LOG)
 void _CreateConsole()
 {
+#pragma warning(disable:4311)
 	if(::GetConsoleWindow() == NULL)
 	{
-#pragma warning(disable:4311)
 		// allocate a console for this app
 		AllocConsole();
-		// set the screen buffer to be big enough to let us scroll text
-        CONSOLE_SCREEN_BUFFER_INFO coninfo;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
-		coninfo.dwSize.Y = 9999;
-		// How many lines do you want to have in the console buffer
-		SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
-        // redirect unbuffered STDOUT to the console
-        freopen("CONOUT$", "w", stdout);
-		setvbuf(stdout, NULL, _IONBF, 0);
-		// redirect unbuffered STDIN to the console
-        freopen("CONIN$", "r", stdin);
-		setvbuf(stdin, NULL, _IONBF, 0);
-		// redirect unbuffered STDERR to the console
-        freopen("CONOUT$", "w", stderr);
-        setvbuf(stderr, NULL, _IONBF, 0);
-
-		// make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
-		std::ios::sync_with_stdio();
-#pragma warning(default:4311)
 	}
+
+	// set the screen buffer to be big enough to let us scroll text
+    CONSOLE_SCREEN_BUFFER_INFO coninfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
+	coninfo.dwSize.Y = 9999;
+	// How many lines do you want to have in the console buffer
+	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
+    // redirect unbuffered STDOUT to the console
+    freopen("CONOUT$", "w", stdout);
+	setvbuf(stdout, NULL, _IONBF, 0);
+	// redirect unbuffered STDIN to the console
+    freopen("CONIN$", "r", stdin);
+	setvbuf(stdin, NULL, _IONBF, 0);
+	// redirect unbuffered STDERR to the console
+    freopen("CONOUT$", "w", stderr);
+    setvbuf(stderr, NULL, _IONBF, 0);
+
+	// make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
+	std::ios::sync_with_stdio();
+#pragma warning(default:4311)
 }
 #endif
 
