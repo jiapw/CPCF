@@ -13,7 +13,7 @@
 	#if defined (__mips__)
 		#include "../platforms/botan_ndk_mips.h"
 	#elif defined (__arm__)
-		#include "../platforms/botan_ndk_arm.h"
+		#include "../platforms/android_arm/botan_all.h"
 		// treatment for NDK, because it is not supporting C++ exception
 		#define try
 		#define catch(x)	if(0)
@@ -45,7 +45,8 @@
 #endif
 
 #ifdef PLATFORM_ANDROID
-#define _LOG_EXPCEPTION(x)	{ do { (void)(x); } while (0) }
+//#define _LOG_EXPCEPTION(x)	{ do { (void)(x); } while (0) }
+#define _LOG_EXPCEPTION(x) {}
 #else
 #define _LOG_EXPCEPTION(x)	_LOG(x)
 #endif

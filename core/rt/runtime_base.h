@@ -342,8 +342,8 @@ INLFUNC bool IsInRange_OC(T var,T_R min_v,T_R max_v)
 FORCEINL bool IsNumberOk				(float val){ return ::rt::IsInRange_CC(_fpclass(val),_FPCLASS_NN,_FPCLASS_PN); }
 FORCEINL bool IsNumberOk				(double val){ return ::rt::IsInRange_CC(_fpclass(val),_FPCLASS_NN,_FPCLASS_PN); }
 #elif defined(PLATFORM_ANDROID)
-FORCEINL bool IsNumberOk				(float val){ return __isnormalf(val); }
-FORCEINL bool IsNumberOk				(double val){ return __isnormal(val); }
+FORCEINL bool IsNumberOk				(float val){ return isnormal(val); }
+FORCEINL bool IsNumberOk				(double val){ return isnormal(val); }
 #else
 FORCEINL bool IsNumberOk				(float val){ int c = std::fpclassify(val); return c!=FP_INFINITE && c!=FP_NAN; }
 FORCEINL bool IsNumberOk				(double val){ int c = std::fpclassify(val); return c!=FP_INFINITE && c!=FP_NAN; }
@@ -1057,7 +1057,7 @@ namespace _details
 			static UINT TrailingZeroBits(T x) { if(0 == x)return 32; return (UINT)__builtin_ctz((DWORD)x); }
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcount((DWORD)x); }
 			static T	ByteOrderSwap(T x) { return __builtin_bswap32((DWORD)x); }
-#if defined(PLATFORM_LINUX)	|| defined(PLATFORM_ANDRIOD)
+#if defined(PLATFORM_LINUX)
             static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
             static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u32(carry, (UINT)a, (UINT)b, (UINT*)c); }
 #else
@@ -1082,7 +1082,7 @@ namespace _details
 			static UINT TrailingZeroBits(T x) { if(0 == x)return 64; return (UINT)__builtin_ctzll((ULONGLONG)x); }
 			static UINT NonzeroBits(T x) { return (UINT)__builtin_popcountll((ULONGLONG)x); }
 			static T	ByteOrderSwap(T x) { return (T)__builtin_bswap64((ULONGLONG)x); }
-#if defined(PLATFORM_LINUX)	|| defined(PLATFORM_ANDRIOD)
+#if defined(PLATFORM_LINUX)
             static BYTE AddCarry(BYTE carry, T a, T b, T* c){ return _addcarry_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (unsigned long long*)c); }
             static BYTE SubBorrow(BYTE carry, T a, T b, T* c) { return _subborrow_u64(carry, (ULONGLONG)a, (ULONGLONG)b, (unsigned long long*)c); }
 #else
