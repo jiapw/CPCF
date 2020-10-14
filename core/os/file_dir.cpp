@@ -357,8 +357,8 @@ bool os::File::SetFileTime(__time64_t last_access, __time64_t last_modify) const
 	tm[0].tv_sec = (time_t)(last_modify?last_modify:s.st_mtime);
 	tm[0].tv_usec = 0;
 	#if defined(PLATFORM_ANDROID)
-		ASSERT(!Filename.IsEmpty());
-		return 0 == utimes(Filename, tm);
+		ASSERT(!_Filename.IsEmpty());
+		return 0 == utimes(_Filename, tm);
 	#else
 		return 0 == futimes(fileno(_hFile), tm);
 	#endif
