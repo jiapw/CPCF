@@ -424,6 +424,8 @@ int os::GetDimensionOfScreens(rt::Vec2i* pDim, UINT dim_size) // return # of scr
 	return cbs.count;
 #elif defined(PLATFORM_IOS)
 	ASSERT(0);
+#elif defined(PLATFORM_ANDROID)
+	ASSERT(0);
 #elif defined(PLATFORM_MAC)
     uint32_t numDisplay;
     CGDirectDisplayID displayIDs[10];
@@ -1197,7 +1199,7 @@ void SetProcessPriority(int prio)
 	case PROCPRIO_IDLE: ::SetPriorityClass(::GetCurrentProcess(), IDLE_PRIORITY_CLASS); break;
 	default: ASSERT(0);
 	}
-#elif defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_IOS)
+#elif defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_IOS) || defined(PLATFORM_ANDROID)
 	switch(prio)
 	{
 	case PROCPRIO_REALTIME: ::setpriority(PRIO_PROCESS, 0, 20); break;

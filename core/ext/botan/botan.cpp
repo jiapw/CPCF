@@ -12,7 +12,7 @@
 	#if defined (__mips__)
 		#include "./platforms/botan_ndk_mips.cpp"
 	#elif defined (__arm__)
-		#include "./platforms/botan_ndk_arm.cpp"
+		#include "./platforms/android_arm/botan_all.cpp"
 	#elif defined (__i386__)
 		#include "./platforms/botan_ndk_x86.cpp"
 	#else
@@ -205,7 +205,10 @@ bool TLS::Create()
 	}
 	catch(Botan::Stream_IO_Error &e)
 	{
+#if defined PLATFORM_ANDROID
+#else
 		if (strstr(e.what(), "Server certificate is not valid") != nullptr)
+#endif
 			_CertificateError = true;
 	}
 	catch(...){}
