@@ -34,7 +34,7 @@ LOCAL_LDLIBS    := -lm -llog
 LOCAL_CPP_FEATURES += exceptions 
 LOCAL_CPP_FEATURES += rtti
 
-LOCAL_CPPFLAGS += -std=gnu++14
+LOCAL_CPPFLAGS += -std=c++14
 
 
 APP_OPTIM := debug

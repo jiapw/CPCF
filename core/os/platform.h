@@ -83,7 +83,7 @@
 		#define PLATFORM_INTEL_MKL_SUPPORT
 #endif
 
-#elif	defined(PLATFORM_IOS) || defined(PLATFORM_DROID)
+#elif	defined(PLATFORM_IOS) || defined(PLATFORM_ANDROID)
 		#define PLATFORM_OPENGL_ES_SUPPORT
 #endif
 

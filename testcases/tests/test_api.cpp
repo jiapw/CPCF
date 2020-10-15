@@ -614,7 +614,7 @@ void rt::UnitTests::string_conv()
 	_LOG(rt::tos::Number((BYTE)12));
 	_LOG(rt::tos::Number((SHORT)12));
 	_LOG(rt::tos::Number(123));
-	_LOG(rt::tos::Number(123LL));
+	_LOG(rt::tos::Number((LONGLONG)123LL));
 	_LOG(rt::tos::Number(123.450000001f));
 	_LOG(rt::tos::Number(123.450000001));
 	_LOG(rt::tos::Number(1.23e45));

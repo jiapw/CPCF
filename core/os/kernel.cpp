@@ -57,7 +57,13 @@ extern int _objc_get_battery_state();
 
 #ifdef PLATFORM_ANDROID
 #include <sys/sysconf.h>
+#ifdef PLATFORM_64BIT
+#undef __LP64__
 #include <time64.h>
+#define __LP64__
+#else
+#include <time64.h>
+#endif
 #else
 #endif
 
