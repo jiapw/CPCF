@@ -107,7 +107,7 @@ void XMLComposer::EnteringNodeDone(bool compact)
 
 void XMLComposer::SetAttribute(LPCSTR name, long long value)
 {
-	SetAttribute(name, rt::tos::Number(value).Begin());
+	SetAttribute(name, rt::tos::Number((LONGLONG)value).Begin());
 }
 
 void XMLComposer::SetAttribute(LPCSTR name, int value)
@@ -117,7 +117,7 @@ void XMLComposer::SetAttribute(LPCSTR name, int value)
 
 void XMLComposer::SetAttribute(LPCSTR name, unsigned long long value)
 {
-	SetAttribute(name, rt::tos::Number(value).Begin());
+	SetAttribute(name, rt::tos::Number((ULONGLONG)value).Begin());
 }
 
 void XMLComposer::SetAttribute(LPCSTR name, unsigned int value)

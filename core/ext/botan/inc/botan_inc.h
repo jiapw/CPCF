@@ -14,9 +14,8 @@
 		#include "../platforms/botan_ndk_mips.h"
 	#elif defined (__arm__)
 		#include "../platforms/android_arm/botan_all.h"
-		// treatment for NDK, because it is not supporting C++ exception
-		#define try
-		#define catch(x)	if(0)
+	#elif defined (__aarch64__)
+		#include "../platforms/android_arm64/botan_all.h"
 	#elif defined (__i386__)
 		#include "../platforms/botan_ndk_x86.h"
 	#else
