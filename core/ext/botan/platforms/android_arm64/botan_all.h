@@ -31,11 +31,11 @@
 
 /*
 * This file was automatically generated running
-* 'configure.py --amalgamation --disable-shared --no-autoload --enable-modules=auto_rng,rsa,sha1_sse2,sha1,md5,sha2_32,sha2_64,sha3,emsa1,emsa_pkcs1,emsa_pssr,emsa_raw,dh,ecdh,emsa_x931,cryptoapi_rng,crc32,cbc,des,blowfish,curve25519,dsa,win32_stats,aes,aes_ni,aes_ssse3,tls --cpu=arm --os=android --with-local-config=config_ndk.h --link-method=copy'
+* 'configure.py --amalgamation --disable-shared --no-autoload --enable-modules=auto_rng,rsa,sha1_sse2,sha1,md5,sha2_32,sha2_64,sha3,emsa1,emsa_pkcs1,emsa_pssr,emsa_raw,dh,ecdh,emsa_x931,cryptoapi_rng,crc32,cbc,des,blowfish,curve25519,dsa,win32_stats,aes,aes_ni,aes_ssse3,tls --cpu=arm64 --os=android --with-local-config=config_ndk.h --link-method=copy'
 *
 * Target
 *  - Compiler: g++  -pthread -fstack-protector -std=c++11 -D_REENTRANT -O3
-*  - Arch: arm32/arm32
+*  - Arch: arm64/arm64
 *  - OS: android
 */
 
@@ -51,7 +51,7 @@
 #define BOTAN_DISTRIBUTION_INFO "unspecified"
 
 /* How many bits per limb in a BigInt */
-#define BOTAN_MP_WORD_BITS 32
+#define BOTAN_MP_WORD_BITS 64
 
 
 #define BOTAN_INSTALL_PREFIX R"(/usr/local)"
@@ -75,11 +75,11 @@
 #define BOTAN_TARGET_OS_HAS_READDIR
 #define BOTAN_TARGET_OS_HAS_THREADS
 
-#define BOTAN_TARGET_ARCH_IS_ARM32
-#define BOTAN_TARGET_SUPPORTS_NEON
+#define BOTAN_TARGET_ARCH_IS_ARM64
 #define BOTAN_TARGET_CPU_IS_LITTLE_ENDIAN
 #define BOTAN_TARGET_CPU_IS_ARM_FAMILY
-#define BOTAN_TARGET_CPU_NATIVE_WORD_SIZE 32
+#define BOTAN_TARGET_CPU_NATIVE_WORD_SIZE 64
+#define BOTAN_TARGET_CPU_HAS_NATIVE_64BIT
 #define BOTAN_TARGET_UNALIGNED_MEMORY_ACCESS_OK 0
 
 #define BOTAN_BUILD_COMPILER_IS_GCC
