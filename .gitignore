@@ -93,5 +93,10 @@ testcases/proj.ios/tester.xcodeproj/xcuserdata/jiaping.xcuserdatad/xcschemes/xcs
 testcases/proj.mac/tester.xcodeproj/xcshareddata/xcschemes/tester.xcscheme
 
 *.csv
-
 *.zip
+*.so
+*.o
+*.o.d
+
+testcases/proj.andriod/ndk_compile_tools/.vs/
+testcases/proj.andriod/ndk_compile_tools/Debug/
