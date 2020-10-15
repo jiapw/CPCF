@@ -95,9 +95,16 @@ testcases/proj.mac/tester.xcodeproj/xcshareddata/xcschemes/tester.xcscheme
 *.csv
 
 *.zip
+*.so
+*.o
+*.o.d
+
+testcases/proj.andriod/ndk_compile_tools/.vs/
+testcases/proj.andriod/ndk_compile_tools/Debug/
 
 testcases/proj.mac/Build/
 testcases/proj.mac/Index/
 /.vs
 
 core/ext/botan/amalgamation_build/
+
