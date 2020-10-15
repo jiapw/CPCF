@@ -61,13 +61,14 @@ extern int _objc_get_battery_state();
 
 #ifdef PLATFORM_ANDROID
 #include <sys/sysconf.h>
+
 #ifdef PLATFORM_64BIT
-#undef __LP64__
-#include <time64.h>
-#define __LP64__
+#include <time.h>
 #else
 #include <time64.h>
 #endif
+
+
 #else
 #endif
 
@@ -818,7 +819,7 @@ bool Timestamp::GetDateTime(Fields& fields) const
 	struct tm * ptm;
 #if defined(PLATFORM_WIN)
 	ptm = _gmtime64(&t);
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_64BIT)
     ptm = gmtime((time_t*)&t);
 #else
 	ptm = gmtime64(&t);
@@ -848,7 +849,7 @@ bool Timestamp::GetLocalDateTime(Fields& fields) const	// Local Time
 	struct tm * ptm;
 #if defined(PLATFORM_WIN)
 	ptm = _localtime64(&t);
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_64BIT)
     ptm = localtime((time_t*)&t);
 #else
 	ptm = localtime64(&t);
@@ -880,7 +881,7 @@ bool Timestamp::SetLocalDateTime(const Fields& f)
 	__time64_t t;
 #if defined(PLATFORM_WIN)
 	t = _mktime64(&tmstruct);
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_64BIT)
     t = mktime(&tmstruct);
 #else
 	t = mktime64(&tmstruct);
@@ -907,7 +908,7 @@ bool Timestamp::SetDateTime(const Fields& f)
 	__time64_t t;
 #if defined(PLATFORM_WIN)
 	t = _mkgmtime64(&tmstruct);
-#elif defined(PLATFORM_ANDROID)
+#elif defined(PLATFORM_ANDROID) && defined(PLATFORM_32BIT)
 	t = timegm64(&tmstruct);
 #else
 	t = timegm(&tmstruct);
