@@ -555,7 +555,7 @@ bool os::File::LoadText(LPCSTR fn, rt::String& out, UINT expire_sec)
 	{
 		out.Empty();
 		int fd = open(fn, O_RDONLY);
-		if(fd)
+		if(fd>0)
 		{			
 			char data[10240];
 			int r = read(fd, data, sizeof(data));

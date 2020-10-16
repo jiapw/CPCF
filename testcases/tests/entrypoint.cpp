@@ -19,7 +19,7 @@ void TestMain()
     }
 #endif
 
-	if(!os::CommandLine::Get().HasOption("verify"))
+	if(0 && !os::CommandLine::Get().HasOption("verify"))
 	{
 		TYPETRAITS_UNITTEST(socket);
 		return;
@@ -40,7 +40,7 @@ void TestMain()
 	*/
 		os::File::GetCurrentDirectory(dir);
 		_LOGC(dir);
-
+    /*
 		TYPETRAITS_UNITTEST(rt);
 		TYPETRAITS_UNITTEST(buffer);
 		TYPETRAITS_UNITTEST(sortedpush);
@@ -65,7 +65,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
 		TYPETRAITS_UNITTEST(crypto_func);
-        TYPETRAITS_UNITTEST(file);
+        TYPETRAITS_UNITTEST(file);*/
 		TYPETRAITS_UNITTEST(rocks_db);
         TYPETRAITS_UNITTEST(vm);
         TYPETRAITS_UNITTEST(async_write);
