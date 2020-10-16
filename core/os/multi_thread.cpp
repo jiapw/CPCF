@@ -708,7 +708,9 @@ bool os::Thread::_Create(UINT stack_size, ULONGLONG CPU_affinity)
 				if(CPU_affinity&(1ULL<<i))
 					CPU_SET(i, &cpuset);
 		
-			// pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+			#ifndef PLATFORM_ANDROID
+			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+			#endif
 		}
 		set_attr = &attr;
 	}
