@@ -93,6 +93,9 @@ public:
 	~Thread();
 
 	bool	WaitForEnding(UINT time_wait_ms = INFINITE, bool terminate_if_timeout = false);
+#if defined(PLATFORM_LINUX)
+    bool    Joining();
+#endif
 	DWORD	GetExitCode() const { return _ExitCode; }
 	bool	IsRunning() const;
 	bool&	WantExit(){ return _bWantExit; }

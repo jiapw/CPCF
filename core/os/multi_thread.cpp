@@ -650,6 +650,11 @@ bool os::Thread::IsRunning() const
 	return _hThread != NULL;
 }
 
+bool os::Thread::Joining()
+{
+    return !pthread_join(*(pthread_t*)&_hThread, NULL);
+}
+
 bool os::Thread::_Create(UINT stack_size, ULONGLONG CPU_affinity)
 {
 	ASSERT(_hThread == NULL);
