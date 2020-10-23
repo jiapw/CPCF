@@ -1606,6 +1606,10 @@ public:
 		if(Last() == ',' || Last() == '.' || Last() == ';'){ Last() = closure_symb; return true; }
 		*this += closure_symb; return false;
 	}
+	INLFUNC void Extend(SIZE_T count, char c = ' ')
+	{	SetLength(GetLength() + count);
+		memset((LPSTR)End() - count, c, count);
+	}
 };
 
 #undef CPF_STRING_CONNECT_OP
