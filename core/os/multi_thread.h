@@ -93,9 +93,6 @@ public:
 	~Thread();
 
 	bool	WaitForEnding(UINT time_wait_ms = INFINITE, bool terminate_if_timeout = false);
-#if defined(PLATFORM_LINUX)
-    bool    Joining();
-#endif
 	DWORD	GetExitCode() const { return _ExitCode; }
 	bool	IsRunning() const;
 	bool&	WantExit(){ return _bWantExit; }
@@ -103,7 +100,11 @@ public:
 	void	TerminateForcely();
 	void	DetachThread(){ if(_hThread){ __release_handle(_hThread); _hThread = NULL; } }
 	void	SetPriority(UINT p = PRIORITY_HIGH);
+#if defined(PLATFORM_WIN)
 	UINT	GetId();
+#else
+    SIZE_T  GetId();
+#endif
 
 	bool	Create(LPVOID obj, const THISCALL_MFPTR& on_run, LPVOID param = nullptr, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0);
 	bool	Create(FUNC_THREAD_ROUTE x, LPVOID thread_cookie = nullptr, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0);
