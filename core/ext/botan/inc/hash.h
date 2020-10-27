@@ -208,6 +208,7 @@ public:
 		hash_hex.SetLength(HASHSIZE*2);
 		os::Base16Encode(hash_hex.Begin(), hash, HASHSIZE);
 	}
+    template<typename T> void Update(const T& x){ Update(&x, sizeof(x)); }
 };
 
 } // namespace sec

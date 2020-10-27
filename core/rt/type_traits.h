@@ -452,6 +452,14 @@ namespace _details
 	};
 		template<typename T> struct _IsZero<T, true, false>{ static bool Is(T v){ return v == 0; } };
 		template<typename T> struct _IsZero<T, false, true>{ static bool Is(T v){ return v<TypeTraits<T>::Epsilon() && v>-TypeTraits<T>::Epsilon(); } };
+
+#pragma pack(push, 1)
+	template<int SIZE>
+	struct Zeros
+	{	BYTE	_zeros[SIZE];
+		Zeros(){ memset(this, 0, SIZE); }
+	};
+#pragma pack(pop)
 }
 
 template<typename T>

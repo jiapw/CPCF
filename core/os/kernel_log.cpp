@@ -32,11 +32,17 @@ static rt::String		_LogPrompt;
 void _CreateConsole()
 {
 #pragma warning(disable:4311)
+	static bool bInit = false;
+	
+	if (bInit) return;
+
 	if(::GetConsoleWindow() == NULL)
 	{
 		// allocate a console for this app
 		AllocConsole();
 	}
+
+	
 
 	// set the screen buffer to be big enough to let us scroll text
     CONSOLE_SCREEN_BUFFER_INFO coninfo;
@@ -56,6 +62,8 @@ void _CreateConsole()
 
 	// make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
 	std::ios::sync_with_stdio();
+
+	bInit = true;
 #pragma warning(default:4311)
 }
 #endif
