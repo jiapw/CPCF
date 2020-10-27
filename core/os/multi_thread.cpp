@@ -721,7 +721,7 @@ bool os::Thread::_Create(UINT stack_size, ULONGLONG CPU_affinity)
 	return false;
 }
 
-UINT os::Thread::GetId()
+SIZE_T os::Thread::GetId()
 {
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 	return (SIZE_T)pthread_mach_thread_np(*(pthread_t*)&_hThread);
