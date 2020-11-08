@@ -1175,6 +1175,7 @@ public:
 			_pString = _Malloc32AL(char,_len+1);
 			ASSERT(_pString);
 			VERIFY(_len == (SSIZE_T)CopyTo(_pString));
+			ASSERT(rt::String_Ref(_pString, _len).GetLengthRecalculated().GetLength() == _len);
 			_pString[_len] = '\0';
 		}
 		return _pString;

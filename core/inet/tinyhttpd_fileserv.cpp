@@ -132,7 +132,9 @@ bool HttpVirtualPath::OnRequest(HttpResponse& resp)
 	conv_data.ShrinkSize(0);
 
 	rt::String a;
-	if(!uri.IsEmpty() && uri.Last() == '/' && os::File::IsDirectory((a = _MappedPath + uri.TrimRight(1))))
+	(_MappedPath + uri.TrimRight(1)).ToString(a);
+
+	if(!uri.IsEmpty() && uri.Last() == '/' && os::File::IsDirectory(a))
 	{
 		if(resp.HttpVerb == HTTP_GET)
 		{
