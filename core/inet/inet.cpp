@@ -398,10 +398,28 @@ bool Socket::Send(LPCVOID pData, UINT len)
 	return len==send(m_hSocket,(const char*)pData,len,0);
 }
 
+#ifdef PLATFORM_LINUX
+bool Socket::__SendTo(LPCVOID pData, UINT len,const struct sockaddr &target, int addr_len)
+{
+    int option = 1;
+    if(-1 == setsockopt(m_hSocket, SOL_SOCKET, SO_BROADCAST, (char *)&option, sizeof(option)))
+        _LOG_WARNING("setsockopt error "<<strerror(errno));
+    ssize_t ret = sendto(m_hSocket,(const char*)pData,len,0,&target,addr_len);
+    if(-1 == ret)
+    {
+        char addressBuffer[INET_ADDRSTRLEN];
+        struct sockaddr_in *addr_in = (struct sockaddr_in *)&target;
+        inet_ntop(AF_INET, &(addr_in->sin_addr), addressBuffer, INET_ADDRSTRLEN);
+        _LOG_WARNING("Send to "<<addressBuffer<<":"<<ntohs(addr_in->sin_port)<<" error "<< strerror(errno));
+    }
+    return len==ret;
+}
+#else
 bool Socket::__SendTo(LPCVOID pData, UINT len,const struct sockaddr &target, int addr_len)
 {
 	return len==sendto(m_hSocket,(const char*)pData,len,0,&target,addr_len);
 }
+#endif
 
 bool Socket::Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek)
 {
