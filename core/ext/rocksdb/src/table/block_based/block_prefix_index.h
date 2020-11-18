@@ -5,7 +5,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "../../include/status.h"
+#include "../../../include/status.h"
 
 namespace ROCKSDB_NAMESPACE {
 

@@ -14,8 +14,8 @@
 #include <string>
 
 #include "../../db/dbformat.h"
-#include "../../include/flush_block_policy.h"
-#include "../../include/table.h"
+#include "../../../include/flush_block_policy.h"
+#include "../../../include/table.h"
 
 namespace ROCKSDB_NAMESPACE {
 struct ConfigOptions;

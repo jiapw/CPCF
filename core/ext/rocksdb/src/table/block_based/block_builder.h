@@ -11,8 +11,8 @@
 #include <vector>
 
 #include <stdint.h>
-#include "../../include/slice.h"
-#include "../../include/table.h"
+#include "../../../include/slice.h"
+#include "../../../include/table.h"
 #include "../../table/block_based/data_block_hash_index.h"
 
 namespace ROCKSDB_NAMESPACE {

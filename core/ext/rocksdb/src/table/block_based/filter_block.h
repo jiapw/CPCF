@@ -24,10 +24,10 @@
 #include <string>
 #include <vector>
 #include "../../db/dbformat.h"
-#include "../../include/options.h"
-#include "../../include/slice.h"
-#include "../../include/slice_transform.h"
-#include "../../include/table.h"
+#include "../../../include/options.h"
+#include "../../../include/slice.h"
+#include "../../../include/slice_transform.h"
+#include "../../../include/table.h"
 #include "../../table/format.h"
 #include "../../table/multiget_context.h"
 #include "../../trace_replay/block_cache_tracer.h"

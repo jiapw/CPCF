@@ -8,8 +8,8 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 #pragma once
 
-#include "../../include/cache.h"
-#include "../../include/table.h"
+#include "../../../include/cache.h"
+#include "../../../include/table.h"
 
 namespace ROCKSDB_NAMESPACE {
 // Release the cached entry and decrement its ref count.

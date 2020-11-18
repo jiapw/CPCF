@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "../../include/slice.h"
+#include "../../../include/slice.h"
 
 namespace ROCKSDB_NAMESPACE {
 // This is an experimental feature aiming to reduce the CPU utilization of

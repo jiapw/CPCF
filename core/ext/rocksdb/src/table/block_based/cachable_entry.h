@@ -11,8 +11,8 @@
 
 #include <cassert>
 #include "../../port/likely.h"
-#include "../../include/cache.h"
-#include "../../include/cleanable.h"
+#include "../../../include/cache.h"
+#include "../../../include/cleanable.h"
 
 namespace ROCKSDB_NAMESPACE {
 

@@ -15,10 +15,10 @@
 #include <vector>
 
 #include "../../db/version_edit.h"
-#include "../../include/flush_block_policy.h"
-#include "../../include/listener.h"
-#include "../../include/options.h"
-#include "../../include/status.h"
+#include "../../../include/flush_block_policy.h"
+#include "../../../include/listener.h"
+#include "../../../include/options.h"
+#include "../../../include/status.h"
 #include "../../table/meta_blocks.h"
 #include "../../table/table_builder.h"
 #include "../../util/compression.h"
