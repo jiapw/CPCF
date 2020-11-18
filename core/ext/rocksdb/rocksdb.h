@@ -281,11 +281,10 @@ public:
 };
 
 enum RocksStorageWriteRobustness
-{								// disableDataSync  use_fsync  allow_os_buffer
-	ROCKSSTG_FASTEST = 0,		// true				false		true
-	ROCKSSTG_DEFAULT,			// false			false		true
-	ROCKSSTG_UNBUFFERED,		// false			false		false
-	ROCKSSTG_STRONG				// false			true		false
+{							
+	ROCKSSTG_FASTEST = 0,	
+	ROCKSSTG_DEFAULT,		
+	ROCKSSTG_STRONG			
 };
 
 namespace _details
@@ -407,7 +406,7 @@ protected:
 	::rocksdb::ColumnFamilyOptions	_DefaultOpenOpt;
 
 public:
-	RocksStorage(){ _pDB = nullptr; }
+	RocksStorage();
 	~RocksStorage(){ Close(); }
 	bool		Open(LPCSTR db_path, RocksStorageWriteRobustness robustness = ROCKSSTG_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
 	bool		Open(LPCSTR db_path, const Options* opt);

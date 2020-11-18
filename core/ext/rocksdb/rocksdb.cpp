@@ -59,6 +59,12 @@ RocksDBOpenOption& RocksDBOpenOption::PointLookup(UINT cache_size_mb)
 	return *this; 
 }
 
+RocksStorage::RocksStorage()
+{
+	_pDB = nullptr;
+	_DefaultOpenOpt.OptimizeForSmallDb();
+}
+
 void RocksStorage::SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt)
 {
 	THREADSAFEMUTABLE_UPDATE(_AllDBs, new_db);
@@ -72,26 +78,26 @@ bool RocksStorage::Open(LPCSTR db_path, RocksStorageWriteRobustness robustness, 
 	ASSERT(_pDB == nullptr);
 
 	::rocksdb::Options opt;
+	opt.OptimizeForSmallDb();
+
 	opt.create_if_missing = !open_existed_only;
+	opt.create_missing_column_families = !open_existed_only;
 	opt.max_file_opening_threads = file_thread_co;
 	opt.keep_log_file_num = logfile_num_max;
+	opt.delete_obsolete_files_period_micros = 1ULL * 60 * 60 * 1000000;  // 1 hour
 
 	switch(robustness)
-	{	
+	{
 	case ROCKSSTG_FASTEST:
 		//opt.disableDataSync = true;
 		opt.use_fsync = false;
 		//opt.allow_os_buffer = true;
+		opt.paranoid_checks = false;
 		break;
 	case ROCKSSTG_DEFAULT:		
 		//opt.disableDataSync = false;
 		opt.use_fsync = false;
 		//opt.allow_os_buffer = true;
-		break;
-	case ROCKSSTG_UNBUFFERED:
-		//opt.disableDataSync = false;
-		opt.use_fsync = false;
-		//opt.allow_os_buffer = false;
 		break;
 	case ROCKSSTG_STRONG:
 		//opt.disableDataSync = false;
