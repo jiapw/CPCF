@@ -1,13 +1,13 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 #pragma once
+#include "../monitoring/statistics.h"
 #include "../../include/env.h"
-#include "../util/statistics.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 // Auto-scoped.
 // Records the measure time into the corresponding histogram if statistics
 // is not nullptr. It is also saved into *elapsed if the pointer is not nullptr
@@ -15,13 +15,20 @@ namespace rocksdb {
 class StopWatch {
  public:
   StopWatch(Env* const env, Statistics* statistics, const uint32_t hist_type,
-            uint64_t* elapsed = nullptr, bool overwrite = true)
+            uint64_t* elapsed = nullptr, bool overwrite = true,
+            bool delay_enabled = false)
       : env_(env),
         statistics_(statistics),
         hist_type_(hist_type),
         elapsed_(elapsed),
         overwrite_(overwrite),
-        stats_enabled_(statistics && statistics->HistEnabledForType(hist_type)),
+        stats_enabled_(statistics &&
+                       statistics->get_stats_level() >=
+                           StatsLevel::kExceptTimers &&
+                       statistics->HistEnabledForType(hist_type)),
+        delay_enabled_(delay_enabled),
+        total_delay_(0),
+        delay_start_time_(0),
         start_time_((stats_enabled_ || elapsed != nullptr) ? env->NowMicros()
                                                            : 0) {}
 
@@ -33,12 +40,37 @@ class StopWatch {
         *elapsed_ += env_->NowMicros() - start_time_;
       }
     }
+    if (elapsed_ && delay_enabled_) {
+      *elapsed_ -= total_delay_;
+    }
     if (stats_enabled_) {
-      statistics_->measureTime(hist_type_,
-          (elapsed_ != nullptr) ? *elapsed_ :
-                                  (env_->NowMicros() - start_time_));
+      statistics_->reportTimeToHistogram(
+          hist_type_, (elapsed_ != nullptr)
+                          ? *elapsed_
+                          : (env_->NowMicros() - start_time_));
     }
   }
+
+  void DelayStart() {
+    // if delay_start_time_ is not 0, it means we are already tracking delay,
+    // so delay_start_time_ should not be overwritten
+    if (elapsed_ && delay_enabled_ && delay_start_time_ == 0) {
+      delay_start_time_ = env_->NowMicros();
+    }
+  }
+
+  void DelayStop() {
+    if (elapsed_ && delay_enabled_ && delay_start_time_ != 0) {
+      total_delay_ += env_->NowMicros() - delay_start_time_;
+    }
+    // reset to 0 means currently no delay is being tracked, so two consecutive
+    // calls to DelayStop will not increase total_delay_
+    delay_start_time_ = 0;
+  }
+
+  uint64_t GetDelay() const { return delay_enabled_ ? total_delay_ : 0; }
+
+  uint64_t start_time() const { return start_time_; }
 
  private:
   Env* const env_;
@@ -47,6 +79,9 @@ class StopWatch {
   uint64_t* elapsed_;
   bool overwrite_;
   bool stats_enabled_;
+  bool delay_enabled_;
+  uint64_t total_delay_;
+  uint64_t delay_start_time_;
   const uint64_t start_time_;
 };
 
@@ -80,4 +115,4 @@ class StopWatchNano {
   uint64_t start_;
 };
 
-} // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

@@ -1,23 +1,22 @@
 // Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-// This source code is licensed under the BSD-style license found in the
-// LICENSE file in the root directory of this source tree. An additional grant
-// of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
-#ifndef STORAGE_ROCKSDB_INCLUDE_TRANSACTION_LOG_ITERATOR_H_
-#define STORAGE_ROCKSDB_INCLUDE_TRANSACTION_LOG_ITERATOR_H_
+#pragma once
 
-#include "status.h"
-#include "types.h"
-#include "write_batch.h"
 #include <memory>
 #include <vector>
+#include "./status.h"
+#include "./types.h"
+#include "./write_batch.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 class LogFile;
 typedef std::vector<std::unique_ptr<LogFile>> VectorLogPtr;
 
-enum  WalFileType {
+enum WalFileType {
   /* Indicates that WAL file is in archive directory. WAL files are moved from
    * the main db directory to archive directory once they are not live and stay
    * there until cleaned up. Files are cleaned depending on archive size
@@ -28,7 +27,7 @@ enum  WalFileType {
 
   /* Indicates that WAL file is live and resides in the main db directory */
   kAliveLogFile = 1
-} ;
+};
 
 class LogFile {
  public:
@@ -39,7 +38,6 @@ class LogFile {
   // Eg. For a live-log-file = /000003.log
   //     For an archived-log-file = /archive/000003.log
   virtual std::string PathName() const = 0;
-
 
   // Primary identifier for log file.
   // This is directly proportional to creation time of the log file
@@ -61,7 +59,7 @@ struct BatchResult {
 
   // Add empty __ctor and __dtor for the rule of five
   // However, preserve the original semantics and prohibit copying
-  // as the unique_ptr member does not copy.
+  // as the std::unique_ptr member does not copy.
   BatchResult() {}
 
   ~BatchResult() {}
@@ -120,6 +118,4 @@ class TransactionLogIterator {
         : verify_checksums_(verify_checksums) {}
   };
 };
-} //  namespace rocksdb
-
-#endif  // STORAGE_ROCKSDB_INCLUDE_TRANSACTION_LOG_ITERATOR_H_
+}  // namespace ROCKSDB_NAMESPACE

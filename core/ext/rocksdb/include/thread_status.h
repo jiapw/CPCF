@@ -1,7 +1,7 @@
 // Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-// This source code is licensed under the BSD-style license found in the
-// LICENSE file in the root directory of this source tree. An additional grant
-// of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 // This file defines the structures for exposing run-time status of any
 // rocksdb-related thread.  Such run-time status can be obtained via
@@ -20,15 +20,12 @@
 #include <utility>
 #include <vector>
 
-#ifndef ROCKSDB_USING_THREAD_STATUS
-#define ROCKSDB_USING_THREAD_STATUS \
-    !defined(ROCKSDB_LITE) && \
-    !defined(NROCKSDB_THREAD_STATUS) && \
-    !defined(OS_MACOSX) && \
-    !defined(IOS_CROSS_COMPILE)
+#if !defined(ROCKSDB_LITE) && !defined(NROCKSDB_THREAD_STATUS) && \
+    defined(ROCKSDB_SUPPORT_THREAD_LOCAL)
+#define ROCKSDB_USING_THREAD_STATUS
 #endif
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 // TODO(yhchiang): remove this function once c++14 is available
 //                 as std::max will be able to cover this.
@@ -40,13 +37,14 @@ struct constexpr_max {
 
 // A structure that describes the current status of a thread.
 // The status of active threads can be fetched using
-// rocksdb::GetThreadList().
+// ROCKSDB_NAMESPACE::GetThreadList().
 struct ThreadStatus {
   // The type of a thread.
   enum ThreadType : int {
     HIGH_PRIORITY = 0,  // RocksDB BG thread in high-pri thread pool
-    LOW_PRIORITY,  // RocksDB BG thread in low-pri thread pool
-    USER,  // User thread (Non-RocksDB BG thread)
+    LOW_PRIORITY,       // RocksDB BG thread in low-pri thread pool
+    USER,               // User thread (Non-RocksDB BG thread)
+    BOTTOM_PRIORITY,    // RocksDB BG thread in bottom-pri thread pool
     NUM_THREAD_TYPES
   };
 
@@ -106,22 +104,20 @@ struct ThreadStatus {
     NUM_STATE_TYPES
   };
 
-  ThreadStatus(const uint64_t _id,
-               const ThreadType _thread_type,
-               const std::string& _db_name,
-               const std::string& _cf_name,
+  ThreadStatus(const uint64_t _id, const ThreadType _thread_type,
+               const std::string& _db_name, const std::string& _cf_name,
                const OperationType _operation_type,
                const uint64_t _op_elapsed_micros,
                const OperationStage _operation_stage,
-               const uint64_t _op_props[],
-               const StateType _state_type) :
-      thread_id(_id), thread_type(_thread_type),
-      db_name(_db_name),
-      cf_name(_cf_name),
-      operation_type(_operation_type),
-      op_elapsed_micros(_op_elapsed_micros),
-      operation_stage(_operation_stage),
-      state_type(_state_type) {
+               const uint64_t _op_props[], const StateType _state_type)
+      : thread_id(_id),
+        thread_type(_thread_type),
+        db_name(_db_name),
+        cf_name(_cf_name),
+        operation_type(_operation_type),
+        op_elapsed_micros(_op_elapsed_micros),
+        operation_stage(_operation_stage),
+        state_type(_state_type) {
     for (int i = 0; i < kNumOperationProperties; ++i) {
       op_properties[i] = _op_props[i];
     }
@@ -147,7 +143,7 @@ struct ThreadStatus {
   // The operation (high-level action) that the current thread is involved.
   const OperationType operation_type;
 
-  // The elapsed time in micros of the current thread operation.
+  // The elapsed time of the current thread operation in microseconds.
   const uint64_t op_elapsed_micros;
 
   // An integer showing the current stage where the thread is involved
@@ -165,7 +161,7 @@ struct ThreadStatus {
   // The followings are a set of utility functions for interpreting
   // the information of ThreadStatus
 
-  static const std::string& GetThreadTypeName(ThreadType thread_type);
+  static std::string GetThreadTypeName(ThreadType thread_type);
 
   // Obtain the name of an operation given its type.
   static const std::string& GetOperationName(OperationType op_type);
@@ -173,23 +169,20 @@ struct ThreadStatus {
   static const std::string MicrosToString(uint64_t op_elapsed_time);
 
   // Obtain a human-readable string describing the specified operation stage.
-  static const std::string& GetOperationStageName(
-      OperationStage stage);
+  static const std::string& GetOperationStageName(OperationStage stage);
 
   // Obtain the name of the "i"th operation property of the
   // specified operation.
-  static const std::string& GetOperationPropertyName(
-      OperationType op_type, int i);
+  static const std::string& GetOperationPropertyName(OperationType op_type,
+                                                     int i);
 
   // Translate the "i"th property of the specified operation given
   // a property value.
-  static std::map<std::string, uint64_t>
-      InterpretOperationProperties(
-          OperationType op_type, const uint64_t* op_properties);
+  static std::map<std::string, uint64_t> InterpretOperationProperties(
+      OperationType op_type, const uint64_t* op_properties);
 
   // Obtain the name of a state given its type.
   static const std::string& GetStateName(StateType state_type);
 };
 
-
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

@@ -21,7 +21,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(socket);
+		TYPETRAITS_UNITTEST(rocks_db);
 		return;
 	}
 	else

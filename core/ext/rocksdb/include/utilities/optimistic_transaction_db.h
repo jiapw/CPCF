@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #pragma once
 #ifndef ROCKSDB_LITE
@@ -11,8 +11,9 @@
 
 #include "../comparator.h"
 #include "../db.h"
+#include "./stackable_db.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 class Transaction;
 
@@ -30,13 +31,40 @@ struct OptimisticTransactionOptions {
   const Comparator* cmp = BytewiseComparator();
 };
 
-class OptimisticTransactionDB {
+enum class OccValidationPolicy {
+  // Validate serially at commit stage, AFTER entering the write-group.
+  // Isolation validation is processed single-threaded(since in the
+  // write-group).
+  // May suffer from high mutex contention, as per this link:
+  // https://github.com/facebook/rocksdb/issues/4402
+  kValidateSerial = 0,
+  // Validate parallelly before commit stage, BEFORE entering the write-group to
+  // reduce mutex contention. Each txn acquires locks for its write-set
+  // records in some well-defined order.
+  kValidateParallel = 1
+};
+
+struct OptimisticTransactionDBOptions {
+  OccValidationPolicy validate_policy = OccValidationPolicy::kValidateParallel;
+
+  // works only if validate_policy == OccValidationPolicy::kValidateParallel
+  uint32_t occ_lock_buckets = (1 << 20);
+};
+
+class OptimisticTransactionDB : public StackableDB {
  public:
   // Open an OptimisticTransactionDB similar to DB::Open().
   static Status Open(const Options& options, const std::string& dbname,
                      OptimisticTransactionDB** dbptr);
 
   static Status Open(const DBOptions& db_options, const std::string& dbname,
+                     const std::vector<ColumnFamilyDescriptor>& column_families,
+                     std::vector<ColumnFamilyHandle*>* handles,
+                     OptimisticTransactionDB** dbptr);
+
+  static Status Open(const DBOptions& db_options,
+                     const OptimisticTransactionDBOptions& occ_options,
+                     const std::string& dbname,
                      const std::vector<ColumnFamilyDescriptor>& column_families,
                      std::vector<ColumnFamilyHandle*>* handles,
                      OptimisticTransactionDB** dbptr);
@@ -57,20 +85,14 @@ class OptimisticTransactionDB {
           OptimisticTransactionOptions(),
       Transaction* old_txn = nullptr) = 0;
 
-  // Return the underlying Database that was opened
-  virtual DB* GetBaseDB() = 0;
+  OptimisticTransactionDB(const OptimisticTransactionDB&) = delete;
+  void operator=(const OptimisticTransactionDB&) = delete;
 
  protected:
   // To Create an OptimisticTransactionDB, call Open()
-  explicit OptimisticTransactionDB(DB* db) {}
-  OptimisticTransactionDB() {}
-
- private:
-  // No copying allowed
-  OptimisticTransactionDB(const OptimisticTransactionDB&);
-  void operator=(const OptimisticTransactionDB&);
+  explicit OptimisticTransactionDB(DB* db) : StackableDB(db) {}
 };
 
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE
 
 #endif  // ROCKSDB_LITE

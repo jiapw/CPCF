@@ -1,7 +1,7 @@
 // Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-// This source code is licensed under the BSD-style license found in the
-// LICENSE file in the root directory of this source tree. An additional grant
-// of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 // This file defines the structures for thread operation and state.
 // Thread operations are used to describe high level action of a
@@ -17,9 +17,9 @@
 
 #include <string>
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
-#if ROCKSDB_USING_THREAD_STATUS
+#ifdef ROCKSDB_USING_THREAD_STATUS
 
 // The structure that describes a major thread operation.
 struct OperationInfo {
@@ -70,7 +70,7 @@ static OperationStageInfo global_op_stage_table[] = {
   {ThreadStatus::STAGE_MEMTABLE_ROLLBACK,
       "MemTableList::RollbackMemtableFlush"},
   {ThreadStatus::STAGE_MEMTABLE_INSTALL_FLUSH_RESULTS,
-      "MemTableList::InstallMemtableFlushResults"},
+      "MemTableList::TryInstallMemtableFlushResults"},
 };
 
 // The structure that describes a state.
@@ -118,4 +118,4 @@ struct StateInfo {
 };
 
 #endif  // ROCKSDB_USING_THREAD_STATUS
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 #pragma once
 
@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <algorithm>
 #include <functional>
 #include <map>
@@ -16,21 +17,24 @@
 #include <string>
 #include <vector>
 
+#include "../convenience.h"
 #include "../env.h"
 #include "../iterator.h"
 #include "../ldb_tool.h"
 #include "../options.h"
 #include "../slice.h"
-#include "../utilities/db_ttl.h"
-#include "../utilities/ldb_cmd_execute_result.h"
+#include "./db_ttl.h"
+#include "./ldb_cmd_execute_result.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 class LDBCommand {
  public:
   // Command-line arguments
+  static const std::string ARG_ENV_URI;
   static const std::string ARG_DB;
   static const std::string ARG_PATH;
+  static const std::string ARG_SECONDARY_PATH;
   static const std::string ARG_HEX;
   static const std::string ARG_KEY_HEX;
   static const std::string ARG_VALUE_HEX;
@@ -39,6 +43,8 @@ class LDBCommand {
   static const std::string ARG_TTL_START;
   static const std::string ARG_TTL_END;
   static const std::string ARG_TIMESTAMP;
+  static const std::string ARG_TRY_LOAD_OPTIONS;
+  static const std::string ARG_IGNORE_UNKNOWN_OPTIONS;
   static const std::string ARG_FROM;
   static const std::string ARG_TO;
   static const std::string ARG_MAX_KEYS;
@@ -53,6 +59,7 @@ class LDBCommand {
   static const std::string ARG_FILE_SIZE;
   static const std::string ARG_CREATE_IF_MISSING;
   static const std::string ARG_NO_VALUE;
+  static const std::string ARG_DISABLE_CONSISTENCY_CHECKS;
 
   struct ParsedParams {
     std::string cmd;
@@ -71,13 +78,15 @@ class LDBCommand {
           SelectCommand);
 
   static LDBCommand* InitFromCmdLineArgs(
-      int argc, char** argv, const Options& options,
+      int argc, char const* const* argv, const Options& options,
       const LDBOptions& ldb_options,
       const std::vector<ColumnFamilyDescriptor>* column_families);
 
   bool ValidateCmdLineOptions();
 
-  virtual Options PrepareOptionsForOpenDB();
+  virtual void PrepareOptions();
+
+  virtual void OverrideBaseOptions();
 
   virtual void SetDBOptions(Options options) { options_ = options; }
 
@@ -93,6 +102,12 @@ class LDBCommand {
   void SetLDBOptions(const LDBOptions& ldb_options) {
     ldb_options_ = ldb_options;
   }
+
+  const std::map<std::string, std::string>& TEST_GetOptionMap() {
+    return option_map_;
+  }
+
+  const std::vector<std::string>& TEST_GetFlags() { return flags_; }
 
   virtual bool NoDBOpen() { return false; }
 
@@ -119,7 +134,12 @@ class LDBCommand {
 
  protected:
   LDBCommandExecuteResult exec_state_;
+  std::string env_uri_;
   std::string db_path_;
+  // If empty, open DB as primary. If non-empty, open the DB as secondary
+  // with this secondary path. When running against a database opened by
+  // another process, ldb wll leave the source directory completely intact.
+  std::string secondary_path_;
   std::string column_family_name_;
   DB* db_;
   DBWithTTL* db_ttl_;
@@ -143,6 +163,14 @@ class LDBCommand {
   // If true, the kvs are output with their insert/modify timestamp in a ttl db
   bool timestamp_;
 
+  // If true, try to construct options from DB's option files.
+  bool try_load_options_;
+
+  // The value passed to options.force_consistency_checks.
+  bool force_consistency_checks_;
+
+  bool create_if_missing_;
+
   /**
    * Map of options passed on the command-line.
    */
@@ -155,6 +183,9 @@ class LDBCommand {
 
   /** List of command-line options valid for this command */
   const std::vector<std::string> valid_cmd_line_options_;
+
+  /** Shared pointer to underlying environment if applicable **/
+  std::shared_ptr<Env> env_guard_;
 
   bool ParseKeyValue(const std::string& line, std::string* key,
                      std::string* value, bool is_key_hex, bool is_value_hex);
@@ -201,8 +232,18 @@ class LDBCommand {
   bool ParseStringOption(const std::map<std::string, std::string>& options,
                          const std::string& option, std::string* value);
 
+  /**
+   * Returns the value of the specified option as a boolean.
+   * default_val is used if the option is not found in options.
+   * Throws an exception if the value of the option is not
+   * "true" or "false" (case insensitive).
+   */
+  bool ParseBooleanOption(const std::map<std::string, std::string>& options,
+                          const std::string& option, bool default_val);
+
   Options options_;
   std::vector<ColumnFamilyDescriptor> column_families_;
+  ConfigOptions config_options_;
   LDBOptions ldb_options_;
 
  private:
@@ -221,15 +262,6 @@ class LDBCommand {
                   const std::vector<std::string>& flags);
 
   /**
-   * Returns the value of the specified option as a boolean.
-   * default_val is used if the option is not found in options.
-   * Throws an exception if the value of the option is not
-   * "true" or "false" (case insensitive).
-   */
-  bool ParseBooleanOption(const std::map<std::string, std::string>& options,
-                          const std::string& option, bool default_val);
-
-  /**
    * Converts val to a boolean.
    * val must be either true or false (case insensitive).
    * Otherwise an exception is thrown.
@@ -239,13 +271,16 @@ class LDBCommand {
 
 class LDBCommandRunner {
  public:
-  static void PrintHelp(const char* exec_name);
+  static void PrintHelp(const LDBOptions& ldb_options, const char* exec_name,
+                        bool to_stderr = true);
 
-  static void RunCommand(
-      int argc, char** argv, Options options, const LDBOptions& ldb_options,
+  // Returns the status code to return. 0 is no error.
+  static int RunCommand(
+      int argc, char const* const* argv, Options options,
+      const LDBOptions& ldb_options,
       const std::vector<ColumnFamilyDescriptor>* column_families);
 };
 
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE
 
 #endif  // ROCKSDB_LITE

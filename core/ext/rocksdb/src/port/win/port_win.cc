@@ -1,21 +1,18 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#if !defined(OS_WIN) && !defined(WIN32) && !defined(_WIN32)
-#error Windows Specific Code
-#endif
+#if defined(OS_WIN)
 
 #include "../../port/win/port_win.h"
-#include "../../../../../os/kernel.h"
 
 #include <io.h>
-#include "../../port/dirent.h"
+#include "../../port/port_dirent.h"
 #include "../../port/sys_time.h"
 
 #include <cstdlib>
@@ -27,10 +24,32 @@
 #include <exception>
 #include <chrono>
 
-#include "../../util/logging.h"
+#ifdef ROCKSDB_WINDOWS_UTF8_FILENAMES
+// utf8 <-> utf16
+#include <string>
+#include <locale>
+#include <codecvt>
+#endif
 
-namespace rocksdb {
+#include "../../logging/logging.h"
+
+namespace ROCKSDB_NAMESPACE {
+
+extern const bool kDefaultToAdaptiveMutex = false;
+
 namespace port {
+
+#ifdef ROCKSDB_WINDOWS_UTF8_FILENAMES
+std::string utf16_to_utf8(const std::wstring& utf16) {
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>,wchar_t> convert;
+  return convert.to_bytes(utf16);
+}
+
+std::wstring utf8_to_utf16(const std::string& utf8) {
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  return converter.from_bytes(utf8);
+}
+#endif
 
 void gettimeofday(struct timeval* tv, struct timezone* /* tz */) {
   using namespace std::chrono;
@@ -79,6 +98,15 @@ bool CondVar::TimedWait(uint64_t abs_time_us) {
 
   // Caller must ensure that mutex is held prior to calling this method
   std::unique_lock<std::mutex> lk(mu_->getLock(), std::adopt_lock);
+
+  // Work around https://github.com/microsoft/STL/issues/369
+#if defined(_MSC_VER) && \
+    (!defined(_MSVC_STL_UPDATE) || _MSVC_STL_UPDATE < 202008L)
+  if (relTimeUs == microseconds::zero()) {
+    lk.unlock();
+    lk.lock();
+  }
+#endif
 #ifndef NDEBUG
   mu_->locked_ = false;
 #endif
@@ -109,19 +137,20 @@ void InitOnce(OnceType* once, void (*initializer)()) {
 
 // Private structure, exposed only by pointer
 struct DIR {
-  intptr_t handle_;
-  bool firstread_;
-  struct __finddata64_t data_;
+  HANDLE      handle_;
+  bool        firstread_;
+  RX_WIN32_FIND_DATA data_;
   dirent entry_;
 
-  DIR() : handle_(-1), firstread_(true) {}
+  DIR() : handle_(INVALID_HANDLE_VALUE),
+    firstread_(true) {}
 
   DIR(const DIR&) = delete;
   DIR& operator=(const DIR&) = delete;
 
   ~DIR() {
-    if (-1 != handle_) {
-      _findclose(handle_);
+    if (INVALID_HANDLE_VALUE != handle_) {
+      ::FindClose(handle_);
     }
   }
 };
@@ -137,19 +166,25 @@ DIR* opendir(const char* name) {
 
   std::unique_ptr<DIR> dir(new DIR);
 
-  dir->handle_ = _findfirst64(pattern.c_str(), &dir->data_);
+  dir->handle_ =
+      RX_FindFirstFileEx(RX_FN(pattern).c_str(),
+                         FindExInfoBasic,  // Do not want alternative name
+                         &dir->data_, FindExSearchNameMatch,
+                         NULL,  // lpSearchFilter
+                         0);
 
-  if (dir->handle_ == -1) {
+  if (dir->handle_ == INVALID_HANDLE_VALUE) {
     return nullptr;
   }
 
-  strncpy_s(dir->entry_.d_name, dir->data_.name, strlen(dir->data_.name));
+  RX_FILESTRING x(dir->data_.cFileName, RX_FNLEN(dir->data_.cFileName));
+  strcpy_s(dir->entry_.d_name, sizeof(dir->entry_.d_name), FN_TO_RX(x).c_str());
 
   return dir.release();
 }
 
 struct dirent* readdir(DIR* dirp) {
-  if (!dirp || dirp->handle_ == -1) {
+  if (!dirp || dirp->handle_ == INVALID_HANDLE_VALUE) {
     errno = EBADF;
     return nullptr;
   }
@@ -159,13 +194,15 @@ struct dirent* readdir(DIR* dirp) {
     return &dirp->entry_;
   }
 
-  auto ret = _findnext64(dirp->handle_, &dirp->data_);
+  auto ret = RX_FindNextFile(dirp->handle_, &dirp->data_);
 
-  if (ret != 0) {
+  if (ret == 0) {
     return nullptr;
   }
 
-  strncpy_s(dirp->entry_.d_name, dirp->data_.name, strlen(dirp->data_.name));
+  RX_FILESTRING x(dirp->data_.cFileName, RX_FNLEN(dirp->data_.cFileName));
+  strcpy_s(dirp->entry_.d_name, sizeof(dirp->entry_.d_name),
+           FN_TO_RX(x).c_str());
 
   return &dirp->entry_;
 }
@@ -175,11 +212,15 @@ int closedir(DIR* dirp) {
   return 0;
 }
 
-int truncate(const char* path, int64_t len) {
+int truncate(const char* path, int64_t length) {
   if (path == nullptr) {
     errno = EFAULT;
     return -1;
   }
+  return ROCKSDB_NAMESPACE::port::Truncate(path, length);
+}
+
+int Truncate(std::string path, int64_t len) {
 
   if (len < 0) {
     errno = EINVAL;
@@ -187,11 +228,11 @@ int truncate(const char* path, int64_t len) {
   }
 
   HANDLE hFile =
-      ::CreateFileW(os::__UTF16(path), GENERIC_READ | GENERIC_WRITE,
-			         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			         NULL,           // Security attrs
-			         OPEN_EXISTING,  // Truncate existing file only
-			         FILE_ATTRIBUTE_NORMAL, NULL);
+      RX_CreateFile(RX_FN(path).c_str(), GENERIC_READ | GENERIC_WRITE,
+                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                 NULL,           // Security attrs
+                 OPEN_EXISTING,  // Truncate existing file only
+                 FILE_ATTRIBUTE_NORMAL, NULL);
 
   if (INVALID_HANDLE_VALUE == hFile) {
     auto lastError = GetLastError();
@@ -227,82 +268,16 @@ void Crash(const std::string& srcfile, int srcline) {
 
 int GetMaxOpenFiles() { return -1; }
 
+// Assume 4KB page size
+const size_t kPageSize = 4U * 1024U;
+
+void SetCpuPriority(ThreadId id, CpuPriority priority) {
+  // Not supported
+  (void)id;
+  (void)priority;
+}
+
 }  // namespace port
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE
 
-#ifdef JEMALLOC
-
-#include "jemalloc/jemalloc.h"
-
-#ifndef JEMALLOC_NON_INIT
-
-namespace rocksdb {
-
-namespace port {
-
-__declspec(noinline) void WINAPI InitializeJemalloc() {
-  je_init();
-  atexit(je_uninit);
-}
-
-}  // port
-}  // rocksdb
-
-extern "C" {
-
-#ifdef _WIN64
-
-#pragma comment(linker, "/INCLUDE:p_rocksdb_init_jemalloc")
-
-typedef void(WINAPI* CRT_Startup_Routine)(void);
-
-// .CRT section is merged with .rdata on x64 so it must be constant data.
-// must be of external linkage
-// We put this into XCT since we want to run this earlier than C++ static
-// constructors
-// which are placed into XCU
-#pragma const_seg(".CRT$XCT")
-extern const CRT_Startup_Routine p_rocksdb_init_jemalloc;
-const CRT_Startup_Routine p_rocksdb_init_jemalloc =
-    rocksdb::port::InitializeJemalloc;
-#pragma const_seg()
-
-#else  // _WIN64
-
-// x86 untested
-
-#pragma comment(linker, "/INCLUDE:_p_rocksdb_init_jemalloc")
-
-#pragma section(".CRT$XCT", read)
-JEMALLOC_SECTION(".CRT$XCT") JEMALLOC_ATTR(used) static const void(
-    WINAPI* p_rocksdb_init_jemalloc)(void) = rocksdb::port::InitializeJemalloc;
-
-#endif  // _WIN64
-
-}  // extern "C"
-
-#endif // JEMALLOC_NON_INIT
-
-// Global operators to be replaced by a linker
-
-void* operator new(size_t size) {
-  void* p = je_malloc(size);
-  if (!p) {
-    throw std::bad_alloc();
-  }
-  return p;
-}
-
-void* operator new[](size_t size) {
-  void* p = je_malloc(size);
-  if (!p) {
-    throw std::bad_alloc();
-  }
-  return p;
-}
-
-void operator delete(void* p) { je_free(p); }
-
-void operator delete[](void* p) { je_free(p); }
-
-#endif  // JEMALLOC
+#endif

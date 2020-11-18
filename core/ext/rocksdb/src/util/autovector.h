@@ -1,20 +1,31 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 #pragma once
 
 #include <algorithm>
 #include <cassert>
-#include <stdexcept>
+#include <initializer_list>
 #include <iterator>
+#include <stdexcept>
 #include <vector>
 
-namespace rocksdb {
+#include "../../include/rocksdb_namespace.h"
+
+namespace ROCKSDB_NAMESPACE {
 
 #ifdef ROCKSDB_LITE
 template <class T, size_t kSize = 8>
-class autovector : public std::vector<T> {};
+class autovector : public std::vector<T> {
+  using std::vector<T>::vector;
+
+ public:
+  autovector() {
+    // Make sure the initial vector has space for kSize elements
+    std::vector<T>::reserve(kSize);
+  }
+};
 #else
 // A vector that leverages pre-allocated stack-based array to achieve better
 // performance for array with small amount of items.
@@ -93,16 +104,16 @@ class autovector {
       return old;
     }
 
-    self_type operator-(difference_type len) {
+    self_type operator-(difference_type len) const {
       return self_type(vect_, index_ - len);
     }
 
-    difference_type operator-(const self_type& other) {
+    difference_type operator-(const self_type& other) const {
       assert(vect_ == other.vect_);
       return index_ - other.index_;
     }
 
-    self_type operator+(difference_type len) {
+    self_type operator+(difference_type len) const {
       return self_type(vect_, index_ + len);
     }
 
@@ -117,13 +128,18 @@ class autovector {
     }
 
     // -- Reference
-    reference operator*() {
+    reference operator*() const {
       assert(vect_->size() >= index_);
       return (*vect_)[index_];
     }
-    pointer operator->() {
+
+    pointer operator->() const {
       assert(vect_->size() >= index_);
       return &(*vect_)[index_];
+    }
+
+    reference operator[](difference_type len) const {
+      return *(*this + len);
     }
 
     // -- Logical Operators
@@ -164,8 +180,16 @@ class autovector {
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  autovector() = default;
-  ~autovector() = default;
+  autovector() : values_(reinterpret_cast<pointer>(buf_)) {}
+
+  autovector(std::initializer_list<T> init_list)
+      : values_(reinterpret_cast<pointer>(buf_)) {
+    for (const T& item : init_list) {
+      push_back(item);
+    }
+  }
+
+  ~autovector() { clear(); }
 
   // -- Immutable operations
   // Indicate if all data resides in in-stack data structure.
@@ -181,10 +205,18 @@ class autovector {
   void resize(size_type n) {
     if (n > kSize) {
       vect_.resize(n - kSize);
+      while (num_stack_items_ < kSize) {
+        new ((void*)(&values_[num_stack_items_++])) value_type();
+      }
       num_stack_items_ = kSize;
     } else {
       vect_.clear();
-      num_stack_items_ = n;
+      while (num_stack_items_ < n) {
+        new ((void*)(&values_[num_stack_items_++])) value_type();
+      }
+      while (num_stack_items_ > n) {
+        values_[--num_stack_items_].~value_type();
+      }
     }
   }
 
@@ -192,12 +224,18 @@ class autovector {
 
   const_reference operator[](size_type n) const {
     assert(n < size());
-    return n < kSize ? values_[n] : vect_[n - kSize];
+    if (n < kSize) {
+      return values_[n];
+    }
+    return vect_[n - kSize];
   }
 
   reference operator[](size_type n) {
     assert(n < size());
-    return n < kSize ? values_[n] : vect_[n - kSize];
+    if (n < kSize) {
+      return values_[n];
+    }
+    return vect_[n - kSize];
   }
 
   const_reference at(size_type n) const {
@@ -233,6 +271,7 @@ class autovector {
   // -- Mutable Operations
   void push_back(T&& item) {
     if (num_stack_items_ < kSize) {
+      new ((void*)(&values_[num_stack_items_])) value_type();
       values_[num_stack_items_++] = std::move(item);
     } else {
       vect_.push_back(item);
@@ -241,6 +280,7 @@ class autovector {
 
   void push_back(const T& item) {
     if (num_stack_items_ < kSize) {
+      new ((void*)(&values_[num_stack_items_])) value_type();
       values_[num_stack_items_++] = item;
     } else {
       vect_.push_back(item);
@@ -249,7 +289,12 @@ class autovector {
 
   template <class... Args>
   void emplace_back(Args&&... args) {
-    push_back(value_type(args...));
+    if (num_stack_items_ < kSize) {
+      new ((void*)(&values_[num_stack_items_++]))
+          value_type(std::forward<Args>(args)...);
+    } else {
+      vect_.emplace_back(std::forward<Args>(args)...);
+    }
   }
 
   void pop_back() {
@@ -257,12 +302,14 @@ class autovector {
     if (!vect_.empty()) {
       vect_.pop_back();
     } else {
-      --num_stack_items_;
+      values_[--num_stack_items_].~value_type();
     }
   }
 
   void clear() {
-    num_stack_items_ = 0;
+    while (num_stack_items_ > 0) {
+      values_[--num_stack_items_].~value_type();
+    }
     vect_.clear();
   }
 
@@ -272,11 +319,6 @@ class autovector {
   autovector(const autovector& other) { assign(other); }
 
   autovector& operator=(const autovector& other) { return assign(other); }
-
-  // move operation are disallowed since it is very hard to make sure both
-  // autovectors are allocated from the same function stack.
-  autovector& operator=(autovector&& other) = delete;
-  autovector(autovector&& other) = delete;
 
   // -- Iterator Operations
   iterator begin() { return iterator(this, 0); }
@@ -301,13 +343,17 @@ class autovector {
 
  private:
   size_type num_stack_items_ = 0;  // current number of items
-  value_type values_[kSize];       // the first `kSize` items
+  alignas(alignof(
+      value_type)) char buf_[kSize *
+                             sizeof(value_type)];  // the first `kSize` items
+  pointer values_;
   // used only if there are more than `kSize` items.
   std::vector<T> vect_;
 };
 
 template <class T, size_t kSize>
 autovector<T, kSize>& autovector<T, kSize>::assign(const autovector& other) {
+  values_ = reinterpret_cast<pointer>(buf_);
   // copy the internal vector
   vect_.assign(other.vect_.begin(), other.vect_.end());
 
@@ -318,4 +364,4 @@ autovector<T, kSize>& autovector<T, kSize>::assign(const autovector& other) {
   return *this;
 }
 #endif  // ROCKSDB_LITE
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

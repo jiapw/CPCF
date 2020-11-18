@@ -1,19 +1,18 @@
 // Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-// This source code is licensed under the BSD-style license found in the
-// LICENSE file in the root directory of this source tree. An additional grant
-// of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
-#ifndef STORAGE_ROCKSDB_INCLUDE_MERGE_OPERATOR_H_
-#define STORAGE_ROCKSDB_INCLUDE_MERGE_OPERATOR_H_
+#pragma once
 
 #include <deque>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "slice.h"
+#include "./slice.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 class Slice;
 class Logger;
@@ -47,6 +46,7 @@ class Logger;
 class MergeOperator {
  public:
   virtual ~MergeOperator() {}
+  static const char* Type() { return "MergeOperator"; }
 
   // Gives the client a way to express the read -> modify -> write semantics
   // key:      (IN)    The key that's associated with this merge operation.
@@ -66,11 +66,9 @@ class MergeOperator {
   // internal corruption. This will be treated as an error by the library.
   //
   // Also make use of the *logger for error messages.
-  virtual bool FullMerge(const Slice& key,
-                         const Slice* existing_value,
-                         const std::deque<std::string>& operand_list,
-                         std::string* new_value,
-                         Logger* logger) const {
+  virtual bool FullMerge(const Slice& /*key*/, const Slice* /*existing_value*/,
+                         const std::deque<std::string>& /*operand_list*/,
+                         std::string* /*new_value*/, Logger* /*logger*/) const {
     // deprecated, please use FullMergeV2()
     assert(false);
     return false;
@@ -89,7 +87,7 @@ class MergeOperator {
     // The key associated with the merge operation.
     const Slice& key;
     // The existing value of the current key, nullptr means that the
-    // value dont exist.
+    // value doesn't exist.
     const Slice* existing_value;
     // A list of operands to apply.
     const std::vector<Slice>& operand_list;
@@ -111,6 +109,23 @@ class MergeOperator {
     Slice& existing_operand;
   };
 
+  // This function applies a stack of merge operands in chrionological order
+  // on top of an existing value. There are two ways in which this method is
+  // being used:
+  // a) During Get() operation, it used to calculate the final value of a key
+  // b) During compaction, in order to collapse some operands with the based
+  //    value.
+  //
+  // Note: The name of the method is somewhat misleading, as both in the cases
+  // of Get() or compaction it may be called on a subset of operands:
+  // K:    0    +1    +2    +7    +4     +5      2     +1     +2
+  //                              ^
+  //                              |
+  //                          snapshot
+  // In the example above, Get(K) operation will call FullMerge with a base
+  // value of 2 and operands [+1, +2]. Compaction process might decide to
+  // collapse the beginning of the history up to the snapshot by performing
+  // full Merge with base value of 0 and operands [+1, +2, +7, +4].
   virtual bool FullMergeV2(const MergeOperationInput& merge_in,
                            MergeOperationOutput* merge_out) const;
 
@@ -145,9 +160,10 @@ class MergeOperator {
   // If there is corruption in the data, handle it in the FullMergeV2() function
   // and return false there.  The default implementation of PartialMerge will
   // always return false.
-  virtual bool PartialMerge(const Slice& key, const Slice& left_operand,
-                            const Slice& right_operand, std::string* new_value,
-                            Logger* logger) const {
+  virtual bool PartialMerge(const Slice& /*key*/, const Slice& /*left_operand*/,
+                            const Slice& /*right_operand*/,
+                            std::string* /*new_value*/,
+                            Logger* /*logger*/) const {
     return false;
   }
 
@@ -165,10 +181,8 @@ class MergeOperator {
   //
   // The string that new_value is pointing to will be empty.
   //
-  // The PartialMergeMulti function will be called only when the list of
-  // operands are long enough. The minimum amount of operands that will be
-  // passed to the function are specified by the "min_partial_merge_operands"
-  // option.
+  // The PartialMergeMulti function will be called when there are at least two
+  // operands.
   //
   // In the default implementation, PartialMergeMulti will invoke PartialMerge
   // multiple times, where each time it only merges two operands.  Developers
@@ -185,12 +199,33 @@ class MergeOperator {
   //       no checking is enforced. Client is responsible for providing
   //       consistent MergeOperator between DB opens.
   virtual const char* Name() const = 0;
+
+  // Determines whether the PartialMerge can be called with just a single
+  // merge operand.
+  // Override and return true for allowing a single operand. PartialMerge
+  // and PartialMergeMulti should be overridden and implemented
+  // correctly to properly handle a single operand.
+  virtual bool AllowSingleOperand() const { return false; }
+
+  // Allows to control when to invoke a full merge during Get.
+  // This could be used to limit the number of merge operands that are looked at
+  // during a point lookup, thereby helping in limiting the number of levels to
+  // read from.
+  // Doesn't help with iterators.
+  //
+  // Note: the merge operands are passed to this function in the reversed order
+  // relative to how they were merged (passed to FullMerge or FullMergeV2)
+  // for performance reasons, see also:
+  // https://github.com/facebook/rocksdb/issues/3865
+  virtual bool ShouldMerge(const std::vector<Slice>& /*operands*/) const {
+    return false;
+  }
 };
 
 // The simpler, associative merge operator.
 class AssociativeMergeOperator : public MergeOperator {
  public:
-  virtual ~AssociativeMergeOperator() {}
+  ~AssociativeMergeOperator() override {}
 
   // Gives the client a way to express the read -> modify -> write semantics
   // key:           (IN) The key that's associated with this merge operation.
@@ -205,25 +240,18 @@ class AssociativeMergeOperator : public MergeOperator {
   // returns false, it is because client specified bad data or there was
   // internal corruption. The client should assume that this will be treated
   // as an error by the library.
-  virtual bool Merge(const Slice& key,
-                     const Slice* existing_value,
-                     const Slice& value,
-                     std::string* new_value,
+  virtual bool Merge(const Slice& key, const Slice* existing_value,
+                     const Slice& value, std::string* new_value,
                      Logger* logger) const = 0;
-
 
  private:
   // Default implementations of the MergeOperator functions
-  virtual bool FullMergeV2(const MergeOperationInput& merge_in,
-                           MergeOperationOutput* merge_out) const override;
+  bool FullMergeV2(const MergeOperationInput& merge_in,
+                   MergeOperationOutput* merge_out) const override;
 
-  virtual bool PartialMerge(const Slice& key,
-                            const Slice& left_operand,
-                            const Slice& right_operand,
-                            std::string* new_value,
-                            Logger* logger) const override;
+  bool PartialMerge(const Slice& key, const Slice& left_operand,
+                    const Slice& right_operand, std::string* new_value,
+                    Logger* logger) const override;
 };
 
-}  // namespace rocksdb
-
-#endif  // STORAGE_ROCKSDB_INCLUDE_MERGE_OPERATOR_H_
+}  // namespace ROCKSDB_NAMESPACE

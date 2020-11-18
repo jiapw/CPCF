@@ -79,24 +79,24 @@ bool RocksStorage::Open(LPCSTR db_path, RocksStorageWriteRobustness robustness, 
 	switch(robustness)
 	{	
 	case ROCKSSTG_FASTEST:
-		opt.disableDataSync = true;
+		//opt.disableDataSync = true;
 		opt.use_fsync = false;
-		opt.allow_os_buffer = true;
+		//opt.allow_os_buffer = true;
 		break;
 	case ROCKSSTG_DEFAULT:		
-		opt.disableDataSync = false;
+		//opt.disableDataSync = false;
 		opt.use_fsync = false;
-		opt.allow_os_buffer = true;
+		//opt.allow_os_buffer = true;
 		break;
 	case ROCKSSTG_UNBUFFERED:
-		opt.disableDataSync = false;
+		//opt.disableDataSync = false;
 		opt.use_fsync = false;
-		opt.allow_os_buffer = false;
+		//opt.allow_os_buffer = false;
 		break;
 	case ROCKSSTG_STRONG:
-		opt.disableDataSync = false;
+		//opt.disableDataSync = false;
 		opt.use_fsync = true;
-		opt.allow_os_buffer = false;
+		//opt.allow_os_buffer = false;
 		break;
 	default:
 		ASSERT(0);
@@ -153,8 +153,8 @@ bool RocksStorage::Open(LPCSTR db_path, const Options* opt)
 	}
 
 	{
-		std::vector<ColumnFamilyDescriptor>	cfds;
-		std::vector<ColumnFamilyHandle*>	cfptrs;
+		std::vector<::rocksdb::ColumnFamilyDescriptor>	cfds;
+		std::vector<::rocksdb::ColumnFamilyHandle*>	cfptrs;
 
 		cfds.resize(cfs.size());
 		cfptrs.resize(cfs.size());

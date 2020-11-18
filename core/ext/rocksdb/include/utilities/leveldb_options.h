@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -11,7 +11,10 @@
 
 #include <stddef.h>
 
-namespace rocksdb {
+#include "../compression_type.h"
+#include "../rocksdb_namespace.h"
+
+namespace ROCKSDB_NAMESPACE {
 
 class Cache;
 class Comparator;
@@ -20,8 +23,6 @@ class FilterPolicy;
 class Logger;
 struct Options;
 class Snapshot;
-
-enum CompressionType : unsigned char;
 
 // Options to control the behavior of a database (passed to
 // DB::Open). A LevelDBOptions object can be initialized as though
@@ -141,4 +142,4 @@ struct LevelDBOptions {
 // Converts a LevelDBOptions object into a RocksDB Options object.
 Options ConvertOptions(const LevelDBOptions& leveldb_options);
 
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

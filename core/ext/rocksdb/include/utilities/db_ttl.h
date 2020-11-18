@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #pragma once
 #ifndef ROCKSDB_LITE
@@ -9,10 +9,10 @@
 #include <string>
 #include <vector>
 
-#include "../utilities/stackable_db.h"
 #include "../db.h"
+#include "./stackable_db.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 // Database with TTL support.
 //
@@ -57,12 +57,16 @@ class DBWithTTL : public StackableDB {
   static Status Open(const DBOptions& db_options, const std::string& dbname,
                      const std::vector<ColumnFamilyDescriptor>& column_families,
                      std::vector<ColumnFamilyHandle*>* handles,
-                     DBWithTTL** dbptr, std::vector<int32_t> ttls,
+                     DBWithTTL** dbptr, const std::vector<int32_t>& ttls,
                      bool read_only = false);
+
+  virtual void SetTtl(int32_t ttl) = 0;
+
+  virtual void SetTtl(ColumnFamilyHandle* h, int32_t ttl) = 0;
 
  protected:
   explicit DBWithTTL(DB* db) : StackableDB(db) {}
 };
 
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE
 #endif  // ROCKSDB_LITE
