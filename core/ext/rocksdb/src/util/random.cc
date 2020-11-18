@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 
 #include "../util/random.h"
@@ -14,13 +14,13 @@
 #include "../port/likely.h"
 #include "../util/thread_local.h"
 
-#if ROCKSDB_SUPPORT_THREAD_LOCAL
+#ifdef ROCKSDB_SUPPORT_THREAD_LOCAL
 #define STORAGE_DECL static __thread
 #else
 #define STORAGE_DECL static
 #endif
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 Random* Random::GetTLSInstance() {
   STORAGE_DECL Random* tls_instance;
@@ -35,4 +35,22 @@ Random* Random::GetTLSInstance() {
   return rv;
 }
 
-}  // namespace rocksdb
+std::string Random::HumanReadableString(int len) {
+  std::string ret;
+  ret.resize(len);
+  for (int i = 0; i < len; ++i) {
+    ret[i] = static_cast<char>('a' + Uniform(26));
+  }
+  return ret;
+}
+
+std::string Random::RandomString(int len) {
+  std::string ret;
+  ret.resize(len);
+  for (int i = 0; i < len; i++) {
+    ret[i] = static_cast<char>(' ' + Uniform(95));  // ' ' .. '~'
+  }
+  return ret;
+}
+
+}  // namespace ROCKSDB_NAMESPACE

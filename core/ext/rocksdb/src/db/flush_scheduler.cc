@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #include "../db/flush_scheduler.h"
 
@@ -9,9 +9,9 @@
 
 #include "../db/column_family.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
-void FlushScheduler::ScheduleFlush(ColumnFamilyData* cfd) {
+void FlushScheduler::ScheduleWork(ColumnFamilyData* cfd) {
 #ifndef NDEBUG
   {
     std::lock_guard<std::mutex> lock(checking_mutex_);
@@ -35,7 +35,7 @@ void FlushScheduler::ScheduleFlush(ColumnFamilyData* cfd) {
 
 ColumnFamilyData* FlushScheduler::TakeNextColumnFamily() {
   while (true) {
-    if (Empty()) {
+    if (head_.load(std::memory_order_relaxed) == nullptr) {
       return nullptr;
     }
 
@@ -47,6 +47,7 @@ ColumnFamilyData* FlushScheduler::TakeNextColumnFamily() {
 
 #ifndef NDEBUG
     {
+      std::lock_guard<std::mutex> lock(checking_mutex_);
       auto iter = checking_set_.find(cfd);
       assert(iter != checking_set_.end());
       checking_set_.erase(iter);
@@ -59,26 +60,27 @@ ColumnFamilyData* FlushScheduler::TakeNextColumnFamily() {
     }
 
     // no longer relevant, retry
-    if (cfd->Unref()) {
-      delete cfd;
-    }
+    cfd->UnrefAndTryDelete();
   }
 }
 
 bool FlushScheduler::Empty() {
   auto rv = head_.load(std::memory_order_relaxed) == nullptr;
-  assert(rv == checking_set_.empty());
+#ifndef NDEBUG
+  std::lock_guard<std::mutex> lock(checking_mutex_);
+  // Empty is allowed to be called concurrnetly with ScheduleFlush. It would
+  // only miss the recent schedules.
+  assert((rv == checking_set_.empty()) || rv);
+#endif  // NDEBUG
   return rv;
 }
 
 void FlushScheduler::Clear() {
   ColumnFamilyData* cfd;
   while ((cfd = TakeNextColumnFamily()) != nullptr) {
-    if (cfd->Unref()) {
-      delete cfd;
-    }
+    cfd->UnrefAndTryDelete();
   }
-  assert(Empty());
+  assert(head_.load(std::memory_order_relaxed) == nullptr);
 }
 
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

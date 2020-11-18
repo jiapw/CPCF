@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 //
 #pragma once
 
@@ -9,29 +9,31 @@
 #undef FAILED
 #endif
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 class LDBCommandExecuteResult {
-public:
+ public:
   enum State {
-    EXEC_NOT_STARTED = 0, EXEC_SUCCEED = 1, EXEC_FAILED = 2,
+    EXEC_NOT_STARTED = 0,
+    EXEC_SUCCEED = 1,
+    EXEC_FAILED = 2,
   };
 
   LDBCommandExecuteResult() : state_(EXEC_NOT_STARTED), message_("") {}
 
-  LDBCommandExecuteResult(State state, std::string& msg) :
-    state_(state), message_(msg) {}
+  LDBCommandExecuteResult(State state, std::string& msg)
+      : state_(state), message_(msg) {}
 
   std::string ToString() {
     std::string ret;
     switch (state_) {
-    case EXEC_SUCCEED:
-      break;
-    case EXEC_FAILED:
-      ret.append("Failed: ");
-      break;
-    case EXEC_NOT_STARTED:
-      ret.append("Not started: ");
+      case EXEC_SUCCEED:
+        break;
+      case EXEC_FAILED:
+        ret.append("Failed: ");
+        break;
+      case EXEC_NOT_STARTED:
+        ret.append("Not started: ");
     }
     if (!message_.empty()) {
       ret.append(message_);
@@ -44,17 +46,11 @@ public:
     message_ = "";
   }
 
-  bool IsSucceed() {
-    return state_ == EXEC_SUCCEED;
-  }
+  bool IsSucceed() { return state_ == EXEC_SUCCEED; }
 
-  bool IsNotStarted() {
-    return state_ == EXEC_NOT_STARTED;
-  }
+  bool IsNotStarted() { return state_ == EXEC_NOT_STARTED; }
 
-  bool IsFailed() {
-    return state_ == EXEC_FAILED;
-  }
+  bool IsFailed() { return state_ == EXEC_FAILED; }
 
   static LDBCommandExecuteResult Succeed(std::string msg) {
     return LDBCommandExecuteResult(EXEC_SUCCEED, msg);
@@ -64,7 +60,7 @@ public:
     return LDBCommandExecuteResult(EXEC_FAILED, msg);
   }
 
-private:
+ private:
   State state_;
   std::string message_;
 
@@ -72,4 +68,4 @@ private:
   bool operator!=(const LDBCommandExecuteResult&);
 };
 
-}
+}  // namespace ROCKSDB_NAMESPACE

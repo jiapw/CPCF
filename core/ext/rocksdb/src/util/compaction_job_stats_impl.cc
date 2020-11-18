@@ -1,16 +1,17 @@
 // Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-// This source code is licensed under the BSD-style license found in the
-// LICENSE file in the root directory of this source tree. An additional grant
-// of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #include "../../include/compaction_job_stats.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 #ifndef ROCKSDB_LITE
 
 void CompactionJobStats::Reset() {
   elapsed_micros = 0;
+  cpu_micros = 0;
 
   num_input_records = 0;
   num_input_files = 0;
@@ -19,7 +20,8 @@ void CompactionJobStats::Reset() {
   num_output_records = 0;
   num_output_files = 0;
 
-  is_manual_compaction = 0;
+  is_full_compaction = false;
+  is_manual_compaction = false;
 
   total_input_bytes = 0;
   total_output_bytes = 0;
@@ -38,10 +40,17 @@ void CompactionJobStats::Reset() {
   file_range_sync_nanos = 0;
   file_fsync_nanos = 0;
   file_prepare_write_nanos = 0;
+
+  smallest_output_key_prefix.clear();
+  largest_output_key_prefix.clear();
+
+  num_single_del_fallthru = 0;
+  num_single_del_mismatch = 0;
 }
 
 void CompactionJobStats::Add(const CompactionJobStats& stats) {
   elapsed_micros += stats.elapsed_micros;
+  cpu_micros += stats.cpu_micros;
 
   num_input_records += stats.num_input_records;
   num_input_files += stats.num_input_files;
@@ -67,14 +76,17 @@ void CompactionJobStats::Add(const CompactionJobStats& stats) {
   file_range_sync_nanos += stats.file_range_sync_nanos;
   file_fsync_nanos += stats.file_fsync_nanos;
   file_prepare_write_nanos += stats.file_prepare_write_nanos;
+
+  num_single_del_fallthru += stats.num_single_del_fallthru;
+  num_single_del_mismatch += stats.num_single_del_mismatch;
 }
 
 #else
 
 void CompactionJobStats::Reset() {}
 
-void CompactionJobStats::Add(const CompactionJobStats& stats) {}
+void CompactionJobStats::Add(const CompactionJobStats& /*stats*/) {}
 
 #endif  // !ROCKSDB_LITE
 
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

@@ -1,7 +1,7 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #ifndef ROCKSDB_LITE
 
@@ -10,13 +10,13 @@
 #include <string>
 #include <vector>
 
-#include "../../db/db_impl.h"
-#include "../../../include/db.h"
-#include "../../../include/options.h"
-#include "../../../include/utilities/optimistic_transaction_db.h"
-#include "../../utilities/transactions/optimistic_transaction_impl.h"
+#include "../../db/db_impl/db_impl.h"
+#include "../../include/db.h"
+#include "../../include/options.h"
+#include "../../include/utilities/optimistic_transaction_db.h"
+#include "../../utilities/transactions/optimistic_transaction.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 Transaction* OptimisticTransactionDBImpl::BeginTransaction(
     const WriteOptions& write_options,
@@ -25,8 +25,14 @@ Transaction* OptimisticTransactionDBImpl::BeginTransaction(
     ReinitializeTransaction(old_txn, write_options, txn_options);
     return old_txn;
   } else {
-    return new OptimisticTransactionImpl(this, write_options, txn_options);
+    return new OptimisticTransaction(this, write_options, txn_options);
   }
+}
+
+std::unique_lock<std::mutex> OptimisticTransactionDBImpl::LockBucket(
+    size_t idx) {
+  assert(idx < bucketed_locks_.size());
+  return std::unique_lock<std::mutex>(*bucketed_locks_[idx]);
 }
 
 Status OptimisticTransactionDB::Open(const Options& options,
@@ -54,6 +60,18 @@ Status OptimisticTransactionDB::Open(
     const std::vector<ColumnFamilyDescriptor>& column_families,
     std::vector<ColumnFamilyHandle*>* handles,
     OptimisticTransactionDB** dbptr) {
+  return OptimisticTransactionDB::Open(db_options,
+                                       OptimisticTransactionDBOptions(), dbname,
+                                       column_families, handles, dbptr);
+}
+
+Status OptimisticTransactionDB::Open(
+    const DBOptions& db_options,
+    const OptimisticTransactionDBOptions& occ_options,
+    const std::string& dbname,
+    const std::vector<ColumnFamilyDescriptor>& column_families,
+    std::vector<ColumnFamilyHandle*>* handles,
+    OptimisticTransactionDB** dbptr) {
   Status s;
   DB* db;
 
@@ -63,16 +81,18 @@ Status OptimisticTransactionDB::Open(
   for (auto& column_family : column_families_copy) {
     ColumnFamilyOptions* options = &column_family.options;
 
-    if (options->max_write_buffer_number_to_maintain == 0) {
-      // Setting to -1 will set the History size to max_write_buffer_number.
-      options->max_write_buffer_number_to_maintain = -1;
+    if (options->max_write_buffer_size_to_maintain == 0 &&
+        options->max_write_buffer_number_to_maintain == 0) {
+      // Setting to -1 will set the History size to
+      // max_write_buffer_number * write_buffer_size.
+      options->max_write_buffer_size_to_maintain = -1;
     }
   }
 
   s = DB::Open(db_options, dbname, column_families_copy, handles, &db);
 
   if (s.ok()) {
-    *dbptr = new OptimisticTransactionDBImpl(db);
+    *dbptr = new OptimisticTransactionDBImpl(db, occ_options);
   }
 
   return s;
@@ -81,11 +101,11 @@ Status OptimisticTransactionDB::Open(
 void OptimisticTransactionDBImpl::ReinitializeTransaction(
     Transaction* txn, const WriteOptions& write_options,
     const OptimisticTransactionOptions& txn_options) {
-  assert(dynamic_cast<OptimisticTransactionImpl*>(txn) != nullptr);
-  auto txn_impl = reinterpret_cast<OptimisticTransactionImpl*>(txn);
+  assert(dynamic_cast<OptimisticTransaction*>(txn) != nullptr);
+  auto txn_impl = reinterpret_cast<OptimisticTransaction*>(txn);
 
   txn_impl->Reinitialize(this, write_options, txn_options);
 }
 
-}  //  namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE
 #endif  // ROCKSDB_LITE

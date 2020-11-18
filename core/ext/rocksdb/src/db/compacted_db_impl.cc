@@ -1,15 +1,17 @@
 //  Copyright (c) 2011-present, Facebook, Inc.  All rights reserved.
-//  This source code is licensed under the BSD-style license found in the
-//  LICENSE file in the root directory of this source tree. An additional grant
-//  of patent rights can be found in the PATENTS file in the same directory.
+//  This source code is licensed under both the GPLv2 (found in the
+//  COPYING file in the root directory) and Apache 2.0 License
+//  (found in the LICENSE.Apache file in the root directory).
 
 #ifndef ROCKSDB_LITE
 #include "../db/compacted_db_impl.h"
-#include "../db/db_impl.h"
+
+#include "../db/db_impl/db_impl.h"
 #include "../db/version_set.h"
 #include "../table/get_context.h"
+#include "../util/cast_util.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 
 extern void MarkKeyMayExist(void* arg);
 extern bool SaveValue(void* arg, const ParsedInternalKey& parsed_key,
@@ -17,39 +19,33 @@ extern bool SaveValue(void* arg, const ParsedInternalKey& parsed_key,
 
 CompactedDBImpl::CompactedDBImpl(
   const DBOptions& options, const std::string& dbname)
-  : DBImpl(options, dbname) {
+  : DBImpl(options, dbname), cfd_(nullptr), version_(nullptr),
+    user_comparator_(nullptr) {
 }
 
 CompactedDBImpl::~CompactedDBImpl() {
 }
 
 size_t CompactedDBImpl::FindFile(const Slice& key) {
-  size_t left = 0;
   size_t right = files_.num_files - 1;
-  while (left < right) {
-    size_t mid = (left + right) >> 1;
-    const FdWithKeyRange& f = files_.files[mid];
-    if (user_comparator_->Compare(ExtractUserKey(f.largest_key), key) < 0) {
-      // Key at "mid.largest" is < "target".  Therefore all
-      // files at or before "mid" are uninteresting.
-      left = mid + 1;
-    } else {
-      // Key at "mid.largest" is >= "target".  Therefore all files
-      // after "mid" are uninteresting.
-      right = mid;
-    }
-  }
-  return right;
+  auto cmp = [&](const FdWithKeyRange& f, const Slice& k) -> bool {
+    return user_comparator_->Compare(ExtractUserKey(f.largest_key), k) < 0;
+  };
+  return static_cast<size_t>(std::lower_bound(files_.files,
+                            files_.files + right, key, cmp) - files_.files);
 }
 
-Status CompactedDBImpl::Get(const ReadOptions& options,
-     ColumnFamilyHandle*, const Slice& key, std::string* value) {
+Status CompactedDBImpl::Get(const ReadOptions& options, ColumnFamilyHandle*,
+                            const Slice& key, PinnableSlice* value) {
   GetContext get_context(user_comparator_, nullptr, nullptr, nullptr,
                          GetContext::kNotFound, key, value, nullptr, nullptr,
-                         nullptr);
+                         nullptr, true, nullptr, nullptr);
   LookupKey lkey(key, kMaxSequenceNumber);
-  files_.files[FindFile(key)].fd.table_reader->Get(
-      options, lkey.internal_key(), &get_context);
+  Status s = files_.files[FindFile(key)].fd.table_reader->Get(
+      options, lkey.internal_key(), &get_context, nullptr);
+  if (!s.ok() && !s.IsNotFound()) {
+    return s;
+  }
   if (get_context.State() == GetContext::kFound) {
     return Status::OK();
   }
@@ -75,13 +71,20 @@ std::vector<Status> CompactedDBImpl::MultiGet(const ReadOptions& options,
   int idx = 0;
   for (auto* r : reader_list) {
     if (r != nullptr) {
+      PinnableSlice pinnable_val;
+      std::string& value = (*values)[idx];
       GetContext get_context(user_comparator_, nullptr, nullptr, nullptr,
-                             GetContext::kNotFound, keys[idx], &(*values)[idx],
-                             nullptr, nullptr, nullptr);
+                             GetContext::kNotFound, keys[idx], &pinnable_val,
+                             nullptr, nullptr, nullptr, true, nullptr, nullptr);
       LookupKey lkey(keys[idx], kMaxSequenceNumber);
-      r->Get(options, lkey.internal_key(), &get_context);
-      if (get_context.State() == GetContext::kFound) {
-        statuses[idx] = Status::OK();
+      Status s = r->Get(options, lkey.internal_key(), &get_context, nullptr);
+      if (!s.ok() && !s.IsNotFound()) {
+        statuses[idx] = s;
+      } else {
+        value.assign(pinnable_val.data(), pinnable_val.size());
+        if (get_context.State() == GetContext::kFound) {
+          statuses[idx] = Status::OK();
+        }
       }
     }
     ++idx;
@@ -90,16 +93,18 @@ std::vector<Status> CompactedDBImpl::MultiGet(const ReadOptions& options,
 }
 
 Status CompactedDBImpl::Init(const Options& options) {
+  SuperVersionContext sv_context(/* create_superversion */ true);
   mutex_.Lock();
   ColumnFamilyDescriptor cf(kDefaultColumnFamilyName,
                             ColumnFamilyOptions(options));
   Status s = Recover({cf}, true /* read only */, false, true);
   if (s.ok()) {
-    cfd_ = reinterpret_cast<ColumnFamilyHandleImpl*>(
-              DefaultColumnFamily())->cfd();
-    delete cfd_->InstallSuperVersion(new SuperVersion(), &mutex_);
+    cfd_ = static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily())
+               ->cfd();
+    cfd_->InstallSuperVersion(&sv_context, &mutex_);
   }
   mutex_.Unlock();
+  sv_context.Clean();
   if (!s.ok()) {
     return s;
   }
@@ -151,13 +156,14 @@ Status CompactedDBImpl::Open(const Options& options,
   std::unique_ptr<CompactedDBImpl> db(new CompactedDBImpl(db_options, dbname));
   Status s = db->Init(options);
   if (s.ok()) {
-    Log(INFO_LEVEL, db->db_options_.info_log,
-        "Opened the db as fully compacted mode");
-    LogFlush(db->db_options_.info_log);
+    db->StartPeriodicWorkScheduler();
+    ROCKS_LOG_INFO(db->immutable_db_options_.info_log,
+                   "Opened the db as fully compacted mode");
+    LogFlush(db->immutable_db_options_.info_log);
     *dbptr = db.release();
   }
   return s;
 }
 
-}   // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE
 #endif  // ROCKSDB_LITE
