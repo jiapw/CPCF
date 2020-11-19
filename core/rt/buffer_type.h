@@ -745,7 +745,7 @@ namespace _details
 template<bool has_trailing = true>
 struct Trailing
 {	template<typename X>
-	static void Clear(X& x){ x._Bits[X::BLOCK_COUNT - 1] &= (~(typename X::BLOCK_TYPE)(0))>>(X::BLOCK_SIZE - (X::BIT_SIZE%X::BLOCK_SIZE)); }
+	static void Clear(X& x){ x._Bits[X::RT_BLOCK_COUNT - 1] &= (~(typename X::RT_BLOCK_TYPE)(0))>>(X::RT_BLOCK_SIZE - (X::BIT_SIZE%X::RT_BLOCK_SIZE)); }
 };	
 	template<> struct Trailing<false>
 	{	template<typename X>
@@ -756,31 +756,31 @@ template<UINT bit_size>
 class BooleanArrayStg
 {	template<bool> friend struct Trailing;
 protected:
-	typedef DWORD BLOCK_TYPE;
+	typedef DWORD RT_BLOCK_TYPE;
 	static const UINT	BIT_SIZE = bit_size;
-	static const UINT	BLOCK_SIZE = sizeof(BLOCK_TYPE)*8;
-	static const UINT	BLOCK_COUNT = (BIT_SIZE + BLOCK_SIZE - 1)/BLOCK_SIZE;
+	static const UINT	RT_BLOCK_SIZE = sizeof(RT_BLOCK_TYPE)*8;
+	static const UINT	RT_BLOCK_COUNT = (BIT_SIZE + RT_BLOCK_SIZE - 1)/RT_BLOCK_SIZE;
 
-	BLOCK_TYPE			_Bits[BLOCK_COUNT];
-	void				_ClearTrailingBits(){ Trailing<(bit_size%BLOCK_SIZE)!=0>::Clear(*this); }
+	RT_BLOCK_TYPE			_Bits[RT_BLOCK_COUNT];
+	void				_ClearTrailingBits(){ Trailing<(bit_size%RT_BLOCK_SIZE)!=0>::Clear(*this); }
 };
 template<>
 class BooleanArrayStg<0>
 {
 protected:
-	typedef DWORD BLOCK_TYPE;
-	static const UINT		BLOCK_SIZE = sizeof(BLOCK_TYPE)*8;
+	typedef DWORD RT_BLOCK_TYPE;
+	static const UINT		RT_BLOCK_SIZE = sizeof(RT_BLOCK_TYPE)*8;
 	UINT					BIT_SIZE;
-	UINT					BLOCK_COUNT;
+	UINT					RT_BLOCK_COUNT;
 
-	rt::BufferEx<BLOCK_TYPE>_Bits;
-	void					_ClearTrailingBits(){ _Bits[BLOCK_COUNT - 1] &= (~(BLOCK_TYPE)0)>>(BLOCK_SIZE - (BIT_SIZE%BLOCK_SIZE)); }
+	rt::BufferEx<RT_BLOCK_TYPE>_Bits;
+	void					_ClearTrailingBits(){ _Bits[RT_BLOCK_COUNT - 1] &= (~(RT_BLOCK_TYPE)0)>>(RT_BLOCK_SIZE - (BIT_SIZE%RT_BLOCK_SIZE)); }
 public:
 	void	SetBitSize(UINT bit_size, bool keep_existing_data = true)
 			{	
 				BIT_SIZE = bit_size;
-				BLOCK_COUNT = (BIT_SIZE + BLOCK_SIZE - 1)/BLOCK_SIZE;
-				VERIFY(_Bits.ChangeSize(BLOCK_COUNT, keep_existing_data));
+				RT_BLOCK_COUNT = (BIT_SIZE + RT_BLOCK_SIZE - 1)/RT_BLOCK_SIZE;
+				VERIFY(_Bits.ChangeSize(RT_BLOCK_COUNT, keep_existing_data));
 				_ClearTrailingBits();
 			}
 };
@@ -790,19 +790,19 @@ template<UINT BIT_SIZE = 0>
 class BooleanArray: public _details::BooleanArrayStg<BIT_SIZE>
 {
 	typedef _details::BooleanArrayStg<BIT_SIZE>	_SC;
-    typedef typename _SC::BLOCK_TYPE BLOCK_TYPE;
-	static const UINT BLOCK_SIZE = _SC::BLOCK_SIZE;
+    typedef typename _SC::RT_BLOCK_TYPE RT_BLOCK_TYPE;
+	static const UINT RT_BLOCK_SIZE = _SC::RT_BLOCK_SIZE;
 	
 protected:
-	static BLOCK_TYPE	_BlockBitmask(UINT idx){ return ((BLOCK_TYPE)1)<<(idx%BLOCK_SIZE); }
+	static RT_BLOCK_TYPE	_BlockBitmask(UINT idx){ return ((RT_BLOCK_TYPE)1)<<(idx%RT_BLOCK_SIZE); }
 public:
 	class Index
 	{	friend class BooleanArray;
 		UINT		BlockOffset;
-		BLOCK_TYPE	Bitmask;
+		RT_BLOCK_TYPE	Bitmask;
 	public:
 		Index(UINT idx)
-		{	BlockOffset = idx/BLOCK_SIZE;
+		{	BlockOffset = idx/RT_BLOCK_SIZE;
 			Bitmask = BooleanArray::_BlockBitmask(idx);
 		}
 	};
@@ -823,31 +823,31 @@ public:
 				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
 	void	Reset(const Index& idx){ Set(idx, false); }
-	void	ResetAll(){ memset(_SC::_Bits, 0, _SC::BLOCK_COUNT*sizeof(BLOCK_TYPE)); }
-	void	SetAll(){ memset(_SC::_Bits, 0xff, _SC::BLOCK_COUNT*sizeof(BLOCK_TYPE)); _SC::_ClearTrailingBits(); }
-	bool	IsAllReset() const { for(UINT i=0; i<_SC::BLOCK_COUNT; i++)if(_SC::_Bits[i])return false; return true; }
-	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<_SC::BLOCK_COUNT; i++)pc += rt::PopCount(_SC::_Bits[i]); return pc; }
-	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<_SC::BLOCK_COUNT; i++)_SC::_Bits[i] ^= x._Bits[i]; }
-	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<_SC::BLOCK_COUNT; i++)_SC::_Bits[i] |= x._Bits[i]; }
+	void	ResetAll(){ memset(_SC::_Bits, 0, _SC::RT_BLOCK_COUNT*sizeof(RT_BLOCK_TYPE)); }
+	void	SetAll(){ memset(_SC::_Bits, 0xff, _SC::RT_BLOCK_COUNT*sizeof(RT_BLOCK_TYPE)); _SC::_ClearTrailingBits(); }
+	bool	IsAllReset() const { for(UINT i=0; i<_SC::RT_BLOCK_COUNT; i++)if(_SC::_Bits[i])return false; return true; }
+	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<_SC::RT_BLOCK_COUNT; i++)pc += rt::PopCount(_SC::_Bits[i]); return pc; }
+	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<_SC::RT_BLOCK_COUNT; i++)_SC::_Bits[i] ^= x._Bits[i]; }
+	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<_SC::RT_BLOCK_COUNT; i++)_SC::_Bits[i] |= x._Bits[i]; }
 	template<typename CB>
 	UINT	VisitOnes(CB&& cb) const	// visit all ones
 			{	UINT hit = 0;	UINT i=0;
-				for(; i<_SC::BLOCK_COUNT-1; i++)
-				{	BLOCK_TYPE bits = _SC::_Bits[i];
+				for(; i<_SC::RT_BLOCK_COUNT-1; i++)
+				{	RT_BLOCK_TYPE bits = _SC::_Bits[i];
 					if(bits)
-					{	for(UINT b=0; b<BLOCK_SIZE; b++)
+					{	for(UINT b=0; b<RT_BLOCK_SIZE; b++)
 						{	if(bits&(1ULL<<b))
-							{	cb(i*BLOCK_SIZE + b);
+							{	cb(i*RT_BLOCK_SIZE + b);
 								hit++;
 							}
 						}
 					}
 				}
-				BLOCK_TYPE bits = _SC::_Bits[i];
+				RT_BLOCK_TYPE bits = _SC::_Bits[i];
 				if(bits)
-				{	for(UINT b=0; b<(BIT_SIZE%BLOCK_SIZE); b++)
+				{	for(UINT b=0; b<(BIT_SIZE%RT_BLOCK_SIZE); b++)
 					{	if(bits&(1ULL<<b))
-						{	cb(i*BLOCK_SIZE + b);
+						{	cb(i*RT_BLOCK_SIZE + b);
 							hit++;
 						}
 					}
@@ -858,11 +858,11 @@ public:
 	void	ForEach(CB&& cb) const	// visit all ones
 			{	UINT i=0;
 				for(; i<sizeofArray(_SC::_Bits)-1; i++)
-				{	BLOCK_TYPE bits = _SC::_Bits[i];
-					for(UINT b=0; b<BLOCK_SIZE; b++)cb(bits&(1ULL<<b));
+				{	RT_BLOCK_TYPE bits = _SC::_Bits[i];
+					for(UINT b=0; b<RT_BLOCK_SIZE; b++)cb(bits&(1ULL<<b));
 				}
-				BLOCK_TYPE bits = _SC::_Bits[i];
-				for(UINT b=0; b<(_SC::BIT_SIZE%BLOCK_SIZE); b++)cb(bits&(1ULL<<b));
+				RT_BLOCK_TYPE bits = _SC::_Bits[i];
+				for(UINT b=0; b<(_SC::BIT_SIZE%RT_BLOCK_SIZE); b++)cb(bits&(1ULL<<b));
 			}
 	template<char one = '1', char zero = '.'>
 	auto	ToString(rt::String& append) const
@@ -888,22 +888,22 @@ public:
 	void	Shift(int s){ if(s>0){LeftShift((UINT)s);}else{{RightShift((UINT)-s);}} }
 	void	LeftShift(UINT s)
 			{	if(s == 0)return;					if(s > BIT_SIZE){ ResetAll(); return; }
-				UINT offset = s/BLOCK_SIZE;			s = s%BLOCK_SIZE;
-				UINT i = _SC::BLOCK_COUNT - 1;
+				UINT offset = s/RT_BLOCK_SIZE;			s = s%RT_BLOCK_SIZE;
+				UINT i = _SC::RT_BLOCK_COUNT - 1;
 				for (; 0 < i - offset; i--)
-					_SC::_Bits[i] = (_SC::_Bits[i - offset] << s) | (_SC::_Bits[i - offset - 1] >> (BLOCK_SIZE - s));
+					_SC::_Bits[i] = (_SC::_Bits[i - offset] << s) | (_SC::_Bits[i - offset - 1] >> (RT_BLOCK_SIZE - s));
 				_SC::_Bits[i] = _SC::_Bits[i - offset] << s;
-				if(i)rt::Zero(_SC::_Bits, (i-1)*BLOCK_SIZE/8);
+				if(i)rt::Zero(_SC::_Bits, (i-1)*RT_BLOCK_SIZE/8);
 				_SC::_ClearTrailingBits();
 			}
 	void	RightShift(UINT s)
 			{	if(s == 0)return;					if(s > BIT_SIZE){ ResetAll(); return; }
-				UINT offset = s/BLOCK_SIZE;	s = s%BLOCK_SIZE;
+				UINT offset = s/RT_BLOCK_SIZE;	s = s%RT_BLOCK_SIZE;
 				UINT i = 0;
-				for (; i + offset < _SC::BLOCK_COUNT - 1; i++)
-					_SC::_Bits[i] = (_SC::_Bits[i + offset] >> s) | (_SC::_Bits[i + offset + 1] << (BLOCK_SIZE - s));
+				for (; i + offset < _SC::RT_BLOCK_COUNT - 1; i++)
+					_SC::_Bits[i] = (_SC::_Bits[i + offset] >> s) | (_SC::_Bits[i + offset + 1] << (RT_BLOCK_SIZE - s));
 				_SC::_Bits[i] = _SC::_Bits[i + offset] >> s;
-				if(i + 1 < _SC::BLOCK_COUNT)rt::Zero(&_SC::_Bits[i+1], (_SC::BLOCK_COUNT - i - 1)*BLOCK_SIZE/8);
+				if(i + 1 < _SC::RT_BLOCK_COUNT)rt::Zero(&_SC::_Bits[i+1], (_SC::RT_BLOCK_COUNT - i - 1)*RT_BLOCK_SIZE/8);
 			}
 };
 } // namespace rt

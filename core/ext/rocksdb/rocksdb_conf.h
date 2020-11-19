@@ -14,6 +14,9 @@
 #elif defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
     #define OS_MACOSX 1
     #define ROCKSDB_PLATFORM_POSIX 1
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+	#define OS_LINUX 1
+	#define ROCKSDB_PLATFORM_POSIX 1
 #else
     #define ROCKSDB_PLATFORM_POSIX 1
 #endif
