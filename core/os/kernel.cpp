@@ -1727,7 +1727,7 @@ ConsoleProgressIndicator::ConsoleProgressIndicator(ULONGLONG total, LPCSTR hint)
 
 ConsoleProgressIndicator::~ConsoleProgressIndicator()
 {
-	printf("%s: %llu done, %s                         \n", _Hint.GetString(), _Total, rt::tos::TimeSpan<>(_StartTime.TimeLapse()).Begin());
+	printf("%s: %llu done, %s                         \n", _Hint.GetString(), (long long unsigned int)_Total, rt::tos::TimeSpan<>(_StartTime.TimeLapse()).Begin());
 }
 
 void ConsoleProgressIndicator::_Display()
@@ -1746,11 +1746,11 @@ void ConsoleProgressIndicator::_Display()
 				else			bar[i] = '-';
 			}
 			bar[20] = 0;
-			printf("%s: %llu (%0.2f%%), [%s] %s remains   \r", _Hint.GetString(), _Prog, prec, bar, rt::tos::TimeSpan<>(_StartTime.TimeLapse()*(_Total-_Prog)/_Prog).Begin());
+			printf("%s: %llu (%0.2f%%), [%s] %s remains   \r", _Hint.GetString(), (long long unsigned int)_Prog, prec, bar, rt::tos::TimeSpan<>(_StartTime.TimeLapse()*(_Total-_Prog)/_Prog).Begin());
 		}
 		else
 		{	
-			printf("%s: %llu, %s passed   \r", _Hint.GetString(), _Prog, rt::tos::TimeSpan<>(_StartTime.TimeLapse()).Begin());
+			printf("%s: %llu, %s passed   \r", _Hint.GetString(), (long long unsigned int)_Prog, rt::tos::TimeSpan<>(_StartTime.TimeLapse()).Begin());
 		}
 	}
 }
