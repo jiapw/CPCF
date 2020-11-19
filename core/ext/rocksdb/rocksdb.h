@@ -411,7 +411,7 @@ public:
 	bool		Open(LPCSTR db_path, RocksStorageWriteRobustness robustness = ROCKSSTG_DEFAULT, bool open_existed_only = false, UINT file_thread_co = 2, UINT logfile_num_max = 1);
 	bool		Open(LPCSTR db_path, const Options* opt);
 	bool		IsOpen() const { return _pDB!=nullptr; }
-	void		Close();
+	void		Close(bool clear_alldbs = true);
 	RocksDB		Get(const rt::String_Ref& name, bool create_auto = true);	// get db
 	void		Drop(const rt::String_Ref& name); // delete db
 

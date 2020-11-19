@@ -279,7 +279,7 @@ void RocksStorage::Drop(const rt::String_Ref& name) // delete db
 		new_obj.Revert();
 }
 
-void RocksStorage::Close()
+void RocksStorage::Close(bool clear_alldbs)
 {
 	if(_pDB)
 	{
@@ -291,7 +291,8 @@ void RocksStorage::Close()
 					it.second.pCF = nullptr;
 				}
 
-			_AllDBs.Clear();
+			if (clear_alldbs)
+				_AllDBs.Clear();
 		}
 
 #if !defined(ROCKSDB_LITE)
