@@ -283,8 +283,9 @@ void RocksStorage::Close(bool clear_alldbs)
 {
 	if(_pDB)
 	{
-		{	THREADSAFEMUTABLE_UPDATE(_AllDBs, new_obj);
-			for(auto it : _AllDBs.Get())
+		{
+			THREADSAFEMUTABLE_UPDATE(_AllDBs, new_obj);
+			for(auto& it : new_obj.Get())
 				if(it.second.pCF)
 				{
 					_pDB->DestroyColumnFamilyHandle(it.second.pCF);
@@ -292,7 +293,7 @@ void RocksStorage::Close(bool clear_alldbs)
 				}
 
 			if (clear_alldbs)
-				_AllDBs.Clear();
+				new_obj.Get().clear();
 		}
 
 #if !defined(ROCKSDB_LITE)
