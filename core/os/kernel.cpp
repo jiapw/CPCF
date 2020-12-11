@@ -91,7 +91,7 @@ void assert_failed(LPCSTR msg, LPCSTR file, UINT line, LPCSTR func)
 #if		defined(PLATFORM_WIN)
 		_wassert(os::__UTF16(msg), os::__UTF16(rt::String_Ref(func) + " @ " + file), line);
 #elif	defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-		__assert_rtn(msg, file, line, func);
+		__assert_rtn(func, file, line, msg);
 #else
 		__assert_fail(msg, file, line, func);
 #endif
