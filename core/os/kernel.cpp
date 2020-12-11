@@ -2,6 +2,10 @@
 #include "file_dir.h"
 #include "multi_thread.h"
 
+#ifdef PLATFORM_DEBUG_BUILD
+#include <assert.h>
+#endif
+
 #if defined(PLATFORM_WIN)
 #include <Rpc.h>
 #include <Psapi.h>
@@ -75,6 +79,24 @@ extern int _objc_get_battery_state();
 #include <fstream>
 #include <fcntl.h>
 
+#endif
+
+#ifdef PLATFORM_DEBUG_BUILD
+namespace os
+{
+namespace _details
+{
+void assert_failed(LPCSTR msg, LPCSTR file, UINT line, LPCSTR func)
+{
+#if		defined(PLATFORM_WIN)
+		_wassert(os::__UTF16(msg), os::__UTF16(rt::String_Ref(func) + " @ " + file), line);
+#elif	defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+		__assert_rtn(msg, file, line, func);
+#else
+		__assert_fail(msg, file, line, func);
+#endif
+}
+}} // os::_details
 #endif
 
 

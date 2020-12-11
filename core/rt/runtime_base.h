@@ -238,10 +238,19 @@ namespace os
 #define ASSERTH(re) ASSERT(SUCCEEDED(re))
 #define VERIFYH(re) VERIFY(SUCCEEDED(re))
 
+#ifdef PLATFORM_DEBUG_BUILD
+namespace os
+{
+namespace _details
+{	extern void assert_failed(LPCSTR msg, LPCSTR file, UINT line, LPCSTR func);
+}}
+#endif
+
 namespace rt
 {
 namespace _details
 {
+
 template<typename RET>
 INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCSTR file)
 {
@@ -249,8 +258,8 @@ INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCST
 	if(!exp)
 	{
 		_LOG_ERROR("ASSERTION FAILED: "<<exp_str);
-		__LOG_TYPE(func<<":L"<<line<<":"<<file, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE);
-		ASSERT(0);
+		_LOG_POS;
+		os::_details::assert_failed(exp_str, file, line, func);
 	}
 #endif
 	return exp;
