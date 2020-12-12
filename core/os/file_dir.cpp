@@ -420,17 +420,19 @@ bool os::File::IsExist(LPCSTR fn)
 bool os::File::Remove(LPCSTR fn, bool secure)
 {
 	if(secure)
-	{	os::File file;
-		rt::Buffer<BYTE> a;
-		a.SetSize(1024*1024);
-		a.Zero();
-		SIZE_T len = file.GetLength();
+	{
+		os::File file;
 		if(file.Open(fn, os::File::Normal_ReadWrite))
 		{
+			SIZE_T len = file.GetLength();
+			rt::Buffer<BYTE> a;
+			a.SetSize(rt::min(len, 1024ULL*64));
+			a.Zero();
+			file.SeekToBegin();
 			for(SIZE_T off = 0; off < file.GetLength(); off += a.GetSize())
 				file.Write(a, rt::min(len - off, a.GetSize()));
 			file.Flush();
-		}else return false;
+		}
 	}
 
 #ifdef	PLATFORM_WIN
