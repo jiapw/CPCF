@@ -596,7 +596,14 @@ public:
 		}
 		return true;
 	}
-
+	template<typename T>
+	INLFUNC T& push_back_pod() // sizeof T should be multiple of size of t_Val
+	{	ASSERT(sizeof(T)%sizeof(t_Val) == 0);
+		static_assert(rt::TypeTraits<T>::IsPOD && rt::TypeTraits<t_Val>::IsPOD, "push_back_pod takes only POD types");
+		return *(T*)push_back_n(sizeof(T)/sizeof(t_Val));
+	}
+	template<typename T>
+	INLFUNC void push_back_pod(const T& obj){ rt::Copy(push_back_pod<T>(), obj); }
 	INLFUNC t_Val& first(){ ASSERT(_SC::_len); return _SC::_p[0]; }
 	INLFUNC const t_Val& first()const{  ASSERT(_SC::_len); return _SC::_p[0]; }
 	INLFUNC t_Val& last(){  ASSERT(_SC::_len); return _SC::_p[_SC::_len-1]; }
