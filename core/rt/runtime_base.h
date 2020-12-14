@@ -595,12 +595,34 @@ template<int Size> struct _PodCopy
 	template<> struct _PodCopy<7>{ static FORCEINL void Fill(LPBYTE p, LPCBYTE s){ *(DWORD*)p = *(DWORD*)s; _PodCopy<3>::Fill(p+4, s+4); }};
 #endif
 
+template<int Size> struct _PodEqual
+{	static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s)
+	{	return	*(SIZE_T*)p == *(SIZE_T*)s &&
+				_PodEqual<Size-sizeof(SIZE_T)>::IsEqual(p+sizeof(SIZE_T), s+sizeof(SIZE_T));
+}	};
+	template<> struct _PodEqual<0>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return true; }};
+	template<> struct _PodEqual<1>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *p == *s; }};
+	template<> struct _PodEqual<2>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(WORD*)p == *(WORD*)s; }};
+	template<> struct _PodEqual<3>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(WORD*)p == *(WORD*)s && p[2] == s[2]; }};
+#if defined(PLATFORM_64BIT)
+	template<> struct _PodEqual<4>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s; }};
+	template<> struct _PodEqual<5>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<1>::IsEqual(p+4, s+4); }};
+	template<> struct _PodEqual<6>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<2>::IsEqual(p+4, s+4); }};
+	template<> struct _PodEqual<7>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<3>::IsEqual(p+4, s+4); }};
+#endif
+
 } // namespace _details
 
 template<UINT LEN>
 FORCEINL void Copy(LPVOID obj, LPCVOID from){ _details::_PodCopy<LEN>::Fill((LPBYTE)obj, (LPCBYTE)from); }
 template<typename T1, typename T2>
-FORCEINL void Copy(T1& obj, const T2& from){ static_assert(sizeof(T1) == sizeof(T2), "Sizes of operands are different"); Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); }
+FORCEINL void Copy(T1& obj, const T2& from){ Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::Copy sizes of operands mismatch"); }
+
+template<UINT LEN>
+FORCEINL bool IsEqual(LPCVOID obj, LPCVOID from){ return _details::_PodEqual<LEN>::IsEqual((LPCBYTE)obj, (LPCBYTE)from); }
+template<typename T1, typename T2>
+FORCEINL bool IsEqual(const T1& obj, const T2& from){ return IsEqual<sizeof(T1)>((LPCBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::IsEqual sizes of operands mismatch"); }
+
 
 namespace _details
 {
