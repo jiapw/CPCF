@@ -638,31 +638,28 @@ namespace os
 
 namespace _details
 {
-	INLFUNC int		SolveMonthLetter(int l)
-	{	if(l > 'Z')return l - ('a' - 'A');
-		return l;
-	}
-	int		SolveMonth(const rt::String_Ref& seg)
+	int	SolveMonthLetter(int l){ return l>='a'?l-'a':l-'A'; }
+	int	SolveMonth(const rt::String_Ref& seg)
 	{	if(seg.GetLength() < 3)return 0;
 		int sum = SolveMonthLetter(seg[0])*10000 + SolveMonthLetter(seg[1])*100 + SolveMonthLetter(seg[2]);
 		switch(sum)
 		{
-			case 'j'*10000 + 'a'*100 + 'n': return 1;
-			case 'f'*10000 + 'e'*100 + 'b': return 2;
-			case 'm'*10000 + 'a'*100 + 'r': return 3;
-			case 'a'*10000 + 'p'*100 + 'r': return 4;
-			case 'm'*10000 + 'a'*100 + 'y': return 5;
-			case 'j'*10000 + 'u'*100 + 'n': return 6;
-			case 'j'*10000 + 'u'*100 + 'l': return 7;
-			case 'a'*10000 + 'u'*100 + 'g': return 8;
-			case 's'*10000 + 'e'*100 + 'p': return 9;
-			case 'o'*10000 + 'c'*100 + 't': return 10;
-			case 'n'*10000 + 'o'*100 + 'v': return 11;
-			case 'd'*10000 + 'e'*100 + 'c': return 12;
+			case ('j'-'a')*10000 + ('a'-'a')*100 + 'n'-'a': return 1;
+			case ('f'-'a')*10000 + ('e'-'a')*100 + 'b'-'a': return 2;
+			case ('m'-'a')*10000 + ('a'-'a')*100 + 'r'-'a': return 3;
+			case ('a'-'a')*10000 + ('p'-'a')*100 + 'r'-'a': return 4;
+			case ('m'-'a')*10000 + ('a'-'a')*100 + 'y'-'a': return 5;
+			case ('j'-'a')*10000 + ('u'-'a')*100 + 'n'-'a': return 6;
+			case ('j'-'a')*10000 + ('u'-'a')*100 + 'l'-'a': return 7;
+			case ('a'-'a')*10000 + ('u'-'a')*100 + 'g'-'a': return 8;
+			case ('s'-'a')*10000 + ('e'-'a')*100 + 'p'-'a': return 9;
+			case ('o'-'a')*10000 + ('c'-'a')*100 + 't'-'a': return 10;
+			case ('n'-'a')*10000 + ('o'-'a')*100 + 'v'-'a': return 11;
+			case ('d'-'a')*10000 + ('e'-'a')*100 + 'c'-'a': return 12;
 			default: return 0;
 		}
 	}
-	bool	SolveDate(const rt::String_Ref seg[3], const int num[3], int& year, int& month, int& day)
+	bool SolveDate(const rt::String_Ref seg[3], const int num[3], int& year, int& month, int& day)
 	{
 		if(num[0] == 0 && (month = SolveMonth(seg[0]))>0){ year = num[2]; day = num[1]; } else // March 20,2015
 		if(num[1] == 0 && (month = SolveMonth(seg[1]))>0){ year = num[2]; day = num[0]; if(year<day)rt::Swap(year,day); } else // 2015 March 10 or 10 March 2015

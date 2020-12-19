@@ -965,9 +965,9 @@ public:
 	FORCEINL void L2Norm(rt::Vec<t_Val2,chan_num>& out) const
 	{	rt::Vec<Ipp64f,chan_num>	s;
 		switch(chan_num) {
-		case 1: ipp_cpp::ippiNorm_L2_C1R(IPPARG_IMG(*this),*this,s); break;
-		case 3: ipp_cpp::ippiNorm_L2_C3R(IPPARG_IMG(*this),*this,s); break;
-		case 4: ipp_cpp::ippiNorm_L2_C4R(IPPARG_IMG(*this),*this,s); break;
+		case 1: ipp_cpp::ippiNorm_L2_C1R(IPPARG_IMG(*this),*this,s.ptr()); break;
+		case 3: ipp_cpp::ippiNorm_L2_C3R(IPPARG_IMG(*this),*this,s.ptr()); break;
+		case 4: ipp_cpp::ippiNorm_L2_C4R(IPPARG_IMG(*this),*this,s.ptr()); break;
 		}
 		out = s;
 	}
@@ -975,9 +975,9 @@ public:
 	FORCEINL void L2Norm(const Image_Ref&x, rt::Vec<t_Val2,chan_num>& out) const
 	{	rt::Vec<Ipp64f,chan_num>	s;
 		switch(chan_num) {
-		case 1: ipp_cpp::ippiNormDiff_L2_C1R(IPPARG_IMG(*this),IPPARG_IMG(x),*this,s); break;
-		case 3: ipp_cpp::ippiNormDiff_L2_C3R(IPPARG_IMG(*this),IPPARG_IMG(x),*this,s); break;
-		case 4: ipp_cpp::ippiNormDiff_L2_C4R(IPPARG_IMG(*this),IPPARG_IMG(x),*this,s); break;
+		case 1: ipp_cpp::ippiNormDiff_L2_C1R(IPPARG_IMG(*this),IPPARG_IMG(x),*this,s.ptr()); break;
+		case 3: ipp_cpp::ippiNormDiff_L2_C3R(IPPARG_IMG(*this),IPPARG_IMG(x),*this,s.ptr()); break;
+		case 4: ipp_cpp::ippiNormDiff_L2_C4R(IPPARG_IMG(*this),IPPARG_IMG(x),*this,s.ptr()); break;
 		}
 		out = s;
 	}
@@ -990,9 +990,9 @@ public:
 	FORCEINL void Sum(rt::Vec<t_Val2,chan_num>& out) const
 	{	rt::Vec<Ipp64f,chan_num>	s;
 		switch(chan_num) {
-		case 1: ipp_cpp::ippiSum_C1R(IPPARG_IMG(*this),*this,s); break;
-		case 3: ipp_cpp::ippiSum_C3R(IPPARG_IMG(*this),*this,s); break;
-		case 4: ipp_cpp::ippiSum_C4R(IPPARG_IMG(*this),*this,s); break;
+		case 1: ipp_cpp::ippiSum_C1R(IPPARG_IMG(*this),*this,s.ptr()); break;
+		case 3: ipp_cpp::ippiSum_C3R(IPPARG_IMG(*this),*this,s.ptr()); break;
+		case 4: ipp_cpp::ippiSum_C4R(IPPARG_IMG(*this),*this,s.ptr()); break;
 		}
 		out = s;
 	}
@@ -1000,9 +1000,9 @@ public:
 	FORCEINL void Mean(rt::Vec<t_Val2,chan_num>& out) const
 	{	rt::Vec<Ipp64f,chan_num>	s;
 		switch(chan_num) {
-		case 1: ipp_cpp::ippiMean_C1R(IPPARG_IMG(*this),*this,s); break;
-		case 3: ipp_cpp::ippiMean_C3R(IPPARG_IMG(*this),*this,s); break;
-		case 4: ipp_cpp::ippiMean_C4R(IPPARG_IMG(*this),*this,s); break;
+		case 1: ipp_cpp::ippiMean_C1R(IPPARG_IMG(*this),*this,s.ptr()); break;
+		case 3: ipp_cpp::ippiMean_C3R(IPPARG_IMG(*this),*this,s.ptr()); break;
+		case 4: ipp_cpp::ippiMean_C4R(IPPARG_IMG(*this),*this,s.ptr()); break;
 		}
 		out = s;
 	}
@@ -1326,15 +1326,15 @@ public:
 	FORCEINL void Add(const t_Val& val)
 	{	switch(chan_num) {	
 			case 1: ipp_cpp::ippiAdd_C1R(val[0],IPPARG_IMG(*this),*this); break;
-			case 3: ipp_cpp::ippiAdd_C3R(val,IPPARG_IMG(*this),*this); break;
-			case 4: ipp_cpp::ippiAdd_C4R(val,IPPARG_IMG(*this),*this); break;
+			case 3: ipp_cpp::ippiAdd_C3R(val.ptr(),IPPARG_IMG(*this),*this); break;
+			case 4: ipp_cpp::ippiAdd_C4R(val.ptr(),IPPARG_IMG(*this),*this); break;
 	}	}
 	FORCEINL void AddTo(const t_Val& val,Image_Ref& dst) const
 	{	ASSERT_SIZE(*this,dst);
 		switch(chan_num) {	
 			case 1: ipp_cpp::ippiAdd_C1R(IPPARG_IMG(dst),val[0],IPPARG_IMG(*this),*this); break;
-			case 3: ipp_cpp::ippiAdd_C3R(IPPARG_IMG(dst),val,IPPARG_IMG(*this),*this); break;
-			case 4: ipp_cpp::ippiAdd_C4R(IPPARG_IMG(dst),val,IPPARG_IMG(*this),*this); break;
+			case 3: ipp_cpp::ippiAdd_C3R(IPPARG_IMG(dst),val.ptr(),IPPARG_IMG(*this),*this); break;
+			case 4: ipp_cpp::ippiAdd_C4R(IPPARG_IMG(dst),val.ptr(),IPPARG_IMG(*this),*this); break;
 	}	}
 	FORCEINL void Subtract(const Image_Ref& x)
 	{	ASSERT_SIZE(*this,x);
@@ -1619,15 +1619,15 @@ public:
 	FORCEINL void Sub(const t_Val& val)
 	{	switch(chan_num) {	
 			case 1: ipp_cpp::ippiSub_C1R(val[0],IPPARG_IMG(*this),*this); break;
-			case 3: ipp_cpp::ippiSub_C3R(val,IPPARG_IMG(*this),*this); break;
-			case 4: ipp_cpp::ippiSub_C4R(val,IPPARG_IMG(*this),*this); break;
+			case 3: ipp_cpp::ippiSub_C3R(val.ptr(),IPPARG_IMG(*this),*this); break;
+			case 4: ipp_cpp::ippiSub_C4R(val.ptr(),IPPARG_IMG(*this),*this); break;
 	}	}
 	FORCEINL void SubTo(const t_Val& val,Image_Ref& dst) const
 	{	ASSERT_SIZE(*this,dst);
 		switch(chan_num) {	
 			case 1: ipp_cpp::ippiSub_C1R(IPPARG_IMG(dst),val[0],IPPARG_IMG(*this),*this); break;
-			case 3: ipp_cpp::ippiSub_C3R(IPPARG_IMG(dst),val,IPPARG_IMG(*this),*this); break;
-			case 4: ipp_cpp::ippiSub_C4R(IPPARG_IMG(dst),val,IPPARG_IMG(*this),*this); break;
+			case 3: ipp_cpp::ippiSub_C3R(IPPARG_IMG(dst),val.ptr(),IPPARG_IMG(*this),*this); break;
+			case 4: ipp_cpp::ippiSub_C4R(IPPARG_IMG(dst),val.ptr(),IPPARG_IMG(*this),*this); break;
 	}	}
 	FORCEINL void BackwardRemap(const Ref_1C& map_x, const Ref_1C& map_y, const Image_Ref& src)
 	{	ASSERT_SIZE(*this,map_x);

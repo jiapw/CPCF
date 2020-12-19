@@ -2303,6 +2303,12 @@ void rt::UnitTests::smallmath()
 	quat.ExportRotationMatrix(m);
 	_LOG(m);
 	_LOG("scale = "<<a);
+
+	{
+		rt::Vec3f a(1,2,3), b(-1, -1, -1);
+		_LOG((a + b*2) + 2);
+		//_LOG(a*b + a*b);
+	}
 }
 
 

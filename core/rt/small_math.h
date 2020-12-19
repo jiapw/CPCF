@@ -41,7 +41,7 @@
 namespace rt
 {
 //pre-declaration
-template< typename t_Val, int chan >
+template<typename t_Val, int chan>
 struct Vec
 {	static const int LEN=chan;
 	typedef t_Val	 VALUE;
@@ -51,18 +51,30 @@ struct Vec
 	typedef typename rt::_details::hash_compare_fix<Vec<t_Val, LEN> > hash_compare; \
 	INLFUNC Vec(const rt::String_Ref& str){ FromString(str); } \
 	INLFUNC Vec(){} \
-	INLFUNC Vec(t_Val x){ Set(x); } \
-	INLFUNC operator t_Val* () { return _p; } \
-	INLFUNC operator const t_Val* () const { return _p; } \
-	INLFUNC t_Val	operator [](UINT i) const { ASSERT(i<LEN); return _p[i]; } \
-	INLFUNC t_Val&	operator [](UINT i){ ASSERT(i<LEN); return _p[i]; } \
-	INLFUNC t_Val	operator [](int i) const { ASSERT(i<LEN); return _p[i]; } \
-	INLFUNC t_Val&	operator [](int i){ ASSERT(i<LEN); return _p[i]; } \
-	INLFUNC void Set(t_Val x){ ((Vec<t_Val, LEN-1>&)(*this)).Set(x); _p[LEN-1] = x; } \
-	INLFUNC void CopyTo(t_Val* x) const { ((Vec<t_Val, LEN-1>&)(*this)).CopyTo(x); x[LEN-1] = _p[LEN-1]; } \
-	INLFUNC void CopyFrom(const t_Val* x){ ((Vec<t_Val, LEN-1>&)(*this)).CopyFrom(x); _p[LEN-1] = x[LEN-1]; } \
-	INLFUNC void Random(){ ((Vec<t_Val, LEN-1>&)(*this)).Random(); _p[LEN-1] = rand()*rt::TypeTraits<t_Val>::UnitVal()/(t_Val)RAND_MAX; } \
-	INLFUNC void Clamp(t_Val min, t_Val max){ ((Vec<t_Val, LEN-1>&)(*this)).Clamp(min, max); _p[LEN-1] = rt::max(min, rt::min(max, _p[LEN-1])); } \
+	INLFUNC Vec(signed char x){ Set((int)x); } \
+	INLFUNC Vec(BYTE x){ Set((VALUE)x); } \
+	INLFUNC Vec(short x){ Set((VALUE)x); } \
+	INLFUNC Vec(WORD x){ Set((VALUE)x); } \
+	INLFUNC Vec(int x){ Set((VALUE)x); } \
+	INLFUNC Vec(UINT x){ Set((VALUE)x); } \
+	INLFUNC Vec(ULONGLONG x){ Set((VALUE)x); } \
+	INLFUNC Vec(LONGLONG x){ Set((VALUE)x); } \
+	INLFUNC Vec(float x){ Set((VALUE)x); } \
+	INLFUNC Vec(double x){ Set((VALUE)x); } \
+	template<typename T> \
+	INLFUNC Vec(const Vec<T,LEN>& x){ CopyFrom(x.ptr()); } \
+	INLFUNC t_Val*			ptr() { return _p; } \
+	INLFUNC const t_Val*	ptr() const { return _p; } \
+	INLFUNC t_Val			operator [](UINT i) const { ASSERT(i<LEN); return _p[i]; } \
+	INLFUNC t_Val&			operator [](UINT i){ ASSERT(i<LEN); return _p[i]; } \
+	INLFUNC t_Val			operator [](int i) const { ASSERT(i<LEN); return _p[i]; } \
+	INLFUNC t_Val&			operator [](int i){ ASSERT(i<LEN); return _p[i]; } \
+	INLFUNC void			Set(t_Val x){ ((Vec<t_Val, LEN-1>&)(*this)).Set(x); _p[LEN-1] = x; } \
+	INLFUNC void			CopyTo(t_Val* x) const { ((Vec<t_Val, LEN-1>&)(*this)).CopyTo(x); x[LEN-1] = _p[LEN-1]; } \
+	template<typename T>	\
+	INLFUNC void			CopyFrom(const T* x){ ((Vec<t_Val, LEN-1>&)(*this)).CopyFrom(x); _p[LEN-1] = (VALUE)x[LEN-1]; } \
+	INLFUNC void			Random(){ ((Vec<t_Val, LEN-1>&)(*this)).Random(); _p[LEN-1] = rand()*rt::TypeTraits<t_Val>::UnitVal()/(t_Val)RAND_MAX; } \
+	INLFUNC void			Clamp(t_Val min, t_Val max){ ((Vec<t_Val, LEN-1>&)(*this)).Clamp(min, max); _p[LEN-1] = rt::max(min, rt::min(max, _p[LEN-1])); } \
 	template<int t_start, int t_len> \
 	INLFUNC Vec<t_Val, t_len>& SubVec(){ return *((Vec<t_Val, t_len>*)&_p[t_start]); } \
 	template<int t_start, int t_len> \
@@ -128,6 +140,32 @@ struct Vec
 	INLFUNC t_Val Min(){ return rt::min(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Min()); }
 	INLFUNC t_Val Max(){ return rt::max(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Max()); }
 };
+	template< typename t_Val >
+	struct Vec<t_Val, 0>
+	{
+		INLFUNC void Set(t_Val x){}
+		INLFUNC void CopyTo(t_Val* x) const {}
+		INLFUNC void CopyFrom(const t_Val* x){}
+		INLFUNC t_Val L2NormSqr() const { return 0; }
+		INLFUNC t_Val L2NormSqr(const Vec<t_Val, 0>& x) const { return 0; }
+		INLFUNC t_Val Sum() const { return 0; }
+		INLFUNC void  AvgQuad(const Vec<t_Val, 0>& x1, const Vec<t_Val, 0>& x2, const Vec<t_Val, 0>& x3, const Vec<t_Val, 0>& x4){}
+		INLFUNC t_Val Dot(const Vec<t_Val, 0>& x) const { return 0; }
+		INLFUNC void  Random(){}
+		INLFUNC void Clamp(t_Val min, t_Val max){}
+		INLFUNC void FromString(const rt::String_Ref& x){}
+		INLFUNC void Min(const Vec<t_Val, 0>& x1, const Vec<t_Val, 0>& x2){}
+		INLFUNC void Max(const Vec<t_Val, 0>& x1, const Vec<t_Val, 0>& x2){}
+		template<typename T, typename T2>
+		INLFUNC void  Interpolate(const Vec<T, 0>& x1, const Vec<T2, 0>& x2, float alpha){}
+		template<typename T>
+		INLFUNC void  Interpolate(const Vec<T, 0>& x, const Vec<T, 0>& xx, const Vec<T, 0>& y, const Vec<T, 0>& yy, float alpha_x, float alpha_y){}
+	
+		template<typename T> INLFUNC void operator /= (T x){}
+		template<typename T> INLFUNC void operator *= (T x){}
+		template<typename T> INLFUNC void operator += (T x){}
+		template<typename T> INLFUNC void operator -= (T x){}
+	};
 
 template<typename T, int chan>
 class TypeTraits<Vec<T,chan> >
@@ -139,34 +177,7 @@ public:
 	typedef Vec<typename TypeTraits<T>::t_Unsigned, chan>	t_Unsigned;
 	static const int Typeid		= _typeid_vec;		
 	static const bool IsPOD		= true;				
-	static const bool IsNumeric	= false;
-};														
-
-template< typename t_Val >
-struct Vec<t_Val, 0>
-{
-	INLFUNC void Set(t_Val x){}
-	INLFUNC void CopyTo(t_Val* x) const {}
-	INLFUNC void CopyFrom(const t_Val* x){}
-	INLFUNC t_Val L2NormSqr() const { return 0; }
-	INLFUNC t_Val L2NormSqr(const Vec<t_Val, 0>& x) const { return 0; }
-	INLFUNC t_Val Sum() const { return 0; }
-	INLFUNC void  AvgQuad(const Vec<t_Val, 0>& x1, const Vec<t_Val, 0>& x2, const Vec<t_Val, 0>& x3, const Vec<t_Val, 0>& x4){}
-	INLFUNC t_Val Dot(const Vec<t_Val, 0>& x) const { return 0; }
-	INLFUNC void  Random(){}
-	INLFUNC void Clamp(t_Val min, t_Val max){}
-	INLFUNC void FromString(const rt::String_Ref& x){}
-	INLFUNC void Min(const Vec<t_Val, 0>& x1, const Vec<t_Val, 0>& x2){}
-	INLFUNC void Max(const Vec<t_Val, 0>& x1, const Vec<t_Val, 0>& x2){}
-	template<typename T, typename T2>
-	INLFUNC void  Interpolate(const Vec<T, 0>& x1, const Vec<T2, 0>& x2, float alpha){}
-	template<typename T>
-	INLFUNC void  Interpolate(const Vec<T, 0>& x, const Vec<T, 0>& xx, const Vec<T, 0>& y, const Vec<T, 0>& yy, float alpha_x, float alpha_y){}
-	
-	template<typename T> INLFUNC void operator /= (T x){}
-	template<typename T> INLFUNC void operator *= (T x){}
-	template<typename T> INLFUNC void operator += (T x){}
-	template<typename T> INLFUNC void operator -= (T x){}
+	static const bool IsNumeric	= true;
 };
 
 template< typename t_Val >
@@ -177,7 +188,6 @@ struct Vec<t_Val, 1>
 	{	struct{ t_Val _p[1];	};
 		struct{ t_Val x;		};
 	};
-	INLFUNC Vec(const Vec& q){ x=q.x; }
 	INLFUNC operator t_Val ()const{ return x; }
 
 	template<typename t_Val2>
@@ -210,8 +220,6 @@ struct Vec<t_Val, 2>
 		struct{ t_Val width, height;	};
 		struct{ t_Val real,imag;};	//complex number
 	};
-	template<typename t_Val2>
-	INLFUNC Vec(const Vec<t_Val2, 2>& i){ *this = i; }
 	INLFUNC Vec(t_Val x_theta,t_Val y_phi){ x = x_theta; y = y_phi; }
 
 	template<typename t_Val2>
@@ -248,8 +256,6 @@ struct Vec<t_Val, 3>
 		struct{ t_Val r,g,b; };	//triple color
 		struct{ t_Val h,l,s; };
 	};
-	template<typename t_Val2>
-	INLFUNC Vec(const Vec<t_Val2, 3>& i){ *this = i; }
 	INLFUNC Vec(t_Val x_r,t_Val y_g,t_Val z_b){ x = x_r; y = y_g; z = z_b; }
 
 	template<typename t_Val2>
@@ -323,8 +329,6 @@ struct Vec<t_Val, 4>
 		struct{ t_Val r,g,b,a; }; //quadruple color
 	};
 public:
-	template<typename t_Val2>
-	INLFUNC Vec(const Vec<t_Val2, 4>& i){ *this = i; }
 	INLFUNC Vec(t_Val x_r,t_Val y_g,t_Val z_b,t_Val w_a){ r = x_r; g = y_g; b = z_b; a = w_a;}
 	INLFUNC Vec(t_Val v,t_Val w_a){ r = v; g = v; b = v; a = w_a;}
 
@@ -352,11 +356,48 @@ public:
 	DEF_VEC_FUNC;
 	INLFUNC t_Val Min(){ return rt::min(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Min()); }
 	INLFUNC t_Val Max(){ return rt::max(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Max()); }
-
 };
 
 #undef DEF_VEC_FUNC
 
+////////////////////////////////////////////////////////////
+// small vec expression
+// it is not implemented as template expression as string dose because
+// small vec is a POD. template expression don't produce better preformance neither
+// small memory footprint and sometime even worst when small vec is sized less than 128 bits
+#define DEF_VEC_OPS		DEF_VEC_OP(add,+)	\
+						DEF_VEC_OP(sub,-)	\
+						DEF_VEC_OP(mul,*)	\
+						DEF_VEC_OP(div,/)	\
+
+namespace _details
+{
+template<typename VEC, int INDX = VEC::LEN-1>
+struct VecExp
+{
+#define DEF_VEC_OP(name,op)	static INLFUNC void name(const VEC& a, const VEC& b, VEC& c){ VecExp<VEC,INDX-1>::name(a,b,c); c[INDX] = a[INDX] op b[INDX]; }
+	DEF_VEC_OPS
+#undef DEF_VEC_OP
+};
+	template<typename VEC>
+	struct VecExp<VEC,-1>
+	{
+#define DEF_VEC_OP(name,op)	static INLFUNC void name(const VEC& a, const VEC& b, VEC& c){}
+		DEF_VEC_OPS
+#undef DEF_VEC_OP
+	};
+} // namespace _details
+
+#define DEF_VEC_OP(name, op)	template<typename t_Val, int chan>	\
+								auto operator op (const Vec<t_Val, chan>& a, const Vec<t_Val, chan>& b){ Vec<t_Val, chan> r; _details::VecExp<Vec<t_Val, chan>>::name(a,b,r); return r; } \
+								template<typename t_Val, int chan, typename T>	\
+								auto operator op (const Vec<t_Val, chan>& a, T b){ Vec<t_Val, chan> r; _details::VecExp<Vec<t_Val, chan>>::name(a,b,r); return r; } \
+								template<typename t_Val, int chan>	\
+								auto operator op (t_Val a, const Vec<t_Val, chan>& b){ Vec<t_Val, chan> r; _details::VecExp<Vec<t_Val, chan>>::name(a,b,r); return r; }
+DEF_VEC_OPS
+#undef DEF_VEC_OP
+
+#undef DEF_VEC_OPS
 
 typedef Vec<float, 1> Vec1f;
 typedef Vec<float, 2> Vec2f;
@@ -1337,7 +1378,6 @@ public:
             bb *= (t_Val)(-1.0);
 		    c = -c;
 	    }
-
 
 	    t_Val theta = (t_Val)acos( c );
 	    t_Val sinom = (t_Val)sin( theta );
