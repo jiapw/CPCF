@@ -1,5 +1,6 @@
 #include "../../core/ext/sparsehash/sparsehash.h"
 #include "../../core/ext/rocksdb/rocksdb.h"
+#include "../../core/ext/rocksdb/rocksdb_serving.h"
 #include "../../core/ext/concurrentqueue/async_queue.h"
 #include "../../core/os/kernel.h"
 #include "../../core/ext/exprtk/exprtk.h"
@@ -882,4 +883,24 @@ void rt::UnitTests::async_queue()
 		out += rt::SS(",") + val;
 	}
 	_LOG("DeJittered at Boundary: "<<out.SubStr(1));
+}
+
+
+void rt::UnitTests::rocksdb_serve()
+{
+	ext::RocksDBStandalone	db;
+	db.Open("serv.db");
+
+	for(UINT i=0; i<1000; i++)
+	{
+		db.Set(rt::tos::Number(i), rt::String(rt::SS("value ") + rt::tos::Number(i)));
+	}
+
+	ext::RocksDBServe server;
+	server.RocksMap(&db, "/test", false, inet::TinyHttpd::MIME_STRING_TEXT);
+	server.Start(1230);
+
+	_LOG("RocksServing at http://"<<rt::tos::ip(server.GetBindedAddress()));
+
+	os::Sleep();
 }

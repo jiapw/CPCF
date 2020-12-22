@@ -70,7 +70,8 @@ struct Vec
 	INLFUNC t_Val			operator [](int i) const { ASSERT(i<LEN); return _p[i]; } \
 	INLFUNC t_Val&			operator [](int i){ ASSERT(i<LEN); return _p[i]; } \
 	INLFUNC void			Set(t_Val x){ ((Vec<t_Val, LEN-1>&)(*this)).Set(x); _p[LEN-1] = x; } \
-	INLFUNC void			CopyTo(t_Val* x) const { ((Vec<t_Val, LEN-1>&)(*this)).CopyTo(x); x[LEN-1] = _p[LEN-1]; } \
+	template<typename T>	\
+	INLFUNC void			CopyTo(T* x) const { ((Vec<t_Val, LEN-1>&)(*this)).CopyTo(x); x[LEN-1] = (T)_p[LEN-1]; } \
 	template<typename T>	\
 	INLFUNC void			CopyFrom(const T* x){ ((Vec<t_Val, LEN-1>&)(*this)).CopyFrom(x); _p[LEN-1] = (VALUE)x[LEN-1]; } \
 	INLFUNC void			Random(){ ((Vec<t_Val, LEN-1>&)(*this)).Random(); _p[LEN-1] = rand()*rt::TypeTraits<t_Val>::UnitVal()/(t_Val)RAND_MAX; } \
@@ -144,8 +145,10 @@ struct Vec
 	struct Vec<t_Val, 0>
 	{
 		INLFUNC void Set(t_Val x){}
-		INLFUNC void CopyTo(t_Val* x) const {}
-		INLFUNC void CopyFrom(const t_Val* x){}
+		template<typename T>
+		INLFUNC void CopyTo(T* x) const {}
+		template<typename T>
+		INLFUNC void CopyFrom(const T* x){}
 		INLFUNC t_Val L2NormSqr() const { return 0; }
 		INLFUNC t_Val L2NormSqr(const Vec<t_Val, 0>& x) const { return 0; }
 		INLFUNC t_Val Sum() const { return 0; }

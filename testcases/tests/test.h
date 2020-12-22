@@ -42,6 +42,7 @@ struct UnitTests
 	static void crypto_func();
 	static void rocks_db();
 	static void httpd();
+	static void rocksdb_serve();
 
 	static void botan_hash();
 	static void botan_cipher();

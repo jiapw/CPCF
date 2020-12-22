@@ -21,7 +21,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(smallmath);
+		TYPETRAITS_UNITTEST(rocksdb_serve);
 		return;
 	}
 	else

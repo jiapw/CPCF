@@ -93,7 +93,7 @@ class RocksCursor
 	RocksCursor(const RocksCursor& x) = delete; // RocksCursor can only be constructed by RocksDB
 
 public:
-	INLFUNC RocksCursor(const RocksCursor&& x){ iter = x.iter; }	// move constructor, enable return by RocksDB::First/Last
+	INLFUNC RocksCursor(RocksCursor&& x){ iter = x.iter; x.iter = nullptr; }	// move constructor, enable return by RocksDB::First/Last
 	INLFUNC	~RocksCursor(){ Empty(); }
 	INLFUNC void				operator = (RocksCursor&& x){ _SafeDel_Untracked(iter); iter = x.iter; x.iter = nullptr; }
 	INLFUNC void				operator ++ (){ Next(); }

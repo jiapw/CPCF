@@ -1,39 +1,34 @@
 #include "rocksdb.h"
-#include "../../shared_api/inet/tinyhttpd.h"
+#include "../../inet/tinyhttpd.h"
 
-namespace rocksdb
+
+namespace ext
 {
+class RocksDB;
 
-
-class RocksDBHandler:public inet::HttpHandler<RocksDBHandler>
+class RocksDBServe: public inet::TinyHttpd
 {
-	friend class RocksDBServe;
-	RocksDB			_DB;
-	RocksDBServe*	_Httpd;
+	struct RocksDBHandler:public inet::HttpHandler<RocksDBHandler>
+	{
+		rt::String		Mime;
+		rt::String		L1_Path;
+		RocksDB*		pDB;
+		bool			bBinaryKey;
+		auto			GetKey(inet::HttpResponse& resp, const rt::String_Ref& varname, rt::String& ws) -> rt::String_Ref;
+		void			SendKey(inet::HttpResponse& resp, const rt::String_Ref& key, rt::String& ws);
+		bool			OnRequest(inet::HttpResponse& resp);
+		bool			OnRequestList(inet::HttpResponse& resp, bool no_val);
+		RocksDBHandler(RocksDB* p):pDB(p){}
+	};
 
-protected:
-	bool OnRequest(inet::HttpResponse& resp);
+	ReadOptions						_ReadOpt;
+	WriteOptions					_WriteOpt;
+	rt::BufferEx<RocksDBHandler*>	_Endpoints;
 
 public:
-	~RocksDBHandler(){ Close(); }
-	bool Open(LPCSTR dbpath, bool force_new);
-	void Close();
+	~RocksDBServe();
+	void RocksMap(RocksDB* pDB, const rt::String_Ref& L1_path, bool key_is_binary = false, LPCSTR mime = inet::TinyHttpd::MIME_STRING_JSON);
 };
 
+} // namespace ext
 
-class RocksDBServe
-{
-	friend class RocksDBHandler;
-
-	ReadOptions					_ReadOpt;
-	WriteOptions				_WriteOpt;
-	inet::TinyHttpd				_Httpd;
-	rt::Buffer<RocksDBHandler>	_DBs;
-
-public:
-	bool Start(const rt::String_Ref& dbs, int port, bool force_new = false, bool less_consistent = false);
-	void Stop();
-};
-
-
-} // namespace rocksdb

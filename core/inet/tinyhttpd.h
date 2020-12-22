@@ -77,7 +77,6 @@ class HttpResponse
 protected:
 	bool				_Send(LPCVOID p, int len);
 	SocketTimed			_SocketAccepted;
-	//SOCKET				_Socket;
 	bool				_JSON_Only;
 	rt::BufferEx<BYTE>	_Workspace;
 public:
@@ -93,6 +92,12 @@ public:
 	rt::String_Ref		Body;
 	rt::String_Ref		GetHeaderField(LPCSTR name) const;
 	rt::String_Ref		GetQueryParam(const rt::String_Ref& name);
+	template<typename T>
+	T					GetQueryParam(const rt::String_Ref& name, T defval)
+						{	rt::String_Ref s = GetQueryParam(name);
+							if(!s.IsEmpty())s.ToNumber(defval);
+							return defval;					
+						}
 	rt::String_Ref		GetLnPath(LPCHTTPENDPOINT ep);
 	bool				ParseRequestRange(ULONGLONG total_size, ULONGLONG* offset, UINT* length) const;
 
@@ -189,7 +194,7 @@ protected:
 	bool		m_IsConcurrencyRestricted;
 	
 public:
-	enum
+	enum MimeType
 	{	MIME_BINARY = 0,
 		MIME_BMP,
 		MIME_PNG,
@@ -208,7 +213,7 @@ public:
 		MIME_WAVE,
 		MIME_ZIP,
 		MIME_XML,
-		MIME_XAP
+		MIME_JSON
 	};
 
 	static const LPCSTR MIME_STRING_BINARY;
@@ -229,7 +234,7 @@ public:
 	static const LPCSTR MIME_STRING_WAVE;
 	static const LPCSTR MIME_STRING_ZIP;
 	static const LPCSTR MIME_STRING_XML;
-	static const LPCSTR MIME_STRING_XAP;
+	static const LPCSTR MIME_STRING_JSON;
 
 	static const LPCSTR	_MIMEs[19];
 	static LPCSTR		_Ext2MIME(LPCSTR ext, int len);
@@ -269,13 +274,13 @@ protected:
 public:
 	TinyHttpd(void);
 	~TinyHttpd(void);
+	bool			Start(int port, int concurrency = 0);	// bind to all local addresses
+	bool			Start(const InetAddr& bind, int concurrency = 0){ return Start(&bind, 1, concurrency); }
+	bool			Start(const InetAddr* pBindAddress, int address_count, int concurrency = 0);
 	void			ReplaceEndpoint(LPHTTPENDPOINT ep);
 	bool			AddEndpoint(LPHTTPENDPOINT ep);			// httpd will NOT manage the lifecycle of eps
 	bool			SetEndpoints(LPHTTPENDPOINT* ep, UINT count); // httpd will NOT manage the lifecycle of eps
-	bool			Start(int port, int concurrency = 0);	// bind to all local addresses
 	void			SetConcurrencyRestricted(bool restricted = true);
-	bool			Start(const InetAddr& bind, int concurrency = 0){ return Start(&bind, 1, concurrency); }
-	bool			Start(const InetAddr* pBindAddress, int address_count, int concurrency = 0);
 	bool			IsRunning() const { return m_Listeners.GetSize(); }
 	void			Stop();
 	void			SetHangingTimeout(UINT msec = 10000){ m_IOHangTimeout = msec; }

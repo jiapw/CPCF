@@ -32,7 +32,7 @@ const LPCSTR TinyHttpd::_MIMEs[19] =
 	("audio/x-wav"),					//15
 	("application/zip"),				//16
 	("text/xml"),						//17
-	("application/x-silverlight-app")	//18
+	("application/json")				//18
 };
 
 const LPCSTR TinyHttpd::MIME_STRING_BINARY =	TinyHttpd::_MIMEs[MIME_BINARY];
@@ -53,7 +53,7 @@ const LPCSTR TinyHttpd::MIME_STRING_VRML =		TinyHttpd::_MIMEs[MIME_VRML];
 const LPCSTR TinyHttpd::MIME_STRING_WAVE =		TinyHttpd::_MIMEs[MIME_WAVE];
 const LPCSTR TinyHttpd::MIME_STRING_ZIP =		TinyHttpd::_MIMEs[MIME_ZIP];
 const LPCSTR TinyHttpd::MIME_STRING_XML =		TinyHttpd::_MIMEs[MIME_XML];
-const LPCSTR TinyHttpd::MIME_STRING_XAP =		TinyHttpd::_MIMEs[MIME_XAP];
+const LPCSTR TinyHttpd::MIME_STRING_JSON =		TinyHttpd::_MIMEs[MIME_JSON];
 
 
 }
