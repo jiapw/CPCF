@@ -406,6 +406,11 @@ public:
 			if(_SC::_p[i] < '0' || _SC::_p[i] > '9')return false;
 		return true;
 	}
+	FORCEINL bool HasOnlyCharacters(const CharacterSet& set) const
+	{	for(SIZE_T i=0;i<GetLength();i++)
+			if(!set.Has(_SC::_p[i]))return false;
+		return true;
+	}
 	FORCEINL void ReplaceIllegalFilenameCharacters(CHAR with = '_') // illegal character for Windows Filename
 	{	static const CharacterSet illegal(t_String_Ref("\\/:*?\"><|", 9));
 		for(SIZE_T i=0;i<GetLength();i++)
