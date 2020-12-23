@@ -793,10 +793,10 @@ public:
 };
 } // namespace _details
 
-template<UINT BIT_SIZE = 0>
-class BooleanArray: public _details::BooleanArrayStg<BIT_SIZE>
+template<UINT bit_size = 0>
+class BooleanArray: public _details::BooleanArrayStg<bit_size>
 {
-	typedef _details::BooleanArrayStg<BIT_SIZE>	_SC;
+	typedef _details::BooleanArrayStg<bit_size>	_SC;
     typedef typename _SC::RT_BLOCK_TYPE RT_BLOCK_TYPE;
 	static const UINT RT_BLOCK_SIZE = _SC::RT_BLOCK_SIZE;
 	
@@ -805,21 +805,30 @@ protected:
 public:
 	class Index
 	{	friend class BooleanArray;
-		UINT		BlockOffset;
+		UINT			BlockOffset;
 		RT_BLOCK_TYPE	Bitmask;
 	public:
 		Index(UINT idx)
 		{	BlockOffset = idx/RT_BLOCK_SIZE;
 			Bitmask = BooleanArray::_BlockBitmask(idx);
 		}
+		void operator ++(int)
+		{	if(Bitmask == (1<<(RT_BLOCK_SIZE-1)))
+			{	Bitmask = 1;
+				BlockOffset++;
+			}
+			else Bitmask <<= 1;
+		}
 	};
 
 	bool	Get(const Index& idx) const { return _SC::_Bits[idx.BlockOffset]&idx.Bitmask; }
-	void	Set(const Index& idx, bool v = true)
-			{	if(v)
+	bool	Set(const Index& idx, bool v = true)
+			{	bool org = !!(_SC::_Bits[idx.BlockOffset]&idx.Bitmask);
+				if(v)
 					_SC::_Bits[idx.BlockOffset] |= idx.Bitmask;
 				else
 					_SC::_Bits[idx.BlockOffset] &= ~idx.Bitmask;
+				return org;
 			}
 	bool	AtomicSet(const Index& idx) // return the bit value before atomic set
 			{

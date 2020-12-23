@@ -19,10 +19,10 @@ struct zero_bits
 	INLFUNC zero_bits(){ rt::Zero(bits); }
 };
 
-template<int _LEN>
+template<int _LEN, unsigned int minus = 0>
 struct void_bits
 {	BYTE	bits[_LEN];
-	INLFUNC void_bits(){ rt::Void(bits); }
+	INLFUNC void_bits(){ rt::Void(bits); bits[0] -= minus; }
 };
 
 } // namespace _details
@@ -42,8 +42,8 @@ struct key_traits;
 	};
 	template<typename T>
 	struct key_traits<T, true>
-	{	static const T& empty_key(){ static const _details::zero_bits<sizeof(T)> x; return (const T&)x; }
-		static const T& deleted_key(){ static const _details::void_bits<sizeof(T)> x; return (const T&)x; }
+	{	static const T& empty_key(){ static const _details::void_bits<sizeof(T), 1> x; return (const T&)x; }
+		static const T& deleted_key(){ static const _details::void_bits<sizeof(T), 2> x; return (const T&)x; }
 	};
 	template<>
 	struct key_traits<rt::String_Ref>
