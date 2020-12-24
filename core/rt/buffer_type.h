@@ -534,7 +534,7 @@ public:
 		SIZE_T sz = _SC::GetSize();
 		return ChangeSize(sz + count)?&_SC::_p[sz]:nullptr;
 	}
-	INLFUNC bool push_back_n(SIZE_T count, const t_Val&& v)
+	INLFUNC bool push_back_n(SIZE_T count, const t_Val& v)
 	{
 		SIZE_T sz = _SC::GetSize();
 		if(ChangeSize(sz + count)){ for(SIZE_T i=0; i<count; i++) _SC::_p[i+sz] = v; return true; }
@@ -617,25 +617,30 @@ public:
 		}
 		return _SC::_p[index];
 	}
-	INLFUNC bool insert(SIZE_T index,SIZE_T count)
+	INLFUNC void insert(SIZE_T index, const t_Val& x)
+	{	VERIFY(_add_entry());
+		if(index<_SC::_len-1)	
+		{	memmove(&_SC::_p[index+1],&_SC::_p[index],(_SC::_len-index-1)*sizeof(t_Val));
+			_SC::_xt::ctor(&_SC::_p[index]);
+		}
+		_SC::_p[index] = x;
+	}
+	INLFUNC t_Val* insert_n(SIZE_T index, SIZE_T count)
 	{
 		if(reserve(_SC::GetSize() + count))
 		{	memmove(&_SC::_p[index+count], &_SC::_p[index], (_SC::GetSize() - index)*sizeof(t_Val));
 			for(SIZE_T i = index;i<index+count;i++)_SC::_xt::ctor(&_SC::_p[i]);
 			_SC::_len += count;
-			return true;
+			return &_SC::_p[index];
 		}	
-		return false;
+		return nullptr;
 	}
-	INLFUNC bool insert(SIZE_T index,SIZE_T count,const t_Val& x)
+	INLFUNC void insert_n(SIZE_T index, SIZE_T count, const t_Val& x)
 	{
-		if(reserve(_SC::GetSize() + count))
-		{	memmove(&_SC::_p[index+count], &_SC::_p[index], (_SC::GetSize() - index)*sizeof(t_Val));
-			for(SIZE_T i = index;i<index+count;i++)_SC::_xt::ctor(&_SC::_p[i], x);
-			_SC::_len += count;
-			return true;
-		}	
-		return false;
+		VERIFY(reserve(_SC::GetSize() + count));
+		memmove(&_SC::_p[index+count], &_SC::_p[index], (_SC::GetSize() - index)*sizeof(t_Val));
+		for(SIZE_T i = index;i<index+count;i++)_SC::_xt::ctor(&_SC::_p[i], x);
+		_SC::_len += count;
 	}
 	INLFUNC SSIZE_T SortedPush(const t_Val& x)
 	{

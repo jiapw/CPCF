@@ -866,10 +866,10 @@ FORCEINL T MaxPower2Within(T within)
 }
 
 template<typename T>
-FORCEINL T* _CastToNonconst(const T * p)
-{
-	return (T*)((size_t)p);
-}
+FORCEINL T* _CastToNonconst(const T * p){ return (T*)((size_t)p); }
+
+template<typename T>
+FORCEINL T& _CastToNonconst(const T& x){ return *(T*)&x; }
 
 template<typename T>
 FORCEINL T* _RelocatePointer(LPCVOID new_base, LPCVOID old_base, T* old_p)
