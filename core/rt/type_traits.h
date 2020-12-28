@@ -265,7 +265,7 @@ public:
 	typedef void t_Signed;
 	typedef void t_Unsigned;
 	static const int Typeid = _typeid_void ;
-	static const bool IsPOD = false ;
+	static const bool IsPOD = true ;
 	static const bool IsNumeric = false ;
 };
     
