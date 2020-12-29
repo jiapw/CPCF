@@ -866,7 +866,7 @@ public:
 				}
 				RT_BLOCK_TYPE bits = _SC::_Bits[i];
 				if(bits)
-				{	for(UINT b=0; b<(BIT_SIZE%RT_BLOCK_SIZE); b++)
+				{	for(UINT b=0; b<(bit_size%RT_BLOCK_SIZE); b++)
 					{	if(bits&(1ULL<<b))
 						{	cb(i*RT_BLOCK_SIZE + b);
 							hit++;
@@ -908,7 +908,7 @@ public:
 			}
 	void	Shift(int s){ if(s>0){LeftShift((UINT)s);}else{{RightShift((UINT)-s);}} }
 	void	LeftShift(UINT s)
-			{	if(s == 0)return;					if(s > BIT_SIZE){ ResetAll(); return; }
+			{	if(s == 0)return;					if(s > bit_size){ ResetAll(); return; }
 				UINT offset = s/RT_BLOCK_SIZE;			s = s%RT_BLOCK_SIZE;
 				UINT i = _SC::RT_BLOCK_COUNT - 1;
 				for (; 0 < i - offset; i--)
@@ -918,7 +918,7 @@ public:
 				_SC::_ClearTrailingBits();
 			}
 	void	RightShift(UINT s)
-			{	if(s == 0)return;					if(s > BIT_SIZE){ ResetAll(); return; }
+			{	if(s == 0)return;					if(s > bit_size){ ResetAll(); return; }
 				UINT offset = s/RT_BLOCK_SIZE;	s = s%RT_BLOCK_SIZE;
 				UINT i = 0;
 				for (; i + offset < _SC::RT_BLOCK_COUNT - 1; i++)
