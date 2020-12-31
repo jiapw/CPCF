@@ -774,7 +774,7 @@ protected:
 	static const UINT	RT_BLOCK_COUNT = (BIT_SIZE + RT_BLOCK_SIZE - 1)/RT_BLOCK_SIZE;
 
 	RT_BLOCK_TYPE			_Bits[RT_BLOCK_COUNT];
-	void				_ClearTrailingBits(){ Trailing<(bit_size%RT_BLOCK_SIZE)!=0>::Clear(*this); }
+	void					_ClearTrailingBits(){ Trailing<(bit_size%RT_BLOCK_SIZE)!=0>::Clear(*this); }
 };
 template<>
 class BooleanArrayStg<0>
@@ -786,7 +786,7 @@ protected:
 	UINT					RT_BLOCK_COUNT;
 
 	rt::BufferEx<RT_BLOCK_TYPE>_Bits;
-	void					_ClearTrailingBits(){ _Bits[RT_BLOCK_COUNT - 1] &= (~(RT_BLOCK_TYPE)0)>>(RT_BLOCK_SIZE - (BIT_SIZE%RT_BLOCK_SIZE)); }
+	void					_ClearTrailingBits(){ if(RT_BLOCK_COUNT)_Bits[RT_BLOCK_COUNT - 1] &= (~(RT_BLOCK_TYPE)0)>>(RT_BLOCK_SIZE - (BIT_SIZE%RT_BLOCK_SIZE)); }
 public:
 	void	SetBitSize(UINT bit_size, bool keep_existing_data = true)
 			{	
