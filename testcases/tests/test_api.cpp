@@ -1206,7 +1206,7 @@ void rt::UnitTests::buffer()
 	buf.erase(1,3);
 	_LOG("erase: "<<buf);
 
-	buf.insert(1,3,100);
+	buf.insert_n(1,3,100);
 	_LOG("insert: "<<buf);
 	buf.insert(1) = 200;
 	_LOG("insert: "<<buf);

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6331BD4C25A011E90071B3C1 /* rocksdb_serving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */; };
 		9339FFC4175C8D6E005A3FA2 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9339FFC3175C8D6E005A3FA2 /* AppKit.framework */; };
 		93C4A233169FEC7A00D3C820 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93C4A232169FEC7A00D3C820 /* main.cpp */; };
 		93C4A235169FEC7A00D3C820 /* tester.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 93C4A234169FEC7A00D3C820 /* tester.1 */; };
@@ -73,6 +74,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6331BD4A25A011E90071B3C1 /* rocksdb_serving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rocksdb_serving.h; path = ../../../core/ext/rocksdb/rocksdb_serving.h; sourceTree = "<group>"; };
+		6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rocksdb_serving.cpp; path = ../../../core/ext/rocksdb/rocksdb_serving.cpp; sourceTree = "<group>"; };
 		9339FFC3175C8D6E005A3FA2 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		93C4A22E169FEC7A00D3C820 /* tester */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tester; sourceTree = BUILT_PRODUCTS_DIR; };
 		93C4A232169FEC7A00D3C820 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -324,6 +327,8 @@
 		93C4A267169FF40D00D3C820 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */,
+				6331BD4A25A011E90071B3C1 /* rocksdb_serving.h */,
 				946C4500243E881D009D8581 /* rocksdb.cpp */,
 				946C44FF243E881D009D8581 /* rocksdb.h */,
 				941D3E98213073E000F97118 /* botan.cpp */,
@@ -412,6 +417,7 @@
 				95C9EC98232A3DB2002A4B91 /* ipp_image.cpp in Sources */,
 				95C9EC94232A3D5D002A4B91 /* json.cpp in Sources */,
 				941D3E482130737100F97118 /* inet.cpp in Sources */,
+				6331BD4C25A011E90071B3C1 /* rocksdb_serving.cpp in Sources */,
 				941D3E9D2130779000F97118 /* exprtk.cpp in Sources */,
 				941D3E492130737100F97118 /* http_client.cpp in Sources */,
 				941D3E5E2130738800F97118 /* file_zip.cpp in Sources */,
