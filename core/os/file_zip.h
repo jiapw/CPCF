@@ -48,7 +48,7 @@ class FileZip
 	struct z_stream_ptr;
 	rt::Buffer<BYTE>	_FileDataTemp;
 public:
-#pragma pack(1)
+#pragma pack(push, 1)
 	struct LocalFileHeader
 	{
 		static const int header_magic = 0x04034b50;
@@ -119,7 +119,7 @@ public:
 		CHAR	m_ZipComment[1];
 	};
 
-#pragma pack()
+#pragma pack(pop)
 
 protected:
 	os::File					_BaseFile;
@@ -309,7 +309,7 @@ protected:
 		GZF_FCOMMENT=	0x10,
 	};
 
-#pragma pack(1)
+#pragma pack(push, 1)
 	struct gz_header
 	{
 		WORD	magic;				// 0x8b1f
@@ -326,7 +326,7 @@ protected:
 	{	DWORD	crc32;
 		UINT	length;
 	};
-#pragma pack()
+#pragma pack(pop)
 
 	rt::String	m_Filename;
 	UINT		m_ArchiveOffset;

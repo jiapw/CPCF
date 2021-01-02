@@ -377,7 +377,7 @@ public:
 		}
 	}
 	INLFUNC t_Val* Detach(){ auto* p = _SC::_p; _SC::_p = nullptr; _SC::_len = 0; return p; }
-	INLFUNC auto Remove(const t_Val&& v)
+	INLFUNC auto Remove(const t_Val& v)
 	{	UINT open = 0;
 		for(UINT i=0; i<_SC::_len; i++)
 			if(!(_SC::_p[i] == v))
@@ -391,7 +391,6 @@ public:
 		_SC::_len = open;
 		return ret;
 	}
-
 };
 
 template<typename t_Val>

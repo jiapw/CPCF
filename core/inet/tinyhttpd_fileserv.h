@@ -7,7 +7,7 @@ namespace inet
 class HttpServerFiles:public HttpHandler<HttpServerFiles>
 {
 public:
-#pragma pack(1)
+#pragma pack(push, 1)
 	struct _FileData
 	{
 		rt::String_Ref	uri;
@@ -17,7 +17,7 @@ public:
 		LPCBYTE			GetPayload() const { return data + uri.GetLength() + 1; }
 		int				GetPayloadSize() const { return datasize - (int)uri.GetLength() - 1; }
 	};
-#pragma pack()
+#pragma pack(pop)
 
 protected:
 	//typedef rt::hash_map<rt::String_Ref,_FileData*,rt::String_Ref::hash_compare>	t_NameSpace;
