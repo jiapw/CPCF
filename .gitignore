@@ -95,3 +95,6 @@ testcases/proj.mac/tester.xcodeproj/xcshareddata/xcschemes/tester.xcscheme
 *.csv
 
 *.zip
+
+testcases/proj.mac/Build/
+testcases/proj.mac/Index/
