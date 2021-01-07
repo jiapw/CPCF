@@ -306,7 +306,7 @@ struct _compare
 {	template<typename T> static auto 
 	INLFUNC with(const T& x, const T& y) -> decltype(x.compare_with(y)) { return x.compare_with(y); }
 	template<typename T, typename ... ARGS> static auto 
-	INLFUNC with(const T& x, const T& y, ARGS ...args) -> decltype((x < y && x == y)*1) 
+	INLFUNC with(const T& x, const T& y, ARGS&& ...args) -> decltype((x < y && x == y)*1) 
 			{	if(x<y)return -1;
 				if(y<x)return +1;
 				return 0;
@@ -314,7 +314,7 @@ struct _compare
 	template<typename T> static auto 
 	INLFUNC equal(const T& x, const T& y) -> decltype(_pod_equal<sizeof(T), rt::TypeTraits<T>::IsPOD>::is((LPCBYTE)&x, (LPCBYTE)&y)) { return _pod_equal<sizeof(T), rt::TypeTraits<T>::IsPOD>::is((LPCBYTE)&x, (LPCBYTE)&y); }
 	template<typename T, typename ... ARGS> static auto 
-	INLFUNC equal(const T& x, const T& y, ARGS ...args) -> decltype(x == y) { return x == y; }
+	INLFUNC equal(const T& x, const T& y, ARGS&& ...args) -> decltype(x == y) { return x == y; }
 };
 } // namespace _details
 
