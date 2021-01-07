@@ -5,8 +5,13 @@
 #if defined(PLATFORM_WIN)
 	#ifdef PLATFORM_64BIT
 		#include "./platforms/win_x64/botan_all.cpp"
+		#include "./platforms/win_x64/botan_all_aesni.cpp"
+		#include "./platforms/win_x64/botan_all_ssse3.cpp"
 	#else
 		#include "./platforms/win_x86/botan_all.cpp"
+		#include "./platforms/win_x86/botan_all_aesni.cpp"
+		#include "./platforms/win_x86/botan_all_sse2.cpp"
+		#include "./platforms/win_x86/botan_all_ssse3.cpp"
 	#endif
 #elif defined(PLATFORM_ANDROID)
 	#if defined (__mips__)
