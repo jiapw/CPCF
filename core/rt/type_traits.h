@@ -526,6 +526,7 @@ struct _GetDataSize
 
 	template<typename T> auto _Size(T* x) -> decltype(x->Size()) { _s = x->Size(); return 0; }
 	template<typename T> auto _Size(T* x) -> decltype(x->GetSize()) { _s = x->GetSize(); return 0; }
+	template<typename T> auto _Size(T* x) -> decltype(x->GetEmbeddedSize()) { _s = x->GetEmbeddedSize(); return 0; }
 	template<typename T> auto _Size(T* x) -> decltype(x->size()) { _s = x->size(); return 0; }
 	template<typename T> auto _Size(T* x) -> decltype(x->GetLength()) { _s = x->GetLength(); return 0; }
 				__PodRequired _Size(...){ _s /= _s_ele; return __PodRequired(); }
