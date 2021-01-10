@@ -518,20 +518,26 @@ struct _GetDataPtr
 	template<typename T>	  _GetDataPtr(T& x){ _p = (LPVOID)&x; }
 };
 
+template<typename T, bool pod = rt::TypeTraits<T>::IsPOD>
 struct _GetDataSize
-{	SIZE_T	_s;
-	SIZE_T	_s_ele;
-	template<typename T> auto _SizeEle(T* x) -> decltype(sizeof((*x)[0])) { _s_ele = sizeof((*x)[0]); return 0; }
-						 void _SizeEle(...){ _s_ele = 1; }
-
-	template<typename T> auto _Size(T* x) -> decltype(x->Size()) { _s = x->Size(); return 0; }
-	template<typename T> auto _Size(T* x) -> decltype(x->GetSize()) { _s = x->GetSize(); return 0; }
-	template<typename T> auto _Size(T* x) -> decltype(x->GetEmbeddedSize()) { _s = x->GetEmbeddedSize(); return 0; }
-	template<typename T> auto _Size(T* x) -> decltype(x->size()) { _s = x->size(); return 0; }
-	template<typename T> auto _Size(T* x) -> decltype(x->GetLength()) { _s = x->GetLength(); return 0; }
-				__PodRequired _Size(...){ _s /= _s_ele; return __PodRequired(); }
-	template<typename T>	  _GetDataSize(T& x){ _s = sizeof(x); }
+{	template<typename ELE>
+	static SIZE_T _TotalSize(SIZE_T count, const ELE* ele)
+	{	static_assert(rt::TypeTraits<ELE>::IsPOD, "Element must be a POD type");
+		return count*sizeof(ELE);
+	}
+	// containers
+	template<typename T> static auto _Size(const T& x) -> decltype(x.Size()) { return _TotalSize(x.Size(), x.Begin()); }
+	template<typename T> static auto _Size(const T& x) -> decltype(x.GetSize()) { return _TotalSize(x.GetSize(), x.Begin()); }
+	template<typename T> static auto _Size(const T& x) -> decltype(x.size()) { return _TotalSize(x.size(), x.begin()); }
+	template<typename T> static auto _Size(const T& x) -> decltype(x.GetLength()) { return _TotalSize(x.GetLength(), x.Begin()); }
+	// non-containers
+	template<typename T> static auto _Size(const T& x) -> decltype(x.GetEmbeddedSize()) { return x.GetEmbeddedSize(); }
 };
+template<typename T>
+struct _GetDataSize<T, true>
+{	static SIZE_T _Size(const T& x){ return sizeof(x); }
+};
+
 } // namespace _details
 
 
@@ -556,11 +562,7 @@ INLFUNC LPVOID GetDataPtr(T& x)
 
 template<typename T>
 INLFUNC SIZE_T GetDataSize(T& x)
-{	_details::_GetDataSize s(x);
-	s._SizeEle(&x);
-	auto r = s._Size(&x);
-	_details::_PodAssert<decltype(r), T> _a;	_a = _a;
-	return s._s * s._s_ele;
+{	return _details::_GetDataSize<T>::_Size(x);
 }
 
 ////////////////////////////////////////////////////////
