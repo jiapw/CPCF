@@ -248,13 +248,6 @@
     <ClInclude Include="..\..\core\rt\xml_xhtml.h" />
     <ClInclude Include="..\tests\test.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\tests\web_assets\index.css" />
-    <None Include="..\tests\web_assets\index.htm">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="..\tests\web_assets\index.js" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
