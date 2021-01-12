@@ -527,7 +527,7 @@ struct _GetDataSize
 	// containers
 	template<typename ARG> static auto _Size(const ARG& x) -> decltype(x.Size()) { return _TotalSize(x.Size(), x.Begin()); }
 	template<typename ARG> static auto _Size(const ARG& x) -> decltype(x.GetSize()) { return _TotalSize(x.GetSize(), x.Begin()); }
-	template<typename ARG> static auto _Size(const ARG& x) -> decltype(x.size()) { return _TotalSize(x.size(), x.begin()); }
+	template<typename ARG> static auto _Size(const ARG& x) -> decltype(x.size()) { return _TotalSize(x.size(), x.c_str()); }
 	template<typename ARG> static auto _Size(const ARG& x) -> decltype(x.GetLength()) { return _TotalSize(x.GetLength(), x.Begin()); }
 	// non-containers
 	template<typename ARG> static auto _Size(const ARG& x) -> decltype(x.GetEmbeddedSize()) { return x.GetEmbeddedSize(); }
