@@ -21,7 +21,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(rocksdb_serve);
+		TYPETRAITS_UNITTEST(http_client);
 		return;
 	}
 	else

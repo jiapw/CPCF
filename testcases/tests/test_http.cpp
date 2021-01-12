@@ -86,8 +86,8 @@ void rt::UnitTests::http_client()
 		//http.Request_Get("http://www.wallcoo.net/anime/illustration_CG_Girls_Collection_Artbook/index.html");
 		//http.SetResponseTimeout(5000);
 
-		//LPCSTR url = "https://www.google.de";
-		LPCSTR url = "https://itunes.apple.com/us/app/facebook/id284882215?mt=8";
+		LPCSTR url = "https://www.google.de";
+		//LPCSTR url = "https://itunes.apple.com/us/app/facebook/id284882215?mt=8";
 		//LPCSTR url = "http://www.flash-screen.com/free-wallpaper/fractal-wallpapers/sea-shells-wallpaper,1920x1080,24487.jpg";
 
 		if(	http.Request_Get(url) &&
