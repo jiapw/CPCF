@@ -370,6 +370,27 @@ public:
 			if(_SC::_p[i] >='A' && _SC::_p[i] <='Z') _SC::_p[i] += ('a' - 'A');
 		return *this;
 	}
+	FORCEINL int CaseInsensitiveCompare(const t_String_Ref& in) const
+	{	SIZE_T len = rt::min(GetLength(), in.GetLength());
+		for(UINT i=0; i<len; i++)
+		{	int x = _SC::_p[i];		if(x>='A' && x<='Z')x+=('a' - 'A');
+			int y = in[i];			if(y>='A' && y<='Z')y+=('a' - 'A');
+			if(x<y)return -1;
+			if(x>y)return 1;
+		}
+		if(in.GetLength() > len)return -1;
+		if(GetLength() > len)return 1;
+		return 0;
+	}
+	FORCEINL bool CaseInsensitiveEqual(const t_String_Ref& in) const
+	{	if(GetLength() != in.GetLength())return false;
+		for(UINT i=0; i<GetLength(); i++)
+		{	int x = _SC::_p[i];		if(x>='A' && x<='Z')x+=('a' - 'A');
+			int y = in[i];			if(y>='A' && y<='Z')y+=('a' - 'A');
+			if(x != y)return false;
+		}
+		return true;
+	}
 	FORCEINL SSIZE_T FindCharacter(char ch, SIZE_T start_offset = 0) const
 	{	for(;start_offset<GetLength();start_offset++)
 			if(_SC::_p[start_offset] == ch)return start_offset;
@@ -441,12 +462,11 @@ public:
 		return *this;
 	}
 	FORCEINL bool	operator == (const char* in) const { return *this == t_String_Ref(in); }
-	FORCEINL bool	operator == (const t_String_Ref & in) const
+	FORCEINL bool	operator == (const t_String_Ref& in) const
 	{	if(_SC::IsEmpty() && in.IsEmpty())return true;
 		return GetLength() == in.GetLength() && (memcmp(_SC::_p,in.Begin(),GetLength()*sizeof(char))==0);
 	}
-	template< class StrT >
-	FORCEINL bool	operator != (const StrT & in) const { return !(*this == in); }
+	FORCEINL bool	operator != (const t_String_Ref& in) const { return !(*this == in); }
 	FORCEINL t_String_Ref Replace(const t_String_Ref& a, const t_String_Ref& b) // replace all a with b in the current string. a and b should have the same length
 	{	SIZE_T len = a.GetLength();
 		ASSERT(len == b.GetLength());

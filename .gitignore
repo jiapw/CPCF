@@ -99,3 +99,5 @@ testcases/proj.mac/tester.xcodeproj/xcshareddata/xcschemes/tester.xcscheme
 testcases/proj.mac/Build/
 testcases/proj.mac/Index/
 /.vs
+
+core/ext/botan/amalgamation_build/
