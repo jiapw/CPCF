@@ -36,13 +36,8 @@
 #elif defined(PLATFORM_LINUX)	
 	#ifdef PLATFORM_64BIT
 		#include "./platforms/linux_x64/botan_all.cpp"
-		#include "./platforms/linux_x64/botan_all_aesni.cpp"
-		#include "./platforms/linux_x64/botan_all_ssse3.cpp"
 	#else
 		#include "./platforms/linux_x86/botan_all.cpp"
-		#include "./platforms/linux_x86/botan_all_aesni.cpp"
-		#include "./platforms/linux_x86/botan_all_sse2.cpp"
-		#include "./platforms/linux_x86/botan_all_ssse3.cpp"
 	#endif
 #else
 	#error unknown platform

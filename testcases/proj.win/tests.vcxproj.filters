@@ -8,9 +8,6 @@
     <Filter Include="Win">
       <UniqueIdentifier>{d6fbf6e1-6fa8-4eaf-b5e8-2cf070c330ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers">
-      <UniqueIdentifier>{34b5bcc8-c55a-4496-9084-7f966e6f6fd6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{e3ce8e68-6034-4f20-80de-b624b37d9031}</UniqueIdentifier>
     </Filter>
@@ -155,16 +152,5 @@
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb_serving.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\tests\web_assets\index.css">
-      <Filter>Headers</Filter>
-    </None>
-    <None Include="..\tests\web_assets\index.htm">
-      <Filter>Headers</Filter>
-    </None>
-    <None Include="..\tests\web_assets\index.js">
-      <Filter>Headers</Filter>
-    </None>
   </ItemGroup>
 </Project>
