@@ -21,11 +21,8 @@
 #elif defined(PLATFORM_MAC)
 	#ifdef PLATFORM_64BIT
         #include "./platforms/mac_x64/botan_all.cpp"
-        #include "./platforms/mac_x64/botan_all_ssse3.cpp"
 	#else
         #include "./platforms/mac_x86/botan_all.cpp"
-        #include "./platforms/mac_x86/botan_all_sse2.cpp"
-        #include "./platforms/mac_x86/botan_all_ssse3.cpp"
     #endif
 #elif defined(PLATFORM_IOS)
     #ifdef PLATFORM_64BIT
