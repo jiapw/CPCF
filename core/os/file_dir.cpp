@@ -426,7 +426,7 @@ bool os::File::Remove(LPCSTR fn, bool secure)
 		{
 			SIZE_T len = file.GetLength();
 			rt::Buffer<BYTE> a;
-			a.SetSize(rt::min(len, 1024ULL*64));
+			a.SetSize(rt::min((unsigned long long int)len, 1024ULL*64));
 			a.Zero();
 			file.SeekToBegin();
 			for(SIZE_T off = 0; off < file.GetLength(); off += a.GetSize())
