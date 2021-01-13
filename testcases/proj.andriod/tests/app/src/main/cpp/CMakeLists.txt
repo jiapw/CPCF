@@ -32,8 +32,9 @@ add_library( # Sets the name of the library.
              ../../../../../../../core/ext/botan/botan.cpp
              ../../../../../../../core/ext/exprtk/exprtk.cpp
              ../../../../../../../core/ext/rocksdb/rocksdb.cpp
+             ../../../../../../../core/ext/rocksdb/rocksdb_serving.cpp
              #../../../../../../../core/ext/exprtk/exprtk.cpp
-             #../../../../../../../core/inet/inet.cpp
+             ../../../../../../../core/inet/tinyhttpd.cpp
 
         )
 
