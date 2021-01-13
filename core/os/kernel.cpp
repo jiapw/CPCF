@@ -99,6 +99,8 @@ void assert_failed(LPCSTR msg, LPCSTR file, UINT line, LPCSTR func)
 		_wassert(os::__UTF16(msg), os::__UTF16(rt::String_Ref(func) + " @ " + file), line);
 #elif	defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 		__assert_rtn(func, file, line, msg);
+#elif   defined(PLATFORM_ANDRIOD)
+		__assert2(file, line, func, msg);
 #else
 		__assert_fail(msg, file, line, func);
 #endif
