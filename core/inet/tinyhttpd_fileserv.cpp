@@ -25,7 +25,7 @@ LPBYTE HttpServerFiles::_AddFile(const rt::String_Ref& path, UINT datalen, LPCST
 				_NameSpace.erase(it);
 			}
 		}
-		_NameSpace.insert(std::pair<rt::String_Ref,_FileData*>(p->uri, p));
+		_NameSpace[p->uri] = p;
 
 		rt::Zero(p->data + pathlen + 1,datalen);
 		return p->data + pathlen + 1;

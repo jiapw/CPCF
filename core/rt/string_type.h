@@ -1673,3 +1673,13 @@ public:
 
 } // namespace rt
 
+namespace std
+{
+
+template<>
+struct hash<::rt::String_Ref>: public ::rt::String_Ref::hash_compare {};
+
+template<>
+struct hash<::rt::String>: public ::rt::String::hash_compare {};
+
+} // namespace std

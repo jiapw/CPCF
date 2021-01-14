@@ -20,8 +20,7 @@ public:
 #pragma pack(pop)
 
 protected:
-	//typedef rt::hash_map<rt::String_Ref,_FileData*,rt::String_Ref::hash_compare>	t_NameSpace;
-	typedef std::map<rt::String_Ref,_FileData*>	t_NameSpace;
+	typedef rt::hash_map<rt::String_Ref,_FileData*>	t_NameSpace;
 	t_NameSpace						_NameSpace;
 	FUNC_WebAssetsConvertion		_HttpDataConv;
 	LPBYTE	_AddFile(const rt::String_Ref& path, UINT datalen, LPCSTR mime);

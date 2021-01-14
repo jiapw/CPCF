@@ -268,7 +268,7 @@ public:
 		UINT				_RecvBufUsedExpected;
 	};
 protected:
-	typedef rt::hash_map<rt::String_Ref,HttpEndpoint*,rt::String_Ref::hash_compare> t_EndPoints;
+	typedef rt::hash_map<rt::String_Ref,HttpEndpoint*> t_EndPoints;
 	os::ThreadSafeMutable<t_EndPoints> _EndPoints;
 
 public:

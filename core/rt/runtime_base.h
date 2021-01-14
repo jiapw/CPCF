@@ -756,6 +756,12 @@ struct PodRef		// caution: map.insert(std::make_pair(x->y,x)) is incorrect, shou
 
 } // namespace rt
 
+namespace std
+{
+template<typename T_POD>
+struct hash<::rt::PodRef<T_POD>>: public ::rt::PodRef<T_POD>::hash_compare {};
+} // namespace std
+
 
 ///////////////////////////////////////////////////////
 // Safe delete Objects

@@ -401,7 +401,7 @@ protected:
 		::rocksdb::ColumnFamilyOptions	Opt;
 		CFEntry(){ pCF = nullptr; }
 	};
-	typedef rt::hash_map<rt::String, CFEntry, rt::String::hash_compare> T_DBS;
+	typedef rt::hash_map<rt::String, CFEntry> T_DBS;
 	os::ThreadSafeMutable<T_DBS>	_AllDBs;
 	::rocksdb::ColumnFamilyOptions	_DefaultOpenOpt;
 

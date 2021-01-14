@@ -261,6 +261,13 @@ public:
 	};
 #pragma pack(pop)
 
-
-
 } // namespace sec
+
+namespace std
+{
+template<UINT LEN, bool is_sec>
+struct hash<::sec::DataBlock<LEN, is_sec>>: public ::sec::DataBlock<LEN, is_sec>::hash_compare {};
+
+template<UINT LEN>
+struct hash<::sec::DataBlockRef<LEN>>: public ::sec::DataBlockRef<LEN>::hash_compare {};
+} // namespace std
