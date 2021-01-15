@@ -62,6 +62,14 @@ EGifOpenFileName(const char *FileName, const bool TestExistence, int *Error)
     int FileHandle;
     GifFileType *GifFile;
 
+#ifndef S_IREAD
+#define S_IREAD S_IRUSR
+#endif
+
+#ifndef S_IWRITE
+#define S_IWRITE S_IWUSR
+#endif
+
     if (TestExistence)
         FileHandle = open(FileName, O_WRONLY | O_CREAT | O_EXCL, 
 			  S_IREAD | S_IWRITE);
