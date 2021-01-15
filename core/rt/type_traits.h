@@ -620,10 +620,10 @@ struct FunctionTraits : _details::FunctionTraitsImpl<T> {};
 class __ThisCallMemberFunctionPointer
 {
 	typedef void (__thiscall __ThisCallMemberFunctionPointer::* __foo)();
-	size_t	Data[sizeof(__foo)/sizeof(size_t)];
+	size_t	Data[sizeof(__foo)*2/sizeof(size_t)];
 public:
 	template<typename T>
-	__ThisCallMemberFunctionPointer(const T& x){ ASSERT(sizeof(T) == sizeof(Data)); rt::Copy(Data, x); }
+	__ThisCallMemberFunctionPointer(const T& x){ static_assert(sizeof(T) <= sizeof(Data), "MFP Store is too small"); rt::Copy<sizeof(Data)>(Data, &x); }
 	__ThisCallMemberFunctionPointer(){ Zero(); }
 	__ThisCallMemberFunctionPointer(decltype(nullptr) x){ ASSERT(x == nullptr); Zero(); }
 	__ThisCallMemberFunctionPointer(const __ThisCallMemberFunctionPointer&x) = default;
