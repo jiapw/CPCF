@@ -806,6 +806,9 @@ extern SIZE_T	Base16DecodeLength(SIZE_T len);
 extern void		Base16Encode(LPSTR pBase16Out,LPCVOID pData, SIZE_T data_len);
 extern bool		Base16Decode(LPVOID pDataOut,SIZE_T data_len,LPCSTR pBase16, SIZE_T str_len);
 
+extern bool		Base16Encode(const rt::String_Ref&in, rt::String& out);
+extern bool		Base16Decode(const rt::String_Ref&in, rt::String& out);
+
 extern UINT		UrlEncode(LPCSTR url, UINT url_len, LPSTR encoded_url);  // return encoded length
 extern void		UrlEncode(const rt::String_Ref& url, rt::String& encoded_url);
 

@@ -70,23 +70,19 @@ struct character:public ::rt::tos::S_<>
 };
 
 struct StaticString: public ::rt::String_Ref
-{
-	INLFUNC StaticString(){}
-	template<SIZE_T LEN>
-	INLFUNC StaticString(char Str[LEN])
-		: ::rt::String_Ref(Str, ((SIZE_T)LEN-1))
-	{}
-	template<SIZE_T LEN>
-	INLFUNC StaticString(const char Str[LEN])
-		: ::rt::String_Ref(Str, ((SIZE_T)LEN-1))
-	{}
-	INLFUNC StaticString(const char* p, SIZE_T len): ::rt::String_Ref(p, len){}
+{	
+public:
 	//INLFUNC StaticString(LPCSTR x)    // don't define those, which will always be hit
 	//INLFUNC StaticString(LPSTR x)
+	INLFUNC StaticString(){}
+	INLFUNC StaticString(const char* p, SIZE_T len): ::rt::String_Ref(p, len){}
 	template<typename T>
 	INLFUNC StaticString(T& x)
-		: ::rt::String_Ref((LPCSTR)&x, ((SIZE_T)(sizeof(x)-1)))
-	{}
+	{	static_assert(rt::TypeTraits<rt::Remove_Reference<T>::t_Result>::Typeid == _typeid_array, "StaticString accepts only C String literal");
+		String_Ref::_p = (char*)x;
+		String_Ref::_len = sizeof(T) - 1;
+	}
+	INLFUNC StaticString(const char x){	String_Ref::_p = (char*)&x;	String_Ref::_len = 1; }
 	operator LPCSTR () const { return _p; }
 };
 

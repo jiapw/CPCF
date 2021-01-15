@@ -5,12 +5,12 @@
 namespace ext
 {
 
-void RocksDBServe::RocksMap(RocksDB* pDB, const rt::String_Ref& L1_path, bool key_is_binary, LPCSTR mime)
+void RocksDBServe::RocksMap(RocksDB* pDB, const rt::String_Ref& L1_path, KeyFormat key_format, LPCSTR mime)
 {
 	auto* handle = _New(RocksDBHandler(pDB));
 	handle->L1_Path = L1_path;
 	handle->Mime = mime;
-	handle->bBinaryKey = key_is_binary;
+	handle->KeyFormat = key_format;
 	handle->SetEndPoint(handle->L1_Path);
 	AddEndpoint(handle);
 
@@ -29,27 +29,37 @@ RocksDBServe::~RocksDBServe()
 
 rt::String_Ref RocksDBServe::RocksDBHandler::GetKey(inet::HttpResponse& resp, const rt::String_Ref& varname, rt::String& ws)
 {
-	if(bBinaryKey)
+	switch(KeyFormat)
 	{
+	case ext::RocksDBServe::KF_STRING:
+		return resp.GetQueryParam(varname);
+	case ext::RocksDBServe::KF_BIN_BASE64:
 		os::Base64Decode(resp.GetQueryParam(varname), ws);
 		return ws;
-	}
-	else
-	{
-		return resp.GetQueryParam(varname);
+	case ext::RocksDBServe::KF_BIN_BASE16:
+		os::Base16Decode(resp.GetQueryParam(varname), ws);
+		return ws;
+	default:
+		ASSERT(0);
+		return nullptr;
 	}
 }
 
 void RocksDBServe::RocksDBHandler::SendKey(inet::HttpResponse& resp, const rt::String_Ref& key, rt::String& ws)
 {
-	if(bBinaryKey)
+	switch(KeyFormat)
 	{
+	case ext::RocksDBServe::KF_STRING:
+		resp.SendChuncked(key);
+		break;
+	case ext::RocksDBServe::KF_BIN_BASE64:
 		os::Base64Encode(key, ws);
 		resp.SendChuncked(ws);
-	}
-	else
-	{
-		resp.SendChuncked(key);
+		break;
+	case ext::RocksDBServe::KF_BIN_BASE16:
+		os::Base16Encode(key, ws);
+		resp.SendChuncked(ws);
+		break;
 	}
 }
 

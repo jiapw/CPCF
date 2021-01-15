@@ -522,8 +522,8 @@ void Base16Encode(LPSTR pBase16Out,LPCVOID pData_in, SIZE_T data_len)
 	{
 		int c1 = pData[i]>>4;
 		int c2 = pData[i]&0xf;
-		pBase16Out[2*i+0] = (c1>9)?('A'+c1-10):('0'+c1);
-		pBase16Out[2*i+1] = (c2>9)?('A'+c2-10):('0'+c2);
+		pBase16Out[2*i+0] = (c1>9)?('a'+c1-10):('0'+c1);
+		pBase16Out[2*i+1] = (c2>9)?('a'+c2-10):('0'+c2);
 	}
 }
 
@@ -555,6 +555,19 @@ bool Base16Decode(LPVOID pDataOut_in,SIZE_T data_len,LPCSTR pBase16, SIZE_T str_
 	}
 
 	return true;
+}
+
+bool Base16Encode(const rt::String_Ref&in, rt::String& out)
+{
+	out.SetLength(Base16EncodeLength(in.GetLength()));
+	Base16Encode(out, in.Begin(), in.GetLength());
+	return true;
+}
+
+bool Base16Decode(const rt::String_Ref&in, rt::String& out)
+{
+	out.SetLength(Base16DecodeLength(in.GetLength()));
+	return Base16Decode(out.Begin(), out.GetLength(), in.Begin(), in.GetLength());
 }
 
 namespace _details

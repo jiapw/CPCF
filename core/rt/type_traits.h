@@ -328,16 +328,29 @@ public:
 	static const bool IsPOD = TypeTraits<t_Ele>::IsPOD;
 	static const bool IsNumeric = false ;	
 };
+// C array
+template<typename t_Ele, size_t t_Size>
+class TypeTraits< const t_Ele[t_Size] >
+{	typedef t_Ele T[t_Size];
+public:
+	typedef typename TypeTraits<t_Ele>::t_Val		t_Val[t_Size];
+	typedef t_Ele									t_Element;
+	typedef typename TypeTraits<t_Ele>::t_Signed	t_Signed[t_Size];
+	typedef typename TypeTraits<t_Ele>::t_Unsigned	t_Unsigned[t_Size];
+	static const int Typeid = _typeid_array ;
+	static const bool IsPOD = TypeTraits<t_Ele>::IsPOD;
+	static const bool IsNumeric = false ;	
+};
 // C pointer
 template<typename t_Ele>
 class TypeTraits< t_Ele* >	//All pointers
 {	typedef t_Ele *T;
 public:
-	typedef t_Ele*				t_Accum;
-	typedef t_Ele*				t_Val;
-	typedef t_Ele				t_Element;
-	//typedef typename TypeTraits<t_Ele>::t_Signed*	t_Signed;			// t_Ele might be a incomplete type
-	//typedef typename TypeTraits<t_Ele>::t_Unsigned*	t_Unsigned;		// t_Ele might be a incomplete type
+	typedef t_Ele*	t_Accum;
+	typedef t_Ele*	t_Val;
+	typedef t_Ele	t_Element;
+	typedef t_Ele*	t_Signed;		// t_Ele might be a incomplete type
+	typedef t_Ele*	t_Unsigned;		// t_Ele might be a incomplete type
 	static const int Typeid = _typeid_pointer;
 	static const bool IsPOD = true ;
 	static const bool IsNumeric = false ;	

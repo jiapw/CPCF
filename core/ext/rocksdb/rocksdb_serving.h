@@ -8,12 +8,21 @@ class RocksDB;
 
 class RocksDBServe: public inet::TinyHttpd
 {
+public:
+	enum KeyFormat
+	{
+		KF_STRING = 0,
+		KF_BIN_BASE64,
+		KF_BIN_BASE16,
+	};
+
+protected:
 	struct RocksDBHandler:public inet::HttpHandler<RocksDBHandler>
 	{
 		rt::String		Mime;
 		rt::String		L1_Path;
 		RocksDB*		pDB;
-		bool			bBinaryKey;
+		KeyFormat		KeyFormat;
 		auto			GetKey(inet::HttpResponse& resp, const rt::String_Ref& varname, rt::String& ws) -> rt::String_Ref;
 		void			SendKey(inet::HttpResponse& resp, const rt::String_Ref& key, rt::String& ws);
 		bool			OnRequest(inet::HttpResponse& resp);
@@ -27,7 +36,7 @@ class RocksDBServe: public inet::TinyHttpd
 
 public:
 	~RocksDBServe();
-	void RocksMap(RocksDB* pDB, const rt::String_Ref& L1_path, bool key_is_binary = false, LPCSTR mime = inet::TinyHttpd::MIME_STRING_JSON);
+	void RocksMap(RocksDB* pDB, const rt::String_Ref& L1_path, KeyFormat key_format = KF_STRING, LPCSTR mime = inet::TinyHttpd::MIME_STRING_JSON);
 };
 
 } // namespace ext
