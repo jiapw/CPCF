@@ -26,15 +26,20 @@ add_library( # Sets the name of the library.
              ../../../../../../../testcases/tests/test_ext.cpp
              ../../../../../../../testcases/tests/test_botan.cpp
              ../../../../../../../testcases/tests/test_perf.cpp
+             ../../../../../../../testcases/tests/test_http.cpp
              ../../../../../../../core/rt/xml_xhtml.cpp
              ../../../../../../../core/os/precompiler.cpp
              ../../../../../../../core/os/high_level.cpp
+             ../../../../../../../core/os/file_zip.cpp
+             ../../../../../../../core/ext/lib_inc.c
              ../../../../../../../core/ext/botan/botan.cpp
              ../../../../../../../core/ext/exprtk/exprtk.cpp
              ../../../../../../../core/ext/rocksdb/rocksdb.cpp
              ../../../../../../../core/ext/rocksdb/rocksdb_serving.cpp
              #../../../../../../../core/ext/exprtk/exprtk.cpp
              ../../../../../../../core/inet/tinyhttpd.cpp
+             ../../../../../../../core/inet/tinyhttpd_fileserv.cpp
+             ../../../../../../../core/inet/http_client.cpp
 
         )
 

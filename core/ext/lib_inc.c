@@ -45,7 +45,7 @@ static const int FALSE = 0;
 #undef Dad 
 #undef Len 
 
-#include "ipp/png/png_inc.c"
+//#include "ipp/png/png_inc.c"
 #undef MASK
 
 

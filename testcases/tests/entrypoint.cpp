@@ -10,16 +10,18 @@ extern "C"
 void TestMain()
 {
 	LPCSTR logfile = "../testcases.log";
-	os::SetLogFile(logfile, false);
 
 #if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
-    {   rt::String cd;
-        os::GetAppSandbox(cd, nullptr);
-        os::File::SetCurrentDirectory(cd);
-    }
+	{   rt::String cd;
+		os::GetAppSandbox(cd, nullptr);
+		os::File::SetCurrentDirectory(cd);
+		logfile = "./testcases.log";
+	}
 #endif
 
-	if(0 && !os::CommandLine::Get().HasOption("verify"))
+	os::SetLogFile(logfile, false);
+
+	if(0&&!os::CommandLine::Get().HasOption("verify"))
 	{
 		TYPETRAITS_UNITTEST(http_client);
 		return;
@@ -40,7 +42,8 @@ void TestMain()
 	*/
 		os::File::GetCurrentDirectory(dir);
 		_LOGC(dir);
-    /*
+
+
 		TYPETRAITS_UNITTEST(rt);
 		TYPETRAITS_UNITTEST(buffer);
 		TYPETRAITS_UNITTEST(sortedpush);
@@ -65,7 +68,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
 		TYPETRAITS_UNITTEST(crypto_func);
-        TYPETRAITS_UNITTEST(file);*/
+        TYPETRAITS_UNITTEST(file);
 		TYPETRAITS_UNITTEST(rocks_db);
         TYPETRAITS_UNITTEST(vm);
         TYPETRAITS_UNITTEST(async_write);

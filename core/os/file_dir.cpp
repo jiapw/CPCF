@@ -1148,6 +1148,8 @@ APPPATH_UTF8_SET:
 	out_path = rt::String_Ref(path, len);
 
 #elif defined(PLATFORM_ANDROID)
+
+	/*
 	LPCSTR sdcard_roots[] = 
 	{	"/mnt",
 		"/storage",
@@ -1174,8 +1176,9 @@ APPPATH_UTF8_SET:
 			}
 		}
 	}
-
 	out_path = largest + '/' + app_name;
+	*/
+	out_path = "/storage/emulated/0/cpcf";
 	os::File::CreateDirectory(out_path);
 #else
 	ASSERT_STATIC_NOT_IMPLMENTED;
