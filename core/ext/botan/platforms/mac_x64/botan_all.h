@@ -32,7 +32,7 @@
 * Build configuration for Botan 2.17.3
 *
 * Automatically generated from
-* 'configure.py --amalgamation --disable-shared --cc=clang --no-autoload --enable-modules=auto_rng,system_rng,rsa,sha1_sse2,sha1,sha2_32,sha2_64,sha3,sm2,sm3,sm4,emsa1,emsa_pkcs1,emsa_pssr,emsa_raw,dh,ecdh,emsa_x931,dev_random,md5,crc32,cbc,des,blowfish,curve25519,dsa,aes,tls --cpu=x86_64 --os=darwin --with-local-config=config_mac.h'
+* 'configure.py --amalgamation --disable-shared --cc=clang --no-autoload --enable-modules=auto_rng,system_rng,rsa,sha1_sse2,sha1,sha2_32,sha2_64,sha3,sm2,sm3,sm4,emsa1,emsa_pkcs1,emsa_pssr,emsa_raw,dh,ecdh,emsa_x931,dev_random,md5,crc32,cbc,des,blowfish,curve25519,dsa,aes,tls,commoncrypto --with-local-config=config_mac.h --cpu=x86_64 --os=darwin --disable-cc-tests'
 *
 * Target
 *  - Compiler: clang++ -fstack-protector -m64 -pthread -stdlib=libc++ -std=c++11 -D_REENTRANT -O3
@@ -48,7 +48,7 @@
 
 #define BOTAN_VERSION_RELEASE_TYPE "unreleased"
 
-#define BOTAN_VERSION_VC_REVISION "git:a923834ee1742a8fdff7e31c281f38fa6a532914"
+#define BOTAN_VERSION_VC_REVISION "git:dcce309c7f87d976753c34024f313d58626a2197"
 
 #define BOTAN_DISTRIBUTION_INFO "unspecified"
 
@@ -58,10 +58,11 @@
 
 #define BOTAN_INSTALL_PREFIX R"(/usr/local)"
 #define BOTAN_INSTALL_HEADER_DIR R"(include/botan-2)"
-#define BOTAN_INSTALL_LIB_DIR R"(/usr/local\lib)"
+#define BOTAN_INSTALL_LIB_DIR R"(/usr/local/lib)"
 #define BOTAN_LIB_LINK ""
 #define BOTAN_LINK_FLAGS "-fstack-protector -m64 -pthread -stdlib=libc++"
 
+#define BOTAN_SYSTEM_CERT_BUNDLE "/etc/ssl/cert.pem"
 
 #ifndef BOTAN_DLL
   #define BOTAN_DLL 
@@ -128,6 +129,7 @@
 #define BOTAN_HAS_BLOWFISH 20180718
 #define BOTAN_HAS_CIPHER_MODES 20180124
 #define BOTAN_HAS_CIPHER_MODE_PADDING 20131128
+#define BOTAN_HAS_COMMONCRYPTO 20180903
 #define BOTAN_HAS_CPUID 20170917
 #define BOTAN_HAS_CRC32 20131128
 #define BOTAN_HAS_CTR_BE 20131128

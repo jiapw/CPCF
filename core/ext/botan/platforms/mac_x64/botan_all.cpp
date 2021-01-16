@@ -377,6 +377,73 @@ Vector base_decode_to_vec(Base&& base,
 
 }
 
+namespace Botan {
+
+class Cipher_Mode;
+class BlockCipher;
+class HashFunction;
+enum Cipher_Dir : int;
+typedef int32_t CCCryptorStatus;
+
+class BOTAN_PUBLIC_API(2, 0) CommonCrypto_Error final : public Exception
+   {
+   public:
+      CommonCrypto_Error(const std::string& what) :
+         Exception(what + " failed."),
+         m_rc(0) {}
+
+      CommonCrypto_Error(const std::string& what, int32_t status) :
+         Exception(what + std::string(" failed. Status: ") + ccryptorstatus_to_string(status)),
+         m_rc(status) {}
+
+      ErrorType error_type() const noexcept override { return ErrorType::CommonCryptoError; }
+
+      int error_code() const noexcept override { return m_rc; }
+
+   private:
+      std::string ccryptorstatus_to_string(CCCryptorStatus status);
+
+      int32_t m_rc;
+   };
+
+/* Cipher Modes */
+
+Cipher_Mode*
+make_commoncrypto_cipher_mode(const std::string& name, Cipher_Dir direction);
+
+/* Block Ciphers */
+
+std::unique_ptr<BlockCipher>
+make_commoncrypto_block_cipher(const std::string& name);
+
+/* Hash */
+
+std::unique_ptr<HashFunction> make_commoncrypto_hash(const std::string& name);
+
+}
+
+#include <CommonCrypto/CommonCrypto.h>
+
+namespace Botan {
+
+struct CommonCryptor_Opts
+   {
+   CCAlgorithm algo;
+   CCMode mode;
+   CCPadding padding;
+   size_t block_size;
+   Key_Length_Specification key_spec{0};
+   };
+
+CommonCryptor_Opts commoncrypto_opts_from_algo_name(const std::string& algo_name);
+CommonCryptor_Opts commoncrypto_opts_from_algo(const std::string& algo);
+
+void commoncrypto_adjust_key_size(const uint8_t key[], size_t length,
+                                  const CommonCryptor_Opts& opts, secure_vector<uint8_t>& full_key);
+
+
+}
+
 #if defined(BOTAN_HAS_VALGRIND)
   #include <valgrind/memcheck.h>
 #endif
@@ -11973,6 +12040,741 @@ void CTS_Decryption::finish(secure_vector<uint8_t>& buffer, size_t offset)
       }
    }
 
+}
+/*
+* Block Ciphers via CommonCrypto
+* (C) 2018 Jose Luis Pereira
+*
+* Botan is released under the Simplified BSD License (see license.txt)
+*/
+
+
+#include <CommonCrypto/CommonCrypto.h>
+
+namespace Botan {
+
+namespace {
+
+class CommonCrypto_BlockCipher final : public BlockCipher
+   {
+   public:
+      CommonCrypto_BlockCipher(const std::string& name, const CommonCryptor_Opts& opts);
+
+      ~CommonCrypto_BlockCipher();
+
+      void clear() override;
+      std::string provider() const override { return "commoncrypto"; }
+      std::string name() const override { return m_cipher_name; }
+      BlockCipher* clone() const override;
+
+      size_t block_size() const override { return m_opts.block_size; }
+
+      Key_Length_Specification key_spec() const override { return m_opts.key_spec; }
+
+      void encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override
+         {
+         verify_key_set(m_key_set);
+         size_t total_len = blocks * m_opts.block_size;
+         size_t out_len = 0;
+
+         CCCryptorStatus status = CCCryptorUpdate(m_encrypt, in, total_len,
+                                  out, total_len, &out_len);
+         if(status != kCCSuccess)
+            {
+            throw CommonCrypto_Error("CCCryptorUpdate encrypt", status);
+            }
+         }
+
+      void decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override
+         {
+         verify_key_set(m_key_set);
+         size_t total_len = blocks * m_opts.block_size;
+         size_t out_len = 0;
+
+         CCCryptorStatus status = CCCryptorUpdate(m_decrypt, in, total_len,
+                                  out, total_len, &out_len);
+         if(status != kCCSuccess)
+            {
+            throw CommonCrypto_Error("CCCryptorUpdate decrypt", status);
+            }
+         }
+
+      void key_schedule(const uint8_t key[], size_t key_len) override;
+
+      std::string m_cipher_name;
+      CommonCryptor_Opts m_opts;
+
+      CCCryptorRef m_encrypt = nullptr;
+      CCCryptorRef m_decrypt = nullptr;
+      bool m_key_set;
+   };
+
+CommonCrypto_BlockCipher::CommonCrypto_BlockCipher(const std::string& algo_name,
+      const CommonCryptor_Opts& opts) :
+   m_cipher_name(algo_name),
+   m_opts(opts),
+   m_key_set(false)
+   {
+   }
+
+CommonCrypto_BlockCipher::~CommonCrypto_BlockCipher()
+   {
+   if(m_encrypt)
+      {
+      CCCryptorRelease(m_encrypt);
+      }
+   if(m_decrypt)
+      {
+      CCCryptorRelease(m_decrypt);
+      }
+   }
+
+/*
+* Set the key
+*/
+void CommonCrypto_BlockCipher::key_schedule(const uint8_t key[], size_t length)
+   {
+   secure_vector<uint8_t> full_key(key, key + length);
+
+   clear();
+   commoncrypto_adjust_key_size(key, length, m_opts, full_key);
+
+   CCCryptorStatus status;
+   status = CCCryptorCreate(kCCEncrypt, m_opts.algo, kCCOptionECBMode,
+                            full_key.data(), full_key.size(), nullptr, &m_encrypt);
+   if(status != kCCSuccess)
+      {
+      throw CommonCrypto_Error("CCCryptorCreate encrypt", status);
+      }
+   status = CCCryptorCreate(kCCDecrypt, m_opts.algo, kCCOptionECBMode,
+                            full_key.data(), full_key.size(), nullptr, &m_decrypt);
+   if(status != kCCSuccess)
+      {
+      throw CommonCrypto_Error("CCCryptorCreate decrypt", status);
+      }
+
+   m_key_set = true;
+   }
+
+/*
+* Return a clone of this object
+*/
+BlockCipher* CommonCrypto_BlockCipher::clone() const
+   {
+   return new CommonCrypto_BlockCipher(m_cipher_name, m_opts);
+   }
+
+/*
+* Clear memory of sensitive data
+*/
+void CommonCrypto_BlockCipher::clear()
+   {
+   m_key_set = false;
+
+   if(m_encrypt)
+      {
+      CCCryptorRelease(m_encrypt);
+      m_encrypt = nullptr;
+      }
+
+   if(m_decrypt)
+      {
+      CCCryptorRelease(m_decrypt);
+      m_decrypt = nullptr;
+      }
+   }
+}
+
+std::unique_ptr<BlockCipher>
+make_commoncrypto_block_cipher(const std::string& name)
+   {
+
+   try
+      {
+      CommonCryptor_Opts opts = commoncrypto_opts_from_algo_name(name);
+      return std::unique_ptr<BlockCipher>(new CommonCrypto_BlockCipher(name, opts));
+      }
+   catch(CommonCrypto_Error& e)
+      {
+      return nullptr;
+      }
+   }
+}
+
+/*
+* CommonCrypto Hash Functions
+* (C) 2018 Jose Pereira
+*
+* Botan is released under the Simplified BSD License (see license.txt)
+*/
+
+
+
+namespace Botan {
+
+namespace {
+
+template <class CTX>
+class CommonCrypto_HashFunction final : public HashFunction
+   {
+   public:
+
+      struct digest_config_t {
+         std::string name;
+         size_t digestLength;
+         size_t blockSize;
+         int (*init)(CTX *);
+         int (*update)(CTX *, const void *, CC_LONG len);
+         int (*final)(unsigned char *, CTX*);
+         };
+
+      void clear() override
+         {
+         if(m_info.init(&m_ctx) != 1)
+            throw CommonCrypto_Error("CC_" + m_info.name + "_Init");
+         }
+
+      std::string provider() const override { return "commoncrypto"; }
+      std::string name() const override { return m_info.name; }
+
+      HashFunction* clone() const override
+         {
+         return new CommonCrypto_HashFunction(m_info);
+         }
+
+      std::unique_ptr<HashFunction> copy_state() const override
+         {
+         return std::unique_ptr<CommonCrypto_HashFunction>(
+            new CommonCrypto_HashFunction(m_info, m_ctx));
+         }
+
+      size_t output_length() const override
+         {
+         return m_info.digestLength;
+         }
+
+      size_t hash_block_size() const override
+         {
+         return m_info.blockSize;
+         }
+
+      CommonCrypto_HashFunction(const digest_config_t& info) :
+         m_info(info)
+         {
+         clear();
+         }
+
+      CommonCrypto_HashFunction(const digest_config_t& info, const CTX &ctx) :
+         m_ctx(ctx), m_info(info) {}
+
+   private:
+      void add_data(const uint8_t input[], size_t length) override
+         {
+         /* update len parameter is 32 bit unsigned integer, feed input in parts */
+         while (length > 0)
+            {
+            CC_LONG update_len = (length > 0xFFFFFFFFUL) ? 0xFFFFFFFFUL : static_cast<CC_LONG>(length);
+            m_info.update(&m_ctx, input, update_len);
+            input += update_len;
+            length -= update_len;
+            }
+         }
+
+      void final_result(uint8_t output[]) override
+         {
+         if(m_info.final(output, &m_ctx) != 1)
+            throw CommonCrypto_Error("CC_" + m_info.name + "_Final");
+         clear();
+         }
+
+      CTX m_ctx;
+      digest_config_t m_info;
+   };
+}
+
+std::unique_ptr<HashFunction>
+make_commoncrypto_hash(const std::string& name)
+   {
+#define MAKE_COMMONCRYPTO_HASH_3(name, hash, ctx)               \
+   std::unique_ptr<HashFunction>(                               \
+      new CommonCrypto_HashFunction<CC_ ## ctx ## _CTX >({      \
+            name,                                               \
+            CC_ ## hash ## _DIGEST_LENGTH,                      \
+            CC_ ## hash ## _BLOCK_BYTES,                        \
+            CC_ ## hash ## _Init,                               \
+            CC_ ## hash ## _Update,                             \
+            CC_ ## hash ## _Final                               \
+         }));
+
+#define MAKE_COMMONCRYPTO_HASH_2(name, id)      \
+   MAKE_COMMONCRYPTO_HASH_3(name, id, id)
+
+#define MAKE_COMMONCRYPTO_HASH_1(id)            \
+   MAKE_COMMONCRYPTO_HASH_2(#id, id)
+
+#if defined(BOTAN_HAS_SHA2_32)
+   if(name == "SHA-224")
+      return MAKE_COMMONCRYPTO_HASH_3(name, SHA224, SHA256);
+   if(name == "SHA-256")
+      return MAKE_COMMONCRYPTO_HASH_2(name, SHA256);
+#endif
+#if defined(BOTAN_HAS_SHA2_64)
+   if(name == "SHA-384")
+      return MAKE_COMMONCRYPTO_HASH_3(name, SHA384, SHA512);
+   if(name == "SHA-512")
+      return MAKE_COMMONCRYPTO_HASH_2(name, SHA512);
+#endif
+
+#if defined(BOTAN_HAS_SHA1)
+   if(name == "SHA-160" || name == "SHA-1" || name == "SHA1")
+      return MAKE_COMMONCRYPTO_HASH_2(name, SHA1);
+#endif
+
+#if defined(BOTAN_HAS_MD5)
+   if(name == "MD5")
+      return MAKE_COMMONCRYPTO_HASH_1(MD5);
+#endif
+
+#if defined(BOTAN_HAS_MD4)
+   if(name == "MD4")
+      return MAKE_COMMONCRYPTO_HASH_1(MD4);
+#endif
+   return nullptr;
+   }
+
+}
+/*
+* Cipher Modes via CommonCrypto
+* (C) 2018 Jose Pereira
+*
+* Botan is released under the Simplified BSD License (see license.txt)
+*/
+
+
+#include <limits.h>
+
+namespace Botan {
+
+namespace {
+
+class CommonCrypto_Cipher_Mode final : public Cipher_Mode
+   {
+   public:
+      CommonCrypto_Cipher_Mode(const std::string& name,
+                               Cipher_Dir direction,
+                               const CommonCryptor_Opts& opts);
+
+      ~CommonCrypto_Cipher_Mode();
+
+      std::string provider() const override { return "commoncrypto"; }
+      std::string name() const override { return m_mode_name; }
+
+      void start_msg(const uint8_t nonce[], size_t nonce_len) override;
+      size_t process(uint8_t msg[], size_t msg_len) override;
+      void finish(secure_vector<uint8_t>& final_block, size_t offset0) override;
+      size_t output_length(size_t input_length) const override;
+      size_t update_granularity() const override;
+      size_t minimum_final_size() const override;
+      size_t default_nonce_length() const override;
+      bool valid_nonce_length(size_t nonce_len) const override;
+      void clear() override;
+      void reset() override;
+      Key_Length_Specification key_spec() const override;
+
+   private:
+      void key_schedule(const uint8_t key[], size_t length) override;
+
+      const std::string m_mode_name;
+      Cipher_Dir m_direction;
+      CommonCryptor_Opts m_opts;
+      CCCryptorRef m_cipher = nullptr;
+      bool m_key_set;
+      bool m_nonce_set;
+   };
+
+CommonCrypto_Cipher_Mode::CommonCrypto_Cipher_Mode(const std::string& name,
+      Cipher_Dir direction, const CommonCryptor_Opts& opts) :
+   m_mode_name(name),
+   m_direction(direction),
+   m_opts(opts),
+   m_key_set(false),
+   m_nonce_set(false)
+   {
+   }
+
+CommonCrypto_Cipher_Mode::~CommonCrypto_Cipher_Mode()
+   {
+   if(m_cipher)
+      {
+      CCCryptorRelease(m_cipher);
+      }
+   }
+
+void CommonCrypto_Cipher_Mode::start_msg(const uint8_t nonce[], size_t nonce_len)
+   {
+   verify_key_set(m_key_set);
+
+   if(!valid_nonce_length(nonce_len))
+      { throw Invalid_IV_Length(name(), nonce_len); }
+   if(nonce_len)
+      {
+      CCCryptorStatus status = CCCryptorReset(m_cipher, nonce);
+      if(status != kCCSuccess)
+         {
+         throw CommonCrypto_Error("CCCryptorReset on start_msg", status);
+         }
+      }
+   m_nonce_set = true;
+   }
+
+size_t CommonCrypto_Cipher_Mode::process(uint8_t msg[], size_t msg_len)
+   {
+   verify_key_set(m_key_set);
+   BOTAN_STATE_CHECK(m_nonce_set);
+
+   if(msg_len == 0)
+      { return 0; }
+   if(msg_len > INT_MAX)
+      { throw Internal_Error("msg_len overflow"); }
+   size_t outl = CCCryptorGetOutputLength(m_cipher, msg_len, false);
+
+   secure_vector<uint8_t> out(outl);
+
+   if(m_opts.padding == ccNoPadding && msg_len % m_opts.block_size)
+      {
+      msg_len = outl;
+      }
+
+   CCCryptorStatus status = CCCryptorUpdate(m_cipher, msg, msg_len,
+                            out.data(), outl, &outl);
+   if(status != kCCSuccess)
+      {
+      throw CommonCrypto_Error("CCCryptorUpdate", status);
+      }
+   copy_mem(msg, out.data(), outl);
+
+   return outl;
+   }
+
+void CommonCrypto_Cipher_Mode::finish(secure_vector<uint8_t>& buffer,
+                                      size_t offset)
+   {
+   verify_key_set(m_key_set);
+   BOTAN_STATE_CHECK(m_nonce_set);
+
+   BOTAN_ASSERT(buffer.size() >= offset, "Offset ok");
+   uint8_t* buf = buffer.data() + offset;
+   const size_t buf_size = buffer.size() - offset;
+
+   size_t written = process(buf, buf_size);
+
+   size_t outl = CCCryptorGetOutputLength(m_cipher, buf_size - written, true);
+   secure_vector<uint8_t> out(outl);
+
+   CCCryptorStatus status = CCCryptorFinal(
+                               m_cipher, out.data(), outl, &outl);
+   if(status != kCCSuccess)
+      {
+      throw CommonCrypto_Error("CCCryptorFinal", status);
+      }
+
+   size_t new_len = offset + written + outl;
+   if(m_opts.padding != ccNoPadding || buffer.size() < new_len)
+      {
+      buffer.resize(new_len);
+      }
+   copy_mem(buffer.data() - offset + written, out.data(), outl);
+   written += outl;
+   }
+
+size_t CommonCrypto_Cipher_Mode::update_granularity() const
+   {
+   return m_opts.block_size * BOTAN_BLOCK_CIPHER_PAR_MULT;
+   }
+
+size_t CommonCrypto_Cipher_Mode::minimum_final_size() const
+   {
+   if(m_direction == ENCRYPTION)
+      return 0;
+   else
+      return m_opts.block_size;
+   }
+
+size_t CommonCrypto_Cipher_Mode::default_nonce_length() const
+   {
+   return m_opts.block_size;
+   }
+
+bool CommonCrypto_Cipher_Mode::valid_nonce_length(size_t nonce_len) const
+   {
+   return (nonce_len == 0 || nonce_len == m_opts.block_size);
+   }
+
+size_t CommonCrypto_Cipher_Mode::output_length(size_t input_length) const
+   {
+   if(input_length == 0)
+      { return m_opts.block_size; }
+   else
+      { return round_up(input_length, m_opts.block_size); }
+   }
+
+void CommonCrypto_Cipher_Mode::clear()
+   {
+   m_key_set = false;
+
+   if(m_cipher == nullptr)
+      {
+      return;
+      }
+
+   if(m_cipher)
+      {
+      CCCryptorRelease(m_cipher);
+      m_cipher = nullptr;
+      }
+   }
+
+void CommonCrypto_Cipher_Mode::reset()
+   {
+   if(m_cipher == nullptr)
+      {
+      return;
+      }
+
+   m_nonce_set = false;
+
+   CCCryptorStatus status = CCCryptorReset(m_cipher, nullptr);
+   if(status != kCCSuccess)
+      {
+      throw CommonCrypto_Error("CCCryptorReset", status);
+      }
+   }
+
+Key_Length_Specification CommonCrypto_Cipher_Mode::key_spec() const
+   {
+   return m_opts.key_spec;
+   }
+
+void CommonCrypto_Cipher_Mode::key_schedule(const uint8_t key[], size_t length)
+   {
+   CCCryptorStatus status;
+   CCOperation op = m_direction == ENCRYPTION ? kCCEncrypt : kCCDecrypt;
+   status = CCCryptorCreateWithMode(op, m_opts.mode, m_opts.algo, m_opts.padding,
+                                    nullptr, key, length, nullptr, 0, 0, 0, &m_cipher);
+   if(status != kCCSuccess)
+      {
+      throw CommonCrypto_Error("CCCryptorCreate", status);
+      }
+
+   m_key_set = true;
+   m_nonce_set = false;
+   }
+}
+
+Cipher_Mode*
+make_commoncrypto_cipher_mode(const std::string& name, Cipher_Dir direction)
+   {
+
+   try
+      {
+      CommonCryptor_Opts opts = commoncrypto_opts_from_algo(name);
+      return new CommonCrypto_Cipher_Mode(name, direction, opts);
+      }
+   catch(CommonCrypto_Error& e)
+      {
+      return nullptr;
+      }
+   }
+}
+/*
+* Cipher Modes via CommonCrypto
+* (C) 2018 Jose Pereira
+*
+* Botan is released under the Simplified BSD License (see license.txt)
+*/
+
+
+namespace Botan {
+
+std::string CommonCrypto_Error::ccryptorstatus_to_string(CCCryptorStatus status)
+   {
+   switch(status)
+      {
+      case kCCSuccess:
+         return "Success";
+      case kCCParamError:
+         return "ParamError";
+      case kCCBufferTooSmall:
+         return "BufferTooSmall";
+      case kCCMemoryFailure:
+         return "MemoryFailure";
+      case kCCAlignmentError:
+         return "AlignmentError";
+      case kCCDecodeError:
+         return "DecodeError";
+      case kCCUnimplemented:
+         return "Unimplemented";
+      case kCCOverflow:
+         return "Overflow";
+      case kCCRNGFailure:
+         return "RNGFailure";
+      case kCCUnspecifiedError:
+         return "UnspecifiedError";
+      case kCCCallSequenceError:
+         return "CallSequenceError";
+      case kCCKeySizeError:
+         return "KeySizeError";
+      default:
+         return "Unknown";
+      }
+   };
+
+
+CommonCryptor_Opts commoncrypto_opts_from_algo_name(const std::string& algo_name)
+   {
+   CommonCryptor_Opts opts;
+
+   if(algo_name.compare(0, 3, "AES") == 0)
+      {
+      opts.algo = kCCAlgorithmAES;
+      opts.block_size = kCCBlockSizeAES128;
+      if(algo_name == "AES-128")
+         {
+         opts.key_spec = Key_Length_Specification(kCCKeySizeAES128);
+         }
+      else if(algo_name == "AES-192")
+         {
+         opts.key_spec = Key_Length_Specification(kCCKeySizeAES192);
+         }
+      else if(algo_name == "AES-256")
+         {
+         opts.key_spec = Key_Length_Specification(kCCKeySizeAES256);
+         }
+      else
+         {
+         throw CommonCrypto_Error("Unknown AES algorithm");
+         }
+      }
+   else if(algo_name == "DES")
+      {
+      opts.algo = kCCAlgorithmDES;
+      opts.block_size = kCCBlockSizeDES;
+      opts.key_spec = Key_Length_Specification(kCCKeySizeDES);
+      }
+   else if(algo_name == "TripleDES")
+      {
+      opts.algo = kCCAlgorithm3DES;
+      opts.block_size = kCCBlockSize3DES;
+      opts.key_spec = Key_Length_Specification(16, kCCKeySize3DES, 8);
+      }
+   else if(algo_name == "Blowfish")
+      {
+      opts.algo = kCCAlgorithmBlowfish;
+      opts.block_size = kCCBlockSizeBlowfish;
+      opts.key_spec = Key_Length_Specification(1, kCCKeySizeMaxBlowfish, 1);
+      }
+   else if(algo_name == "CAST-128")
+      {
+      opts.algo = kCCAlgorithmCAST;
+      opts.block_size = kCCBlockSizeCAST;
+      // Botan's base implementation of CAST does not support shorter keys
+      // so we limit its minimum key size to 11 here.
+      opts.key_spec = Key_Length_Specification(11, kCCKeySizeMaxCAST, 1);
+      }
+   else
+      {
+      throw CommonCrypto_Error("Unsupported cipher");
+      }
+
+   return opts;
+   }
+
+
+CommonCryptor_Opts commoncrypto_opts_from_algo(const std::string& algo)
+   {
+   SCAN_Name spec(algo);
+
+   std::string algo_name = spec.algo_name();
+   std::string cipher_mode = spec.cipher_mode();
+   std::string cipher_mode_padding = spec.cipher_mode_pad();
+
+   CommonCryptor_Opts opts = commoncrypto_opts_from_algo_name(algo_name);
+
+   //TODO add CFB and XTS support
+   if(cipher_mode.empty() || cipher_mode == "ECB")
+      {
+      opts.mode = kCCModeECB;
+      }
+   else if(cipher_mode == "CBC")
+      {
+      opts.mode = kCCModeCBC;
+      }
+   else if(cipher_mode == "CTR")
+      {
+      opts.mode = kCCModeCTR;
+      }
+   else if(cipher_mode == "OFB")
+      {
+      opts.mode = kCCModeOFB;
+      }
+   else
+      {
+      throw CommonCrypto_Error("Unsupported cipher mode!");
+      }
+
+   if(cipher_mode_padding == "NoPadding")
+      {
+      opts.padding = ccNoPadding;
+      }
+   /*
+   else if(cipher_mode_padding.empty() || cipher_mode_padding == "PKCS7")
+      {
+      opts.padding = ccPKCS7Padding;
+      }
+   */
+   else
+      {
+      throw CommonCrypto_Error("Unsupported cipher mode padding!");
+      }
+
+   return opts;
+   }
+
+
+void commoncrypto_adjust_key_size(const uint8_t key[], size_t length,
+                                  const CommonCryptor_Opts& opts, secure_vector<uint8_t>& full_key)
+   {
+
+   if(opts.algo == kCCAlgorithmBlowfish && length < 8)
+      {
+      size_t repeat;
+      switch(length)
+         {
+         case 1:
+            repeat = 8;
+            break;
+         case 2:
+            repeat = 4;
+            break;
+         case 3:
+            repeat = 3;
+            break;
+         default:
+            repeat = 2;
+            break;
+         }
+
+      full_key.resize(length * repeat);
+      for(size_t i = 0; i < repeat; i++)
+         {
+         copy_mem(full_key.data() + i * length, key, length);
+         }
+      }
+   else if(opts.algo == kCCAlgorithm3DES && length == 16)
+      {
+      full_key += std::make_pair(key, 8);
+      }
+   }
 }
 /*
 * Runtime CPU detection

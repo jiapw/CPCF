@@ -75,7 +75,7 @@ struct CipherInitVec: public DataBlock<_LEN>
 
 #ifdef PLATFORM_INTEL_IPP_SUPPORT_disabled 
 // TBD: IPP's AES256 produce inconsistent ciphertext that don't match with ones 
-// from Botan and CommonCrypto, and also the IPP Rijndael functions are unexpected slow !!!
+// from Botan and CommonCrypto, and also the IPP Rijndael functions are unexpectedly slow !!!
 
 namespace sec
 {
@@ -134,7 +134,7 @@ DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)
 
 #else
 
-#if defined(PLATFORM_IOS)
+#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 
 #include <CommonCrypto/CommonCryptor.h>
 

@@ -78,7 +78,7 @@ public:
 	INLFUNC StaticString(const char* p, SIZE_T len): ::rt::String_Ref(p, len){}
 	template<typename T>
 	INLFUNC StaticString(T& x)
-	{	static_assert(rt::TypeTraits<rt::Remove_Reference<T>::t_Result>::Typeid == _typeid_array, "StaticString accepts only C String literal");
+	{	static_assert(rt::TypeTraits<typename rt::Remove_Reference<T>::t_Result>::Typeid == _typeid_array, "StaticString accepts only C String literal");
 		String_Ref::_p = (char*)x;
 		String_Ref::_len = sizeof(T) - 1;
 	}

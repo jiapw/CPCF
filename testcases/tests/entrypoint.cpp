@@ -18,10 +18,16 @@ void TestMain()
         os::File::SetCurrentDirectory(cd);
     }
 #endif
+    
+    rt::String m;
+    os::GetDeviceModel(m);
+    _LOG(m);
+    
+    return;
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(http_client);
+		TYPETRAITS_UNITTEST(crypto_func);
 		return;
 	}
 	else
@@ -38,6 +44,7 @@ void TestMain()
 		os::File::SetCurrentDirectory(dir);
 	#endif
 	*/
+        
 		os::File::GetCurrentDirectory(dir);
 		_LOGC(dir);
 

@@ -26,13 +26,13 @@
 	#ifdef PLATFORM_64BIT
 		#include "../platforms/mac_x64/botan_all.h"
 	#else
-		#include "../platforms/mac_x64/botan_all.h"
+        #error 32-bit is not supported on MacOS
 	#endif
 #elif defined(PLATFORM_IOS)
     #ifdef PLATFORM_64BIT
-        #include "../platforms/ios_64b/botan_all.h"
+        #include "../platforms/ios_arm64/botan_all.h"
     #else
-        #include "../platforms/ios_32b/botan_all.h"
+        #error 32-bit is not supported on iOS
     #endif
 #elif defined(PLATFORM_LINUX)
     #ifdef PLATFORM_64BIT

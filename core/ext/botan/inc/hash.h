@@ -213,7 +213,7 @@ public:
 
 } // namespace sec
 
-#if defined(PLATFORM_IOS)
+#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 #include <CommonCrypto/CommonDigest.h>
 
 namespace sec

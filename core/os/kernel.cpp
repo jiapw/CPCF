@@ -24,6 +24,7 @@
 
 #include <sys/sysctl.h>
 #include <sys/types.h>
+#include <sys/utsname.h>
 #include <mach/mach.h>
 #include <mach/processor_info.h>
 #include <mach/mach_host.h>
@@ -54,7 +55,7 @@ extern void _objc_preference_save_string(LPCSTR key, LPCSTR val);
 
 
 #if defined(PLATFORM_IOS) && defined(PLATFORM_APPLICATION)
-extern int _objc_get_battery_state();
+extern int _objc_get_battery_state(bool* plugged);
 #endif
 
 #elif defined(PLATFORM_ANDROID) || defined(PLATFORM_LINUX)
@@ -598,8 +599,27 @@ bool os::GetProcessorTimes(ULONGLONG* pbusy, ULONGLONG* ptotal)
 	return false;
 }
 
+void os::GetDeviceModel(rt::String& model)
+{
+#if defined(PLATFORM_WIN)
+#elif defined(PLATFORM_MAC)
+    size_t len = 0;
+    sysctlbyname("hw.model", NULL, &len, NULL, 0);
+    model.SetLength(len);
+    sysctlbyname("hw.model", model, &len, NULL, 0);  // like Macmini8,1
+#elif defined(PLATFORM_IOS)
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    model = systemInfo.machine;  // like iPhone12,3 , https://stackoverflow.com/questions/11197509/how-to-get-device-make-and-model-on-ios
+#elif defined(PLATFORM_ANDROID)
+#elif defined(PLATFORM_LINUX)
+#endif
+}
+
 UINT os::GetPowerState(bool * pHasBattery, bool* pPlugged)		// precentage of battery remaining
 {
+    if(pHasBattery)*pHasBattery = true;
+    if(pPlugged)*pPlugged = false;
 #if defined(PLATFORM_WIN)
 	SYSTEM_POWER_STATUS ps;
 	if(::GetSystemPowerStatus(&ps))
@@ -616,12 +636,25 @@ UINT os::GetPowerState(bool * pHasBattery, bool* pPlugged)		// precentage of bat
 	///////////////////////////////////////////////////////////////////
 	// IOKit.framework is required, add it to the project
 	// How? check this video: http://www.youtube.com/watch?v=La58YR9hTNY
+    if(pHasBattery)
+    {
+        CFTypeRef blob = IOPSCopyPowerSourcesInfo();
+        CFArrayRef sources = IOPSCopyPowerSourcesList(blob);
+        if(CFArrayGetCount(sources))*pHasBattery = true;
+        CFRelease(sources);
+        CFRelease(blob);
+    }
+
 	CFTimeInterval tiv = IOPSGetTimeRemainingEstimate();
-	if(tiv == kIOPSTimeRemainingUnlimited || tiv == kIOPSTimeRemainingUnknown)return 100;
+	if(tiv == kIOPSTimeRemainingUnlimited)
+    {   if(pPlugged)*pPlugged = true;
+        return 100;
+    }
+    if(tiv == kIOPSTimeRemainingUnknown)return 100;
 	return rt::min(2*3600.0, tiv)*100/(2*3600);
 #elif defined(PLATFORM_IOS)
     #if defined(PLATFORM_APPLICATION)
-	return _objc_get_battery_state();
+	return _objc_get_battery_state(pPlugged);
     #else
     return 10;
     #endif

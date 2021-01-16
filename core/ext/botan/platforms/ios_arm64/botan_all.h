@@ -32,12 +32,12 @@
 * Build configuration for Botan 2.17.3
 *
 * Automatically generated from
-* 'configure.py --amalgamation --disable-shared --cc=clang --no-autoload --enable-modules=auto_rng,rsa,sha1_sse2,sha1,sha2_32,sha2_64,sha3,emsa1,emsa_pkcs1,emsa_pssr,emsa_raw,dh,ecdh,emsa_x931,dev_random,md5,crc32,cbc,des,blowfish,curve25519,dsa,aes,tls --with-local-config=config_ios.h'
+* 'configure.py --amalgamation --disable-shared --cc=clang --no-autoload --enable-modules=auto_rng,system_rng,rsa,sha1_sse2,sha1,sha2_32,sha2_64,sha3,sm2,sm3,sm4,emsa1,emsa_pkcs1,emsa_pssr,emsa_raw,dh,ecdh,emsa_x931,dev_random,md5,crc32,cbc,des,blowfish,curve25519,dsa,aes,tls,commoncrypto --with-local-config=config_ios.h --os=ios --prefix=iphone-64 --cpu=armv8-a --disable-cc-tests'
 *
 * Target
-*  - Compiler: clang++ -fstack-protector -m64 -pthread -stdlib=libc++ -std=c++11 -D_REENTRANT -O3
-*  - Arch: x86_64
-*  - OS: macos
+*  - Compiler: clang++ -fstack-protector -pthread -stdlib=libc++ -std=c++11 -D_REENTRANT -O3
+*  - Arch: arm64
+*  - OS: ios
 */
 
 #define BOTAN_VERSION_MAJOR 2
@@ -48,7 +48,7 @@
 
 #define BOTAN_VERSION_RELEASE_TYPE "unreleased"
 
-#define BOTAN_VERSION_VC_REVISION "git:28f0bfd99e38a5a7cae72bf84707974fcf980ccb"
+#define BOTAN_VERSION_VC_REVISION "git:dcce309c7f87d976753c34024f313d58626a2197"
 
 #define BOTAN_DISTRIBUTION_INFO "unspecified"
 
@@ -56,11 +56,11 @@
 #define BOTAN_MP_WORD_BITS 64
 
 
-#define BOTAN_INSTALL_PREFIX R"(/usr/local)"
+#define BOTAN_INSTALL_PREFIX R"(iphone-64)"
 #define BOTAN_INSTALL_HEADER_DIR R"(include/botan-2)"
-#define BOTAN_INSTALL_LIB_DIR R"(/usr/local/lib)"
+#define BOTAN_INSTALL_LIB_DIR R"(iphone-64/lib)"
 #define BOTAN_LIB_LINK ""
-#define BOTAN_LINK_FLAGS "-fstack-protector -m64 -pthread -stdlib=libc++"
+#define BOTAN_LINK_FLAGS "-fstack-protector -pthread -stdlib=libc++"
 
 #define BOTAN_SYSTEM_CERT_BUNDLE "/etc/ssl/cert.pem"
 
@@ -70,16 +70,12 @@
 
 /* Target identification and feature test macros */
 
-#define BOTAN_TARGET_OS_IS_MACOS
+#define BOTAN_TARGET_OS_IS_IOS
 
-#define BOTAN_TARGET_OS_HAS_APPLE_KEYCHAIN
 #define BOTAN_TARGET_OS_HAS_ARC4RANDOM
 #define BOTAN_TARGET_OS_HAS_ATOMICS
-#define BOTAN_TARGET_OS_HAS_CLOCK_GETTIME
 #define BOTAN_TARGET_OS_HAS_COMMONCRYPTO
-#define BOTAN_TARGET_OS_HAS_DEV_RANDOM
 #define BOTAN_TARGET_OS_HAS_FILESYSTEM
-#define BOTAN_TARGET_OS_HAS_GETENTROPY
 #define BOTAN_TARGET_OS_HAS_POSIX1
 #define BOTAN_TARGET_OS_HAS_POSIX_MLOCK
 #define BOTAN_TARGET_OS_HAS_SOCKETS
@@ -92,21 +88,13 @@
 
 
 
-#define BOTAN_TARGET_ARCH_IS_X86_64
+#define BOTAN_TARGET_ARCH_IS_ARM64
 #define BOTAN_TARGET_CPU_IS_LITTLE_ENDIAN
-#define BOTAN_TARGET_CPU_IS_X86_FAMILY
+#define BOTAN_TARGET_CPU_IS_ARM_FAMILY
 #define BOTAN_TARGET_CPU_HAS_NATIVE_64BIT
 
-#define BOTAN_TARGET_SUPPORTS_AESNI
-#define BOTAN_TARGET_SUPPORTS_AVX2
-#define BOTAN_TARGET_SUPPORTS_BMI2
-#define BOTAN_TARGET_SUPPORTS_RDRAND
-#define BOTAN_TARGET_SUPPORTS_RDSEED
-#define BOTAN_TARGET_SUPPORTS_SHA
-#define BOTAN_TARGET_SUPPORTS_SSE2
-#define BOTAN_TARGET_SUPPORTS_SSE41
-#define BOTAN_TARGET_SUPPORTS_SSE42
-#define BOTAN_TARGET_SUPPORTS_SSSE3
+#define BOTAN_TARGET_SUPPORTS_ARMV8CRYPTO
+#define BOTAN_TARGET_SUPPORTS_NEON
 
 
 
@@ -129,6 +117,7 @@
 #define BOTAN_HAS_BLOWFISH 20180718
 #define BOTAN_HAS_CIPHER_MODES 20180124
 #define BOTAN_HAS_CIPHER_MODE_PADDING 20131128
+#define BOTAN_HAS_COMMONCRYPTO 20180903
 #define BOTAN_HAS_CPUID 20170917
 #define BOTAN_HAS_CRC32 20131128
 #define BOTAN_HAS_CTR_BE 20131128
@@ -152,13 +141,13 @@
 #define BOTAN_HAS_EMSA_RAW 20131128
 #define BOTAN_HAS_EMSA_X931 20140118
 #define BOTAN_HAS_ENTROPY_SOURCE 20151120
-#define BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM 20131128
 #define BOTAN_HAS_GHASH 20201002
 #define BOTAN_HAS_HASH 20180112
 #define BOTAN_HAS_HASH_ID 20131128
 #define BOTAN_HAS_HEX_CODEC 20131128
 #define BOTAN_HAS_HMAC 20131128
 #define BOTAN_HAS_HMAC_DRBG 20140319
+#define BOTAN_HAS_KDF2 20131128
 #define BOTAN_HAS_KDF_BASE 20131128
 #define BOTAN_HAS_KEYPAIR_TESTING 20131128
 #define BOTAN_HAS_MAC 20150626
@@ -174,12 +163,15 @@
 #define BOTAN_HAS_PUBLIC_KEY_CRYPTO 20131128
 #define BOTAN_HAS_RSA 20160730
 #define BOTAN_HAS_SHA1 20131128
-#define BOTAN_HAS_SHA1_SSE2 20160803
 #define BOTAN_HAS_SHA2_32 20131128
 #define BOTAN_HAS_SHA2_64 20131128
 #define BOTAN_HAS_SHA3 20161018
+#define BOTAN_HAS_SM2 20180801
+#define BOTAN_HAS_SM3 20170402
+#define BOTAN_HAS_SM4 20170716
 #define BOTAN_HAS_STATEFUL_RNG 20160819
 #define BOTAN_HAS_STREAM_CIPHER 20131128
+#define BOTAN_HAS_SYSTEM_RNG 20141202
 #define BOTAN_HAS_TLS 20191210
 #define BOTAN_HAS_TLS_V10_PRF 20131128
 #define BOTAN_HAS_TLS_V12_PRF 20131128
@@ -13659,6 +13651,35 @@ BOTAN_PUBLIC_API(2,0) KDF* get_kdf(const std::string& algo_spec);
 
 }
 
+BOTAN_FUTURE_INTERNAL_HEADER(kdf2.h)
+
+namespace Botan {
+
+/**
+* KDF2, from IEEE 1363
+*/
+class BOTAN_PUBLIC_API(2,0) KDF2 final : public KDF
+   {
+   public:
+      std::string name() const override { return "KDF2(" + m_hash->name() + ")"; }
+
+      KDF* clone() const override { return new KDF2(m_hash->clone()); }
+
+      size_t kdf(uint8_t key[], size_t key_len,
+                 const uint8_t secret[], size_t secret_len,
+                 const uint8_t salt[], size_t salt_len,
+                 const uint8_t label[], size_t label_len) const override;
+
+      /**
+      * @param h hash function to use
+      */
+      explicit KDF2(HashFunction* h) : m_hash(h) {}
+   private:
+      std::unique_ptr<HashFunction> m_hash;
+   };
+
+}
+
 BOTAN_FUTURE_INTERNAL_HEADER(keypair.h)
 
 namespace Botan {
@@ -16243,6 +16264,36 @@ class BOTAN_PUBLIC_API(2,3) PSSR_Raw final : public EMSA
 }
 
 #if defined(BOTAN_HAS_SYSTEM_RNG)
+
+namespace Botan {
+
+/**
+* Return a shared reference to a global PRNG instance provided by the
+* operating system. For instance might be instantiated by /dev/urandom
+* or CryptGenRandom.
+*/
+BOTAN_PUBLIC_API(2,0) RandomNumberGenerator& system_rng();
+
+/*
+* Instantiable reference to the system RNG.
+*/
+class BOTAN_PUBLIC_API(2,0) System_RNG final : public RandomNumberGenerator
+   {
+   public:
+      std::string name() const override { return system_rng().name(); }
+
+      void randomize(uint8_t out[], size_t len) override { system_rng().randomize(out, len); }
+
+      void add_entropy(const uint8_t in[], size_t length) override { system_rng().add_entropy(in, length); }
+
+      bool is_seeded() const override { return system_rng().is_seeded(); }
+
+      bool accepts_input() const override { return system_rng().accepts_input(); }
+
+      void clear() override { system_rng().clear(); }
+   };
+
+}
   #define BOTAN_PUBKEY_INCLUDE_DEPRECATED_CONSTRUCTORS
 #endif
 
@@ -17739,6 +17790,185 @@ class BOTAN_PUBLIC_API(2,0) SHA_3_512 final : public SHA_3
    {
    public:
       SHA_3_512() : SHA_3(512) {}
+   };
+
+}
+
+namespace Botan {
+
+/**
+* This class represents SM2 public keys
+*/
+class BOTAN_PUBLIC_API(2,2) SM2_PublicKey : public virtual EC_PublicKey
+   {
+   public:
+
+      /**
+      * Create a public key from a given public point.
+      * @param dom_par the domain parameters associated with this key
+      * @param public_point the public point defining this key
+      */
+      SM2_PublicKey(const EC_Group& dom_par,
+                    const PointGFp& public_point) :
+         EC_PublicKey(dom_par, public_point) {}
+
+      /**
+      * Load a public key.
+      * @param alg_id the X.509 algorithm identifier
+      * @param key_bits DER encoded public key bits
+      */
+      SM2_PublicKey(const AlgorithmIdentifier& alg_id,
+                    const std::vector<uint8_t>& key_bits) :
+         EC_PublicKey(alg_id, key_bits) {}
+
+      /**
+      * Get this keys algorithm name.
+      * @result this keys algorithm name
+      */
+      std::string algo_name() const override;
+
+      size_t message_parts() const override { return 2; }
+
+      size_t message_part_size() const override
+         { return domain().get_order().bytes(); }
+
+      std::unique_ptr<PK_Ops::Verification>
+         create_verification_op(const std::string& params,
+                                const std::string& provider) const override;
+
+      std::unique_ptr<PK_Ops::Encryption>
+         create_encryption_op(RandomNumberGenerator& rng,
+                              const std::string& params,
+                              const std::string& provider) const override;
+
+   protected:
+      SM2_PublicKey() = default;
+   };
+
+/**
+* This class represents SM2 private keys
+*/
+class BOTAN_PUBLIC_API(2,2) SM2_PrivateKey final :
+   public SM2_PublicKey, public EC_PrivateKey
+   {
+   public:
+
+      /**
+      * Load a private key
+      * @param alg_id the X.509 algorithm identifier
+      * @param key_bits ECPrivateKey bits
+      */
+      SM2_PrivateKey(const AlgorithmIdentifier& alg_id,
+                     const secure_vector<uint8_t>& key_bits);
+
+      /**
+      * Create a private key.
+      * @param rng a random number generator
+      * @param domain parameters to used for this key
+      * @param x the private key (if zero, generate a new random key)
+      */
+      SM2_PrivateKey(RandomNumberGenerator& rng,
+                     const EC_Group& domain,
+                     const BigInt& x = 0);
+
+      bool check_key(RandomNumberGenerator& rng, bool) const override;
+
+      std::unique_ptr<PK_Ops::Signature>
+         create_signature_op(RandomNumberGenerator& rng,
+                             const std::string& params,
+                             const std::string& provider) const override;
+
+      std::unique_ptr<PK_Ops::Decryption>
+         create_decryption_op(RandomNumberGenerator& rng,
+                              const std::string& params,
+                              const std::string& provider) const override;
+
+      const BigInt& get_da_inv() const { return m_da_inv; }
+   private:
+      BigInt m_da_inv;
+   };
+
+class HashFunction;
+
+std::vector<uint8_t>
+BOTAN_PUBLIC_API(2,5) sm2_compute_za(HashFunction& hash,
+                                     const std::string& user_id,
+                                     const EC_Group& domain,
+                                     const PointGFp& pubkey);
+
+// For compat with versions 2.2 - 2.7
+typedef SM2_PublicKey SM2_Signature_PublicKey;
+typedef SM2_PublicKey SM2_Encryption_PublicKey;
+
+typedef SM2_PrivateKey SM2_Signature_PrivateKey;
+typedef SM2_PrivateKey SM2_Encryption_PrivateKey;
+
+}
+
+BOTAN_FUTURE_INTERNAL_HEADER(sm3.h)
+
+namespace Botan {
+
+enum {
+  SM3_BLOCK_BYTES = 64,
+  SM3_DIGEST_BYTES = 32
+};
+
+/**
+* SM3
+*/
+class BOTAN_PUBLIC_API(2,2) SM3 final : public MDx_HashFunction
+   {
+   public:
+      std::string name() const override { return "SM3"; }
+      size_t output_length() const override { return SM3_DIGEST_BYTES; }
+      HashFunction* clone() const override { return new SM3; }
+      std::unique_ptr<HashFunction> copy_state() const override;
+
+      void clear() override;
+
+      SM3() : MDx_HashFunction(SM3_BLOCK_BYTES, true, true), m_digest(SM3_DIGEST_BYTES)
+         { clear(); }
+   private:
+      void compress_n(const uint8_t[], size_t blocks) override;
+      void copy_out(uint8_t[]) override;
+
+      /**
+      * The digest value
+      */
+      secure_vector<uint32_t> m_digest;
+   };
+
+}
+
+BOTAN_FUTURE_INTERNAL_HEADER(sm4.h)
+
+namespace Botan {
+
+/**
+* SM4
+*/
+class BOTAN_PUBLIC_API(2,2) SM4 final : public Block_Cipher_Fixed_Params<16, 16>
+   {
+   public:
+      void encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override;
+      void decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override;
+
+      void clear() override;
+      std::string name() const override { return "SM4"; }
+      BlockCipher* clone() const override { return new SM4; }
+
+      std::string provider() const override;
+      size_t parallelism() const override;
+   private:
+      void key_schedule(const uint8_t[], size_t) override;
+
+#if defined(BOTAN_HAS_SM4_ARMV8)
+      void sm4_armv8_encrypt(const uint8_t in[], uint8_t out[], size_t blocks) const;
+      void sm4_armv8_decrypt(const uint8_t in[], uint8_t out[], size_t blocks) const;
+#endif
+
+      secure_vector<uint32_t> m_RK;
    };
 
 }

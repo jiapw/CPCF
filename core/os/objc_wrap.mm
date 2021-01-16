@@ -122,12 +122,16 @@ dispatch_async(dispatch_get_main_queue(), block);\
 }
 
 #if defined(PLATFORM_APPLICATION)
-int _objc_get_battery_state()
+int _objc_get_battery_state(bool* plugged)
 {
 	if([UIDevice currentDevice].batteryState == UIDeviceBatteryStateUnplugged)
-	{	return (int)(100*[UIDevice currentDevice].batteryLevel);
+    {   if(plugged)*plugged = false;
+        return (int)(100*[UIDevice currentDevice].batteryLevel);
 	}
-	else return 100;
+	else
+    {   if(plugged)*plugged = true;
+        return 100;
+    }
 }
 #endif // #if defined(PLATFORM_APPLICATION)
 
