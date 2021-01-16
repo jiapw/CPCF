@@ -9,8 +9,10 @@
 #if defined(PLATFORM_WIN)
 #include <Rpc.h>
 #include <Psapi.h>
-#include <Sddl.h>
 #pragma comment(lib,"Psapi.lib")
+#include <Wbemidl.h>
+#pragma comment(lib, "wbemuuid.lib")
+#include <Sddl.h>
 #include <fcntl.h>
 #include <Wincon.h>
 #include <io.h>
@@ -602,6 +604,41 @@ bool os::GetProcessorTimes(ULONGLONG* pbusy, ULONGLONG* ptotal)
 void os::GetDeviceModel(rt::String& model)
 {
 #if defined(PLATFORM_WIN)
+    // Obtain the initial locator to Windows Management on a particular host computer.
+	HRESULT ret;
+	ULONG uReturn = 0;
+    IWbemLocator *locator = nullptr;
+    IWbemServices *services = nullptr;
+	IEnumWbemClassObject* classObjectEnumerator = nullptr;
+	IWbemClassObject *classObject = nullptr;
+    if(	SUCCEEDED((ret = CoInitialize(NULL))) &&
+		SUCCEEDED(CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *)&locator)) &&
+		SUCCEEDED(locator->ConnectServer(L"ROOT\\CIMV2", nullptr, nullptr, 0, NULL, 0, 0, &services)) &&
+		SUCCEEDED(CoSetProxyBlanket(services, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, nullptr, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE)) &&
+		SUCCEEDED(services->ExecQuery(L"WQL", L"SELECT * FROM Win32_ComputerSystem", WBEM_FLAG_FORWARD_ONLY|WBEM_FLAG_RETURN_IMMEDIATELY, nullptr, &classObjectEnumerator)) &&
+		SUCCEEDED(classObjectEnumerator->Next(WBEM_INFINITE, 1, &classObject, &uReturn))
+	)
+	{
+		auto getValue = [](IWbemClassObject *classObject, LPCWSTR property, rt::String& out){
+			out.Empty();
+			VARIANT propertyValue;
+			if(SUCCEEDED(classObject->Get(property, 0, &propertyValue, 0, 0)))
+			{	if(propertyValue.vt == VT_BSTR)
+					out = os::__UTF8(propertyValue.bstrVal);
+				VariantClear(&propertyValue);
+			}
+		};
+
+		if(uReturn != 0)
+			getValue(classObject, (LPCWSTR)L"Model", model);
+	}
+
+	if(model.IsEmpty())model = "PC";
+	_SafeRelease(classObject);
+	_SafeRelease(classObjectEnumerator);
+	_SafeRelease(services);
+	_SafeRelease(locator);
+	if(ret == S_OK)CoUninitialize();  // otherwise, S_FALSE indicates the thread is already initialized COM
 #elif defined(PLATFORM_MAC)
     size_t len = 0;
     sysctlbyname("hw.model", NULL, &len, NULL, 0);
