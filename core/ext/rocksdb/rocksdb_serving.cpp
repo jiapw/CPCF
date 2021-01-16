@@ -72,7 +72,7 @@ bool RocksDBServe::RocksDBHandler::OnRequestList(inet::HttpResponse& resp, bool 
 	int n = resp.GetQueryParam<int>(rt::SS("count"), rt::TypeTraits<int>::MaxVal());
 
 	resp.SendChuncked_Begin(inet::TinyHttpd::MIME_STRING_JSON);
-	resp.SendChuncked("[");
+	resp.SendChuncked(no_val?"[":"{");
 	ext::RocksCursor c = k.IsEmpty()?pDB->First():pDB->Find(SliceValue(k));
 	for(int i=0; i<n && c.IsValid(); i++)
 	{
@@ -87,27 +87,26 @@ bool RocksDBServe::RocksDBHandler::OnRequestList(inet::HttpResponse& resp, bool 
 		}
 		else
 		{
-			resp.SendChuncked(i==0?"{\"":",{\"");
+			resp.SendChuncked(i==0?"\"":",\"");
 			SendKey(resp, key, bk);
 			resp.SendChuncked("\":");
 
 			auto v = c.Value().ToString();
 
-			if(v[0] == '{')
+			if(v[0] == '{' || v[0] == '[')
 			{
 				resp.SendChuncked(v);
-				resp.SendChuncked("}");
 			}
 			else
 			{	resp.SendChuncked("\"");
 				resp.SendChuncked(rt::JsonEscapeString(v));
-				resp.SendChuncked("\"}");
+				resp.SendChuncked("\"");
 			}
 		}
 
 		c.Next();
 	}
-	resp.SendChuncked("]");
+	resp.SendChuncked(no_val?"]":"}");
 	resp.SendChuncked_End();
 
 	return true;
