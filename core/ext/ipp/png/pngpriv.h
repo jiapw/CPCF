@@ -135,6 +135,11 @@
 #  endif
 #endif
 
+/* ipp libs for arm NOT exist, disable PNG_ARM_NEON_OPT */
+#if PNG_ARM_NEON_OPT > 0
+#   define PNG_ARM_NEON_OPT 0
+#endif
+
 #if PNG_ARM_NEON_OPT > 0
    /* NEON optimizations are to be at least considered by libpng, so enable the
     * callbacks to do this.

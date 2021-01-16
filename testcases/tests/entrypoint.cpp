@@ -43,7 +43,7 @@ void TestMain()
 		os::File::GetCurrentDirectory(dir);
 		_LOGC(dir);
 
-
+		/*
 		TYPETRAITS_UNITTEST(rt);
 		TYPETRAITS_UNITTEST(buffer);
 		TYPETRAITS_UNITTEST(sortedpush);
@@ -72,6 +72,10 @@ void TestMain()
 		TYPETRAITS_UNITTEST(rocks_db);
         TYPETRAITS_UNITTEST(vm);
         TYPETRAITS_UNITTEST(async_write);
+		*/
+
+		//TYPETRAITS_UNITTEST(ipp_canvas);
+		TYPETRAITS_UNITTEST(ipp_image);
 	
 		if(0) // non-static test
 		{

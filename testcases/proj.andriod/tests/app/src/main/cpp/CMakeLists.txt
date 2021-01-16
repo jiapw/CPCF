@@ -27,6 +27,7 @@ add_library( # Sets the name of the library.
              ../../../../../../../testcases/tests/test_botan.cpp
              ../../../../../../../testcases/tests/test_perf.cpp
              ../../../../../../../testcases/tests/test_http.cpp
+             ../../../../../../../testcases/tests/test_ipp.cpp
              ../../../../../../../core/rt/xml_xhtml.cpp
              ../../../../../../../core/os/precompiler.cpp
              ../../../../../../../core/os/high_level.cpp
@@ -40,6 +41,9 @@ add_library( # Sets the name of the library.
              ../../../../../../../core/inet/tinyhttpd.cpp
              ../../../../../../../core/inet/tinyhttpd_fileserv.cpp
              ../../../../../../../core/inet/http_client.cpp
+
+             ../../../../../../../core/ext/ipp/ipp_image.cpp
+             ../../../../../../../core/ext/ipp/ipp_core.cpp
 
         )
 
