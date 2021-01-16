@@ -598,12 +598,16 @@ bool os::GetProcessorTimes(ULONGLONG* pbusy, ULONGLONG* ptotal)
 	return false;
 }
 
-UINT os::GetPowerState()		// precentage of battery remaining
+UINT os::GetPowerState(bool * pHasBattery, bool* pPlugged)		// precentage of battery remaining
 {
 #if defined(PLATFORM_WIN)
 	SYSTEM_POWER_STATUS ps;
 	if(::GetSystemPowerStatus(&ps))
-	{	if(ps.ACLineStatus == 1)return 100;
+	{	
+		if(pHasBattery)*pHasBattery = !(ps.BatteryFlag&128);
+		if(pPlugged)*pPlugged = !!ps.ACLineStatus;
+
+		if(ps.ACLineStatus == 1)return 100;
 		if(ps.ACLineStatus == 0)
 			return rt::min<int>(100,ps.BatteryLifePercent);
 	}
@@ -619,14 +623,14 @@ UINT os::GetPowerState()		// precentage of battery remaining
     #if defined(PLATFORM_APPLICATION)
 	return _objc_get_battery_state();
     #else
-    return 60;
+    return 10;
     #endif
 #elif defined(PLATFORM_ANDROID)
-	return 60; // not supported for Android
+	return 10; // not supported for Android
 #elif defined(PLATFORM_LINUX)
 	//  /sys/class/power_supply/BAT0...
 	//  /proc/acpi/battery/BAT1/state
-	return 60; // not supported for Android
+	return 10; // not supported for Android m
 #else
 	#error TBD
 #endif

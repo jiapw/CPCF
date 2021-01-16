@@ -140,7 +140,7 @@ bool RocksDBServe::RocksDBHandler::OnRequest(inet::HttpResponse& resp)
 			{	resp.Send(val.c_str(), (int)val.size(), Mime);
 			}
 			else
-			{	resp.SendHttpError(404);
+			{	resp.SendHttpError(inet::HTTP_NOT_FOUND);
 			}
 
 			return true;
@@ -154,13 +154,25 @@ bool RocksDBServe::RocksDBHandler::OnRequest(inet::HttpResponse& resp)
 			if(k.FindCharacter(keycheck)>=0)return false;
 
 			if(pDB->Set(k, v))
-			{	resp.Send("true", 12, inet::TinyHttpd::MIME_STRING_JSON);
+			{	resp.Send("true", 4, inet::TinyHttpd::MIME_STRING_JSON);
 			}
 			else
 			{	resp.SendHttpError(500);
 			}
 			
 			return true;
+		}
+		else if(q == rt::SS("/delete"))
+		{
+			rt::String_Ref k = GetKey(resp, "key", ws);
+			if(pDB->Has(k))
+			{
+				pDB->Delete(k);
+				resp.Send("true", 4, inet::TinyHttpd::MIME_STRING_JSON);
+			}
+			else
+			{	resp.SendHttpError(inet::HTTP_NOT_FOUND);
+			}
 		}
 		else if(q == rt::SS("/list"))
 		{
@@ -172,7 +184,13 @@ bool RocksDBServe::RocksDBHandler::OnRequest(inet::HttpResponse& resp)
 		}
 		else if(q.GetLength() < 2)
 		{
-			resp.Send("{\"db_online\":true}", 18, inet::TinyHttpd::MIME_STRING_JSON);
+			if(pDB && !pDB->IsEmpty())
+			{
+				resp.Send("true", 4, inet::TinyHttpd::MIME_STRING_JSON);
+			}
+			else
+			{	resp.SendHttpError(inet::HTTP_UNAVAILABLE);
+			}
 			return true;
 		}
 		else return false;

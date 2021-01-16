@@ -210,7 +210,7 @@ extern int  GetDimensionOfScreens(rt::Vec2i* pDim, UINT dim_size = 1); // return
 extern bool GetSystemMemoryInfo(ULONGLONG* free, ULONGLONG* total = nullptr);	// in bytes
 extern bool GetProcessMemoryLoad(SIZE_T* vmem, SIZE_T* phy_mem);
 extern bool GetProcessorTimes(ULONGLONG* busy, ULONGLONG* total = nullptr);	// msec, {idle, total}
-extern UINT GetPowerState();		// precentage of battery remaining
+extern UINT GetPowerState(bool * pHasBattery = nullptr, bool* pPlugged = nullptr);		// precentage of battery remaining
 extern void Sleep(DWORD msec = INFINITE, const bool* interrupt_flag = nullptr);
 extern void Halt();
 

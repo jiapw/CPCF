@@ -897,7 +897,7 @@ void rt::UnitTests::rocksdb_serve()
 	}
 
 	ext::RocksDBServe server;
-	server.RocksMap(&db, "/test", false, inet::TinyHttpd::MIME_STRING_TEXT);
+	server.RocksMap(&db, "/test", ext::RocksDBServe::KF_STRING, inet::TinyHttpd::MIME_STRING_TEXT);
 	server.Start(1230);
 
 	_LOG("RocksServing at http://"<<rt::tos::ip(server.GetBindedAddress()));
