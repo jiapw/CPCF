@@ -10,7 +10,7 @@ void RocksDBServe::RocksMap(RocksDB* pDB, const rt::String_Ref& L1_path, KeyForm
 	auto* handle = _New(RocksDBHandler(pDB));
 	handle->L1_Path = L1_path;
 	handle->Mime = mime;
-	handle->KeyFormat = key_format;
+	handle->KeyDisplayFormat = key_format;
 	handle->SetEndPoint(handle->L1_Path);
 	AddEndpoint(handle);
 
@@ -29,7 +29,7 @@ RocksDBServe::~RocksDBServe()
 
 rt::String_Ref RocksDBServe::RocksDBHandler::GetKey(inet::HttpResponse& resp, const rt::String_Ref& varname, rt::String& ws)
 {
-	switch(KeyFormat)
+	switch(KeyDisplayFormat)
 	{
 	case ext::RocksDBServe::KF_STRING:
 		return resp.GetQueryParam(varname);
@@ -47,7 +47,7 @@ rt::String_Ref RocksDBServe::RocksDBHandler::GetKey(inet::HttpResponse& resp, co
 
 void RocksDBServe::RocksDBHandler::SendKey(inet::HttpResponse& resp, const rt::String_Ref& key, rt::String& ws)
 {
-	switch(KeyFormat)
+	switch(KeyDisplayFormat)
 	{
 	case ext::RocksDBServe::KF_STRING:
 		resp.SendChuncked(key);

@@ -19,12 +19,6 @@ void TestMain()
     }
 #endif
     
-    rt::String m;
-    os::GetDeviceModel(m);
-    _LOG(m);
-    
-    return;
-
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
 		TYPETRAITS_UNITTEST(crypto_func);

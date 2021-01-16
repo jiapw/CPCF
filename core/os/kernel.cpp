@@ -633,7 +633,7 @@ void os::GetDeviceModel(rt::String& model)
 			getValue(classObject, (LPCWSTR)L"Model", model);
 	}
 
-	if(model.IsEmpty())model = "PC";
+	if(model.IsEmpty())model = "PC-Windows";
 	_SafeRelease(classObject);
 	_SafeRelease(classObjectEnumerator);
 	_SafeRelease(services);
@@ -643,13 +643,29 @@ void os::GetDeviceModel(rt::String& model)
     size_t len = 0;
     sysctlbyname("hw.model", NULL, &len, NULL, 0);
     model.SetLength(len);
-    sysctlbyname("hw.model", model, &len, NULL, 0);  // like Macmini8,1
+	sysctlbyname("hw.model", model, &len, NULL, 0);  // like Macmini8,1
 #elif defined(PLATFORM_IOS)
     struct utsname systemInfo;
     uname(&systemInfo);
     model = systemInfo.machine;  // like iPhone12,3 , https://stackoverflow.com/questions/11197509/how-to-get-device-make-and-model-on-ios
 #elif defined(PLATFORM_ANDROID)
+	FILE * f = fopen("/sys/devices/virtual/dmi/id/product_name","r");
+	if(f)
+	{	char buf[256];
+		int len = fread(buf, 1, sizeof(buf), f);
+		if(len)model = rt::SS(buf, len);
+		fclose(f);
+	}
+	if(model.IsEmpty())model = "Android";
 #elif defined(PLATFORM_LINUX)
+	FILE * f = fopen("/sys/devices/virtual/dmi/id/product_name","r");
+	if(f)
+	{	char buf[256];
+		int len = fread(buf, 1, sizeof(buf), f);
+		if(len)model = rt::SS(buf, len);
+		fclose(f);
+	}
+	if(model.IsEmpty())model = "PC-Linux";
 #endif
 }
 

@@ -55,6 +55,8 @@
     </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="ext">
+    <File Name="../../core/ext/rocksdb/rocksdb_serving.h"/>
+    <File Name="../../core/ext/rocksdb/rocksdb_serving.cpp"/>
     <File Name="../../core/ext/rocksdb/rocksdb.cpp"/>
     <File Name="../../core/ext/rocksdb/rocksdb.h"/>
   </VirtualDirectory>

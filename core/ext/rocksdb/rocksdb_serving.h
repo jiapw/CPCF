@@ -22,7 +22,7 @@ protected:
 		rt::String		Mime;
 		rt::String		L1_Path;
 		RocksDB*		pDB;
-		KeyFormat		KeyFormat;
+		KeyFormat		KeyDisplayFormat;
 		auto			GetKey(inet::HttpResponse& resp, const rt::String_Ref& varname, rt::String& ws) -> rt::String_Ref;
 		void			SendKey(inet::HttpResponse& resp, const rt::String_Ref& key, rt::String& ws);
 		bool			OnRequest(inet::HttpResponse& resp);
