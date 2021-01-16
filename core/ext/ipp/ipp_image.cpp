@@ -887,7 +887,7 @@ bool ImageEncoder::Encode(LPCBYTE pData,int Channel,int Width,int Height,int Ste
 
 		LPBYTE buf = m_TempBuffer.Begin();
 		m_BufferUsedLen = (int)m_TempBuffer.GetSize();
-		jpeg_mem_dest(&cinfo, &buf, (ULONG*)&m_BufferUsedLen);
+		jpeg_mem_dest(&cinfo, &buf, (unsigned long*)&m_BufferUsedLen);
 
 		jpeg_start_compress(&cinfo, true);
 		LPCBYTE src = pData;
