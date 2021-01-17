@@ -166,6 +166,8 @@ public:
 	static bool SaveText(LPCSTR fn, const rt::String_Ref& in, bool add_utf8_signature = true, bool append = false);
 	static bool LoadBinary(LPCSTR fn, rt::String& out, UINT expire_sec = rt::TypeTraits<UINT>::MaxVal());
 	static bool SaveBinary(LPCSTR fn, const rt::String_Ref& in);
+	template<typename t_Val, typename t_Index>
+	static bool SaveBinary(LPCSTR fn, const rt::Buffer_Ref<t_Val, t_Index>& in){ return SaveBinary(fn, rt::SS(in.Begin(), in.GetSize()*sizeof(t_Val); static_assert(rt::TypeTraits<t_Val>::IsPOD, "Element should be POD only"); }
 
 	static bool CopyPath(const rt::String_Ref& dest, const rt::String_Ref& src, DWORD opt = CPOPT_MIRROR);
 	static bool RemovePath(const rt::String_Ref& src);

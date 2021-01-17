@@ -158,7 +158,7 @@ void rt::UnitTests::crypto_func()
 		cipher.EncryptBlockChained(data, out, data.GetSize(), 10);
 		cipher.DecryptBlockChained(out, data, data.GetSize(), 10);
 		out.RandomBits(4);
-		_LOG("AES/10k: "<<(data == out));
+		_LOGC("AES/10k: "<<(data == out));
 	}
     
     {   rt::SS data("cipher.EncryptBlockChained(data, out, data.GetSize(), 10);");
@@ -167,7 +167,7 @@ void rt::UnitTests::crypto_func()
         g.Update(data.Begin(), data.GetLength());
         DWORD crc;
         g.Finalize(&crc);
-        _LOG("CRC32: "<<crc);
+        _LOGC("CRC32: "<<crc);
     }
 
 	BYTE h[64];

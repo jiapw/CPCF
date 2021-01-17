@@ -1,0 +1,19 @@
+﻿=== UnitTest<file>: BEGIN ===
+
+test_(1).txt
+test_(2).txt
+test_(3).txt
+test_(4).txt
+test_(5).txt
+test_(6).txt
+test_(7).txt
+test_(8).txt
+test_(9).txt
+File Content: Testing String wrote to file !!
+File Remove: 1
+File Remove: 0
+2 => 123456
+4097 => 12345678
+4098 => 1234567
+=== UnitTest<file>: END =====
+

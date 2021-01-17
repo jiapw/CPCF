@@ -1,0 +1,39 @@
+﻿=== UnitTest<rt>: BEGIN ===
+a = 16 PTR=1
+b = 8 PTR=1
+c = 40 PTR=1
+d = 4 PTR=1
+e = 8 PTR=1
+sizeof(rt::TypeTraits<MyType>::t_Val) = 8
+rt::TypeTraits<MyType>::IsPOD = 1
+sizeof(rt::TypeTraits<MyTypeTR>::t_Val) = 8
+rt::TypeTraits<MyTypeTR>::IsPOD = 0
+sizeof(BYTE)	=1
+sizeof(WORD)	=2
+sizeof(DWORD)	=4
+sizeof(UINT)	=4
+sizeof(QWORD)		=8
+sizeof(LONGLONG)	=8
+sizeof(ULONGLONG)	=8
+sizeof(QWORD)		=8
+rt::MaxPower2Within(2049): 2048
+rt::Swap: <a, b> = <2,1>
+rt::SwapByteOrder(CEFABEBA00000000) = 00000000BABEFACE
+int is POD: 1
+int[24] is POD: 1
+rt::IsTypeSame<int,int>: 1
+rt::IsTypeSame<int,float>: 0
+rt::IsTypeSame<const int,int>: 0
+rt::Remove_QualiferAndRef<const int>: 1
+rt::TypeTraits<int[23]>::t_Element: 1
+rt::NumericTraits<double>::IsFloat: 1
+rt::NumericTraits<float>::IsUnsigned: 0
+Allocate: 0
+catch std::bad_alloc
+17 ~= 2^4
+int
+os::Timestamp
+os::_tagProcessPriority
+a (nested type in function scope)
+=== UnitTest<rt>: END =====
+

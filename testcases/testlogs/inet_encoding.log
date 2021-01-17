@@ -1,0 +1,21 @@
+﻿=== UnitTest<inet_encoding>: BEGIN ===
+MQ== = MQ==
+Full Data: 1
+1 = 1
+MTI= = MTI=
+Full Data: 1
+12 = 12
+MTIz = MTIz
+Full Data: 1
+123 = 123
+MTIzNA== = MTIzNA==
+Full Data: 1
+1234 = 1234
+MTIzNDU= = MTIzNDU=
+Full Data: 1
+12345 = 12345
+Full Data: 0
+12345
+MTIzNDU2
+=== UnitTest<inet_encoding>: END =====
+

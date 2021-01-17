@@ -1,0 +1,11 @@
+﻿=== UnitTest<binary_search>: BEGIN ===
+{1451,19964,30528,32473,50203,52016,54492,57664,58510,63718}
+1451 is at 0/0
+1461 is at 1/10
+1450 is at 0/10
+32473 is at 3/3
+32474 is at 4/10
+63718 is at 9/9
+63719 is at 10/10
+=== UnitTest<binary_search>: END =====
+

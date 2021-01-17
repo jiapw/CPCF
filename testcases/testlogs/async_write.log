@@ -1,0 +1,9 @@
+﻿=== UnitTest<async_write>: BEGIN ===
+Size Header: 8
+Header = 12345678DEADBEEF
+Content Match: 1
+Size Header: 3
+Header = efbbbf
+Content Match: 1
+=== UnitTest<async_write>: END =====
+

@@ -1,0 +1,18 @@
+﻿=== UnitTest<string_conv>: BEGIN ===
+12
+12
+123
+123
+123.45
+123.4500
+1.2300e+45
+1.2300e+45
+inf
+TE_X
+TEB_COM
+TEB_COM|TEB_A
+TEB_COM
+TEB_COM|TEB_A
+TE_MAX
+=== UnitTest<string_conv>: END =====
+

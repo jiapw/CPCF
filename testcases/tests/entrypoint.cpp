@@ -28,21 +28,7 @@ void TestMain()
 	}
 	else
 	{
-		rt::String fn;
-		os::File::ResolveRelativePath(logfile, fn);
-		_LOGC("Log: "<<fn);
-
-		rt::String dir;
-	/*
-	#ifndef PLATFORM_WIN
-		os::GetAppSandbox(dir, "CPF_Tester");
-		_LOG(dir);
-		os::File::SetCurrentDirectory(dir);
-	#endif
-	*/
-        
-		os::File::GetCurrentDirectory(dir);
-		_LOGC(dir);
+		TYPETRAITS_UNITTEST_OUTPUT("../testlogs/");
 
 		TYPETRAITS_UNITTEST(rt);
 		TYPETRAITS_UNITTEST(buffer);
@@ -58,10 +44,8 @@ void TestMain()
 		
 		TYPETRAITS_UNITTEST(timedate);
 		TYPETRAITS_UNITTEST(smallmath);
-		TYPETRAITS_UNITTEST(filelist);
 		TYPETRAITS_UNITTEST(multithread);
 		TYPETRAITS_UNITTEST(inet_encoding);
-		TYPETRAITS_UNITTEST(sysinfo);
 		TYPETRAITS_UNITTEST(binary_search);
 		TYPETRAITS_UNITTEST(botan_cipher);
 		TYPETRAITS_UNITTEST(botan_hash);
@@ -75,7 +59,9 @@ void TestMain()
 	
 		if(0) // non-static test
 		{
+			TYPETRAITS_UNITTEST(filelist);
 			TYPETRAITS_UNITTEST(pfw);
+			TYPETRAITS_UNITTEST(sysinfo);
 			TYPETRAITS_UNITTEST(plog);
 
 			//TYPETRAITS_UNITTEST(commandline();
