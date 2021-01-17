@@ -534,7 +534,7 @@ DWORD os::Thread::_Run()
 	memset(&actions, 0, sizeof(actions)); 
 	sigemptyset(&actions.sa_mask);
 	actions.sa_flags = 0; 
-	actions.sa_handler = thread_exit_handler;
+	actions.sa_handler = _thread_call::thread_exit_handler;
 	sigaction(SIGUSR2,&actions,NULL);
 #endif
 
@@ -708,7 +708,9 @@ bool os::Thread::_Create(UINT stack_size, ULONGLONG CPU_affinity)
 				if(CPU_affinity&(1ULL<<i))
 					CPU_SET(i, &cpuset);
 		
+			#ifndef PLATFORM_ANDROID
 			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+			#endif
 		}
 		set_attr = &attr;
 	}

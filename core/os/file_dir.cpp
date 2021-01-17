@@ -357,8 +357,8 @@ bool os::File::SetFileTime(__time64_t last_access, __time64_t last_modify) const
 	tm[0].tv_sec = (time_t)(last_modify?last_modify:s.st_mtime);
 	tm[0].tv_usec = 0;
 	#if defined(PLATFORM_ANDROID)
-		ASSERT(!Filename.IsEmpty());
-		return 0 == utimes(Filename, tm);
+		ASSERT(!_Filename.IsEmpty());
+		return 0 == utimes(_Filename, tm);
 	#else
 		return 0 == futimes(fileno(_hFile), tm);
 	#endif
@@ -557,7 +557,7 @@ bool os::File::LoadText(LPCSTR fn, rt::String& out, UINT expire_sec)
 	{
 		out.Empty();
 		int fd = open(fn, O_RDONLY);
-		if(fd)
+		if(fd>0)
 		{			
 			char data[10240];
 			int r = read(fd, data, sizeof(data));
@@ -1148,6 +1148,8 @@ APPPATH_UTF8_SET:
 	out_path = rt::String_Ref(path, len);
 
 #elif defined(PLATFORM_ANDROID)
+
+	/*
 	LPCSTR sdcard_roots[] = 
 	{	"/mnt",
 		"/storage",
@@ -1174,8 +1176,9 @@ APPPATH_UTF8_SET:
 			}
 		}
 	}
-
 	out_path = largest + '/' + app_name;
+	*/
+	out_path = "/storage/emulated/0/cpcf";
 	os::File::CreateDirectory(out_path);
 #else
 	ASSERT_STATIC_NOT_IMPLMENTED;

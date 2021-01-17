@@ -64,7 +64,14 @@ extern int _objc_get_battery_state(bool* plugged);
 
 #ifdef PLATFORM_ANDROID
 #include <sys/sysconf.h>
+
+#ifdef PLATFORM_64BIT
+#include <time.h>
+#else
 #include <time64.h>
+#endif
+
+
 #else
 #endif
 
@@ -95,6 +102,8 @@ void assert_failed(LPCSTR msg, LPCSTR file, UINT line, LPCSTR func)
 		_wassert(os::__UTF16(msg), os::__UTF16(rt::String_Ref(func) + " @ " + file), line);
 #elif	defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 		__assert_rtn(func, file, line, msg);
+#elif   defined(PLATFORM_ANDRIOD)
+		__assert2(file, line, func, msg);
 #else
 		__assert_fail(msg, file, line, func);
 #endif
@@ -426,6 +435,8 @@ int os::GetDimensionOfScreens(rt::Vec2i* pDim, UINT dim_size) // return # of scr
 	EnumDisplayMonitors(NULL, NULL, _cb_struct::MonitorEnumProc, (LPARAM)&cbs);
 	return cbs.count;
 #elif defined(PLATFORM_IOS)
+	ASSERT(0);
+#elif defined(PLATFORM_ANDROID)
 	ASSERT(0);
 #elif defined(PLATFORM_MAC)
     uint32_t numDisplay;
@@ -900,7 +911,7 @@ bool Timestamp::GetDateTime(Fields& fields) const
 	struct tm * ptm;
 #if defined(PLATFORM_WIN)
 	ptm = _gmtime64(&t);
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_64BIT)
     ptm = gmtime((time_t*)&t);
 #else
 	ptm = gmtime64(&t);
@@ -930,7 +941,7 @@ bool Timestamp::GetLocalDateTime(Fields& fields) const	// Local Time
 	struct tm * ptm;
 #if defined(PLATFORM_WIN)
 	ptm = _localtime64(&t);
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_64BIT)
     ptm = localtime((time_t*)&t);
 #else
 	ptm = localtime64(&t);
@@ -962,7 +973,7 @@ bool Timestamp::SetLocalDateTime(const Fields& f)
 	__time64_t t;
 #if defined(PLATFORM_WIN)
 	t = _mktime64(&tmstruct);
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_64BIT)
     t = mktime(&tmstruct);
 #else
 	t = mktime64(&tmstruct);
@@ -989,7 +1000,7 @@ bool Timestamp::SetDateTime(const Fields& f)
 	__time64_t t;
 #if defined(PLATFORM_WIN)
 	t = _mkgmtime64(&tmstruct);
-#elif defined(PLATFORM_ANDROID)
+#elif defined(PLATFORM_ANDROID) && defined(PLATFORM_32BIT)
 	t = timegm64(&tmstruct);
 #else
 	t = timegm(&tmstruct);
@@ -1287,7 +1298,7 @@ void SetProcessPriority(int prio)
 	case PROCPRIO_IDLE: ::SetPriorityClass(::GetCurrentProcess(), IDLE_PRIORITY_CLASS); break;
 	default: ASSERT(0);
 	}
-#elif defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_IOS)
+#elif defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_IOS) || defined(PLATFORM_ANDROID)
 	switch(prio)
 	{
 	case PROCPRIO_REALTIME: ::setpriority(PRIO_PROCESS, 0, 20); break;

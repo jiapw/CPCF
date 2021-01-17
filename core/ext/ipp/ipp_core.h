@@ -66,8 +66,8 @@ typedef signed char		Ipp8s;
 typedef signed short	Ipp16s;
 typedef signed int		Ipp32s;
 typedef float			Ipp32f;
-typedef LONGLONG		Ipp64s;
-typedef ULONGLONG		Ipp64u;
+//typedef LONGLONG		Ipp64s;
+//typedef ULONGLONG		Ipp64u;
 typedef double			Ipp64f;
 
 #endif // PLATFORM_INTEL_IPP_SUPPORT

@@ -10,16 +10,18 @@ extern "C"
 void TestMain()
 {
 	LPCSTR logfile = "../testcases.log";
-	os::SetLogFile(logfile, false);
 
 #if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
-    {   rt::String cd;
-        os::GetAppSandbox(cd, nullptr);
-        os::File::SetCurrentDirectory(cd);
-    }
+	{   rt::String cd;
+		os::GetAppSandbox(cd, nullptr);
+		os::File::SetCurrentDirectory(cd);
+		logfile = "./testcases.log";
+	}
 #endif
-    
-	if(!os::CommandLine::Get().HasOption("verify"))
+
+	os::SetLogFile(logfile, false);
+
+	if(0&&!os::CommandLine::Get().HasOption("verify"))
 	{
 		TYPETRAITS_UNITTEST(crypto_func);
 		return;
