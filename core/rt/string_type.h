@@ -1397,45 +1397,51 @@ public:
 	FORCEINL const String& operator = (char x){ SetLength(1); _p[0] = x; return *this; }
 	FORCEINL const String& operator = (const String_Ref& x)
 	{	if(!x.IsEmpty())
-		{	if(_ChangeLength(x.GetLength()))	// handle the case of x = substring of x
-			{	memcpy(_p,x.Begin(),GetLength());
-				_p[x.GetLength()] = 0;
+		{	SIZE_T len = x.GetLength();
+			if(len > _leng_reserved)	// handle the case of x = substring of x
+			{	LPSTR p = _Malloc32AL(char, len + 1);
+				memcpy(p, x.Begin(), len);
+				_len = _leng_reserved = len;
+				rt::Swap(p, _p);
+				_SafeFree32AL(p);
 			}
+			else{ memmove(_p, x.Begin(), _len = len); } // handle the case of x = substring of x
+			_p[_len] = 0;
 		}else{ Empty(); }
 		return *this;
 	}
 	FORCEINL const String& operator = (const String& x){ return *this = (const String_Ref&)x; }
-	//INLFUNC operator const String_Ref& () const { return *this; }
-	//INLFUNC operator const String_Ref& (){ return *this; }
 	template<typename T>
-	FORCEINL const T& operator = (const T& string_expr)
+	FORCEINL const auto& operator = (const T& string_expr)
 	{	SIZE_T len = string_expr.GetLength();
-		LPSTR p = _Malloc32AL(char, len+1);
-		p[len] = '\0';
+		if(len == 0)return *this;
+		LPSTR p = _Malloc32AL(char, len+1);	// we have to reallocate always, string_expr may refer to (*this)
 		VERIFY(len == string_expr.CopyTo(p));
 		_leng_reserved = _len = len;
 		rt::Swap(p, _p);
 		_SafeFree32AL(p);
-		return string_expr;
+		_p[_len] = 0;
+		return *this;
 	}
 	template<typename T>
-	FORCEINL const T& operator += (const T& string_expr)
+	FORCEINL const auto& operator += (const T& string_expr)
 	{	SIZE_T len = string_expr.GetLength();
+		if(len == 0)return *this;
 		if(len + GetLength() > _leng_reserved)
-		{	LPSTR p = _Malloc32AL(char, len + GetLength() + 1);
+		{	_leng_reserved = rt::max(_leng_reserved*2, len + GetLength());
+			LPSTR p = _Malloc32AL(char, _leng_reserved + 1);
 			memcpy(p, _p, GetLength());
 			VERIFY(len == string_expr.CopyTo(p+GetLength()));
-			_leng_reserved = _len = len + GetLength();
-			p[_len] = '\0';
 			rt::Swap(p, _p);
+			_len = len + GetLength();
 			_SafeFree32AL(p);
 		}
 		else if(_p)
 		{	VERIFY(len == string_expr.CopyTo(_p+GetLength()));
 			_len = len + GetLength();
-			_p[_len] = '\0';
 		}
-		return string_expr;
+		_p[_len] = 0;
+		return *this;
 	}
 	FORCEINL LPCSTR operator += (LPCSTR str){ (*this) += rt::String_Ref(str); return str; }
 	FORCEINL void operator += (char x){ SIZE_T pos = GetLength(); SetLength(pos+1); _p[pos] = x; }

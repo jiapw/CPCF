@@ -21,9 +21,9 @@ void TestMain()
 
 	os::SetLogFile(logfile, false);
 
-	if(0&&!os::CommandLine::Get().HasOption("verify"))
+	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(crypto_func);
+		TYPETRAITS_UNITTEST(precompiler);
 		return;
 	}
 	else
