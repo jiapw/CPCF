@@ -62,7 +62,7 @@ void GetHostName(rt::String& name_out)
 }
 
 template<typename t_ADDR>
-UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr)
+UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* broadcast_addr = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr)
 {
 	typedef _details::InetAddrT_Op<typename t_ADDR::ADDRESS_TYPE>	OP;
 	ASSERT(OutSize);
@@ -141,7 +141,6 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* pOut
 
     struct ifaddrs * ifAddrStruct=NULL;
     struct ifaddrs * ifa=NULL;
-    void * tmpAddrPtr=NULL;
 
     getifaddrs(&ifAddrStruct);
 
@@ -191,24 +190,18 @@ GET_LISTED:
                 top_nic_idx = prefix_idx;
         
                 pOut[nextAddr] = pOut[0];
-                if(pOut_Broadcast)
-                {
-                    pOut_Broadcast[nextAddr] = pOut_Broadcast[0];
-                    if(subnet_mask)
-                        subnet_mask[nextAddr] = subnet_mask[0];
-                }
+                if(if_names)if_names[nextAddr] = if_names[0];
+                if(subnet_mask)subnet_mask[nextAddr] = subnet_mask[0];
+                if(broadcast_addr)broadcast_addr[nextAddr] = broadcast_addr[0];
             }
                           
             pOut[add_idx] = addr;
-            if(pOut_Broadcast)
+            if(if_names)if_names[add_idx] = ifa->ifa_name;
+            if(broadcast_addr)broadcast_addr[add_idx] = *(t_ADDR*)ifa->ifa_broadaddr;
+            if(subnet_mask)
             {
-                pOut_Broadcast[add_idx] = *(t_ADDR*)ifa->ifa_broadaddr;
-
-                if(subnet_mask)
-                {
-                    ASSERT(ifa->ifa_addr->sa_family == AF_INET);
-                    subnet_mask[add_idx] = *(DWORD*)(ifa->ifa_netmask->sa_data+2);
-                }
+                ASSERT(ifa->ifa_addr->sa_family == AF_INET);
+                subnet_mask[add_idx] = *(DWORD*)(ifa->ifa_netmask->sa_data+2);
             }
 
             nextAddr++;
@@ -226,15 +219,15 @@ GET_LISTED:
 }
 
 
-extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT Size_InOut, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast, DWORD* subnet_mask, LPCSTR interface_prefix)
+extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT Size_InOut, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast, DWORD* subnet_mask, LPCSTR interface_prefix, rt::String* if_names)
 {
-	UINT co = GetLocalAddressT<InetAddrT<sockaddr_in>>(pOut, Size_InOut, no_loopback, pOut_Broadcast, subnet_mask, interface_prefix);
+	UINT co = GetLocalAddressT<InetAddrT<sockaddr_in>>(pOut, Size_InOut, no_loopback, pOut_Broadcast, subnet_mask, interface_prefix, if_names);
 	return co;
 }
 
-extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopback, InetAddrV6* pOut_Broadcast, LPCSTR interface_prefix)
+extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopback, InetAddrV6* pOut_Broadcast, LPCSTR interface_prefix, rt::String* if_names)
 {
-	UINT co = GetLocalAddressT<InetAddrV6>(pOut, Size_InOut, no_loopback, pOut_Broadcast, nullptr, interface_prefix);
+	UINT co = GetLocalAddressT<InetAddrV6>(pOut, Size_InOut, no_loopback, pOut_Broadcast, nullptr, interface_prefix, if_names);
 	return co;
 }
 

@@ -240,7 +240,6 @@ t_Ostream& operator<<(t_Ostream& Ostream, const InetAddrT<t_ADDR>& x)
 	Ostream<<x.GetDottedDecimalAddress(buf)<<':'<<x.GetPort();
 	return Ostream; 
 }
-
     
 struct InetAddr: public InetAddrT<sockaddr_in>
 {
@@ -251,12 +250,11 @@ struct InetAddr: public InetAddrT<sockaddr_in>
 	INLFUNC InetAddr(WORD ushPort, LPCVOID pAddressBin):InetAddrT<sockaddr_in>(ushPort, pAddressBin){}
     INLFUNC InetAddr(LPCSTR pHostname, WORD ushPort = 0):InetAddrT<sockaddr_in>(pHostname, ushPort){}
 };
+typedef InetAddrT<sockaddr_in6>    InetAddrV6;
     
-    
-extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT out_size, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr);
+extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT out_size, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
 
-typedef InetAddrT<sockaddr_in6>	InetAddrV6;
-extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT out_size, bool no_loopback, InetAddrV6* pOut_Broadcast = nullptr, LPCSTR interface_prefix = nullptr);
+extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT out_size, bool no_loopback, InetAddrV6* pOut_Broadcast = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
 
 class Socket
 {
