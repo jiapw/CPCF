@@ -1,3 +1,8 @@
+#ifdef PLATFORM_WIN
+#else
+#define _7ZIP_ST
+#endif
+
 #include "7zAlloc.c"
 #include "7zBuf.c"
 #include "7zBuf2.c"

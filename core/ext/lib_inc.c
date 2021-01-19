@@ -60,13 +60,5 @@ static const int FALSE = 0;
 #endif
 
 #include "ipp/gif/gif_inc.c"
-
-
-
-#ifdef PLATFORM_WIN
-#else
-#define _7ZIP_ST
-#endif
-
 #include "7zip/inc/7zip_inc.c"
 
