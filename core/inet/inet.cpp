@@ -70,6 +70,7 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* broa
 	UINT nextAddr = 0;
 #if defined(PLATFORM_WIN)
     ASSERT(interface_prefix == nullptr); // not supported on Windows
+	ASSERT(if_names == nullptr); // not supported on Windows
 	if(OP::SIN_FAMILY == AF_INET)
 	{	// IP v4
 		ULONG buflen = sizeof(MIB_IPADDRROW)*128;
@@ -86,9 +87,9 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* broa
 					!OP::IsAddressGhost(pOut[nextAddr])
 				)
 				{
-                    if(pOut_Broadcast)
+                    if(broadcast_addr)
 					{	DWORD bcast = ipt.dwAddr|~ipt.dwMask;
-						pOut_Broadcast[nextAddr].SetBinaryAddress(&bcast);
+						broadcast_addr[nextAddr].SetBinaryAddress(&bcast);
 					}
 					if(subnet_mask)
 					{	subnet_mask[nextAddr] = ipt.dwMask;
@@ -101,7 +102,7 @@ UINT GetLocalAddressT(t_ADDR* pOut, UINT OutSize, bool no_loopback, t_ADDR* broa
 	}
 	else
 	{	// AF_INET6
-		ASSERT(pOut_Broadcast == nullptr);
+		ASSERT(broadcast_addr == nullptr);
 		ASSERT(subnet_mask == nullptr);
 
 		char szHostname[256];

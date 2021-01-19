@@ -92,7 +92,7 @@ struct DataAsString: public ::rt::String_Ref
 	INLFUNC DataAsString(const T& x)
 		: ::rt::String_Ref((LPCSTR)&x, (SIZE_T)(sizeof(x)))
 	{}
-	INLFUNC DataAsString(LPCVOID x, UINT bytes)
+	INLFUNC DataAsString(LPCVOID x, SIZE_T bytes)
 		: ::rt::String_Ref((LPCSTR)x, bytes)
 	{}
 };

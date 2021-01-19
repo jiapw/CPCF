@@ -69,14 +69,18 @@ public:
     {	_SC::set_empty_key(key_traits<KEY>::empty_key());
 		_SC::set_deleted_key(key_traits<KEY>::deleted_key());
 	}
-	INLFUNC const VALUE& get(KEY k, const VALUE& v) const
+	INLFUNC const VALUE& get(const KEY& k, const VALUE& v) const
 	{	auto it = _SC::find(k);
 		return it != _SC::end()?it->second:v;
 	}
-	INLFUNC VALUE& get(KEY k)
+	INLFUNC VALUE& get(const KEY& k)
 	{	auto it = _SC::find(k);
 		ASSERT(it != _SC::end());
 		return it->second;
+	}
+	INLFUNC bool has(const KEY& k) const
+	{	auto it = _SC::find(k);
+		return it != _SC::end();
 	}
 };
 
