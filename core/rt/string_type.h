@@ -1145,8 +1145,8 @@ namespace tos
 			return 2 + sprintf(&p[2],"%08x",(DWORD)x);
 #endif
 		}
-		FORCEINL static int __toS(LPSTR p, float x){ return _details::string_ops::ftoa<float>(x, p, 2); }
-		FORCEINL static int __toS(LPSTR p, double x){ return _details::string_ops::ftoa<double>(x, p, 4); }
+		FORCEINL static int __toS(LPSTR p, float x, int fractional_digits){ return _details::string_ops::ftoa<float>(x, p, fractional_digits); }
+		FORCEINL static int __toS(LPSTR p, double x, int fractional_digits){ return _details::string_ops::ftoa<double>(x, p, fractional_digits); }
 		FORCEINL static int __toS(LPSTR p, bool x)
 		{	if(x){ *((DWORD*)p) = 0x65757274; return 4; }
 			else{ *((DWORD*)p) = 0x736c6166; p[4] = 'e'; return 5; }
@@ -1168,8 +1168,8 @@ namespace tos
 		FORCEINL S_(unsigned long long int x){ _len = __toS(_string,(ULONGLONG)x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 #endif
 		FORCEINL S_(LPCVOID x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(float x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
-		FORCEINL S_(double x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(float x, int fractional_digits = 2){ _len = __toS(_string,x,fractional_digits); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
+		FORCEINL S_(double x, int fractional_digits = 4){ _len = __toS(_string,x,fractional_digits); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 	};
 
 } // namespace tos
