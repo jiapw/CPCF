@@ -74,7 +74,7 @@ UINT HttpServerFiles::ImportZipFile(LPCSTR zip_file, LPCSTR path_prefix, UINT fs
 				{
 					ret ++;
 					AddFile(path, data, (UINT)data.GetSize(), TinyHttpd::_GetMIME(path));
-					_LOG(path);
+					_LOGC(path);
 				}
 			}
 		}
@@ -322,8 +322,8 @@ bool HttpVirtualPath::OnRequest(HttpResponse& resp)
 					}
 				}
 
-				//_LOG(sep_line);
-				//_LOG(resp.Body.SubStr(resp.Body.GetLength()-4-sep_line.GetLength(), sep_line.GetLength()));
+				//_LOGC(sep_line);
+				//_LOGC(resp.Body.SubStr(resp.Body.GetLength()-4-sep_line.GetLength(), sep_line.GetLength()));
 			}
 
 			resp.SendHttpError(HTTP_FORBIDDEN);

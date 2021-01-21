@@ -132,9 +132,6 @@ bool FileZip::Open(::rt::_File* pFile, LPCSTR mode, bool load_indexed)
 					((LPBYTE)p) + sizeof(FileEntry) + p->FileNameLength + p->ExtraFieldLength + p->FileCommentLength - 1 <= _FileEntryPool.End()
 				)
 				{	m_FileEntries[i] = p;
-
-					//_LOG(rt::String_Ref(p->FileName,p->FileNameLength)<<"\n");
-
 					p = (FileEntry*)(((LPBYTE)p) + sizeof(FileEntry) + p->FileNameLength + p->ExtraFieldLength + p->FileCommentLength - 1);
 				}
 				else
@@ -149,8 +146,6 @@ bool FileZip::Open(::rt::_File* pFile, LPCSTR mode, bool load_indexed)
 			m_CentralDirectoryModified = false;
 		}
 	}
-
-	//_LOG(m_FileEntries.GetSize()<<"\n");
 
 	return true;
 

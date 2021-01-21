@@ -253,7 +253,6 @@ struct InetAddr: public InetAddrT<sockaddr_in>
 typedef InetAddrT<sockaddr_in6>    InetAddrV6;
     
 extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT out_size, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
-
 extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT out_size, bool no_loopback, InetAddrV6* pOut_Broadcast = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
 
 class Socket

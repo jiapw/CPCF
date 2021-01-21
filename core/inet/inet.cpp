@@ -219,7 +219,6 @@ GET_LISTED:
 	return nextAddr;
 }
 
-
 extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT Size_InOut, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast, DWORD* subnet_mask, LPCSTR interface_prefix, rt::String* if_names)
 {
 	UINT co = GetLocalAddressT<InetAddrT<sockaddr_in>>(pOut, Size_InOut, no_loopback, pOut_Broadcast, subnet_mask, interface_prefix, if_names);
