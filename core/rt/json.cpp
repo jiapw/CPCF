@@ -108,6 +108,33 @@ LPCSTR JsonObject::_seek_json_object_closure(LPCSTR p, LPCSTR end)
 	}
 }
 
+rt::String_Ref JsonObject::GetValueRaw(const rt::String_Ref& xpath, const rt::String_Ref& default_val, bool bDoNotSplitDot) const	// xxx.yyy.zzz
+{
+	if(xpath.IsEmpty())return _Doc;
+	LPCSTR p, tail;
+	if((p = _LocateValue(xpath, bDoNotSplitDot)))
+	{	
+		if((tail = _seek_json_object_closure(p,_Doc.End())))
+			return rt::String_Ref(p, tail);
+	}
+
+	return default_val;
+}
+
+rt::String_Ref JsonObject::GetValueRaw(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot) const	// xxx.yyy.zzz
+{	
+	if(xpath.IsEmpty()){ p_exist = true; return _Doc; }
+	LPCSTR p, tail;
+	if((p = _LocateValue(xpath, bDoNotSplitDot)))
+	{	
+		p_exist = true;
+		if((tail = _seek_json_object_closure(p,_Doc.End())))
+			return rt::String_Ref(p, tail);
+	}
+	p_exist = false;
+	return nullptr;
+}
+
 rt::String_Ref JsonObject::GetValue(const rt::String_Ref& xpath, const rt::String_Ref& default_val, bool bDoNotSplitDot) const	// xxx.yyy.zzz
 {
 	if(xpath.IsEmpty())return _Doc;
@@ -125,8 +152,8 @@ rt::String_Ref JsonObject::GetValue(const rt::String_Ref& xpath, const rt::Strin
 }
 
 rt::String_Ref JsonObject::GetValue(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot) const	// xxx.yyy.zzz
-{	
-	if(xpath.IsEmpty())return _Doc;
+{
+	if(xpath.IsEmpty()){ p_exist = true; return _Doc; }
 	LPCSTR p, tail;
 	if((p = _LocateValue(xpath, bDoNotSplitDot)))
 	{	
@@ -140,6 +167,7 @@ rt::String_Ref JsonObject::GetValue(const rt::String_Ref& xpath, bool& p_exist, 
 	p_exist = false;
 	return nullptr;
 }
+
 
 bool JsonObject::IsEmptyObject() const 
 { 

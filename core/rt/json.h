@@ -438,6 +438,8 @@ public:
 
 	void			Attach(LPCSTR str, UINT length){ Attach(rt::String_Ref(str, length)); }
 	void			Attach(const rt::String_Ref& doc){	SSIZE_T s = doc.FindCharacter('{');	if(s>=0)_Doc = doc.SubStr(s); }
+	rt::String_Ref	GetValueRaw(const rt::String_Ref& xpath, const rt::String_Ref& default_val = rt::String_Ref(), bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
+	rt::String_Ref	GetValueRaw(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
 	rt::String_Ref	GetValue(const rt::String_Ref& xpath, const rt::String_Ref& default_val = rt::String_Ref(), bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
 	rt::String_Ref	GetValue(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
 	bool			IsEmpty() const { return _Doc.IsEmpty(); }
