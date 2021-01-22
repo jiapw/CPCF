@@ -328,6 +328,17 @@ public:
 		return (ret < 0) || (ret==0 && (GetLength() <= x.GetLength()));
 	}
 	template< class StrT >
+	FORCEINL bool	operator > (const StrT& x) const
+	{	int ret = memcmp(_SC::_p,x.Begin(),min(GetLength(),x.GetLength())*sizeof(char));
+		return (ret > 0) || (ret==0 && (GetLength() > x.GetLength()));
+	}
+	template< class StrT >
+	FORCEINL bool	operator >= (const StrT& x) const
+	{	int ret = memcmp(_SC::_p,x.Begin(),min(GetLength(),x.GetLength())*sizeof(char));
+		return (ret > 0) || (ret==0 && (GetLength() >= x.GetLength()));
+	}
+
+	template< class StrT >
 	FORCEINL bool	IsReferring(const StrT& x)  // (*this) is a part of x
 	{	return Begin() >= x.Begin() && (End() <= x.End());
 	}
