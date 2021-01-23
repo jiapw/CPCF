@@ -1176,6 +1176,13 @@ public:
 	TopWeightedValues(){ Reset(); }
 	static	UINT GetSize(){ return TOP_K; }
 	void	Reset(){ rt::Zero(*this); }
+	void	ClampWeight(T_WEIGHT weight_max)
+			{	for(UINT i=0; i<TOP_K; i++)
+				{	if(_TopValues[i].Wei > weight_max)
+						_TopValues[i].Wei = weight_max;
+					_TopValues[i].Count = 0;
+				}
+			}
 	int		Sample(const T& val, T_WEIGHT wei = 1)		// UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
 			{	int ret = _Match(val, wei);
 				if(ret == UNMATCHED && wei > _TopValues[TOP_K-1].Wei)
