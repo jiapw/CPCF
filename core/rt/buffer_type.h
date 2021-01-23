@@ -90,6 +90,12 @@ public:
 	t_Index GetSize() const { return _len; }
 
 public:
+	// allow for(iterator : Buffer) syntax (C++ 11)
+	INLFUNC t_Val*			begin(){ return _p; }
+	INLFUNC const t_Val*	begin() const { return _p; }
+	INLFUNC t_Val*			end(){ return _p + _len; }
+	INLFUNC const t_Val*	end() const { return _p + _len; }
+
 	INLFUNC Buffer_Ref(){ _p=nullptr; _len=0; }
 	INLFUNC Buffer_Ref(const Buffer_Ref<t_Val>& x){ _p = x._p; _len = x._len; }
 	INLFUNC Buffer_Ref(const t_Val*	p, t_Index len){ _p = (t_Val*)p; _len = len; }
@@ -305,12 +311,6 @@ protected:
 		_SafeFree32AL((LPCVOID&)_SC::_p);
 	}
 public:
-	// allow for(iterator : Buffer) syntax (C++ 11)
-	INLFUNC t_Val*			begin(){ return _SC::_p; }
-	INLFUNC const t_Val*	begin() const { return _SC::_p; }
-	INLFUNC t_Val*			end(){ return _SC::_p + _SC::_len; }
-	INLFUNC const t_Val*	end() const { return _SC::_p + _SC::_len; }
-
 	INLFUNC Buffer(){}
 	INLFUNC Buffer(const t_Val* p, SIZE_T len){ *this = Buffer_Ref<t_Val>(p,len); }
 	INLFUNC explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
@@ -353,7 +353,7 @@ public:
 	}
 	INLFUNC bool ChangeSize(SIZE_T new_size) //Original data at front is preserved
 	{	
-		if( new_size<=_SC::_len ){ ShrinkSize(new_size); return true; }
+		if(new_size<=_SC::_len){ ShrinkSize(new_size); return true; }
 		else	//expand buffer
 		{	t_Val* new_p = _Malloc32AL(t_Val,new_size);
 			if(new_p)
@@ -369,8 +369,8 @@ public:
 		return false;
 	}
 	INLFUNC void ShrinkSize(SIZE_T new_size) // skip calling ctor
-	{	if( new_size >= _SC::_len )return;
-		if( new_size<_SC::_len )
+	{	if(new_size >= _SC::_len)return;
+		if(new_size<_SC::_len)
 		{	
 			for(SIZE_T i=new_size;i<_SC::_len;i++)_SC::_xt::dtor(_SC::_p[i]);	//call dtor for unwanted instances at back
 			_SC::_len = new_size;
