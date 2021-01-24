@@ -628,6 +628,17 @@ public:
 		x = t_String_Ref(start,end);
 		return true;
 	}
+	INLFUNC bool GetNextToken(t_String_Ref& x, const CharacterSet& sep) const
+	{	LPCSTR start = _SC::_p;		const char* tail = End();
+		if(x.End() >= _SC::_p && x.End() <= tail)start = (char*)x.End();
+		LPCSTR end;
+		while(start<tail && sep.Has(*start))start++;
+		if(start>=tail)return false;
+		end = start+1;
+		while(end<tail && !sep.Has(*end))end++;
+		x = t_String_Ref(start,end);
+		return true;
+	}
 	INLFUNC bool GetNextToken(const CharacterSet& token_charset, t_String_Ref& token, t_String_Ref& non_token) const
 	{	
 		LPCSTR start = _SC::_p;		LPCSTR tail = End();
@@ -1654,9 +1665,10 @@ public:
 		if(Last() == ',' || Last() == '.' || Last() == ';'){ Last() = closure_symb; return true; }
 		*this += closure_symb; return false;
 	}
-	INLFUNC void Extend(SIZE_T count, char c = ' ')
-	{	SetLength(GetLength() + count);
-		memset((LPSTR)End() - count, c, count);
+	INLFUNC LPSTR Extend(SIZE_T count)
+	{	auto org_size = GetLength();
+		SetLength(rt::max(GetLength() + count, GetLength()*2));
+		return &_p[org_size];
 	}
 };
 

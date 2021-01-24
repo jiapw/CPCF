@@ -622,7 +622,7 @@ void os::Thread::TerminateForcely()
 {
 	if(_hThread)
 	{
-		_LOG_WARNING("Thread #"<<GetId()<<" will be terminated forcely, which is unsafe in most cases.");
+		_LOGC_WARNING("Thread #"<<GetId()<<" will be terminated forcely, which is unsafe in most cases.");
 
 		::TerminateThread(_hThread, -1);
 		__release_handle(_hThread);

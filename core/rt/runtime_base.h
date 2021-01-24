@@ -839,7 +839,7 @@ extern bool IsMemoryExceptionEnabledInThread();
 #define _SafeDelArray(ptr)			{ _SafeDelArray_ConstPtr(ptr); ptr = nullptr; }
 
 #define _EnlargeTo32AL(num)			((((num) + 0x7)&(~((SIZE_T)0x7))))
-#define _Alloca32AL(sz)				(_EnlargeTo32AL((SIZE_T)alloca(sz + 4)))
+#define _Alloca32AL(sz)				((LPVOID)_EnlargeTo32AL((SIZE_T)alloca(sz + 4)))
 #define _StackNew(type)				new (alloca(sizeof(type))) type
 
 #ifndef PLATFORM_WIN

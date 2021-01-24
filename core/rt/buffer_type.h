@@ -763,10 +763,11 @@ struct Trailing
 		static void Clear(X& x){};
 	};
 
-template<UINT bit_size>
+template<UINT bit_size, bool refer>
 class BooleanArrayStg
 {	template<bool> friend struct Trailing;
 protected:
+	static_assert(refer == false, "Fix-sized BooleanArray Refer is not supportted");
 	typedef DWORD RT_BLOCK_TYPE;
 	static const UINT	BIT_SIZE = bit_size;
 	static const UINT	RT_BLOCK_SIZE = sizeof(RT_BLOCK_TYPE)*8;
@@ -776,7 +777,7 @@ protected:
 	void					_ClearTrailingBits(){ Trailing<(bit_size%RT_BLOCK_SIZE)!=0>::Clear(*this); }
 };
 template<>
-class BooleanArrayStg<0>
+class BooleanArrayStg<0, false>
 {
 protected:
 	typedef DWORD RT_BLOCK_TYPE;
@@ -795,12 +796,33 @@ public:
 				_ClearTrailingBits();
 			}
 };
+template<>
+class BooleanArrayStg<0, true>
+{
+protected:
+	typedef DWORD RT_BLOCK_TYPE;
+	static const UINT		RT_BLOCK_SIZE = sizeof(RT_BLOCK_TYPE)*8;
+	UINT					BIT_SIZE;
+	UINT					RT_BLOCK_COUNT;
+
+	RT_BLOCK_TYPE*			_Bits;
+	void					_ClearTrailingBits(){ if(RT_BLOCK_COUNT)_Bits[RT_BLOCK_COUNT - 1] &= (~(RT_BLOCK_TYPE)0)>>(RT_BLOCK_SIZE - (BIT_SIZE%RT_BLOCK_SIZE)); }
+public:
+	BooleanArrayStg(){ _Bits = nullptr; BIT_SIZE = RT_BLOCK_COUNT = 0; }
+	void	Init(LPCVOID p, UINT bit_size) // bit_size must be multiple of 32
+			{	ASSERT(bit_size%32 == 0);
+				_Bits = (RT_BLOCK_TYPE*)p;
+				BIT_SIZE = bit_size;
+				RT_BLOCK_COUNT = (bit_size+RT_BLOCK_SIZE-1)/RT_BLOCK_SIZE;
+			}
+};
+
 } // namespace _details
 
-template<UINT bit_size = 0>
-class BooleanArray: public _details::BooleanArrayStg<bit_size>
+template<UINT bit_size = 0, bool refer = false>
+class BooleanArray: public _details::BooleanArrayStg<bit_size, refer>
 {
-	typedef _details::BooleanArrayStg<bit_size>	_SC;
+	typedef _details::BooleanArrayStg<bit_size, refer>	_SC;
     typedef typename _SC::RT_BLOCK_TYPE RT_BLOCK_TYPE;
 	static const UINT RT_BLOCK_SIZE = _SC::RT_BLOCK_SIZE;
 	
@@ -824,8 +846,14 @@ public:
 			else Bitmask <<= 1;
 		}
 	};
-
+	LPCVOID	GetBits() const { return _Bits; }
 	bool	Get(const Index& idx) const { return _SC::_Bits[idx.BlockOffset]&idx.Bitmask; }
+	DWORD	Get(UINT idx, UINT bit_count) // bit_count <= 32
+			{	ASSERT(bit_count <= 32);
+				if(idx + bit_count > BIT_SIZE)bit_count = BIT_SIZE - idx;
+				if(bit_count == 0)return 0;
+				return (DWORD)(((*(ULONGLONG*)&_SC::_Bits[idx/RT_BLOCK_SIZE]) >> (idx%RT_BLOCK_SIZE)) & ((1ULL<<bit_count)-1));
+			}
 	bool	Set(const Index& idx, bool v = true)
 			{	bool org = !!(_SC::_Bits[idx.BlockOffset]&idx.Bitmask);
 				if(v)
@@ -833,6 +861,15 @@ public:
 				else
 					_SC::_Bits[idx.BlockOffset] &= ~idx.Bitmask;
 				return org;
+			}
+	void	Set(UINT idx, DWORD bits, UINT bit_count) // bit_count <= 32
+			{	if(bit_count)
+				{	ASSERT(idx + bit_count < BIT_SIZE);
+					ASSERT(bit_count <= 32);
+					ULONGLONG& ull = *(ULONGLONG*)&_SC::_Bits[idx/RT_BLOCK_SIZE];
+					UINT shift = idx%RT_BLOCK_SIZE;
+					ull = (ull&~(((1ULL<<bit_count)-1)<<shift)) | (((ULONGLONG)bits) << shift);
+				}
 			}
 	bool	AtomicSet(const Index& idx) // return the bit value before atomic set
 			{
@@ -926,6 +963,7 @@ public:
 				if(i + 1 < _SC::RT_BLOCK_COUNT)rt::Zero(&_SC::_Bits[i+1], (_SC::RT_BLOCK_COUNT - i - 1)*RT_BLOCK_SIZE/8);
 			}
 };
+typedef BooleanArray<0, true> BooleanArrayRef;
 } // namespace rt
 
 
