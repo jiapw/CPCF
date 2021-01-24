@@ -846,11 +846,11 @@ public:
 			else Bitmask <<= 1;
 		}
 	};
-	LPCVOID	GetBits() const { return _Bits; }
+	LPCVOID	GetBits() const { return this->_Bits; }
 	bool	Get(const Index& idx) const { return _SC::_Bits[idx.BlockOffset]&idx.Bitmask; }
 	DWORD	Get(UINT idx, UINT bit_count) // bit_count <= 32
 			{	ASSERT(bit_count <= 32);
-				if(idx + bit_count > BIT_SIZE)bit_count = BIT_SIZE - idx;
+				if(idx + bit_count > this->BIT_SIZE)bit_count = this->BIT_SIZE - idx;
 				if(bit_count == 0)return 0;
 				return (DWORD)(((*(ULONGLONG*)&_SC::_Bits[idx/RT_BLOCK_SIZE]) >> (idx%RT_BLOCK_SIZE)) & ((1ULL<<bit_count)-1));
 			}
@@ -864,7 +864,7 @@ public:
 			}
 	void	Set(UINT idx, DWORD bits, UINT bit_count) // bit_count <= 32
 			{	if(bit_count)
-				{	ASSERT(idx + bit_count < BIT_SIZE);
+				{	ASSERT(idx + bit_count < this->BIT_SIZE);
 					ASSERT(bit_count <= 32);
 					ULONGLONG& ull = *(ULONGLONG*)&_SC::_Bits[idx/RT_BLOCK_SIZE];
 					UINT shift = idx%RT_BLOCK_SIZE;
