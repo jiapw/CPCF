@@ -337,12 +337,20 @@ public:
 	{	int ret = memcmp(_SC::_p,x.Begin(),min(GetLength(),x.GetLength())*sizeof(char));
 		return (ret > 0) || (ret==0 && (GetLength() >= x.GetLength()));
 	}
-
+	template< class StrT >
+	FORCEINL bool	IsSimilarTo(const StrT& x) const  // editing distance <= 1
+	{	if(abs((SSIZE_T)_SC::_len - (SSIZE_T)x._len) > 1)return false;
+		auto len_max = rt::max(_SC::_len, x._len);
+		auto match_len = CommonPrefixLength(x) + CommonSuffixLength(x);
+		return match_len >= len_max - 1;
+	}
 	template< class StrT >
 	FORCEINL bool	IsReferring(const StrT& x)  // (*this) is a part of x
 	{	return Begin() >= x.Begin() && (End() <= x.End());
 	}
 public:
+	FORCEINL SIZE_T		  CommonPrefixLength(const t_String_Ref& x) const { SIZE_T i=0; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[i] == x[i];i++); return i; }
+	FORCEINL SIZE_T		  CommonSuffixLength(const t_String_Ref& x) const { SIZE_T i=1; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[_SC::_len-i] == x[x._len-i];i++); return i-1; }
 	FORCEINL t_String_Ref SubStrTail(SIZE_T len) const { return len > GetLength() ? *this : t_String_Ref(_SC::_p+GetLength()-len, len); }
 	FORCEINL t_String_Ref SubStrHead(SIZE_T len) const { return t_String_Ref(_SC::_p,rt::min(len,GetLength())); }
 	FORCEINL t_String_Ref SubStr(SIZE_T start, SIZE_T len) const { return start < GetLength() ? t_String_Ref(_SC::_p+start,rt::min(len,GetLength()-start)) : nullptr; }
@@ -1167,8 +1175,8 @@ namespace tos
 			return 2 + sprintf(&p[2],"%08x",(DWORD)x);
 #endif
 		}
-		FORCEINL static int __toS(LPSTR p, float x, int fractional_digits){ return _details::string_ops::ftoa<float>(x, p, fractional_digits); }
-		FORCEINL static int __toS(LPSTR p, double x, int fractional_digits){ return _details::string_ops::ftoa<double>(x, p, fractional_digits); }
+		FORCEINL static int __toS(LPSTR p, float x, int fractional_digits = 2){ return _details::string_ops::ftoa<float>(x, p, fractional_digits); }
+		FORCEINL static int __toS(LPSTR p, double x, int fractional_digits = 4){ return _details::string_ops::ftoa<double>(x, p, fractional_digits); }
 		FORCEINL static int __toS(LPSTR p, bool x)
 		{	if(x){ *((DWORD*)p) = 0x65757274; return 4; }
 			else{ *((DWORD*)p) = 0x736c6166; p[4] = 'e'; return 5; }

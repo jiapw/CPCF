@@ -846,11 +846,11 @@ public:
 			else Bitmask <<= 1;
 		}
 	};
-	LPCVOID	GetBits() const { return this->_Bits; }
+	LPCVOID	GetBits() const { return _SC::_Bits; }
 	bool	Get(const Index& idx) const { return _SC::_Bits[idx.BlockOffset]&idx.Bitmask; }
 	DWORD	Get(UINT idx, UINT bit_count) // bit_count <= 32
 			{	ASSERT(bit_count <= 32);
-				if(idx + bit_count > this->BIT_SIZE)bit_count = this->BIT_SIZE - idx;
+				if(idx + bit_count > _SC::BIT_SIZE)bit_count = _SC::BIT_SIZE - idx;
 				if(bit_count == 0)return 0;
 				return (DWORD)(((*(ULONGLONG*)&_SC::_Bits[idx/RT_BLOCK_SIZE]) >> (idx%RT_BLOCK_SIZE)) & ((1ULL<<bit_count)-1));
 			}
@@ -864,7 +864,7 @@ public:
 			}
 	void	Set(UINT idx, DWORD bits, UINT bit_count) // bit_count <= 32
 			{	if(bit_count)
-				{	ASSERT(idx + bit_count < this->BIT_SIZE);
+				{	ASSERT(idx + bit_count < _SC::BIT_SIZE);
 					ASSERT(bit_count <= 32);
 					ULONGLONG& ull = *(ULONGLONG*)&_SC::_Bits[idx/RT_BLOCK_SIZE];
 					UINT shift = idx%RT_BLOCK_SIZE;
@@ -1030,11 +1030,11 @@ public:
 
 } // namespace _details
 
-class OStream: public _details::OStreamT< Buffer<BYTE> >
-{	
+class OStream: public _details::OStreamT<Buffer<BYTE>>
+{	typedef _details::OStreamT<Buffer<BYTE>> _SC;
 public:
 	INLFUNC UINT Write(LPCVOID pBuf, UINT co)
-	{	if(this->ChangeSize(rt::max(_len,(SIZE_T)(m_Pos+co))))
+	{	if(ChangeSize(rt::max(_len,(SIZE_T)(m_Pos+co))))
 		{	memcpy(_p + m_Pos,pBuf,co);
 			m_Pos += co;
 			return co;
@@ -1049,7 +1049,7 @@ public:
 			case rt::_File::Seek_End:		newp = _len + offset; break;
 			default: ASSERT(0);
 		}
-		if(newp >=0 && this->ChangeSize(rt::max(_len,(SIZE_T)newp)))
+		if(newp >=0 && ChangeSize(rt::max(_len,(SIZE_T)newp)))
 			m_Pos = (UINT)newp;
 		return m_Pos;
 	}

@@ -775,6 +775,10 @@ void rt::UnitTests::string()
 		a += "fdasf";
 	}
 
+	_LOG(rt::SS("adress").IsSimilarTo(rt::SS("address")));
+	_LOG(rt::SS("adresss").IsSimilarTo(rt::SS("address")));
+	_LOG(rt::SS("addresss").IsSimilarTo(rt::SS("address")));
+
 //	if(0)
 //	{	os::FileBuffer<char>	file;
 //		file.Open("list.txt"); // http://theiphonewiki.com/wiki/Models

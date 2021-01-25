@@ -23,7 +23,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(precompiler);
+		TYPETRAITS_UNITTEST(string);
 		return;
 	}
 	else
