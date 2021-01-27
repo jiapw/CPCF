@@ -226,7 +226,7 @@ public:
 	INLFUNC bool		IsUpdating() const { return _UpdateBegin; }
 	INLFUNC bool		IsModified() const { return (bool)_Cloned; }
 	INLFUNC const auto&	GetUnmodified() const { return _MTM.Get(); }
-	INLFUNC auto&		GetModified() const { ASSERT(_Cloned); return *_Cloned; }
+	INLFUNC auto&		GetModified(){ ASSERT(_UpdateBegin); ReadyModify(); return *_Cloned; }
 	
 	INLFUNC bool		ReadyModify(bool from_empty = false){ if(!_Cloned)_Cloned = from_empty?_MTM.New():_MTM.Clone(); return (bool)_Cloned; }
 	INLFUNC void		Revert(){ ASSERT(_UpdateBegin); _SafeDel(_Cloned); _MTM.EndUpdate(nullptr); _UpdateBegin = false; }
