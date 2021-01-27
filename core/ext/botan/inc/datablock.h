@@ -188,6 +188,8 @@ public:
 	static const UINT LEN = _LEN;
     operator	LPCBYTE () const { return (LPCBYTE)GetBytes(); }
 	operator	LPBYTE () { return (LPBYTE)GetBytes(); }
+    operator    DataBlock<_LEN, !is_sec>& (){ return (DataBlock<_LEN, !is_sec>&)*this; }
+    operator    const DataBlock<_LEN, !is_sec>& () const { return (DataBlock<_LEN, !is_sec>&)*this; }
 	template<typename T>
 	const BYTE&  operator [](T i) const { return GetBytes()[i]; }
 	template<typename T>
@@ -211,16 +213,19 @@ public:
 	INLFUNC bool		IsVoid() const { return dwop::equ(GetDWords(), (DWORD)0xffffffff); }
 	INLFUNC DataBlock&	Random(UINT seed){ rt::Randomizer(seed).Randomize(GetBytes(), _LEN); return *this; }
 
-	template<bool sb> INLFUNC void	From(const DataBlock<_LEN, sb>& x){	dwop::set(DWords, x.GetDWords()); }
-	template<bool sb> INLFUNC int	Compare(const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }
-	template<bool sb> INLFUNC void	operator ^= (const DataBlock<_LEN, sb>& x){ dwop::xor_to(DWords, x.GetDWords()); }
-	template<bool sb> INLFUNC bool	operator < (const DataBlock<_LEN, sb>& x) const	{ return dwop::cmp(GetDWords(), x.GetDWords()) < 0; }
-	template<bool sb> INLFUNC bool	operator <= (const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) <= 0; }
-	template<bool sb> INLFUNC bool	operator > (const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) > 0; }
-	template<bool sb> INLFUNC bool	operator >= (const DataBlock<_LEN, sb>& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) >= 0; }
+    //INLFUNC void   Xor(const DataBlock& x){ dwop::xor_to(DWords, x.GetDWords()); }
+    //template<bool sb> INLFUNC void   Xor(const DataBlock<_LEN, sb>& x){ dwop::xor_to(DWords, x.GetDWords()); }
+    
+	INLFUNC void	From(const DataBlock& x){	dwop::set(DWords, x.GetDWords()); }
+	INLFUNC int	    Compare(const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }
+    INLFUNC void	operator ^= (const DataBlock& x){ dwop::xor_to(DWords, x.GetDWords()); }
+	INLFUNC bool	operator < (const DataBlock& x) const	{ return dwop::cmp(GetDWords(), x.GetDWords()) < 0; }
+	INLFUNC bool	operator <= (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) <= 0; }
+	INLFUNC bool	operator > (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) > 0; }
+	INLFUNC bool	operator >= (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) >= 0; }
 	// equ_sec and not_equ_sec are time-consistent comparing to defense against timing attack
-	template<bool sb> INLFUNC bool	operator == (const DataBlock<_LEN, sb>& x) const { return is_sec?dwop::equ_sec(GetDWords(), x.GetDWords()):dwop::equ(GetDWords(), x.GetDWords()); }
-	template<bool sb> INLFUNC bool	operator != (const DataBlock<_LEN, sb>& x) const { return is_sec?dwop::not_equ_sec(GetDWords(), x.GetDWords()):dwop::not_equ(GetDWords(), x.GetDWords()); }
+	INLFUNC bool	operator == (const DataBlock& x) const { return is_sec?dwop::equ_sec(GetDWords(), x.GetDWords()):dwop::equ(GetDWords(), x.GetDWords()); }
+	INLFUNC bool	operator != (const DataBlock& x) const { return is_sec?dwop::not_equ_sec(GetDWords(), x.GetDWords()):dwop::not_equ(GetDWords(), x.GetDWords()); }
 
 	INLFUNC const DataBlock& Zero(){ dwop::set(GetDWords(), (DWORD)0); return *this; }
 	INLFUNC const DataBlock& Void(){ dwop::set(GetDWords(), (DWORD)0xffffffff); return *this; }
