@@ -216,19 +216,19 @@ public:
     //INLFUNC void   Xor(const DataBlock& x){ dwop::xor_to(DWords, x.GetDWords()); }
     //template<bool sb> INLFUNC void   Xor(const DataBlock<_LEN, sb>& x){ dwop::xor_to(DWords, x.GetDWords()); }
     
-	INLFUNC void	From(const DataBlock& x){	dwop::set(DWords, x.GetDWords()); }
-	INLFUNC int	    Compare(const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }
-    INLFUNC void	operator ^= (const DataBlock& x){ dwop::xor_to(DWords, x.GetDWords()); }
-	INLFUNC bool	operator < (const DataBlock& x) const	{ return dwop::cmp(GetDWords(), x.GetDWords()) < 0; }
-	INLFUNC bool	operator <= (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) <= 0; }
-	INLFUNC bool	operator > (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) > 0; }
-	INLFUNC bool	operator >= (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) >= 0; }
+	INLFUNC void		From(const DataBlock& x){	dwop::set(DWords, x.GetDWords()); }
+	INLFUNC int			Compare(const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }
+    INLFUNC void		operator ^= (const DataBlock& x){ dwop::xor_to(DWords, x.GetDWords()); }
+	INLFUNC bool		operator < (const DataBlock& x) const	{ return dwop::cmp(GetDWords(), x.GetDWords()) < 0; }
+	INLFUNC bool		operator <= (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) <= 0; }
+	INLFUNC bool		operator > (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) > 0; }
+	INLFUNC bool		operator >= (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) >= 0; }
 	// equ_sec and not_equ_sec are time-consistent comparing to defense against timing attack
-	INLFUNC bool	operator == (const DataBlock& x) const { return is_sec?dwop::equ_sec(GetDWords(), x.GetDWords()):dwop::equ(GetDWords(), x.GetDWords()); }
-	INLFUNC bool	operator != (const DataBlock& x) const { return is_sec?dwop::not_equ_sec(GetDWords(), x.GetDWords()):dwop::not_equ(GetDWords(), x.GetDWords()); }
+	INLFUNC bool		operator == (const DataBlock& x) const { return is_sec?dwop::equ_sec(GetDWords(), x.GetDWords()):dwop::equ(GetDWords(), x.GetDWords()); }
+	INLFUNC bool		operator != (const DataBlock& x) const { return is_sec?dwop::not_equ_sec(GetDWords(), x.GetDWords()):dwop::not_equ(GetDWords(), x.GetDWords()); }
 
-	INLFUNC const DataBlock& Zero(){ dwop::set(GetDWords(), (DWORD)0); return *this; }
-	INLFUNC const DataBlock& Void(){ dwop::set(GetDWords(), (DWORD)0xffffffff); return *this; }
+	INLFUNC auto&		Zero(){ dwop::set(GetDWords(), (DWORD)0); return *this; }
+	INLFUNC auto&		Void(){ dwop::set(GetDWords(), (DWORD)0xffffffff); return *this; }
 
 	TYPETRAITS_DECLARE_POD;
 public:
