@@ -247,6 +247,7 @@ void LogWriteFlush()
 #endif
 }
 
+#ifndef PLATFORM_DISABLE_LOG
 LogPrefix& LogPrefix::operator << (LogPrefixItemCode code)
 {
 	_item& it = items.push_back();
@@ -292,7 +293,7 @@ const LogPrefix& LogPrefix::operator = (const LogPrefix& x)
     }
     return *this;
 }
-
+#endif // #ifndef PLATFORM_DISABLE_LOG
 } // namespace os
 
 
@@ -391,6 +392,7 @@ void SetLogConsoleTitle(LPCSTR title)
 #elif defined(PLATFORM_ANDROID)
 #include <android/log.h>
 
+#ifndef PLATFORM_DISABLE_LOG
 namespace os
 {
 namespace _details
@@ -402,9 +404,11 @@ namespace _details
 		__android_log_write(cat[type&rt::LOGTYPE_LEVEL_MASK], "CPF", log);
 	}
 }} //  namespace os::_details
+#endif // #ifndef PLATFORM_DISABLE_LOG
 
 #elif defined (PLATFORM_IOS)
 
+#ifndef PLATFORM_DISABLE_LOG
 namespace os
 {
 namespace _details
@@ -421,12 +425,14 @@ namespace _details
         _prev = logstr;
 	}
 }} //  namespace os::_details
+#endif // #ifndef PLATFORM_DISABLE_LOG
 
 #elif defined(PLATFORM_LINUX) || defined (PLATFORM_MAC)
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
 
+#ifndef PLATFORM_DISABLE_LOG
 namespace os
 {
 namespace _details
@@ -503,21 +509,21 @@ namespace _details
         }
     }
 }} //  namespace os::_details
+#endif // #ifndef PLATFORM_DISABLE_LOG
 
 #else
 #endif
 
-
 namespace os
 {
+
+#ifndef PLATFORM_DISABLE_LOG
 namespace _details
 {
-
 /////////////////////////////////////////////////////////////////
 // Platform independent implementations but depend on some platform dependent functions
 void LogWriteDefault(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type, LPVOID)
 {
-#ifndef PLATFORM_DISABLE_LOG
 	EnterCSBlock(_LogWriteCS);
 
 	if(type&(rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_CONSOLE_FORCE|rt::LOGTYPE_IN_CONSOLE_PROMPT))os::_details::__ConsoleLogWrite(log, type);
@@ -527,8 +533,6 @@ void LogWriteDefault(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int typ
 		_LogFile.Write("\x0d\x0a", 2);
 		_LogFile.Flush();
 	}
-
-#endif
 }
 
 static FUNC_LOG_WRITE	__LogWrtieFunc = LogWriteDefault;
@@ -563,23 +567,30 @@ void SetConsoleLogWriteFunction(FUNC_CONSOLE_LOG_WRITE func, LPVOID cookie)
 		__ConsoleLogWriteFunc = __ConsoleLogWriteDefault;
 	}
 }
-
 } // namespace _details
+#endif // #ifndef PLATFORM_DISABLE_LOG
 
 void LogDisplayInConsole(bool yes)
 {
+#ifndef PLATFORM_DISABLE_LOG
 	_details::__LogWrtieNoConsoleDisplay = !yes;
+#endif
 }
 
 bool LogIsDisplayInConsole()
 {
+#ifndef PLATFORM_DISABLE_LOG
 	return !_details::__LogWrtieNoConsoleDisplay;
+#endif
+	return false;
 }
 
 void LogWrite(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type)
 {
+#ifndef PLATFORM_DISABLE_LOG
 	if(_details::__LogWrtieNoConsoleDisplay)type = type&(~rt::LOGTYPE_IN_CONSOLE);
 	_details::__LogWrtieFunc(log, file, line_num, func, type, _details::__LogWrtieFuncCookie);
+#endif
 }
 
 

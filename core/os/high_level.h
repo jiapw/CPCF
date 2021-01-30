@@ -348,6 +348,7 @@ public:
 	}
 };
 
+#ifndef PLATFORM_DISABLE_LOG
 class ParallelLog
 {
 protected:
@@ -402,7 +403,7 @@ public:
 		_PW.FinalizeWritten((LPSTR)e, tot_len);
 	}
 };
-
+#endif
 
 class ParallelFileWriter
 {

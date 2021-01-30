@@ -1891,6 +1891,7 @@ void rt::UnitTests::pfw()
 
 void rt::UnitTests::plog()
 {
+#ifndef PLATFORM_DISABLE_LOG
 	os::ParallelLog log(500);
 
 	for(;;)
@@ -1899,7 +1900,7 @@ void rt::UnitTests::plog()
 	}
 
 	//log.Write("test", "test_file", 0, "test_func", rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_INFORMATIONAL);
-
+#endif
 }
 
 /*

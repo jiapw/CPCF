@@ -143,7 +143,7 @@ protected:
 
 namespace os
 {
-
+#ifndef PLATFORM_DISABLE_LOG
 enum LogPrefixItemCode
 {
     _LOG_TIME = 10001, // in "yyyy/MM/dd hh:mm:ss", e.g. 2013/01/11 16:39:45
@@ -173,10 +173,22 @@ struct LogPrefix
 
 #define _LOGFORMAT (os::LogPrefix())
 
-namespace _details{ extern void LogWriteDefault(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type, LPVOID); }
+namespace _details
+{
+	void __ConsoleLogWrite(LPCSTR log, int type);
+
+	typedef void (*FUNC_CONSOLE_LOG_WRITE)(LPCSTR log, int type, LPVOID cookie);
+	typedef void (*FUNC_LOG_WRITE)(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type, LPVOID cookie);
+
+	extern void SetConsoleLogWriteFunction(FUNC_CONSOLE_LOG_WRITE func = nullptr, LPVOID cookie = nullptr);
+	extern void SetLogWriteFunction(FUNC_LOG_WRITE func = nullptr, LPVOID cookie = nullptr);
+	extern void LogWriteDefault(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type, LPVOID);
+};
 
 extern void LogWrite(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type);
 extern void LogWriteFlush();
+#endif // PLATFORM_DISABLE_LOG
+
 
 extern void SetLogConsoleTitle(LPCSTR title);
 
@@ -268,18 +280,6 @@ extern int		SearchProcess(LPCSTR base_name, int* pProcessIds, UINT ProcessIdSize
 extern int		GetProcessId();
 extern bool		TerminateProcess(int process_id);
 extern void		SetAppTitle(LPCSTR title);
-
-namespace _details
-{
-	void __ConsoleLogWrite(LPCSTR log, int type);
-
-	typedef void (*FUNC_CONSOLE_LOG_WRITE)(LPCSTR log, int type, LPVOID cookie);
-	typedef void (*FUNC_LOG_WRITE)(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type, LPVOID cookie);
-
-	void SetConsoleLogWriteFunction(FUNC_CONSOLE_LOG_WRITE func = nullptr, LPVOID cookie = nullptr);
-	void SetLogWriteFunction(FUNC_LOG_WRITE func = nullptr, LPVOID cookie = nullptr);
-};
-
 
 #pragma pack(1)
 struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (new Date(x))
