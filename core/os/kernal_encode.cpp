@@ -572,51 +572,56 @@ bool Base16Decode(const rt::String_Ref&in, rt::String& out)
 
 namespace _details
 {
-	// Modified based on Crockford's Base32 - http://en.wikipedia.org/wiki/Base32
-	// also avoids 's' and 'z', which confuse with 2 and 5
+	// Crockford's Base32 - http://en.wikipedia.org/wiki/Base32
 	//value		encode	decode			value	encode	decode
 	//0			0		0 o O			16		G		g G
-	//1			1		1 l L			17		H		h H
-	//2			2		2 z Z			18		I		i I		
-	//3			3		3				19		J		j J
-	//4			4		4				20		K		k K
-	//5			5		5				21		M		m M
-	//6			6		6				22		N		n N
-	//7			7		7				23		P		p P
-	//8			8		8				24		Q		q Q
-	//9			9		9				25		R		r R
-	//10		A		a A				26		s		s S
-	//11		B		b B				27		T		t T
-	//12		C		c C				28		V		v V u U
-	//13		D		d D				29		W		w W
-	//14		E		e E				30		X		x X
-	//15		F		f F				31		Y		y Y
+	//1			1		1 i I l L		17		H		h H
+	//2			2		2				18		J		j J
+	//3			3		3				19		K		k K
+	//4			4		4				20		M		m M
+	//5			5		5				21		N		n N
+	//6			6		6				22		P		p P
+	//7			7		7				23		Q		q Q
+	//8			8		8				24		R		r R
+	//9			9		9				25		s		s S
+	//10		A		a A				26		T		t T
+	//11		B		b B				27		V		v V u U
+	//12		C		c C				28		W		w W
+	//13		D		d D				29		X		x X
+	//14		E		e E				30		Y		y Y
+	//15		F		f F				31		Z		z Z
 
 	static const int _base32_crockford_decoding['z' - '0' + 1] = 
 	{
-		0,1,2,3,4,5,6,7,8,9,	/*0-9*/
+		0,1,2,3,4, 5,6,7,8,9,	/*0-9*/
 		-1,-1,-1,-1,-1,-1,-1,	/*:	; <	= >	? @	*/
-		10,11,12,13,14,15,16,17,18,19,20,/*A-K*/	
+		10,11,12,13,14,15,16,17,/*A-H*/	
+		1,						/* I = 1*/
+		18,19,					/* J K */	
 		1,						/*L	= 1*/
-		21,22,					/*M	N */	
+		20,21,					/*M	N */	
 		0,						/*O = 0	*/
-		23,24,25,26,27,			/*PQRST	*/		
-		28,28,					/*U V */	
-		29,30,31,2,				/*WXYZ*/
+		22,						/*P	*/		
+		23,24,25,26,			/*QRST */	
+		27,27,					/*U V */	
+		28,29,30,31,			/*WXYZ*/
 		-1,-1,-1,-1,			/*[	\ ] ^*/
 		-1,						/* _ */
 		-1,						/* ` */	
-		10,11,12,13,14,15,16,17,18,19,20,/*a-k*/
+		10,11,12,13,14,15,16,17,/*a-h*/	
+		1,						/* i = 1*/
+		18,19,					/* j k */	
 		1,						/*l	= 1*/
-		21,22,					/*m	n */
+		20,21,					/*m	n */	
 		0,						/*o = 0	*/
-		23,24,25,26,27,			/*pqrst	*/		
-		28,28,					/*u v */
-		29,30,31,2,				/*wxyz*/
+		22,						/*p	*/		
+		23,24,25,26,			/*qrst */	
+		27,27,					/*u v */
+		28,29,30,31,			/*wxyz*/
 	}; 															//			1		  2			3
 																//01234567890123456789012345678901
-	static const char _base32_crockford_encoding_uppercase[33] = "0123456789ABCDEFGHIJKMNPQRSTVWXY";
-	static const char _base32_crockford_encoding_lowercase[33] = "0123456789abcdefghijkmnpqrstvwxy";
+	static const char _base32_crockford_encoding_uppercase[33] = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+	static const char _base32_crockford_encoding_lowercase[33] = "0123456789abcdefghjkmnpqrstvwxyz";
 																//			1		  2			3
 																//01234567890123456789012345678901
 	static const char _base32_extendhex_encoding_uppercase[33] = "0123456789ABCDEFGHIJKLMNOPQRSTUV";

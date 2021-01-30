@@ -207,7 +207,7 @@ public:
 							rt::Zero(*this); return false;
 						}
 	INLFUNC void		ToBase64(rt::String& str) const	{ str.SetLength(os::Base64EncodeLength(_LEN)); os::Base64Encode(str, GetBytes(), _LEN); }
-	INLFUNC void		ToBase32(rt::String& str) const { str.SetLength(os::Base32EncodeLength(_LEN)); os::Base32CrockfordFavCharEncode(str, GetBytes(), _LEN); }
+	INLFUNC void		ToBase32(rt::String& str) const { str.SetLength(os::Base32EncodeLength(_LEN)); os::Base32CrockfordEncode(str, GetBytes(), _LEN); }
 	INLFUNC void		ToBase16(rt::String& str) const	{ str.SetLength(os::Base16EncodeLength(_LEN)); os::Base16Encode(str, GetBytes(), _LEN); }
 	INLFUNC bool		IsZero() const { return dwop::equ(GetDWords(), (DWORD)0); }
 	INLFUNC bool		IsVoid() const { return dwop::equ(GetDWords(), (DWORD)0xffffffff); }
