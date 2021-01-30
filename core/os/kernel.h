@@ -827,8 +827,6 @@ extern void		Base32EncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_l
 extern bool		Base32CrockfordDecode(LPVOID pDataOut, SIZE_T data_len, LPCSTR pBase32, SIZE_T str_len);  // for both upper/lowercase
 extern void		Base32CrockfordEncode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 extern void		Base32CrockfordEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
-extern void		Base32CrockfordFavCharEncode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
-extern void		Base32CrockfordFavCharEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 
 } // namespace os
 
@@ -915,38 +913,6 @@ struct Base32CrockfordLowercaseOnStack: public ::rt::tos::S_<1, LEN>
 	template<typename T>
 	Base32CrockfordLowercaseOnStack(const T& x)
 	{	new (this) Base32CrockfordLowercaseOnStack(&x, sizeof(x));
-	}
-};
-
-template<UINT LEN = 256>
-struct Base32CrockfordFavCharOnStack: public ::rt::tos::S_<1, LEN>
-{	typedef ::rt::tos::S_<1, LEN> _SC;
-	Base32CrockfordFavCharOnStack(LPCVOID pData, SIZE_T len)
-	{	int slen = (int)os::Base32EncodeLength((UINT)len);
-		ASSERT(slen < LEN);
-		os::Base32CrockfordFavCharEncode(_SC::_p, pData,(UINT)len);
-		_SC::_p[slen] = 0;
-		_SC::_len = slen;
-	}
-	template<typename T>
-	Base32CrockfordFavCharOnStack(const T& x)
-	{	new (this) Base32CrockfordFavCharOnStack(&x, sizeof(x));
-	}
-};
-
-template<UINT LEN = 256>
-struct Base32CrockfordFavCharLowercaseOnStack: public ::rt::tos::S_<1, LEN>
-{	typedef ::rt::tos::S_<1, LEN> _SC;
-	Base32CrockfordFavCharLowercaseOnStack(LPCVOID pData, SIZE_T len)
-	{	UINT slen = (UINT)os::Base32EncodeLength((UINT)len);
-		ASSERT(slen < LEN);
-		os::Base32CrockfordFavCharEncodeLowercase(_SC::_p, pData,(UINT)len);
-		_SC::_p[slen] = 0;
-		_SC::_len = slen;
-	}
-	template<typename T>
-	Base32CrockfordFavCharLowercaseOnStack(const T& x)
-	{	new (this) Base32CrockfordFavCharLowercaseOnStack(&x, sizeof(x));
 	}
 };
 

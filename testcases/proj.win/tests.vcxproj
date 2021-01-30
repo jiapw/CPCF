@@ -225,7 +225,6 @@
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb_serving.h" />
     <ClInclude Include="..\..\core\inet\http_client.h" />
     <ClInclude Include="..\..\core\inet\inet.h" />
-    <ClInclude Include="..\..\core\inet\kvstore.h" />
     <ClInclude Include="..\..\core\inet\tinyhttpd.h" />
     <ClInclude Include="..\..\core\inet\tinyhttpd_fileserv.h" />
     <ClInclude Include="..\..\core\inet\tinyhttpd_websocket.h" />

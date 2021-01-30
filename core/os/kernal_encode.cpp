@@ -576,56 +576,47 @@ namespace _details
 	// also avoids 's' and 'z', which confuse with 2 and 5
 	//value		encode	decode			value	encode	decode
 	//0			0		0 o O			16		G		g G
-	//1			1		1 i I l L		17		H		h H
-	//2			2		2 z Z			18		J		j J
-	//3			3		3				19		K		k K
-	//4			4		4				20		M		m M
-	//5			5		5				21		N		n N
-	//6			6		6				22		P		p P
-	//7			7		7				23		Q		q Q
-	//8			8		8				24		R		r R
-	//9			9		9				25		s		s S
-	//10		A		a A				26		T		t T
-	//11		B		b B				27		V		v V u U
-	//12		C		c C				28		W		w W
-	//13		D		d D				29		X		x X
-	//14		E		e E				30		Y		y Y
-	//15		F		f F				31		@		@
+	//1			1		1 l L			17		H		h H
+	//2			2		2 z Z			18		I		i I		
+	//3			3		3				19		J		j J
+	//4			4		4				20		K		k K
+	//5			5		5				21		M		m M
+	//6			6		6				22		N		n N
+	//7			7		7				23		P		p P
+	//8			8		8				24		Q		q Q
+	//9			9		9				25		R		r R
+	//10		A		a A				26		s		s S
+	//11		B		b B				27		T		t T
+	//12		C		c C				28		V		v V u U
+	//13		D		d D				29		W		w W
+	//14		E		e E				30		X		x X
+	//15		F		f F				31		Y		y Y
 
 	static const int _base32_crockford_decoding['z' - '0' + 1] = 
 	{
-		0,1,2,3,4, 5,6,7,8,9,	/*0-9*/
-		-1,-1,-1,-1,-1,-1,31,	/*:	; <	= >	? @	*/
-		10,11,12,13,14,15,16,17,/*A-H*/	
-		1,						/* I = 1*/
-		18,19,					/* J K */	
+		0,1,2,3,4,5,6,7,8,9,	/*0-9*/
+		-1,-1,-1,-1,-1,-1,-1,	/*:	; <	= >	? @	*/
+		10,11,12,13,14,15,16,17,18,19,20,/*A-K*/	
 		1,						/*L	= 1*/
-		20,21,					/*M	N */	
+		21,22,					/*M	N */	
 		0,						/*O = 0	*/
-		22,						/*P	*/		
-		23,24,25,26,			/*QRST */	
-		27,27,					/*U V */	
-		28,29,30,2,				/*WXYZ*/
+		23,24,25,26,27,			/*PQRST	*/		
+		28,28,					/*U V */	
+		29,30,31,2,				/*WXYZ*/
 		-1,-1,-1,-1,			/*[	\ ] ^*/
 		-1,						/* _ */
 		-1,						/* ` */	
-		10,11,12,13,14,15,16,17,/*a-h*/	
-		1,						/* i = 1*/
-		18,19,					/* j k */	
+		10,11,12,13,14,15,16,17,18,19,20,/*a-k*/
 		1,						/*l	= 1*/
-		20,21,					/*m	n */	
+		21,22,					/*m	n */
 		0,						/*o = 0	*/
-		22,						/*p	*/		
-		23,24,25,26,			/*qrst */	
-		27,27,					/*u v */
-		28,29,30, 2,			/*wxyz*/
+		23,24,25,26,27,			/*pqrst	*/		
+		28,28,					/*u v */
+		29,30,31,2,				/*wxyz*/
 	}; 															//			1		  2			3
 																//01234567890123456789012345678901
-	static const char _base32_crockford_encoding_uppercase[33] = "0123456789ABCDEFGHJKMNPQRSTVWXY@";
-	static const char _base32_crockford_encoding_lowercase[33] = "0123456789abcdefghjkmnpqrstvwxy@";
-	static const char _base32_crockford_encoding_uppercase_favchar[33] = "OIZ3456789ABCDEFGHJKMNPQRSTVWXY@";
-	static const char _base32_crockford_encoding_lowercase_favchar[33] = "oiz3456789abcdefghjkmnpqrstvwxy@";
-
+	static const char _base32_crockford_encoding_uppercase[33] = "0123456789ABCDEFGHIJKMNPQRSTVWXY";
+	static const char _base32_crockford_encoding_lowercase[33] = "0123456789abcdefghijkmnpqrstvwxy";
 																//			1		  2			3
 																//01234567890123456789012345678901
 	static const char _base32_extendhex_encoding_uppercase[33] = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
@@ -646,7 +637,7 @@ namespace _details
 		{	FORCEINL static int encode(int d){ return _base32_extendhex_encoding_lowercase[d]; }
 		};
 
-	template<bool uppercase = true, bool fav_char = false>
+	template<bool uppercase = true>
 	struct table_crockford
 	{
 		FORCEINL static bool decode(int&b, int d)
@@ -656,14 +647,8 @@ namespace _details
 		}
 		FORCEINL static int encode(int d){ return _base32_crockford_encoding_uppercase[d]; }
 	};
-		template<> struct table_crockford<false, false>: public table_crockford<true>
+		template<> struct table_crockford<false>: public table_crockford<true>
 		{	FORCEINL static int encode(int d){ return _base32_crockford_encoding_lowercase[d]; }
-		};
-		template<> struct table_crockford<false, true>: public table_crockford<true>
-		{	FORCEINL static int encode(int d){ return _base32_crockford_encoding_lowercase_favchar[d]; }
-		};
-		template<> struct table_crockford<true, true>: public table_crockford<true>
-		{	FORCEINL static int encode(int d){ return _base32_crockford_encoding_uppercase_favchar[d]; }
 		};
 
 	template<typename BASE32_TABLE>
@@ -818,16 +803,6 @@ void Base32CrockfordEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_
 	_details::_Base32Encode<_details::table_crockford<false>>(pBase32Out, pData, data_len);
 }
 
-void Base32CrockfordFavCharEncode(LPSTR pBase32Out, LPCVOID pData, SIZE_T data_len)
-{
-	_details::_Base32Encode<_details::table_crockford<true, true>>(pBase32Out, pData, data_len);
-}
-
-void Base32CrockfordFavCharEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len)
-{
-	_details::_Base32Encode<_details::table_crockford<false, true>>(pBase32Out, pData, data_len);
-}
-
 bool Base32Decode(LPVOID pDataOut,SIZE_T data_len,LPCSTR pBase32, SIZE_T str_len)
 {
 	return _details::_Base32Decode<_details::table_extend_hex<>>(pDataOut, data_len, pBase32, str_len);
@@ -842,7 +817,6 @@ void Base32EncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len)
 {
 	_details::_Base32Encode<_details::table_extend_hex<false>>(pBase32Out, pData, data_len);
 }
-
 
 void UrlEncode(const rt::String_Ref& url, rt::String& encoded_url)
 {
