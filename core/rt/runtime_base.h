@@ -170,11 +170,12 @@ namespace os
 									::os::LogWrite(	_ostr.rdbuf()->str().c_str(),__FILE__,__LINE__,__FUNCTION__, type); \
 								}
     #define _LOGNL				{ ::os::LogWrite("",__FILE__,__LINE__,__FUNCTION__, rt::LOGTYPE_VERBOSE); }
+	#define _LOGP				os::LogPrefix()
 #else
 	#define __LOG_TYPE(x,type)	{}
 	#define _LOGNL				{}
+	#define _LOGP
 #endif
-
 
 // Log to both console and file
 #define _LOG_VERBOSE(x)				__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
@@ -208,7 +209,6 @@ namespace os
 #define _LOGF_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOGF_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_WARNING)
 
-#define _LOGP						os::LogPrefix()
 
 
 ///////////////////////////////////////////////////////
