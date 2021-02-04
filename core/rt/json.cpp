@@ -489,7 +489,7 @@ JsonEscapeString::JsonEscapeString(const rt::String_Ref& c_string, bool add_quot
 	int open = 0;
 	if(add_quote)(*this)[open++] = '"';
 
-	SetLength(c_string.GetLength()*2 + 2);
+	SetLength(c_string.GetLength()*4 + 2);
 	for(UINT i=0;i<c_string.GetLength();i++)
 	{	static const rt::CharacterSet_Escape esc;
 		int c = c_string[i];
