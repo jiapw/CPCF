@@ -241,19 +241,33 @@ class ThreadSafeMutable
 {
 	template<typename t_MTMutable>
 	friend class _details::_TSM_Updater;
-
-	T*		_p;
 	os::CriticalSection _cs;
+	T*					_p;
+#if defined(PLATFORM_DEBUG_BUILD)
+	bool				_bModifying = false;
+#endif
 protected:
-	INLFUNC bool		BeginUpdate(bool just_try = false){ if(just_try)return _cs.TryLock(); _cs.Lock(); return true; }
+	INLFUNC bool		BeginUpdate(bool just_try = false)
+						{
+							if(just_try){ if(!_cs.TryLock())return false; }
+							else{ _cs.Lock(); }
+#if defined(PLATFORM_DEBUG_BUILD)
+							ASSERT(!_bModifying);
+							_bModifying = true;
+#endif
+							return true; 
+						}
 	INLFUNC void		EndUpdate(T* pNew = nullptr)/* nullptr indicates no change */
 						{	if(pNew){	T* pOld = _p; _p = pNew; _SafeDel_Delayed(pOld, old_TTL); }
+#if defined(PLATFORM_DEBUG_BUILD)
+							_bModifying = false;
+#endif
 							_cs.Unlock();
 						}
 public:
 	typedef T			t_Object;
 	INLFUNC	ThreadSafeMutable(){ _p = nullptr; }
-	INLFUNC ~ThreadSafeMutable(){ Clear();	}
+	INLFUNC ~ThreadSafeMutable(){ Clear(); ASSERT(!_bModifying); }
 
 	INLFUNC const T&	Get() const { static const T _t; return _p?*_p:_t; }
 	INLFUNC const T*	operator -> () const { return &Get(); }
@@ -266,6 +280,7 @@ public:
 	INLFUNC T&			GetObject(){ ASSERT(_cs.IsOwnedByCurrentThread()); return (T&)Get(); }
 };
 
+#define THREADSAFEMUTABLE_LOCK(org_obj)				EnterCSBlock(*(os::CriticalSection*)&org_obj)
 #define THREADSAFEMUTABLE_UPDATE(org_obj, new_obj)	os::_details::_TSM_Updater<decltype(org_obj)> new_obj(org_obj, false)
 #define THREADSAFEMUTABLE_SET(org_obj, new_obj)		os::_details::_TSM_Updater<decltype(org_obj)> new_obj(org_obj, false); new_obj.ReadyModify(true)
 #define THREADSAFEMUTABLE_TRYUPDATE(org_obj, new_obj)	os::_details::_TSM_Updater<decltype(org_obj)> new_obj(org_obj, true)
