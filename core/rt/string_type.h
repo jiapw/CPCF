@@ -178,7 +178,7 @@ public:
 	template<typename T>
 	FORCEINL CharacterSet(const T& s, const T& mapped){ Init(s.Begin(), mapped.Begin(), (UINT)s.GetLength()); }
 	FORCEINL bool Has(int c) const 
-	{	if(c>=1)
+	{	if(c>=1 && c<=127)
 			return _Set[c-1]; 
 		else
 			return false;
