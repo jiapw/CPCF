@@ -838,21 +838,29 @@ bool os::LaunchProcess::Launch(LPCSTR cmdline, DWORD flag, LPCSTR pWorkDirectory
 		saAttr.lpSecurityDescriptor = NULL;
 
 		// Create a pipe for the child process's STDOUT. 
-		::CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0);
+		if (::CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0) == 0)
+			return false;
 
 		// Create non-inheritable read handle and close the inheritable read handle. 
 		fSuccess = DuplicateHandle(	GetCurrentProcess(), hChildStdoutRd,
 									GetCurrentProcess(),&hChildStdoutRdDup , 0,
 									false, DUPLICATE_SAME_ACCESS);
+		if (!fSuccess)
+			return false;
+
 		CloseHandle(hChildStdoutRd);
 
 		// Create a pipe for the child process's STDIN. 
-		::CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0);
+		if (::CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0) == 0)
+			return false;
+
 
 		// Duplicate the write handle to the pipe so it is not inherited. 
 		fSuccess = DuplicateHandle(	GetCurrentProcess(), hChildStdinWr, 
 									GetCurrentProcess(), &hChildStdinWrDup, 0, 
 									false, DUPLICATE_SAME_ACCESS); 
+		if (!fSuccess)
+			return false;
 		CloseHandle(hChildStdinWr);
 
 		///////////////////////////////////////////////////////
@@ -867,8 +875,6 @@ bool os::LaunchProcess::Launch(LPCSTR cmdline, DWORD flag, LPCSTR pWorkDirectory
 		_OutputHookThread.Create(_OutputHookRoutine, this);
 		_OutputHookThread.SetPriority(os::Thread::PRIORITY_HIGH);
 	}
-
-	_ExitCode = STILL_ACTIVE;
 
 	rt::Buffer<WCHAR>	env;
 	if(pEnvVariable)
@@ -909,6 +915,7 @@ bool os::LaunchProcess::Launch(LPCSTR cmdline, DWORD flag, LPCSTR pWorkDirectory
 
 	if(ret)
 	{	
+		_ExitCode = STILL_ACTIVE;
 		_hProcess = piProcInfo.hProcess;
 		CloseHandle( piProcInfo.hThread );
 		return true;
@@ -1009,12 +1016,13 @@ DWORD os::LaunchProcess::_OutputHookRoutine(LPVOID p)
 {
 	LaunchProcess* pThis = (LaunchProcess*)p;
 
+	while (pThis->_hProcess == INVALID_HANDLE_VALUE && !pThis->_OutputHookThread.WantExit())
+		Sleep(100);
+
 	char buffer[1024];
 
-	pThis->_ExitCode = STILL_ACTIVE;
-
 	DWORD dwRead,exitcode;
-	exitcode = STILL_ACTIVE;
+	exitcode = pThis->_ExitCode;
 	while(exitcode==STILL_ACTIVE)
 	{	
 		if(PeekNamedPipe(pThis->hChildStdoutRdDup,NULL,0,NULL,&dwRead,0))
@@ -1027,10 +1035,12 @@ DWORD os::LaunchProcess::_OutputHookRoutine(LPVOID p)
 		}
 
 		Sleep(100);
-		if(pThis->hChildStdoutRdDup==INVALID_HANDLE_VALUE)return 0;
-		if(pThis->_hProcess != INVALID_HANDLE_VALUE)
-			GetExitCodeProcess(pThis->_hProcess,&exitcode);
-		else return 0;
+		if (pThis->hChildStdoutRdDup == INVALID_HANDLE_VALUE)
+			return 0;
+		if (pThis->_hProcess != INVALID_HANDLE_VALUE)
+			GetExitCodeProcess(pThis->_hProcess, &exitcode);
+		else
+			return 0;
 	} 
 
 	// check for words before death of the process
