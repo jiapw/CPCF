@@ -1412,6 +1412,7 @@ public:
 public:
 	FORCEINL String(){ _leng_reserved = 0; _p = nullptr; _len = 0; }
 	FORCEINL String(const String& x){ _leng_reserved = 0; _p = nullptr; _len = 0; *this = (String_Ref&)x; }
+	FORCEINL String(String&& x){ rt::Copy<sizeof(String)>(this, &x); rt::Zero(x); }
 	FORCEINL String(const String_Ref& x){ _leng_reserved = 0; _p = nullptr; _len = 0; *this = x; }
 	FORCEINL String(const char* x){ _leng_reserved = 0; _p = nullptr; _len = 0; operator = (x); }
 	FORCEINL String(const char* p, SIZE_T len){ _leng_reserved = 0; _p = nullptr; _len = 0; *this = String_Ref(p,len); }
@@ -1419,8 +1420,6 @@ public:
     FORCEINL String(const char c, int count){ _leng_reserved = 0; _p = nullptr; _len = 0; for (int i = 0; i < count; i++) *this += c; }
 	template<typename T>
 	FORCEINL String(const T& string_expr){ _p = nullptr; _leng_reserved = _len = 0; (*this) = string_expr; }
-	FORCEINL String(String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._leng_reserved = 0; }
-
 	FORCEINL	   String& operator = (String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._leng_reserved = 0; return *this; }
 	FORCEINL const String& operator = (const char* x){ *this = String_Ref(x); return *this; }
 	FORCEINL const String& operator = (char* x){ *this = String_Ref(x); return *this; }
