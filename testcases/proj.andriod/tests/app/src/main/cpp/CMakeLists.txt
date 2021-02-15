@@ -10,7 +10,10 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPLATFORM_ANDROID -DPNG_ARM_NEON_OPT=0 -DOS_ANDROID")
+set(can_use_assembler TRUE)
+enable_language(ASM)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPLATFORM_ANDROID -DPNG_ARM_NEON_OPT=0 -DOS_ANDROID") # -fno-integrated-as -DOC_ARM_ASM -mfpu=crypto-neon-fp-armv8
 
 add_library( # Sets the name of the library.
              native-lib
@@ -19,6 +22,7 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
+             aesv8-armx.S # ./aesv8-armx.pl aarch64-linux-android aesv8-armx.S
              native-lib.cpp
              ../../../../../../../essentials.cpp
              ../../../../../../../testcases/tests/entrypoint.cpp
@@ -47,6 +51,8 @@ add_library( # Sets the name of the library.
 
         )
 
+
+
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
@@ -66,7 +72,6 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        native-lib
-
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib} )
