@@ -22,7 +22,11 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             aesv8-armx.S # ./aesv8-armx.pl aarch64-linux-android aesv8-armx.S
+             crypt.cpp
+             armv8-aes256.S
+             armv8-sha256.S
+             #sha512-armv8.S # linux_arm64
+             #aesv8-armx.S # ./aesv8-armx.pl aarch64-linux-android aesv8-armx.S
              native-lib.cpp
              ../../../../../../../essentials.cpp
              ../../../../../../../testcases/tests/entrypoint.cpp

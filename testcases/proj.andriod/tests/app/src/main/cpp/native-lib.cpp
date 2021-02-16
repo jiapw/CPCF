@@ -14,6 +14,7 @@ void aes_v8_encrypt_blocks(void* in, void* out, int n, AES_KEY* key)
     }
 }
 
+extern unsigned char *SHA256(const unsigned char *d, size_t n, unsigned char *md);
 void TestArmv8()
 {
     _LOG("deso arm64v8 crypt start");
@@ -50,8 +51,28 @@ void TestArmv8()
     }
     _LOGC("deso AES256-ECB/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
-    _LOG("deso arm64v8 crypt end");
 
+    _LOG("deso arm64v8 #3");
+    SHA256(data, data.GetSize(), (unsigned char*)out);
+    _LOG("deso sha256 : " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
+
+    _LOG("deso arm64v8 #4");
+    tm.Restart();
+    for (int i=0;i<t;i++)
+    {
+        SHA256(data, data.GetSize(), (unsigned char*)out);
+    }
+    _LOGC("deso SHA256/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
+
+    _LOG("deso arm64v8 #5");
+    tm.Restart();
+    for (int i=0;i<t;i++)
+    {
+        SHA256(data, 64, (unsigned char*)out);
+    }
+    _LOGC("deso SHA256/64: "<<t*1000000/tm.TimeLapse()<<" kcps");
+
+    _LOG("deso arm64v8 crypt end");
 }
 
 
