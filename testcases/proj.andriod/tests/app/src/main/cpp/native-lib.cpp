@@ -24,21 +24,24 @@ Java_com_cpcf_tests_MainActivity_stringFromJNI(
     unsigned char uk[256];
     AES_KEY aes_key;
     unsigned char uk2[256];
-    //int r = aes_v8_set_encrypt_key(uk, 256, (AES_KEY*)uk2);
-    int r = aes_v8_set_encrypt_key(nullptr, 0 , nullptr);
+    int r = aes_v8_set_encrypt_key(uk, 256, &aes_key);
 
-    /*
+
+
     unsigned char buf_in[1024*10];
     unsigned char buf_out[1024*10];
 
+    //aes_v8_encrypt(buf_in, buf_out, &aes_key);
+
+
     for (int i=0;i<100000;i++)
     {
-        for (int j=0;i<sizeof(buf_in)/16;i++)
+        for (int j=0;j<sizeof(buf_in)/16;j++)
         {
             aes_v8_encrypt(buf_in, buf_out, &aes_key);
         }
     }
-     */
+
 
 
     _LOG("deso arm64v8 crypt end");

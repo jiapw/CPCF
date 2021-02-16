@@ -172,7 +172,7 @@ aes_v8_set_encrypt_key:
 
 .Lenc_key_abort:
 	mov	x0,x3			// return value
-
+    ldr	x29,[sp],#16
 	ret
 .size	aes_v8_set_encrypt_key,.-aes_v8_set_encrypt_key
 
