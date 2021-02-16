@@ -61,7 +61,8 @@ typedef struct SHA256state_st {
 #define HASH_FINAL              SHA256_Final
 #define HASH_BLOCK_DATA_ORDER   sha256_block_data_order
 
-#define DATA_ORDER_IS_LITTLE_ENDIAN 1
+//#define DATA_ORDER_IS_LITTLE_ENDIAN 1
+#define DATA_ORDER_IS_BIG_ENDIAN 1
 
 extern "C" {
 

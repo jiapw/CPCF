@@ -56,6 +56,12 @@ void TestArmv8()
     SHA256(data, data.GetSize(), (unsigned char*)out);
     _LOG("deso sha256 : " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
 
+    /*
+    unsigned char h[32];
+    SHA256((unsigned char*)"123456", 6, h);
+    _LOG("deso sha256 : " << int(h[0])<<"," << int(h[1])<<","<< int(h[2])<<","<< int(h[3]));
+    */
+
     _LOG("deso arm64v8 #4");
     tm.Restart();
     for (int i=0;i<t;i++)
