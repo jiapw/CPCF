@@ -2,7 +2,57 @@
 #include <string>
 
 #include "../../../../../../../essentials.h"
+#include "../../../../../../../core/ext/botan/botan.h"
 #include "crypt.h"
+
+
+void aes_v8_encrypt_blocks(void* in, void* out, int n, AES_KEY* key)
+{
+    for (int i=0;i<n;i++)
+    {
+        aes_v8_encrypt( ((uint8_t*)in)+i*16, ((uint8_t*)out)+i*16, key);
+    }
+}
+
+void TestArmv8()
+{
+    _LOG("deso arm64v8 crypt start");
+
+    _LOG("deso arm64v8 #1");
+
+    unsigned char uk[32];
+    sec::Hash<sec::HASH_SHA256> sha256;
+    sha256.Calculate("123", 3, uk);
+
+    AES_KEY aes_key;
+    int r = aes_v8_set_encrypt_key(uk, 256, &aes_key);
+
+
+    rt::Buffer<BYTE>	data, out;
+    data.SetSize(10*1024);
+    data.RandomBits(4);
+    out.SetSize(data.GetSize());
+
+    for(int i=0; i<data.GetSize(); i++)
+        data[i] = i;
+
+    aes_v8_encrypt_blocks(data, out, data.GetSize()/16, &aes_key);
+
+    _LOG("deso aes256-ecb : " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
+
+    _LOG("deso arm64v8 #2");
+    int64_t t =100000;
+    os::HighPerformanceCounter tm;
+    tm.Restart();
+    for (int i=0;i<t;i++)
+    {
+        aes_v8_encrypt_blocks(data, out, data.GetSize()/16, &aes_key);
+    }
+    _LOGC("deso AES256-ECB/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
+
+    _LOG("deso arm64v8 crypt end");
+
+}
 
 
 extern "C" void TestMain();
@@ -19,33 +69,7 @@ Java_com_cpcf_tests_MainActivity_stringFromJNI(
 
     _LOG(s);
 
-    _LOG("deso arm64v8 crypt start");
-
-    unsigned char uk[256];
-    AES_KEY aes_key;
-    unsigned char uk2[256];
-    int r = aes_v8_set_encrypt_key(uk, 256, &aes_key);
-
-
-
-    unsigned char buf_in[1024*10];
-    unsigned char buf_out[1024*10];
-
-    //aes_v8_encrypt(buf_in, buf_out, &aes_key);
-
-
-    for (int i=0;i<100000;i++)
-    {
-        for (int j=0;j<sizeof(buf_in)/16;j++)
-        {
-            aes_v8_encrypt(buf_in, buf_out, &aes_key);
-        }
-    }
-
-
-
-    _LOG("deso arm64v8 crypt end");
-
+    TestArmv8();
     //TestMain();
 
     //return env->NewStringUTF(s.GetString());
