@@ -116,11 +116,12 @@ public:
 protected:
     openssl::SHA256_CTX _Ctx;
 public:
-    void Reset()
+    INLFUNC Hash(){Reset();}
+    INLFUNC void Reset()
     {
         openssl::SHA256_Init(&_Ctx);
     }
-    void Update(LPCVOID data, SIZE_T size)
+    INLFUNC void Update(LPCVOID data, SIZE_T size)
     {
         openssl::SHA256_Update(&_Ctx, data, size);
     }
