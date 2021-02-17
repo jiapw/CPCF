@@ -29,17 +29,43 @@ void TestArmv8()
     int r = aes_v8_set_encrypt_key(uk, 256, &aes_key);
 
 
-    rt::Buffer<BYTE>	data, out;
+    rt::Buffer<BYTE>	data, out, plain;
     data.SetSize(10*1024);
     data.RandomBits(4);
     out.SetSize(data.GetSize());
+    plain.SetSize(data.GetSize());
 
     for(int i=0; i<data.GetSize(); i++)
         data[i] = i;
 
-    aes_v8_encrypt_blocks(data, out, data.GetSize()/16, &aes_key);
+    //aes_v8_encrypt_blocks(data, out, data.GetSize()/16, &aes_key);
+    //_LOG("deso aes256-ecb : " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
 
-    _LOG("deso aes256-ecb : " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
+
+    sec::_details::CipherInitVec<16> IV(44);
+    AES_cbc_encrypt(data, out, data.GetSize(), &aes_key, IV, 1);
+    _LOG("deso armv aes256-cbc encrypt, offset:  0, " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
+    _LOG("deso armv aes256-cbc encrypt, offset:256, " << int(out[256])<<"," << int(out[257])<<","<< int(out[258])<<","<< int(out[259]));
+
+
+    AES_KEY aes_key_2;
+    r = aes_v8_set_decrypt_key(uk, 256, &aes_key_2);
+    IV.Init(44);
+    AES_cbc_encrypt(out, plain, data.GetSize(), &aes_key_2, IV, 0);
+    _LOG("deso armv aes256-cbc decrypt, offset:  0, " << int(plain[0])<<"," << int(plain[1])<<","<< int(plain[2])<<","<< int(plain[3]));
+    _LOG("deso armv aes256-cbc decrypt, offset:256, " << int(plain[256])<<"," << int(plain[257])<<","<< int(plain[258])<<","<< int(plain[259]));
+
+
+    sec::Cipher<sec::CIPHER_AES256> cbc;
+    cbc.SetKey("123",3);
+    cbc.EncryptBlockChained(data, out, data.GetSize(), 44);
+    _LOG("deso cpcf aes256-cbc encrypt, offset:  0, " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
+    _LOG("deso cpcf aes256-cbc encrypt, offset:256, " << int(out[256])<<"," << int(out[257])<<","<< int(out[258])<<","<< int(out[259]));
+    cbc.DecryptBlockChained(out, plain, data.GetSize(), 44);
+    _LOG("deso cpcf aes256-cbc decrypt, offset:  0, " << int(plain[0])<<"," << int(plain[1])<<","<< int(plain[2])<<","<< int(plain[3]));
+    _LOG("deso cpcf aes256-cbc decrypt, offset:256, " << int(plain[256])<<"," << int(plain[257])<<","<< int(plain[258])<<","<< int(plain[259]));
+
+
 
     _LOG("deso arm64v8 #2");
     int64_t t =100000;

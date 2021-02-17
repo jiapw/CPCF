@@ -78,5 +78,27 @@ void aes_v8_encrypt(const unsigned char *in, unsigned char *out,
 void aes_v8_decrypt(const unsigned char *in, unsigned char *out,
                     const AES_KEY *key);
 
+void aes_v8_cbc_encrypt(const unsigned char *in, unsigned char *out,
+                       size_t length, const AES_KEY *key,
+                       unsigned char *ivec, const int enc);
+
+void aes_v8_ctr32_encrypt_blocks(const unsigned char *in, unsigned char *out,
+                                size_t len, const AES_KEY *key,
+                                const unsigned char ivec[16]);
+
+
 void sha256_block_data_order(SHA256_CTX *ctx, const void *in, size_t num);
+
 }
+/*
+ * aes_v8_set_encrypt_key
+ * aes_v8_set_decrypt_key
+ * aes_v8_encrypt
+ * aes_v8_decrypt
+ * aes_v8_cbc_encrypt
+ * aes_v8_ctr32_encrypt_blocks
+ */
+
+void AES_cbc_encrypt(const unsigned char *in, unsigned char *out,
+                     size_t len, const AES_KEY *key,
+                     unsigned char ivec[16], const int enc);
