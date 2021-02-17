@@ -53,7 +53,7 @@
 // Which is why NEON support is limited to SHA256.]
 
 #ifndef	__KERNEL__
-# include "arm_arch.h"
+# include "openssl_arm_arch.h"
 #endif
 
 .text

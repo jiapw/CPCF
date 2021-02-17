@@ -22,12 +22,11 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             crypt.cpp
-             armv8-aes256.S
-             armv8-sha256.S
-             #sha512-armv8.S # linux_arm64
-             #aesv8-armx.S # ./aesv8-armx.pl aarch64-linux-android aesv8-armx.S
              native-lib.cpp
+             ../../../../../../../core/ext/botan/botan.cpp
+             ../../../../../../../core/ext/botan/platforms/android_arm64/openssl_aes256.S
+             ../../../../../../../core/ext/botan/platforms/android_arm64/openssl-sha256.S
+
              ../../../../../../../essentials.cpp
              ../../../../../../../testcases/tests/entrypoint.cpp
              ../../../../../../../testcases/tests/test_api.cpp
@@ -45,7 +44,6 @@ add_library( # Sets the name of the library.
              ../../../../../../../core/ext/exprtk/exprtk.cpp
              ../../../../../../../core/ext/rocksdb/rocksdb.cpp
              ../../../../../../../core/ext/rocksdb/rocksdb_serving.cpp
-             #../../../../../../../core/ext/exprtk/exprtk.cpp
              ../../../../../../../core/inet/tinyhttpd.cpp
              ../../../../../../../core/inet/tinyhttpd_fileserv.cpp
              ../../../../../../../core/inet/http_client.cpp

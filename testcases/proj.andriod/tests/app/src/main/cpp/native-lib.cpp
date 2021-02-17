@@ -2,109 +2,75 @@
 #include <string>
 
 #include "../../../../../../../essentials.h"
+#include "../../../../../../../core/rt/string_type.h"
 #include "../../../../../../../core/ext/botan/botan.h"
-#include "crypt.h"
 
-
-void aes_v8_encrypt_blocks(void* in, void* out, int n, AES_KEY* key)
-{
-    for (int i=0;i<n;i++)
-    {
-        aes_v8_encrypt( ((uint8_t*)in)+i*16, ((uint8_t*)out)+i*16, key);
-    }
-}
-
-extern unsigned char *SHA256(const unsigned char *d, size_t n, unsigned char *md);
 void TestArmv8()
 {
-    _LOG("deso arm64v8 crypt start");
-
-    _LOG("deso arm64v8 #1");
-
-    unsigned char uk[32];
-    sec::Hash<sec::HASH_SHA256> sha256;
-    sha256.Calculate("123", 3, uk);
-
-    AES_KEY aes_key;
-    int r = aes_v8_set_encrypt_key(uk, 256, &aes_key);
-
-
-    rt::Buffer<BYTE>	data, out, plain;
+    rt::Buffer<BYTE>	data, out;
     data.SetSize(10*1024);
     data.RandomBits(4);
     out.SetSize(data.GetSize());
-    plain.SetSize(data.GetSize());
 
     for(int i=0; i<data.GetSize(); i++)
         data[i] = i;
 
-    //aes_v8_encrypt_blocks(data, out, data.GetSize()/16, &aes_key);
-    //_LOG("deso aes256-ecb : " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
 
-
-    sec::_details::CipherInitVec<16> IV(44);
-    AES_cbc_encrypt(data, out, data.GetSize(), &aes_key, IV, 1);
-    _LOG("deso armv aes256-cbc encrypt, offset:  0, " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
-    _LOG("deso armv aes256-cbc encrypt, offset:256, " << int(out[256])<<"," << int(out[257])<<","<< int(out[258])<<","<< int(out[259]));
-
-
-    AES_KEY aes_key_2;
-    r = aes_v8_set_decrypt_key(uk, 256, &aes_key_2);
-    IV.Init(44);
-    AES_cbc_encrypt(out, plain, data.GetSize(), &aes_key_2, IV, 0);
-    _LOG("deso armv aes256-cbc decrypt, offset:  0, " << int(plain[0])<<"," << int(plain[1])<<","<< int(plain[2])<<","<< int(plain[3]));
-    _LOG("deso armv aes256-cbc decrypt, offset:256, " << int(plain[256])<<"," << int(plain[257])<<","<< int(plain[258])<<","<< int(plain[259]));
-
-
-    sec::Cipher<sec::CIPHER_AES256> cbc;
-    cbc.SetKey("123",3);
-    cbc.EncryptBlockChained(data, out, data.GetSize(), 44);
-    _LOG("deso cpcf aes256-cbc encrypt, offset:  0, " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
-    _LOG("deso cpcf aes256-cbc encrypt, offset:256, " << int(out[256])<<"," << int(out[257])<<","<< int(out[258])<<","<< int(out[259]));
-    cbc.DecryptBlockChained(out, plain, data.GetSize(), 44);
-    _LOG("deso cpcf aes256-cbc decrypt, offset:  0, " << int(plain[0])<<"," << int(plain[1])<<","<< int(plain[2])<<","<< int(plain[3]));
-    _LOG("deso cpcf aes256-cbc decrypt, offset:256, " << int(plain[256])<<"," << int(plain[257])<<","<< int(plain[258])<<","<< int(plain[259]));
-
-
-
-    _LOG("deso arm64v8 #2");
-    int64_t t =100000;
-    os::HighPerformanceCounter tm;
-    tm.Restart();
-    for (int i=0;i<t;i++)
     {
-        aes_v8_encrypt_blocks(data, out, data.GetSize()/16, &aes_key);
+        rt::Buffer<BYTE>	plain;
+        plain.SetSize(data.GetSize());
+        sec::Cipher<sec::CIPHER_AES128> cipher;
+        cipher.SetKey("123",3);
+        cipher.Encrypt(data, out, data.GetSize());
+        cipher.Decrypt(out, plain, data.GetSize());
+        _LOGC("AES-128-ECB/10k: "<<(data == plain));
+        out.RandomBits(4);
     }
-    _LOGC("deso AES256-ECB/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
-
-    _LOG("deso arm64v8 #3");
-    SHA256(data, data.GetSize(), (unsigned char*)out);
-    _LOG("deso sha256 : " << int(out[0])<<"," << int(out[1])<<","<< int(out[2])<<","<< int(out[3]));
-
-    /*
-    unsigned char h[32];
-    SHA256((unsigned char*)"123456", 6, h);
-    _LOG("deso sha256 : " << int(h[0])<<"," << int(h[1])<<","<< int(h[2])<<","<< int(h[3]));
-    */
-
-    _LOG("deso arm64v8 #4");
-    tm.Restart();
-    for (int i=0;i<t;i++)
     {
-        SHA256(data, data.GetSize(), (unsigned char*)out);
+        rt::Buffer<BYTE>	plain;
+        plain.SetSize(data.GetSize());
+        sec::Cipher<sec::CIPHER_AES128> cipher;
+        cipher.SetKey("123",3);
+        cipher.EncryptBlockChained(data, out, data.GetSize(), 10);
+        cipher.DecryptBlockChained(out, plain, data.GetSize(), 10);
+        _LOGC("AES-128-CBC/10k: "<<(data == plain));
+        out.RandomBits(4);
     }
-    _LOGC("deso SHA256/10k: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
-    _LOG("deso arm64v8 #5");
-    tm.Restart();
-    for (int i=0;i<t;i++)
     {
-        SHA256(data, 64, (unsigned char*)out);
+        rt::Buffer<BYTE>	plain;
+        plain.SetSize(data.GetSize());
+        sec::Cipher<sec::CIPHER_AES256> cipher;
+        cipher.SetKey("123",3);
+        cipher.Encrypt(data, out, data.GetSize());
+        cipher.Decrypt(out, plain, data.GetSize());
+        _LOGC("AES-256-ECB/10k: "<<(data == plain));
+        out.RandomBits(4);
     }
-    _LOGC("deso SHA256/64: "<<t*1000000/tm.TimeLapse()<<" kcps");
 
-    _LOG("deso arm64v8 crypt end");
+    {
+        rt::Buffer<BYTE>	plain;
+        plain.SetSize(data.GetSize());
+        sec::Cipher<sec::CIPHER_AES256> cipher;
+        cipher.SetKey("123",3);
+        cipher.EncryptBlockChained(data, out, data.GetSize(), 10);
+        cipher.DecryptBlockChained(out, plain, data.GetSize(), 10);
+        _LOGC("AES-256-CBC/10k: "<<(data == plain));
+        out.RandomBits(4);
+    }
+
+    {
+        BYTE h[64];
+        sec::Hash<sec::HASH_SHA256> hash;
+        hash.Calculate("123456",6,h);
+
+        _LOG("SHA256: " << rt::tos::Binary<128>(h, sec::Hash<sec::HASH_SHA256>::HASHSIZE));
+        _LOG("SHA256: " << rt::tos::Binary<128>(h, 16) << " (first 16 bytes)");
+    }
+
+
+
 }
 
 
@@ -123,6 +89,7 @@ Java_com_cpcf_tests_MainActivity_stringFromJNI(
     _LOG(s);
 
     TestArmv8();
+
     //TestMain();
 
     //return env->NewStringUTF(s.GetString());

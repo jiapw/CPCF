@@ -15,6 +15,7 @@
 		#include "./platforms/android_arm/botan_all.cpp"
 	#elif defined (__aarch64__)
 		#include "./platforms/android_arm64/botan_all.cpp"
+		#include "./platforms/android_arm64/openssl_crypto.cpp"
 	#elif defined (__i386__)
 		#include "./platforms/botan_ndk_x86.cpp"
 	#else
