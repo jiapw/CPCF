@@ -279,6 +279,4 @@ void rt::UnitTests::recv_pump()
 
 	os::Sleep(2000);
 	_LOG("4 Packet Recv = "<<packet_count<<", "<<packet_error);
-	
-	os::Sleep();
 }

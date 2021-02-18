@@ -30,7 +30,7 @@ bool AsyncIOCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UIN
 	#error AsyncIOCore Unsupported Platform
 #endif
 
-	if(_Core != IOCORE_INVALID)
+	if(IsRunning())
 	{
 		bool set_cpuaff = (concurrency == os::GetNumberOfProcessors()) && concurrency<sizeof(SIZE_T)*8;
 		_IOWorkers.SetSize(concurrency);
@@ -117,6 +117,61 @@ void AsyncIOCoreBase::_RemoveObject(SOCKET obj)
 #else
 	#error AsyncIOCore Unsupported Platform
 #endif
+}
+
+struct _FD
+{	fd_set	_fd;
+	_FD(SOCKET s){ FD_ZERO(&_fd); FD_SET(s, &_fd); }
+	operator fd_set*(){ return &_fd; }
+};
+
+bool IOObject::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy)
+{
+	int ret = 0;
+	static const timeval timeout = { 0, 100000 }; // 100 msec
+
+	do
+	{	
+		ret = (int)sendto(m_hSocket,(const char*)pData,len,0,(const sockaddr*)addr,addr_len);
+		if(ret == len)return true;
+	}while(	!drop_if_busy &&
+			ret < 0 &&
+			IsLastOpPending() &&
+			(select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, &timeout)) == 1
+		  );
+
+	return false;
+}
+
+bool IOObject::Send(LPCVOID pData, UINT len, bool drop_if_busy)
+{
+	ASSERT(len);
+	static const timeval timeout = { 0, 100000 }; // 100 msec
+
+	int ret = 0;
+	LPCSTR d = (LPCSTR)pData;
+	while(len>0)
+	{	
+		ret = (int)send(m_hSocket,d,rt::min(32*1024U, len),0);
+		if(ret>0)
+		{	len -= ret;
+			d += ret;
+			continue;
+		}
+
+		ASSERT(ret == -1);
+		if(drop_if_busy || !IsLastOpPending())return false;
+
+		// wait to death
+		int _LastSelectRet;
+		while((_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, &timeout)) == 0);
+		if(_LastSelectRet == 1)
+			continue;
+		else
+			return false;
+	}
+	
+	return true;
 }
 
 bool AsyncIOCoreBase::_PickUpEvent(Event& e)

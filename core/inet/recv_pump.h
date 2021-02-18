@@ -72,6 +72,8 @@ public:
 	~AsyncIOCoreBase(){ Term(); }
 };
 
+////////////////////////////////////////////////////
+// Non-blocking I/O is used, the # of UDP packet is not equal to # of events by epoll/kevent.
 class IOObject: public inet::Socket
 {
 	template<typename IOObject>
@@ -80,6 +82,7 @@ class IOObject: public inet::Socket
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target);
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target);
 	bool Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek);
+    void EnableNonblockingIO(bool enable = true);
 
 protected:
 	rt::BufferEx<BYTE>	_RecvBuf;
@@ -91,11 +94,19 @@ protected:
 #else
 	#error AsyncIOCore Unsupported Platform
 #endif
+
+	bool	__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy = false);
+
 public:
 	void	SetBufferSize(UINT sz = 1500){ VERIFY(_RecvBuf.ChangeSize(sz, false)); }
 	SOCKET	GetHandle() const { return m_hSocket; }
 	LPBYTE	GetBuffer(){ return _RecvBuf; }
 	UINT	GetBufferSize() const { return (UINT)_RecvBuf.GetSize(); }
+
+	// blocking call
+	bool	SendTo(LPCVOID pData, UINT len,const InetAddr &target, bool drop_if_busy = false){ return __SendTo(pData, len, &target, sizeof(InetAddr), drop_if_busy); }
+	bool	SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target, bool drop_if_busy = false){ return __SendTo(pData, len, &target, sizeof(InetAddrV6), drop_if_busy); }
+	bool	Send(LPCVOID pData, UINT len, bool drop_if_busy = false);
 };
 
 template<typename t_IOObject> // IOObjectDatagram or IOObjectStream
@@ -211,7 +222,9 @@ public:
 	}
 
 	bool AddObject(t_IOObject* obj) // // lifecycle is **not** maintained by RecvPump
-	{	if(!_AddObject(obj->GetHandle(), obj))return false;
+	{	
+		((inet::Socket*)obj)->EnableNonblockingIO(true);
+		if(!_AddObject(obj->GetHandle(), obj))return false;
 #if defined(PLATFORM_WIN)
 		if(!obj->PumpNext()){ obj->OnRecv(nullptr, 0); return false; }
 #endif
