@@ -174,6 +174,41 @@ bool IOObject::Send(LPCVOID pData, UINT len, bool drop_if_busy)
 	return true;
 }
 
+#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+namespace _details
+{
+template<int SIZE, int ITER = 0, bool STOP = ITER == SIZE>
+struct CopyAllEvents
+{
+#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+    template<typename T>
+    static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch)
+    {   if(ITER < batch)
+        {   evt.cookies[ITER] = ke[ITER].udata;
+            CopyAllEvents<SIZE,ITER+1>::Copy(evt, ke, batch);
+        }
+    }
+#else
+    template<typename T>
+    static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch)
+    {   if(ITER < batch)
+        {
+            if(ke[ITER].events&events&EPOLLIN)
+                evt.cookies[evt.count++] = ke[ITER].data.ptr;
+            CopyAllEvents<SIZE,ITER+1>::Copy(evt, ke, batch);
+        }
+    }
+#endif
+};
+    template<int SIZE, int ITER>
+    struct CopyAllEvents<SIZE, ITER, true>
+    {
+        template<typename T>
+        static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch){}
+    };
+} // namespace _details
+#endif
+
 bool AsyncIOCoreBase::_PickUpEvent(Event& e)
 {
     ASSERT(IsRunning());
@@ -189,17 +224,21 @@ bool AsyncIOCoreBase::_PickUpEvent(Event& e)
 	ASSERT(e.cookie);
 	return e.bytes_transferred;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-    struct kevent evt;
-    if(kevent(_Core, NULL, 0, &evt, 1, NULL) == 1 && IsRunning())
+    struct kevent evts[AsyncIOCoreBase::EVENT_BATCH_SIZE];
+    int batch = 0;
+    if((batch = kevent(_Core, NULL, 0, evts, AsyncIOCoreBase::EVENT_BATCH_SIZE, NULL)) > 0 && IsRunning())
     {
-        e.cookie = evt.udata;
+        _details::CopyAllEvents<sizeofArray(evts)>::Copy(e, evts, batch);
+        e.count = batch;
         return true;
     }
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	epoll_event epevt;
-	if(epoll_wait(_Core, &epevt, 1, 200) == 1 && (epevt.events&EPOLLIN) && IsRunning())
+	epoll_event epevts[AsyncIOCoreBase::EVENT_BATCH_SIZE];
+    int batch = 0;
+	if((batch = epoll_wait(_Core, &epevts, AsyncIOCoreBase::EVENT_BATCH_SIZE, 0x7fffffff)) > 0 && IsRunning())
 	{
-		e.cookie = epevt.data.ptr;
+        e.count = 0;
+        _details::CopyAllEvents<sizeofArray(epevts)>::Copy(e, epevts, batch);
 		return true;
 	}
 #else

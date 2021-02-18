@@ -42,7 +42,8 @@ public:
 	typedef	HANDLE	    IOCORE;
 	static const SIZE_T IOCORE_INVALID = (SIZE_T)INVALID_HANDLE_VALUE;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	typedef	int		    IOCORE;
+    static const int    EVENT_BATCH_SIZE = 4;  // for Linux/Mac only
+    typedef	int		    IOCORE;
 	static const int 	IOCORE_INVALID = -1;
 #else
 	#error AsyncIOCore Unsupported Platform
@@ -52,12 +53,16 @@ protected:
 	IOCORE					_Core = (IOCORE)IOCORE_INVALID;
 	rt::Buffer<os::Thread>	_IOWorkers;
 
+public:
 	struct Event
 	{
 #if defined(PLATFORM_WIN)
 		DWORD	bytes_transferred;
-#endif		
-		LPVOID	cookie;
+        LPVOID  cookie;
+#else
+        int     count;
+        LPVOID  cookies[EVENT_BATCH_SIZE];
+#endif
 	};
 
 protected:
@@ -184,6 +189,22 @@ bool OnRecv(IOObjectStream* p, T* obj)
 	if(len>0){ obj->OnRecv(obj->GetBuffer(), len); return true; }
 	return len != 0 && (errno == EAGAIN || errno == EINTR);
 }
+template<typename T_OBJ, int SIZE, int ITER = 0, bool STOP = ITER == SIZE>
+struct OnRecvAll
+{
+    static void Call(const AsyncIOCoreBase::Event& evt)
+    {   if(ITER < evt.count)
+        {   if(!OnRecv((T_OBJ*)evt.cookies[ITER], (T_OBJ*)evt.cookies[ITER]))
+                ((T_OBJ*)evt.cookies[ITER])->OnRecv(nullptr, 0); // indicate error
+            OnRecvAll<T_OBJ,SIZE,ITER+1>::Call(evt);
+        }
+    }
+};
+    template<typename T_OBJ, int SIZE, int ITER>
+    struct OnRecvAll<T_OBJ, SIZE, ITER, true>
+    {
+        static void Call(const AsyncIOCoreBase::Event& evt){}
+    };
 #endif
 } // namespace _details
 
@@ -202,9 +223,8 @@ class RecvPump: public AsyncIOCoreBase
 				if(!((t_IOObject*)evt.cookie)->PumpNext())
 					((t_IOObject*)evt.cookie)->OnRecv(nullptr, 0); // indicate error
 #else
-				if(!_details::OnRecv((t_IOObject*)evt.cookie, (t_IOObject*)evt.cookie))
-					((t_IOObject*)evt.cookie)->OnRecv(nullptr, 0); // indicate error
-#endif				
+                _details::OnRecvAll<t_IOObject, sizeofArray(evt.cookies)>::Call(evt);
+#endif
 			}
 		}
 	}
