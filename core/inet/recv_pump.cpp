@@ -193,7 +193,7 @@ struct CopyAllEvents
     static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch)
     {   if(ITER < batch)
         {
-            if(ke[ITER].events&events&EPOLLIN)
+            if(ke[ITER].events&EPOLLIN)
                 evt.cookies[evt.count++] = ke[ITER].data.ptr;
             CopyAllEvents<SIZE,ITER+1>::Copy(evt, ke, batch);
         }
@@ -235,7 +235,7 @@ bool AsyncIOCoreBase::_PickUpEvent(Event& e)
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 	epoll_event epevts[AsyncIOCoreBase::EVENT_BATCH_SIZE];
     int batch = 0;
-	if((batch = epoll_wait(_Core, &epevts, AsyncIOCoreBase::EVENT_BATCH_SIZE, 0x7fffffff)) > 0 && IsRunning())
+	if((batch = epoll_wait(_Core, epevts, AsyncIOCoreBase::EVENT_BATCH_SIZE, 200)) > 0 && IsRunning())
 	{
         e.count = 0;
         _details::CopyAllEvents<sizeofArray(epevts)>::Copy(e, epevts, batch);
