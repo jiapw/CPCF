@@ -137,7 +137,7 @@ bool IOObject::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, boo
 	}while(	!drop_if_busy &&
 			ret < 0 &&
 			IsLastOpPending() &&
-			(select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, &timeout)) == 1
+			(select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, (timeval*)&timeout)) == 1
 		  );
 
 	return false;
@@ -164,7 +164,7 @@ bool IOObject::Send(LPCVOID pData, UINT len, bool drop_if_busy)
 
 		// wait to death
 		int _LastSelectRet;
-		while((_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, &timeout)) == 0);
+		while((_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, (timeval*)&timeout)) == 0);
 		if(_LastSelectRet == 1)
 			continue;
 		else

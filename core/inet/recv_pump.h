@@ -176,13 +176,13 @@ bool OnRecv(IOObjectDatagram* p, T* obj)
 {	socklen_t addr_len = sizeof(inet::InetAddrV6);
 	int len = ::recvfrom(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0, (sockaddr*)obj->GetRecvFromPtr(), &addr_len);
 	if(len>0){ obj->OnRecv(obj->GetBuffer(), len, obj->GetRecvFromPtr(), addr_len); return true; }
-	return len >= 0;
+	return len != 0 && (errno == EAGAIN || errno == EINTR);
 }
 template<typename T>
 bool OnRecv(IOObjectStream* p, T* obj)
 {	int len = ::recv(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0);
 	if(len>0){ obj->OnRecv(obj->GetBuffer(), len); return true; }
-	return len >= 0;
+	return len != 0 && (errno == EAGAIN || errno == EINTR);
 }
 #endif
 } // namespace _details
