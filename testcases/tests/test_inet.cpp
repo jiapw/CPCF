@@ -237,7 +237,7 @@ void rt::UnitTests::recv_pump()
 
 	inet::RecvPump<SocketIOObj>	core;
 	VERIFY(core.Init());
-
+	
 	inet::InetAddr addr;
 	addr.SetAsLocal();
 
@@ -261,7 +261,7 @@ void rt::UnitTests::recv_pump()
 
 	os::Sleep(2000);
 	_LOG("2 Packet Recv = "<<packet_count<<", "<<packet_error);
-
+	
 	for(UINT i=0; i<sockets.GetSize(); i++)
 	{
 		addr.SetPort(port_base + i);
@@ -279,4 +279,6 @@ void rt::UnitTests::recv_pump()
 
 	os::Sleep(2000);
 	_LOG("4 Packet Recv = "<<packet_count<<", "<<packet_error);
+	
+	os::Sleep();
 }
