@@ -4,6 +4,8 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+#include <sys/event.h>
+#include <unistd.h>
 #endif
 
 
@@ -21,6 +23,7 @@ bool AsyncIOCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UIN
 #if defined(PLATFORM_WIN)
 	_Core = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, concurrency);
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+    _Core = kqueue();
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 	_Core = epoll_create(1);
 #else
@@ -63,6 +66,7 @@ void AsyncIOCoreBase::Term()
 
 		::CloseHandle(c);
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+        ::close(c);
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 		::close(c);
 #else
@@ -84,6 +88,9 @@ bool AsyncIOCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
 	DWORD e = ::GetLastError();
 	return _Core == h;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+    struct kevent event;
+    EV_SET(&event, obj, EVFILT_READ, EV_ADD, 0, 0, cookie);
+    return kevent(_Core, &event, 1, NULL, 0, NULL) != -1;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 	epoll_event epevt;
 	epevt.data.ptr = cookie;
@@ -100,6 +107,9 @@ void AsyncIOCoreBase::_RemoveObject(SOCKET obj)
 #if defined(PLATFORM_WIN)
 	// in windows, no need to remove things from IOCP as long as the socket or file will be correctly closed
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+    struct kevent event;
+    EV_SET(&event, obj, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+    VERIFY(kevent(_Core, &event, 1, NULL, 0, NULL) != -1);
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 	epoll_event epevt;
 	VERIFY(epoll_ctl(_Core, EPOLL_CTL_DEL, obj, &epevt) == 0);
@@ -111,6 +121,8 @@ void AsyncIOCoreBase::_RemoveObject(SOCKET obj)
 
 bool AsyncIOCoreBase::_PickUpEvent(Event& e)
 {
+    ASSERT(IsRunning());
+
 #if defined(PLATFORM_WIN)
 	OVERLAPPED*	pOverlapped = NULL;
 	::GetQueuedCompletionStatus(_Core, 
@@ -122,6 +134,12 @@ bool AsyncIOCoreBase::_PickUpEvent(Event& e)
 	ASSERT(e.cookie);
 	return e.bytes_transferred;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+    struct kevent evt;
+    if(kevent(_Core, NULL, 0, &evt, 1, NULL) == 1 && IsRunning())
+    {
+        e.cookie = evt.udata;
+        return true;
+    }
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 	epoll_event epevt;
 	if(epoll_wait(_Core, &epevt, 1, 200) == 1 && (epevt.events&EPOLLIN) && IsRunning())

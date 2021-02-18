@@ -39,11 +39,10 @@ class AsyncIOCoreBase
 {
 public:
 #if defined(PLATFORM_WIN)
-	typedef	HANDLE	IOCORE;
+	typedef	HANDLE	    IOCORE;
 	static const SIZE_T IOCORE_INVALID = (SIZE_T)INVALID_HANDLE_VALUE;
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	typedef	int		IOCORE;
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+	typedef	int		    IOCORE;
 	static const int 	IOCORE_INVALID = -1;
 #else
 	#error AsyncIOCore Unsupported Platform
@@ -96,7 +95,7 @@ public:
 	void	SetBufferSize(UINT sz = 1500){ VERIFY(_RecvBuf.ChangeSize(sz, false)); }
 	SOCKET	GetHandle() const { return m_hSocket; }
 	LPBYTE	GetBuffer(){ return _RecvBuf; }
-	UINT	GetBufferSize() const { return _RecvBuf.GetSize(); }
+	UINT	GetBufferSize() const { return (UINT)_RecvBuf.GetSize(); }
 };
 
 template<typename t_IOObject> // IOObjectDatagram or IOObjectStream
