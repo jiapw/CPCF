@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		6331BD4C25A011E90071B3C1 /* rocksdb_serving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */; };
+		746B67EC25DEEBB100A65224 /* recv_pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 746B67EA25DEEBB100A65224 /* recv_pump.cpp */; };
+		746B67EF25DEEFD800A65224 /* test_inet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 746B67EE25DEEFD800A65224 /* test_inet.cpp */; };
 		9339FFC4175C8D6E005A3FA2 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9339FFC3175C8D6E005A3FA2 /* AppKit.framework */; };
 		93C4A233169FEC7A00D3C820 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93C4A232169FEC7A00D3C820 /* main.cpp */; };
 		93C4A235169FEC7A00D3C820 /* tester.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 93C4A234169FEC7A00D3C820 /* tester.1 */; };
@@ -76,6 +78,9 @@
 /* Begin PBXFileReference section */
 		6331BD4A25A011E90071B3C1 /* rocksdb_serving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rocksdb_serving.h; path = ../../../core/ext/rocksdb/rocksdb_serving.h; sourceTree = "<group>"; };
 		6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rocksdb_serving.cpp; path = ../../../core/ext/rocksdb/rocksdb_serving.cpp; sourceTree = "<group>"; };
+		746B67EA25DEEBB100A65224 /* recv_pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = recv_pump.cpp; path = ../../../core/inet/recv_pump.cpp; sourceTree = "<group>"; };
+		746B67EB25DEEBB100A65224 /* recv_pump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = recv_pump.h; path = ../../../core/inet/recv_pump.h; sourceTree = "<group>"; };
+		746B67EE25DEEFD800A65224 /* test_inet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_inet.cpp; path = ../../tests/test_inet.cpp; sourceTree = "<group>"; };
 		9339FFC3175C8D6E005A3FA2 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		93C4A22E169FEC7A00D3C820 /* tester */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tester; sourceTree = BUILT_PRODUCTS_DIR; };
 		93C4A232169FEC7A00D3C820 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -248,6 +253,7 @@
 			children = (
 				9429576D241709C500A5A0A3 /* test_ext.cpp */,
 				94A69E8F22C0840A00757781 /* test_perf.cpp */,
+				746B67EE25DEEFD800A65224 /* test_inet.cpp */,
 				941D3E3E2130735D00F97118 /* lib_inc.c */,
 				941D3E362130734E00F97118 /* entrypoint.cpp */,
 				941D3E332130734E00F97118 /* test_api.cpp */,
@@ -312,6 +318,8 @@
 		93C4A242169FED0400D3C820 /* inet */ = {
 			isa = PBXGroup;
 			children = (
+				746B67EA25DEEBB100A65224 /* recv_pump.cpp */,
+				746B67EB25DEEBB100A65224 /* recv_pump.h */,
 				941D3E442130737100F97118 /* http_client.cpp */,
 				941D3E432130737100F97118 /* http_client.h */,
 				941D3E422130737100F97118 /* inet.cpp */,
@@ -408,6 +416,8 @@
 				941D3E632130738800F97118 /* file_dir.cpp in Sources */,
 				941D3E3D2130734F00F97118 /* entrypoint.cpp in Sources */,
 				941D3E97213073CD00F97118 /* xml_xhtml.cpp in Sources */,
+				746B67EC25DEEBB100A65224 /* recv_pump.cpp in Sources */,
+				746B67EF25DEEFD800A65224 /* test_inet.cpp in Sources */,
 				941D3E3B2130734F00F97118 /* test_ipp.cpp in Sources */,
 				941D3E382130734F00F97118 /* test_http.cpp in Sources */,
 				941D3E4A2130737100F97118 /* tinyhttpd_fileserv.cpp in Sources */,

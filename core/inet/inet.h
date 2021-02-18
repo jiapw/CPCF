@@ -269,21 +269,21 @@ protected:
 	bool __SendTo(LPCVOID pData, UINT len,const struct sockaddr &target, int addr_len);
 	bool __RecvFrom(LPVOID pData, UINT len, UINT& len_out, struct sockaddr &target, int addr_len, bool Peek = false);
 public:
-	INLFUNC bool Create(const InetAddr &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddr), nSocketType, reuse_addr, PF_INET); }
-	INLFUNC bool GetPeerName(InetAddr &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddr)); }
-	INLFUNC bool GetBindName(InetAddr &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddr)); }
-	INLFUNC bool ConnectTo(const InetAddr &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
-	INLFUNC bool Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
-	INLFUNC bool SendTo(LPCVOID pData, UINT len,const InetAddr &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr)); }
-	INLFUNC bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddr));  }
+	bool Create(const InetAddr &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddr), nSocketType, reuse_addr, PF_INET); }
+	bool GetPeerName(InetAddr &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddr)); }
+	bool GetBindName(InetAddr &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddr)); }
+	bool ConnectTo(const InetAddr &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
+	bool Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
+	bool SendTo(LPCVOID pData, UINT len,const InetAddr &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr)); }
+	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddr));  }
 
-	INLFUNC bool Create(const InetAddrV6 &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddrV6), nSocketType, reuse_addr, PF_INET6); }
-	INLFUNC bool GetPeerName(InetAddrV6 &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddrV6)); }
-	INLFUNC bool GetBindName(InetAddrV6 &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddrV6)); }
-	INLFUNC bool ConnectTo(const InetAddrV6 &target){ return __ConnectTo((SA&)target, sizeof(InetAddrV6)); }
-	INLFUNC bool Accept(Socket& connected_out, InetAddrV6& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddrV6)); }
-	INLFUNC bool SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddrV6)); }
-	INLFUNC bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddrV6));  }
+	bool Create(const InetAddrV6 &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddrV6), nSocketType, reuse_addr, PF_INET6); }
+	bool GetPeerName(InetAddrV6 &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddrV6)); }
+	bool GetBindName(InetAddrV6 &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddrV6)); }
+	bool ConnectTo(const InetAddrV6 &target){ return __ConnectTo((SA&)target, sizeof(InetAddrV6)); }
+	bool Accept(Socket& connected_out, InetAddrV6& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddrV6)); }
+	bool SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddrV6)); }
+	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddrV6));  }
 
 	void Close();
 	SOCKET Detach();
@@ -336,27 +336,27 @@ class SocketTimed:public Socket
 
 public:
 	SocketTimed();
-	INLFUNC void	Attach(SOCKET sock){ Socket::Attach(sock); EnableNonblockingIO(true); }
-	INLFUNC SOCKET	Detach(){ EnableNonblockingIO(false); return Socket::Detach(); }
-	bool			Send(LPCVOID pData, UINT len, bool drop_if_busy = false);
-	bool			Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek = false);
+	void	Attach(SOCKET sock){ Socket::Attach(sock); EnableNonblockingIO(true); }
+	SOCKET	Detach(){ EnableNonblockingIO(false); return Socket::Detach(); }
+	bool	Send(LPCVOID pData, UINT len, bool drop_if_busy = false);
+	bool	Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek = false);
 
-	INLFUNC bool	Create(const InetAddr &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddr), nSocketType, reuse_addr, PF_INET); }
-	INLFUNC bool	ConnectTo(const InetAddr &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
-	INLFUNC bool	Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
-	INLFUNC bool	SendTo(LPCVOID pData, UINT len,const InetAddr &target, bool drop_if_busy = false){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr), drop_if_busy); }
-	INLFUNC bool	RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddr));  }
+	bool	Create(const InetAddr &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddr), nSocketType, reuse_addr, PF_INET); }
+	bool	ConnectTo(const InetAddr &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
+	bool	Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
+	bool	SendTo(LPCVOID pData, UINT len,const InetAddr &target, bool drop_if_busy = false){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr), drop_if_busy); }
+	bool	RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddr));  }
 
-	INLFUNC bool	Create(const InetAddrV6 &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddrV6), nSocketType, reuse_addr, PF_INET6); }
-	INLFUNC bool	ConnectTo(const InetAddrV6 &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
-	INLFUNC bool	Accept(Socket& connected_out, InetAddrV6& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddrV6)); }
-	INLFUNC bool	SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target, bool drop_if_busy = false){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddrV6), drop_if_busy); }
-	INLFUNC bool	RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddrV6));  }
+	bool	Create(const InetAddrV6 &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddrV6), nSocketType, reuse_addr, PF_INET6); }
+	bool	ConnectTo(const InetAddrV6 &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
+	bool	Accept(Socket& connected_out, InetAddrV6& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddrV6)); }
+	bool	SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target, bool drop_if_busy = false){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddrV6), drop_if_busy); }
+	bool	RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddrV6));  }
 
-	INLFUNC void	SetTimeout(DWORD msec){ SetRecvTimeout(msec); SetSendTimeout(msec); }
-	INLFUNC bool	IsLastOperationTimeout() const { return _LastSelectRet == 0; }
-	void			SetRecvTimeout(DWORD send_msec);
-	void			SetSendTimeout(DWORD send_msec);
+	void	SetTimeout(DWORD msec){ SetRecvTimeout(msec); SetSendTimeout(msec); }
+	bool	IsLastOperationTimeout() const { return _LastSelectRet == 0; }
+	void	SetRecvTimeout(DWORD send_msec);
+	void	SetSendTimeout(DWORD send_msec);
 };
 
 enum _tagSocketEventType

@@ -5,6 +5,7 @@
   <VirtualDirectory Name="main">
     <File Name="main.cpp"/>
     <VirtualDirectory Name="tests">
+      <File Name="../tests/test_inet.cpp"/>
       <File Name="../tests/entrypoint.cpp"/>
       <File Name="../tests/experiments.cpp"/>
       <File Name="../tests/test.h"/>
@@ -16,6 +17,8 @@
       <File Name="../tests/test_ext.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="CPCF">
+      <File Name="../../core/inet/recv_pump.h"/>
+      <File Name="../../core/inet/recv_pump.cpp"/>
       <File Name="../../core/os/high_level.cpp"/>
       <File Name="../../core/os/high_level.h"/>
       <File Name="../../core/os/precompiler.cpp"/>

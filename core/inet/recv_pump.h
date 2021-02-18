@@ -39,38 +39,46 @@ class AsyncIOCoreBase
 {
 public:
 #if defined(PLATFORM_WIN)
-	typedef	HANDLE	IOCORE;
-	typedef	HANDLE	IOOBJECT;
+	typedef	HANDLE	    IOCORE;
 	static const SIZE_T IOCORE_INVALID = (SIZE_T)INVALID_HANDLE_VALUE;
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+    static const int    EVENT_BATCH_SIZE = 4;  // for Linux/Mac only
+    typedef	int		    IOCORE;
+	static const int 	IOCORE_INVALID = -1;
 #else
-	#error IOEngine Unsupported Platform
+	#error AsyncIOCore Unsupported Platform
 #endif
 
 protected:
 	IOCORE					_Core = (IOCORE)IOCORE_INVALID;
 	rt::Buffer<os::Thread>	_IOWorkers;
 
+public:
 	struct Event
 	{
-		bool	is_read;
+#if defined(PLATFORM_WIN)
 		DWORD	bytes_transferred;
-		LPVOID	cookie;
+        LPVOID  cookie;
+#else
+        int     count;
+        LPVOID  cookies[EVENT_BATCH_SIZE];
+#endif
 	};
 
 protected:
 	bool _Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency = 0, UINT stack_size = 0);
-	bool _AddObject(IOOBJECT obj, LPVOID cookie);
-	void _RemoveObject(IOOBJECT obj);
+	bool _AddObject(SOCKET obj, LPVOID cookie);
+	void _RemoveObject(SOCKET obj);
 	bool _PickUpEvent(Event& e);
 
 public:
-	bool IsRunning() const;
+	bool IsRunning() const { return _Core != (IOCORE)IOCORE_INVALID; }
 	void Term();
 	~AsyncIOCoreBase(){ Term(); }
 };
 
+////////////////////////////////////////////////////
+// Non-blocking I/O is used, the # of UDP packet is not equal to # of events by epoll/kevent.
 class IOObject: public inet::Socket
 {
 	template<typename IOObject>
@@ -79,6 +87,7 @@ class IOObject: public inet::Socket
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target);
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target);
 	bool Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek);
+    void EnableNonblockingIO(bool enable = true);
 
 protected:
 	rt::BufferEx<BYTE>	_RecvBuf;
@@ -88,12 +97,21 @@ protected:
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 #else
-	#error IOEngine Unsupported Platform
+	#error AsyncIOCore Unsupported Platform
 #endif
+
+	bool	__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy = false);
+
 public:
 	void	SetBufferSize(UINT sz = 1500){ VERIFY(_RecvBuf.ChangeSize(sz, false)); }
 	SOCKET	GetHandle() const { return m_hSocket; }
 	LPBYTE	GetBuffer(){ return _RecvBuf; }
+	UINT	GetBufferSize() const { return (UINT)_RecvBuf.GetSize(); }
+
+	// blocking call
+	bool	SendTo(LPCVOID pData, UINT len,const InetAddr &target, bool drop_if_busy = false){ return __SendTo(pData, len, &target, sizeof(InetAddr), drop_if_busy); }
+	bool	SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target, bool drop_if_busy = false){ return __SendTo(pData, len, &target, sizeof(InetAddrV6), drop_if_busy); }
+	bool	Send(LPCVOID pData, UINT len, bool drop_if_busy = false);
 };
 
 template<typename t_IOObject> // IOObjectDatagram or IOObjectStream
@@ -105,8 +123,8 @@ class IOObjectDatagram: public IOObject // UDP
 	friend class RecvPump;
 
 protected:
-	BYTE				_RecvFrom[sizeof(inet::InetAddrV6)];
-	int					_RecvFromSize;
+	BYTE	_RecvFrom[sizeof(inet::InetAddrV6)];
+	int		_RecvFromSize;
 #if defined(PLATFORM_WIN)
 	DWORD	_Flag;
 	bool	PumpNext()
@@ -148,6 +166,7 @@ protected:
 
 namespace _details
 {
+#if defined(PLATFORM_WIN)
 template<typename T>
 void OnRecv(IOObjectDatagram* p, T* obj, UINT size)
 {	obj->OnRecv(obj->GetBuffer(), size, obj->GetRecvFromPtr(), obj->GetRecvFromSize());
@@ -156,6 +175,37 @@ template<typename T>
 void OnRecv(IOObjectStream* p, T* obj, UINT size)
 {	obj->OnRecv(obj->GetBuffer(), size);
 }
+#else
+template<typename T>
+bool OnRecv(IOObjectDatagram* p, T* obj)
+{	socklen_t addr_len = sizeof(inet::InetAddrV6);
+	int len = ::recvfrom(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0, (sockaddr*)obj->GetRecvFromPtr(), &addr_len);
+	if(len>0){ obj->OnRecv(obj->GetBuffer(), len, obj->GetRecvFromPtr(), addr_len); return true; }
+	return len != 0 && (errno == EAGAIN || errno == EINTR);
+}
+template<typename T>
+bool OnRecv(IOObjectStream* p, T* obj)
+{	int len = ::recv(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0);
+	if(len>0){ obj->OnRecv(obj->GetBuffer(), len); return true; }
+	return len != 0 && (errno == EAGAIN || errno == EINTR);
+}
+template<typename T_OBJ, int SIZE, int ITER = 0, bool STOP = ITER == SIZE>
+struct OnRecvAll
+{
+    static void Call(const AsyncIOCoreBase::Event& evt)
+    {   if(ITER < evt.count)
+        {   if(!OnRecv((T_OBJ*)evt.cookies[ITER], (T_OBJ*)evt.cookies[ITER]))
+                ((T_OBJ*)evt.cookies[ITER])->OnRecv(nullptr, 0); // indicate error
+            OnRecvAll<T_OBJ,SIZE,ITER+1>::Call(evt);
+        }
+    }
+};
+    template<typename T_OBJ, int SIZE, int ITER>
+    struct OnRecvAll<T_OBJ, SIZE, ITER, true>
+    {
+        static void Call(const AsyncIOCoreBase::Event& evt){}
+    };
+#endif
 } // namespace _details
 
 template<typename t_IOObject> // IOObjectDatagram or IOObjectStream
@@ -168,14 +218,14 @@ class RecvPump: public AsyncIOCoreBase
 		{
 			if(AsyncIOCoreBase::_PickUpEvent(evt))
 			{
-				_details::OnRecv((t_IOObject*)evt.cookie, (t_IOObject*)evt.cookie, evt.bytes_transferred);
 #if defined(PLATFORM_WIN)
+				_details::OnRecv((t_IOObject*)evt.cookie, (t_IOObject*)evt.cookie, evt.bytes_transferred);
 				if(!((t_IOObject*)evt.cookie)->PumpNext())
 					((t_IOObject*)evt.cookie)->OnRecv(nullptr, 0); // indicate error
-#endif				
+#else
+                _details::OnRecvAll<t_IOObject, sizeofArray(evt.cookies)>::Call(evt);
+#endif
 			}
-			else
-				((t_IOObject*)evt.cookie)->OnRecv(nullptr, 0); // indicate error
 		}
 	}
 
@@ -192,7 +242,9 @@ public:
 	}
 
 	bool AddObject(t_IOObject* obj) // // lifecycle is **not** maintained by RecvPump
-	{	if(!_AddObject((IOOBJECT)obj->GetHandle(), obj))return false;
+	{	
+		((inet::Socket*)obj)->EnableNonblockingIO(true);
+		if(!_AddObject(obj->GetHandle(), obj))return false;
 #if defined(PLATFORM_WIN)
 		if(!obj->PumpNext()){ obj->OnRecv(nullptr, 0); return false; }
 #endif
@@ -204,7 +256,7 @@ public:
 #if defined(PLATFORM_WIN)
 		obj->_OverlappedRecv.hEvent = INVALID_HANDLE_VALUE;
 #endif
-		_RemoveObject((IOOBJECT)obj->GetHandle());
+		_RemoveObject(obj->GetHandle());
 	}
 };
 
