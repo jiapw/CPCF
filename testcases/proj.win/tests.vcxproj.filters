@@ -109,6 +109,12 @@
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb_serving.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_inet.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\inet\recv_pump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\ext\botan\botan.h" />
@@ -151,5 +157,6 @@
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb_serving.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\core\inet\recv_pump.h" />
   </ItemGroup>
 </Project>

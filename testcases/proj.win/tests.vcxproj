@@ -177,6 +177,7 @@
     <ClCompile Include="..\..\core\ext\lib_inc.c" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb.cpp" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb_serving.cpp" />
+    <ClCompile Include="..\..\core\inet\recv_pump.cpp" />
     <ClCompile Include="..\..\core\inet\http_client.cpp" />
     <ClCompile Include="..\..\core\inet\inet.cpp" />
     <ClCompile Include="..\..\core\inet\tinyhttpd.cpp" />
@@ -198,6 +199,7 @@
     <ClCompile Include="..\tests\test_botan.cpp" />
     <ClCompile Include="..\tests\test_ext.cpp" />
     <ClCompile Include="..\tests\test_http.cpp" />
+    <ClCompile Include="..\tests\test_inet.cpp" />
     <ClCompile Include="..\tests\test_ipp.cpp" />
     <ClCompile Include="..\tests\test_mkl.cpp" />
     <ClCompile Include="..\tests\test_perf.cpp">
@@ -223,6 +225,7 @@
     <ClInclude Include="..\..\core\ext\mkl\mkl_vector.h" />
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb.h" />
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb_serving.h" />
+    <ClInclude Include="..\..\core\inet\recv_pump.h" />
     <ClInclude Include="..\..\core\inet\http_client.h" />
     <ClInclude Include="..\..\core\inet\inet.h" />
     <ClInclude Include="..\..\core\inet\tinyhttpd.h" />

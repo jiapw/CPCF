@@ -23,7 +23,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(string);
+		TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}
 	else
@@ -45,7 +45,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(timedate);
 		TYPETRAITS_UNITTEST(smallmath);
 		TYPETRAITS_UNITTEST(multithread);
-		TYPETRAITS_UNITTEST(inet_encoding);
+		TYPETRAITS_UNITTEST(b64_encoding);
 		TYPETRAITS_UNITTEST(binary_search);
 		TYPETRAITS_UNITTEST(botan_cipher);
 		TYPETRAITS_UNITTEST(botan_hash);
@@ -56,6 +56,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(rocks_db);
         TYPETRAITS_UNITTEST(vm);
         TYPETRAITS_UNITTEST(async_write);
+		TYPETRAITS_UNITTEST(recv_pump);
 	
 		if(0) // non-static test
 		{

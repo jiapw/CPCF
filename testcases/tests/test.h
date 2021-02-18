@@ -24,11 +24,12 @@ struct UnitTests
 	static void sockettimed();
 	static void multithread();
 	static void download();
-	static void inet_encoding();
+	static void b64_encoding();
 	static void delayed_deletion();
 	static void sysinfo();
 	static void socket_io();
 	static void socket_socket_event();
+	static void recv_pump();
 	static void filelist();
 	static void smallmath();
 	static void vm();
