@@ -59,6 +59,7 @@
   <Import Project="vs.user" Condition="exists('vs.user')" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -177,6 +178,7 @@
     <ClCompile Include="..\..\core\ext\lib_inc.c" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb.cpp" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb_serving.cpp" />
+    <ClCompile Include="..\..\core\ext\ttmath\precision_float.cpp" />
     <ClCompile Include="..\..\core\inet\recv_pump.cpp" />
     <ClCompile Include="..\..\core\inet\http_client.cpp" />
     <ClCompile Include="..\..\core\inet\inet.cpp" />
@@ -250,7 +252,13 @@
     <ClInclude Include="..\..\core\rt\xml_xhtml.h" />
     <ClInclude Include="..\tests\test.h" />
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\..\core\ext\ttmath\ttmathuint_x86_64_msvc.asm">
+      <FileType>Document</FileType>
+    </MASM>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   </ImportGroup>
 </Project>

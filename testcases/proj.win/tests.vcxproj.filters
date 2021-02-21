@@ -115,6 +115,9 @@
     <ClCompile Include="..\..\core\inet\recv_pump.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\core\ext\ttmath\precision_float.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\ext\botan\botan.h" />
@@ -158,5 +161,10 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\core\inet\recv_pump.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\..\core\ext\ttmath\ttmathuint_x86_64_msvc.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
