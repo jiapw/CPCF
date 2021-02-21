@@ -17,6 +17,7 @@
       <File Name="../tests/test_ext.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="CPCF">
+      <File Name="../../core/ext/ttmath/precision_float.cpp"/>
       <File Name="../../core/inet/recv_pump.h"/>
       <File Name="../../core/inet/recv_pump.cpp"/>
       <File Name="../../core/os/high_level.cpp"/>
