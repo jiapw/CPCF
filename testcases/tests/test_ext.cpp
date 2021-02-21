@@ -4,6 +4,7 @@
 #include "../../core/ext/concurrentqueue/async_queue.h"
 #include "../../core/os/kernel.h"
 #include "../../core/ext/exprtk/exprtk.h"
+#include "../../core/ext/ttmath/precision_float.h"
 #include "test.h"
 
 
@@ -903,4 +904,26 @@ void rt::UnitTests::rocksdb_serve()
 	_LOG("RocksServing at http://"<<rt::tos::ip(server.GetBindedAddress()));
 
 	os::Sleep();
+}
+
+void rt::UnitTests::precision_float()
+{
+	{
+		ext::Float256 a("1.23456789987654321123456789987654321123456789987654321");
+		a.Pow(100U);
+		_LOG(a);
+	}
+
+	{
+		ext::Float2048 a("1.23456789987654321123456789987654321123456789987654321");
+		a.Pow(100U);
+		_LOG(a);
+	}
+
+	{
+		ext::Float1024 a("123456789987654321123456789987654321123456789987654321");
+		ext::Float1024 b(a);
+		b.Add(a);
+		_LOG("Float2048     = " << b);
+	}
 }

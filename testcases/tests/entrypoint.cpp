@@ -23,7 +23,8 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(recv_pump);
+		TYPETRAITS_UNITTEST(precision_float);
+		//TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}
 	else

@@ -8,7 +8,7 @@
 // Add msvc.asm to the project on MSVC if linker errors
 // https://stackoverflow.com/questions/33751509/external-assembly-file-in-visual-studio
 
-namespace oxd
+namespace ext
 {
 namespace _details
 {
@@ -167,5 +167,5 @@ template class PrecisionFloat<512>;
 template class PrecisionFloat<1024>;
 template class PrecisionFloat<2048>;
 
-}} // namespace oxd::_details
+}} // namespace ext::_details
 #pragma pack(pop)

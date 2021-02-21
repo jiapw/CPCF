@@ -2,7 +2,7 @@
 #include "../../rt/type_traits.h"
 
 
-namespace oxd
+namespace ext
 {
 #pragma pack(push, 4)
 namespace _details
@@ -48,4 +48,4 @@ typedef _details::PrecisionFloat<512>	Float512;
 typedef _details::PrecisionFloat<256>	Float256;
 
 #pragma pack(pop)
-} // namespace oxd
+} // namespace ext
