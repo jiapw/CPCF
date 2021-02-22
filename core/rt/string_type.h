@@ -1473,6 +1473,7 @@ public:
 		return *this;
 	}
 	FORCEINL LPCSTR operator += (LPCSTR str){ (*this) += rt::String_Ref(str); return str; }
+	FORCEINL LPSTR operator += (LPSTR str){ (*this) += rt::String_Ref(str); return str; }
 	FORCEINL void operator += (char x){ SIZE_T pos = GetLength(); SetLength(pos+1); _p[pos] = x; }
 private:
 	FORCEINL bool ParseNextNumber(UINT& out){ ASSERT(0); return false; } // ParseNextNumber cannot be used on a String
