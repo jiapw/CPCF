@@ -199,6 +199,8 @@ typedef _details::BN_Ref	BigNumRef;
 template<class STORE_CLS>
 struct BigNumImmutable: public STORE_CLS
 {
+	typedef _details::BN_BLK	BN_BLK;
+	
 	bool		IsNegative() const { return STORE_CLS::GetSign(); }
 	bool		IsNonNegative() const { return !STORE_CLS::GetSign() || STORE_CLS::GetLength() == 0; }
 	bool		IsPositive() const { return !STORE_CLS::GetSign() && STORE_CLS::GetLength() > 0; }
