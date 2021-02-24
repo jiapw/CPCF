@@ -60,6 +60,7 @@
 		95C9EC94232A3D5D002A4B91 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC93232A3D5D002A4B91 /* json.cpp */; };
 		95C9EC96232A3D6F002A4B91 /* kernal_encode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC95232A3D6F002A4B91 /* kernal_encode.cpp */; };
 		95C9EC98232A3DB2002A4B91 /* ipp_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C9EC97232A3DB1002A4B91 /* ipp_image.cpp */; };
+		EC5B918725E66190009D1AE4 /* precision_float.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EC5B918625E66190009D1AE4 /* precision_float.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -159,6 +160,7 @@
 		95C9EC93232A3D5D002A4B91 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../../../core/rt/json.cpp; sourceTree = "<group>"; };
 		95C9EC95232A3D6F002A4B91 /* kernal_encode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kernal_encode.cpp; path = ../../../core/os/kernal_encode.cpp; sourceTree = "<group>"; };
 		95C9EC97232A3DB1002A4B91 /* ipp_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ipp_image.cpp; path = ../../../core/ext/ipp/ipp_image.cpp; sourceTree = "<group>"; };
+		EC5B918625E66190009D1AE4 /* precision_float.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = precision_float.cpp; path = ../../../core/ext/ttmath/precision_float.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -335,6 +337,7 @@
 		93C4A267169FF40D00D3C820 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				EC5B918625E66190009D1AE4 /* precision_float.cpp */,
 				6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */,
 				6331BD4A25A011E90071B3C1 /* rocksdb_serving.h */,
 				946C4500243E881D009D8581 /* rocksdb.cpp */,
@@ -406,6 +409,7 @@
 			files = (
 				93C4A233169FEC7A00D3C820 /* main.cpp in Sources */,
 				941D3E602130738800F97118 /* precompiler.cpp in Sources */,
+				EC5B918725E66190009D1AE4 /* precision_float.cpp in Sources */,
 				946C4501243E881D009D8581 /* rocksdb.cpp in Sources */,
 				941D3E3F2130735D00F97118 /* lib_inc.c in Sources */,
 				941D3E652130738800F97118 /* kernel.cpp in Sources */,
