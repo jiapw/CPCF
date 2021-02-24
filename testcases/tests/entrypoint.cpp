@@ -9,8 +9,10 @@ extern "C"
 #endif
 void TestMain()
 {
-	LPCSTR logfile = "../testcases.log";
-
+    rt::String out;
+    os::File::GetCurrentDirectory(out);
+    _LOGC(out);
+    
 #if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
 	{   rt::String cd;
 		os::GetAppSandbox(cd, nullptr);
