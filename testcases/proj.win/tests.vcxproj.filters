@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Win">
       <UniqueIdentifier>{d6fbf6e1-6fa8-4eaf-b5e8-2cf070c330ac}</UniqueIdentifier>
     </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{e3ce8e68-6034-4f20-80de-b624b37d9031}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -38,85 +38,88 @@
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\botan\botan.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\exprtk\exprtk.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\ipp\ipp_core.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\lib_inc.c">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\inet\http_client.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\inet\inet.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\inet\tinyhttpd.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\inet\tinyhttpd_fileserv.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\file_dir.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\file_zip.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\high_level.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\kernel_log.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\precompiler.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\user_inputs.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\kernel.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\multi_thread.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\rt\xml_xhtml.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\tests\test_perf.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\ipp\ipp_image.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\rt\json.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\os\kernal_encode.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\tests\test_ext.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb_serving.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\tests\test_inet.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\inet\recv_pump.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\core\ext\ttmath\precision_float.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\core\ext\bignum\precision_num.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\ext\bignum\big_num.cpp">
+      <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,18 +156,24 @@
       <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb.h">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\core\os\thread_primitive.h" />
     <ClInclude Include="..\..\core\rt\string_type_ops.h" />
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb_serving.h">
-      <Filter>Source Files</Filter>
+      <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\core\inet\recv_pump.h" />
+    <ClInclude Include="..\..\core\ext\bignum\precision_num.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\ext\bignum\big_num.h">
+      <Filter>source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\..\core\ext\ttmath\ttmathuint_x86_64_msvc.asm">
-      <Filter>Source Files</Filter>
+    <MASM Include="..\..\core\ext\bignum\ttmath\ttmathuint_x86_64_msvc.asm">
+      <Filter>source</Filter>
     </MASM>
   </ItemGroup>
 </Project>

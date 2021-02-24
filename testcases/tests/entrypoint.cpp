@@ -19,18 +19,16 @@ void TestMain()
 	}
 #endif
 
-	os::SetLogFile(logfile, false);
+	TYPETRAITS_UNITTEST_OUTPUT("../testlogs/");
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(precision_float);
+		TYPETRAITS_UNITTEST(big_num);
 		//TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}
 	else
 	{
-		TYPETRAITS_UNITTEST_OUTPUT("../testlogs/");
-
 		TYPETRAITS_UNITTEST(rt);
 		TYPETRAITS_UNITTEST(buffer);
 		TYPETRAITS_UNITTEST(sortedpush);

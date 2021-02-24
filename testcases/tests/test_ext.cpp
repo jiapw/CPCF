@@ -4,7 +4,8 @@
 #include "../../core/ext/concurrentqueue/async_queue.h"
 #include "../../core/os/kernel.h"
 #include "../../core/ext/exprtk/exprtk.h"
-#include "../../core/ext/ttmath/precision_float.h"
+#include "../../core/ext/bignum/precision_num.h"
+#include "../../core/ext/bignum/big_num.h"
 #include "test.h"
 
 
@@ -906,24 +907,199 @@ void rt::UnitTests::rocksdb_serve()
 	os::Sleep();
 }
 
-void rt::UnitTests::precision_float()
+void rt::UnitTests::big_num()
 {
+	using namespace ext;
+
 	{
-		ext::Float256 a("1.23456789987654321123456789987654321123456789987654321");
+		Float256 a("1.23456789987654321123456789987654321123456789987654321");
 		a.Pow(100U);
 		_LOG(a);
 	}
 
 	{
-		ext::Float2048 a("1.23456789987654321123456789987654321123456789987654321");
+		Float2048 a("1.23456789987654321123456789987654321123456789987654321");
 		a.Pow(100U);
 		_LOG(a);
 	}
 
 	{
-		ext::Float1024 a("123456789987654321123456789987654321123456789987654321");
-		ext::Float1024 b(a);
+		Float1024 a("123456789987654321123456789987654321123456789987654321");
+		Float1024 b(a);
 		b.Add(a);
 		_LOG("Float2048     = " << b);
 	}
+
+	_LOG("\nString");
+	BigNumMutable a;
+	a = (ULONGLONG)0x1234567890abcdefULL;
+	_LOG(a);
+	
+	a = (LONGLONG)-0x567890abcdefLL;
+	_LOG(a);
+
+	a.SetZero();
+	_LOG(a);
+
+	a.FromString("10000000000000000000000000");
+	_LOG(a);
+
+	a.FromString("0x8111222333444555666777888999000aaabbbcccdddeeefff");
+	_LOG(a);
+
+	rt::String out;
+	{	_LOG("\nGet Mantissa");
+		a <<= 1;
+
+		out.Empty();
+		a.ToString(out, 16);
+		_LOG(out);
+		BigNumMutable b;
+		int exp;
+
+		UINT m = ext::_details::BN_Mantissa32(a, &exp);
+		b = m;	b <<= exp;	out.Empty(); b.ToString(out, 16);	_LOG(rt::tos::HexNum<>(m)<<"*2^"<<exp<<" =\n"<<out);
+
+		ULONGLONG mm = ext::_details::BN_Mantissa64(a, &exp);
+		b = mm;	b <<= exp;	out.Empty(); b.ToString(out, 16);	_LOG(rt::tos::HexNum<>(mm)<<"*2^"<<exp<<" =\n"<<out);
+		a >>= 1;
+	}
+
+	out.Empty();
+	a.ToString(out, 10);
+
+	_LOG("\nSimple Math");
+	BigNumMutable b,c,d;
+
+	b.FromString(out);
+	_LOG(b);
+
+	b.Add(a, 1);
+	_LOG(b);
+	a.Sub(b, 1);
+	_LOG(a<<" Check:"<<(a == b));
+
+	b.Add(a,a);
+	_LOG(b);
+	c.Sub(b, a);
+	_LOG(c<<" Check:"<<(a == c));
+	a *= 2;
+	_LOG(a);
+
+	b.Mul(a, 2);
+	_LOG(b);
+	c.Sub(b, a);
+	_LOG(c<<" Check:"<<(a == c));
+
+	_LOG("\nBit Ops");
+	c >>= 40;
+	_LOG(c);
+
+	c <<= 40;
+	_LOG(c);
+
+	c >>= 103;
+	_LOG(c);
+
+	c <<= 103;
+	_LOG(c);
+
+	BigNumMutable e;
+	e.CopyLowBits(79, a);
+	_LOG(e<<" <- "<<a);
+	e.SetToPowerOfTwo(79);
+	_LOG(e);
+	e.CopyLowBits(64, a);
+	_LOG(e<<" <- "<<a);
+	e.SetToPowerOfTwo(64);
+	_LOG(e);
+
+	_LOG("\nFloat");
+	_LOG(b);
+	c.Mul(b, 0.25f);
+	_LOG(c);
+	c.Mul(b, 0.25);
+	_LOG(c);
+	a.Mul(c, 4);
+	_LOG(a);
+
+	_LOG("\nInplace");
+	b.Mul(a, 2);
+	_LOG(b);
+	a += a;
+	_LOG(a<<" Check:"<<(a == b));
+	a *= 2;
+	_LOG(a);
+	a *= -0.5;
+	_LOG(a);
+
+	a *= -1;
+	b *= 0.5;
+	b -= a;
+	_LOG(b);
+	b *= 0.5;
+	_LOG(b);
+	b -= a;
+	_LOG(b);
+
+	UINT reminder;
+	b.Div(a, 16, &reminder);
+	_LOG(b<<" R="<<rt::tos::Base16OnStack<>(reminder));
+
+	_LOG("\nMultiplication");
+	b.Mul(a, (ULONGLONG)0x123456789abcdULL);
+	_LOG(b);
+	d.Mul(a, BigNumMutable((ULONGLONG)0x123456789abcdULL));
+	_LOG(d<<" Check:"<<(b == d));
+
+	b.Mul(a, a);
+	_LOG('('<<a<<")^2\n = "<<b);
+
+	_LOG("\nDivision");
+	_LOG(a);
+	c.DivRough(b, a);
+	d.Sub(a,c);
+	_LOG(c<<" ERR/Rough="<<d);
+	c.DivFast(b, a);
+	d.Sub(a,c);
+	_LOG(c<<" ERR/Fast ="<<d);
+
+	_LOG("\nTo floating point");
+	b = 3.14156789e30f;
+	_LOG(b);
+	_LOG(b.ToFloat());
+
+	b = -3.14156789e20f;
+	_LOG(b);
+	_LOG(b.ToFloat());
+
+	b = 3.14156789e10f;
+	_LOG(b);
+	_LOG(b.ToFloat());
+
+	b = 3.14156789e70;
+	_LOG(b);
+	_LOG(b.ToDouble());
+
+	b = -3.14156789e40;
+	_LOG(b);
+	_LOG(b.ToDouble());
+
+	b = 3.14156789e25;
+	_LOG(b);
+	_LOG(b.ToDouble());
+
+	b = -3.14156789e10;
+	_LOG(b);
+	_LOG(b.ToDouble());
+
+	b = (ULONGLONG)0x0fedcba987654321ULL;
+	b <<= 4;
+	_LOG(b);
+	b <<= 1;
+	_LOG(b);
+	b >>= 1;
+	_LOG(b);
+	b <<= 234;
+	_LOG(b);
 }

@@ -171,6 +171,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\core\ext\bignum\big_num.cpp" />
+    <ClCompile Include="..\..\core\ext\bignum\precision_num.cpp" />
     <ClCompile Include="..\..\core\ext\botan\botan.cpp" />
     <ClCompile Include="..\..\core\ext\exprtk\exprtk.cpp" />
     <ClCompile Include="..\..\core\ext\ipp\ipp_core.cpp" />
@@ -178,7 +180,6 @@
     <ClCompile Include="..\..\core\ext\lib_inc.c" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb.cpp" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb_serving.cpp" />
-    <ClCompile Include="..\..\core\ext\ttmath\precision_float.cpp" />
     <ClCompile Include="..\..\core\inet\recv_pump.cpp" />
     <ClCompile Include="..\..\core\inet\http_client.cpp" />
     <ClCompile Include="..\..\core\inet\inet.cpp" />
@@ -216,6 +217,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\core\ext\bignum\big_num.h" />
+    <ClInclude Include="..\..\core\ext\bignum\precision_num.h" />
     <ClInclude Include="..\..\core\ext\botan\botan.h" />
     <ClInclude Include="..\..\core\ext\exprtk\exprtk.h" />
     <ClInclude Include="..\..\core\ext\ipp\ipp_canvas.h" />
@@ -253,9 +256,7 @@
     <ClInclude Include="..\tests\test.h" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\..\core\ext\ttmath\ttmathuint_x86_64_msvc.asm">
-      <FileType>Document</FileType>
-    </MASM>
+    <MASM Include="..\..\core\ext\bignum\ttmath\ttmathuint_x86_64_msvc.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

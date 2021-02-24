@@ -44,7 +44,7 @@ struct UnitTests
 	static void rocks_db();
 	static void httpd();
 	static void rocksdb_serve();
-	static void precision_float();
+	static void big_num();
 
 	static void botan_hash();
 	static void botan_cipher();

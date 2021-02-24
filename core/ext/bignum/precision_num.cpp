@@ -1,9 +1,9 @@
-#include "precision_float.h"
+#include "precision_num.h"
 
 #pragma warning(disable:4244)
 
 #pragma pack(push, 4)
-#include "./ttmath.h"
+#include "./ttmath/ttmath.h"
 
 // Add msvc.asm to the project on MSVC if linker errors
 // https://stackoverflow.com/questions/33751509/external-assembly-file-in-visual-studio
@@ -119,7 +119,7 @@ bool PrecisionFloat<bit_width>::Div(const PrecisionFloat& f)
 }
 
 //template<int bit_width>
-//void PrecisionFloat<bit_width>::BN_Mul(const oxd::BigNumRef& a, oxd::BigNumMutable& b) const	// b = a*this
+//void PrecisionFloat<bit_width>::BN_Mul(const ext::BigNumRef& a, ext::BigNumMutable& b) const	// b = a*this
 //{
 //	typedef typename TTMathType<bit_width>::Float Type;
 //	auto& f = *((Type*)_Data);
@@ -129,7 +129,7 @@ bool PrecisionFloat<bit_width>::Div(const PrecisionFloat& f)
 //		b.SetZero();
 //
 //	ASSERT((sizeof(f.mantissa.table)%sizeof(BN_BLK)) == 0);
-//	::oxd::_details::BN_Mul(a, BN_Ref(f.IsSign(), (BN_BLK*)f.mantissa.table, sizeof(f.mantissa.table)/sizeof(BN_BLK)), b);
+//	::ext::_details::BN_Mul(a, BN_Ref(f.IsSign(), (BN_BLK*)f.mantissa.table, sizeof(f.mantissa.table)/sizeof(BN_BLK)), b);
 //
 //	b <<= (int)exp;
 //}
