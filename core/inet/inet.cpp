@@ -22,6 +22,12 @@
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 #include <sys/sockio.h>
 #include <net/if_dl.h>
+#if defined(PLATFORM_IOS)
+#include <CoreFoundation/CoreFoundation.h>
+#include <notify_keys.h>
+#else
+#include <sys/kern_event.h>
+#endif // #if defined(PLATFORM_IOS)
 #else
 #include <asm/types.h>
 #include <linux/netlink.h>
@@ -723,19 +729,12 @@ SOCKET SocketEvent::my_fd_set::get_next_event()
 	return INVALID_SOCKET;
 }
 
-NetworkInterfaceEvent::~NetworkInterfaceEvent()
+#if defined(PLATFORM_IOS)
+namespace _details
 {
-#if defined(PLATFORM_WIN)
-	if(_CallbackHandle != INVALID_HANDLE_VALUE)
-		::CancelMibChangeNotify2(_CallbackHandle);
-#else
-	auto t = _NetLinkSocket;
-	_NetLinkSocket = -1;
-	::close(t);
-	_WaitingThread.WantExit() = true;
-	_WaitingThread.WaitForEnding();
-#endif
+CFStringRef _NotifySCNetworkChange = CFSTR(kNotifySCNetworkChange);
 }
+#endif
 
 NetworkInterfaceEvent::NetworkInterfaceEvent()
 {
@@ -750,18 +749,71 @@ NetworkInterfaceEvent::NetworkInterfaceEvent()
 	ASSERT(_CallbackHandle == INVALID_HANDLE_VALUE);
 	if(NO_ERROR != ::NotifyIpInterfaceChange(AF_UNSPEC, _call::func, this, false, &_CallbackHandle))
 		_LOG_WARNING("[NET]: NotifyIpInterfaceChange failed");
+#elif defined(PLATFORM_IOS)
+    struct _call
+    {
+        static void func(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
+        {
+            if(CFStringCompare(name, _details::_NotifySCNetworkChange, 0) == kCFCompareEqualTo)
+                *((bool*)observer) = true;
+        }
+    };
+
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), //center
+                                        &_bChanged, // observer
+                                        _call::func, // callback
+                                        _details::_NotifySCNetworkChange, // event name
+                                        NULL, // object
+                                        CFNotificationSuspensionBehaviorDeliverImmediately
+    );
 #else
 	_WaitingThread.Create(this, &NetworkInterfaceEvent::_WaitingFunc);
 #endif
 }
 
-#if !defined(PLATFORM_WIN)
+NetworkInterfaceEvent::~NetworkInterfaceEvent()
+{
+#if defined(PLATFORM_WIN)
+    if(_CallbackHandle != INVALID_HANDLE_VALUE)
+        ::CancelMibChangeNotify2(_CallbackHandle);
+#elif defined(PLATFORM_IOS)
+    CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), &_bChanged, NULL, NULL);
+#else
+    auto t = _NetLinkSocket;
+    _NetLinkSocket = -1;
+    ::close(t);
+    _WaitingThread.WantExit() = true;
+    _WaitingThread.WaitForEnding();
+#endif
+}
+
+#if !defined(PLATFORM_WIN) && !defined(PLATFORM_IOS)
 void NetworkInterfaceEvent::_WaitingFunc()
 {
-#if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
-#else
 	while(!_WaitingThread.WantExit())
 	{
+#if defined(PLATFORM_MAC)
+        _NetLinkSocket = socket(PF_SYSTEM, SOCK_RAW, SYSPROTO_EVENT);
+        
+        kev_request key;
+        key.vendor_code = KEV_VENDOR_APPLE;
+        key.kev_class = KEV_NETWORK_CLASS;
+        key.kev_subclass = KEV_ANY_SUBCLASS;
+        
+        int code = ioctl(_NetLinkSocket, SIOCSKEVFILT, &key);
+        kern_event_msg msg;
+        while(_NetLinkSocket>=0)
+        {
+            code = recv(_NetLinkSocket, &msg, sizeof(msg), 0);
+            if(code<sizeof(kern_event_msg))break;
+            // check type of event
+            if(msg.event_code == KEV_DL_IF_DETACHED || msg.event_code == KEV_DL_IF_ATTACHED ||
+               msg.event_code == KEV_DL_LINK_OFF || msg.event_code == KEV_DL_LINK_ON ||
+               msg.event_code == KEV_DL_LINK_ADDRESS_CHANGED
+            )
+            {  _bChanged = true; }
+        }
+#else
 		struct sockaddr_nl addr;
 		rt::Zero(addr);
 		addr.nl_family = AF_NETLINK;
@@ -810,11 +862,11 @@ void NetworkInterfaceEvent::_WaitingFunc()
 				}
 			}
 		}
+#endif // #if defined(PLATFORM_MAC)
 		
 		os::Sleep(1000);
 	}
-#endif // #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 }
-#endif // #if !defined(PLATFORM_WIN)
+#endif // #if !defined(PLATFORM_WIN) && !defined(PLATFORM_IOS)
 
 } // namespace inet

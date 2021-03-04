@@ -364,7 +364,8 @@ class NetworkInterfaceEvent
 protected:
 #if defined(PLATFORM_WIN)
 	HANDLE					_CallbackHandle = INVALID_HANDLE_VALUE;
-#else
+#elif defined(PLATFORM_IOS)
+#else // for linux and mac
 	int						_NetLinkSocket = -1;
 	os::Thread				_WaitingThread;
 	void					_WaitingFunc();

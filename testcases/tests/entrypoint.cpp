@@ -17,7 +17,6 @@ void TestMain()
 	{   rt::String cd;
 		os::GetAppSandbox(cd, nullptr);
 		os::File::SetCurrentDirectory(cd);
-		logfile = "./testcases.log";
 	}
 #endif
 

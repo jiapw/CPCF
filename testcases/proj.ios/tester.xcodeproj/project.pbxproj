@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3CBA17F524B1A6C9001CF6DB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3CBA17F424B1A6C9001CF6DB /* LaunchScreen.storyboard */; };
 		3CD4FDA224AF9DA100942565 /* DeviceConsole.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CD4FDA124AF9DA100942565 /* DeviceConsole.m */; };
+		745F14AF25F0F5A7007F2059 /* test_inet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 745F14AE25F0F5A7007F2059 /* test_inet.cpp */; };
+		745F14B325F0F5DB007F2059 /* recv_pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 745F14B125F0F5DA007F2059 /* recv_pump.cpp */; };
 		93C4A2A816A013F000D3C820 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C4A2A716A013F000D3C820 /* UIKit.framework */; };
 		93C4A2AA16A013F000D3C820 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C4A2A916A013F000D3C820 /* Foundation.framework */; };
 		93C4A2AC16A013F000D3C820 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C4A2AB16A013F000D3C820 /* CoreGraphics.framework */; };
@@ -51,6 +53,9 @@
 		3CBA17F624B1ABFB001CF6DB /* TXTUIMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TXTUIMacros.h; sourceTree = "<group>"; };
 		3CD4FDA024AF9DA100942565 /* DeviceConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceConsole.h; sourceTree = "<group>"; };
 		3CD4FDA124AF9DA100942565 /* DeviceConsole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceConsole.m; sourceTree = "<group>"; };
+		745F14AE25F0F5A7007F2059 /* test_inet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_inet.cpp; path = ../../tests/test_inet.cpp; sourceTree = "<group>"; };
+		745F14B125F0F5DA007F2059 /* recv_pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = recv_pump.cpp; path = ../../../core/inet/recv_pump.cpp; sourceTree = "<group>"; };
+		745F14B225F0F5DA007F2059 /* recv_pump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = recv_pump.h; path = ../../../core/inet/recv_pump.h; sourceTree = "<group>"; };
 		93C4A2A316A013F000D3C820 /* tester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93C4A2A716A013F000D3C820 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		93C4A2A916A013F000D3C820 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -179,6 +184,7 @@
 		93C4A2AD16A013F000D3C820 /* tester */ = {
 			isa = PBXGroup;
 			children = (
+				745F14AE25F0F5A7007F2059 /* test_inet.cpp */,
 				9425156B24AD00D500A8222C /* experiments.cpp */,
 				9425156924AD00BF00A8222C /* lib_inc.c */,
 				9425155F24AD007C00A8222C /* entrypoint.cpp */,
@@ -262,6 +268,8 @@
 		93C4A2DE16A0154D00D3C820 /* inet */ = {
 			isa = PBXGroup;
 			children = (
+				745F14B125F0F5DA007F2059 /* recv_pump.cpp */,
+				745F14B225F0F5DA007F2059 /* recv_pump.h */,
 				9425157224AD010800A8222C /* http_client.cpp */,
 				9425157524AD010800A8222C /* http_client.h */,
 				9425157824AD010800A8222C /* inet.cpp */,
@@ -382,6 +390,7 @@
 				3CD4FDA224AF9DA100942565 /* DeviceConsole.m in Sources */,
 				9425157B24AD010900A8222C /* tinyhttpd.cpp in Sources */,
 				9425157C24AD010900A8222C /* tinyhttpd_fileserv.cpp in Sources */,
+				745F14AF25F0F5A7007F2059 /* test_inet.cpp in Sources */,
 				9425156224AD007D00A8222C /* test_api.cpp in Sources */,
 				9425159224AD013800A8222C /* file_dir.cpp in Sources */,
 				9425156A24AD00C000A8222C /* lib_inc.c in Sources */,
@@ -398,6 +407,7 @@
 				9425159324AD013800A8222C /* kernal_encode.cpp in Sources */,
 				9425159524AD013800A8222C /* kernel_log.cpp in Sources */,
 				9425158F24AD013800A8222C /* user_inputs.cpp in Sources */,
+				745F14B325F0F5DB007F2059 /* recv_pump.cpp in Sources */,
 				9425159124AD013800A8222C /* multi_thread.cpp in Sources */,
 				9425158E24AD013800A8222C /* objc_wrap.mm in Sources */,
 			);
