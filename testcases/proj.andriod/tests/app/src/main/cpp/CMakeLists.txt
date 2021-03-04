@@ -10,7 +10,10 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPLATFORM_ANDROID -DPNG_ARM_NEON_OPT=0 -DOS_ANDROID")
+set(can_use_assembler TRUE)
+enable_language(ASM)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPLATFORM_ANDROID -DPNG_ARM_NEON_OPT=0 -DOS_ANDROID") # -fno-integrated-as -DOC_ARM_ASM -mfpu=crypto-neon-fp-armv8
 
 add_library( # Sets the name of the library.
              native-lib
@@ -20,6 +23,10 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
              native-lib.cpp
+             ../../../../../../../core/ext/botan/botan.cpp
+             ../../../../../../../core/ext/botan/platforms/android_arm64/openssl_aes256.S
+             ../../../../../../../core/ext/botan/platforms/android_arm64/openssl-sha256.S
+
              ../../../../../../../essentials.cpp
              ../../../../../../../testcases/tests/entrypoint.cpp
              ../../../../../../../testcases/tests/test_api.cpp
@@ -37,7 +44,6 @@ add_library( # Sets the name of the library.
              ../../../../../../../core/ext/exprtk/exprtk.cpp
              ../../../../../../../core/ext/rocksdb/rocksdb.cpp
              ../../../../../../../core/ext/rocksdb/rocksdb_serving.cpp
-             #../../../../../../../core/ext/exprtk/exprtk.cpp
              ../../../../../../../core/inet/tinyhttpd.cpp
              ../../../../../../../core/inet/tinyhttpd_fileserv.cpp
              ../../../../../../../core/inet/http_client.cpp
@@ -46,6 +52,8 @@ add_library( # Sets the name of the library.
              ../../../../../../../core/ext/ipp/ipp_core.cpp
 
         )
+
+
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -66,7 +74,6 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        native-lib
-
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib} )

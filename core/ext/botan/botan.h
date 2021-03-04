@@ -37,6 +37,10 @@
 #include "./inc/ecc.h"
 #include "./inc/botan_inc.h"
 
+#if defined(PLATFORM_ANDROID) && defined (__aarch64__)
+#include "./platforms/android_arm64/openssl_crypto.h"
+#endif
+
 
 namespace sec
 {
