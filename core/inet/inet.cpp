@@ -7,6 +7,7 @@
 #include <Iphlpapi.h>
 #pragma comment(lib, "Iphlpapi.lib")
 #pragma comment(lib, "ws2_32.lib")
+
 #else
 #include <netdb.h>
 #include <unistd.h>
@@ -18,10 +19,13 @@
 #include <net/if.h>
 #include <ifaddrs.h>
 
-
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 #include <sys/sockio.h>
 #include <net/if_dl.h>
+#else
+#include <asm/types.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
 #endif
 
 #endif
@@ -725,6 +729,9 @@ NetworkInterfaceEvent::~NetworkInterfaceEvent()
 	if(_CallbackHandle != INVALID_HANDLE_VALUE)
 		::CancelMibChangeNotify2(_CallbackHandle);
 #else
+	auto t = _NetLinkSocket;
+	_NetLinkSocket = -1;
+	::close(t);
 	_WaitingThread.WantExit() = true;
 	_WaitingThread.WaitForEnding();
 #endif
@@ -744,6 +751,7 @@ NetworkInterfaceEvent::NetworkInterfaceEvent()
 	if(NO_ERROR != ::NotifyIpInterfaceChange(AF_UNSPEC, _call::func, this, false, &_CallbackHandle))
 		_LOG_WARNING("[NET]: NotifyIpInterfaceChange failed");
 #else
+	_WaitingThread.Create(this, &NetworkInterfaceEvent::_WaitingFunc);
 #endif
 }
 
@@ -751,9 +759,62 @@ NetworkInterfaceEvent::NetworkInterfaceEvent()
 void NetworkInterfaceEvent::_WaitingFunc()
 {
 #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
-#endif
+#else
+	while(!_WaitingThread.WantExit())
+	{
+		struct sockaddr_nl addr;
+		rt::Zero(addr);
+		addr.nl_family = AF_NETLINK;
+		addr.nl_pid = getpid();
+		addr.nl_groups = /*RTMGRP_LINK|*/RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR;
+
+		_NetLinkSocket = socket(AF_NETLINK,SOCK_RAW,NETLINK_ROUTE);
+		if(_NetLinkSocket<-1 || bind(_NetLinkSocket,(struct sockaddr *)&addr,sizeof(addr))<0)
+		{
+			::close(_NetLinkSocket);
+			os::Sleep(1000);
+			continue;
+		}
+
+		while(_NetLinkSocket>=0)
+		{
+			int status;
+			char buf[4096];
+			struct iovec iov = { buf, sizeof buf };
+			struct sockaddr_nl snl;
+			struct msghdr msg = { (void*)&snl, sizeof snl, &iov, 1, NULL, 0, 0};
+			struct nlmsghdr *h;
+
+			status = recvmsg(_NetLinkSocket, &msg, 0);
+
+			if(status < 0)
+			{
+				/* Socket non-blocking so bail out once we have read everything */
+				if(errno == EWOULDBLOCK || errno == EAGAIN)
+					continue;
+
+				break;
+			}
+
+			if(status == 0)break;
+
+			for(h = (struct nlmsghdr *)buf; NLMSG_OK(h, (unsigned int)status); h = NLMSG_NEXT (h, status))
+			{
+				auto type = h->nlmsg_type;
+				if(type == NLMSG_DONE || type == NLMSG_ERROR)
+					break;
+					
+				if(type == RTM_NEWADDR || type == RTM_DELADDR)
+				{	_bChanged = true;
+					break;
+				}
+			}
+		}
+		
+		os::Sleep(1000);
+	}
+#endif // #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 }
-#endif
+#endif // #if !defined(PLATFORM_WIN)
 
 } // namespace inet

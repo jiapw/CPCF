@@ -365,6 +365,7 @@ protected:
 #if defined(PLATFORM_WIN)
 	HANDLE					_CallbackHandle = INVALID_HANDLE_VALUE;
 #else
+	int						_NetLinkSocket = -1;
 	os::Thread				_WaitingThread;
 	void					_WaitingFunc();
 #endif
