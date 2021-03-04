@@ -345,9 +345,11 @@ void Socket::Close()
 
 		int val;
 		SOCKET_SIZE_T len = sizeof(val);
-		if(	(getsockopt(tmp,SOL_SOCKET,SO_TYPE,(char*)&val,&len) == 0) //&&
-			//(val == SOCK_STREAM)	// cause deadlock with RecvFrom on SOCK_DGRAM socket
+#if !defined(PLATFORM_LINUX) && !defined(PLATFORM_ANDROID)
+		if(	(getsockopt(tmp,SOL_SOCKET,SO_TYPE,(char*)&val,&len) == 0) &&
+			(val == SOCK_STREAM)	// cause deadlock with RecvFrom on SOCK_DGRAM socket
 		)
+#endif
 		{	shutdown(tmp,2);	 // SD_BOTH == 2
 		}
 
