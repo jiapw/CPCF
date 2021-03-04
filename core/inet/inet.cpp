@@ -590,14 +590,10 @@ bool SocketTimed::__SendTo(LPCVOID pData, UINT len,const struct sockaddr &target
 	return false;
 }
 
-
-} // namespace inet
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 // SocketEvent
 
-inet::SocketEvent::SocketEvent(DWORD signal_type)
+SocketEvent::SocketEvent(DWORD signal_type)
 #if !defined(PLATFORM_WIN)
 	:fd_set_read(_Sockets)
 	,fd_set_write(_Sockets)
@@ -612,7 +608,7 @@ inet::SocketEvent::SocketEvent(DWORD signal_type)
 	if(signal_type&SEVT_Exception)fd_set_exception.alloc();
 }
 
-void inet::SocketEvent::my_fd_set::assign_socket(const rt::BufferEx<SOCKET>& _Sockets)
+void SocketEvent::my_fd_set::assign_socket(const rt::BufferEx<SOCKET>& _Sockets)
 {
 #if defined(PLATFORM_WIN)
 	_fd_set->fd_count = (u_int)_Sockets.GetSize();
@@ -623,7 +619,7 @@ void inet::SocketEvent::my_fd_set::assign_socket(const rt::BufferEx<SOCKET>& _So
 #endif
 }
 
-int inet::SocketEvent::WaitForEvents(UINT timeout)
+int SocketEvent::WaitForEvents(UINT timeout)
 {
 	if(GetCount() == 0)return 0;
 
@@ -648,7 +644,7 @@ int inet::SocketEvent::WaitForEvents(UINT timeout)
 	return ret;
 }
 
-void inet::SocketEvent::Add(SOCKET s)
+void SocketEvent::Add(SOCKET s)
 {
 	for(UINT i=0;i<_Sockets.GetSize();i++)
 		if(s == _Sockets[i])return;
@@ -659,7 +655,7 @@ void inet::SocketEvent::Add(SOCKET s)
 #endif
 }
 
-void inet::SocketEvent::Assign(SOCKET* p, UINT co)
+void SocketEvent::Assign(SOCKET* p, UINT co)
 {
 	_Sockets.SetSize(co);
 	memcpy(_Sockets, p, co*sizeof(SOCKET));
@@ -673,7 +669,7 @@ void inet::SocketEvent::Assign(SOCKET* p, UINT co)
 }
 
 #if !defined(PLATFORM_WIN)
-void inet::SocketEvent::_UpdateFDMax()
+void SocketEvent::_UpdateFDMax()
 {
 	_FD_Max = 0;
 	for(UINT i=0;i<_Sockets.GetSize();i++)
@@ -681,7 +677,7 @@ void inet::SocketEvent::_UpdateFDMax()
 }
 #endif
 
-void inet::SocketEvent::Remove(SOCKET s)
+void SocketEvent::Remove(SOCKET s)
 {
 	for(UINT i=0;i<_Sockets.GetSize();i++)
 		if(s == _Sockets[i])_Sockets.erase(i);
@@ -694,17 +690,17 @@ void inet::SocketEvent::Remove(SOCKET s)
 #endif
 }
 
-void inet::SocketEvent::RemoveAll()
+void SocketEvent::RemoveAll()
 {
 	_Sockets.SetSize(0);
 }
 
-UINT inet::SocketEvent::GetCount()
+UINT SocketEvent::GetCount()
 {
 	return (UINT)_Sockets.GetSize();
 }
 
-inet::SOCKET inet::SocketEvent::my_fd_set::get_next_event()
+SOCKET SocketEvent::my_fd_set::get_next_event()
 {
 	if(_fd_set == nullptr)return INVALID_SOCKET;
 
@@ -723,4 +719,41 @@ inet::SOCKET inet::SocketEvent::my_fd_set::get_next_event()
 	return INVALID_SOCKET;
 }
 
+NetworkInterfaceEvent::~NetworkInterfaceEvent()
+{
+#if defined(PLATFORM_WIN)
+	if(_CallbackHandle != INVALID_HANDLE_VALUE)
+		::CancelMibChangeNotify2(_CallbackHandle);
+#else
+	_WaitingThread.WantExit() = true;
+	_WaitingThread.WaitForEnding();
+#endif
+}
 
+NetworkInterfaceEvent::NetworkInterfaceEvent()
+{
+#if defined(PLATFORM_WIN)
+	struct _call
+	{	static void func(PVOID CallerContext, PMIB_IPINTERFACE_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
+		{
+			((NetworkInterfaceEvent*)CallerContext)->_bChanged = true;
+		}
+	};
+
+	ASSERT(_CallbackHandle == INVALID_HANDLE_VALUE);
+	if(NO_ERROR != ::NotifyIpInterfaceChange(AF_UNSPEC, _call::func, this, false, &_CallbackHandle))
+		_LOG_WARNING("[NET]: NotifyIpInterfaceChange failed");
+#else
+#endif
+}
+
+#if !defined(PLATFORM_WIN)
+void NetworkInterfaceEvent::_WaitingFunc()
+{
+#if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
+#endif
+}
+#endif
+
+} // namespace inet

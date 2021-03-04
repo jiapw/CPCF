@@ -359,6 +359,25 @@ public:
 	void	SetSendTimeout(DWORD send_msec);
 };
 
+class NetworkInterfaceEvent
+{
+protected:
+#if defined(PLATFORM_WIN)
+	HANDLE					_CallbackHandle = INVALID_HANDLE_VALUE;
+#else
+	os::Thread				_WaitingThread;
+	void					_WaitingFunc();
+#endif
+
+	bool					_bChanged = false;
+
+public:
+	NetworkInterfaceEvent();
+	~NetworkInterfaceEvent();
+
+	bool		Has(bool clear = true){ bool ret = _bChanged; if(clear)_bChanged = false; return ret; }
+};
+
 enum _tagSocketEventType
 {
 	SEVT_ReadIsReady	= 1,
