@@ -280,3 +280,18 @@ void rt::UnitTests::recv_pump()
 	os::Sleep(2000);
 	_LOG("4 Packet Recv = "<<packet_count<<", "<<packet_error);
 }
+
+void rt::UnitTests::net_interfaces()
+{
+	inet::NetworkInterfaceEvent evt;
+
+	for(;;)
+	{
+		os::Sleep(100);
+		if(evt.Has())
+		{
+			do{ os::Sleep(500); }while(evt.Has()); // eta all event followed up
+			_LOGC("Event fired");
+		}
+	}
+}

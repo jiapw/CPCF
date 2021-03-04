@@ -25,7 +25,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(big_num);
+		TYPETRAITS_UNITTEST(net_interfaces);
 		//TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}
