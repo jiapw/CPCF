@@ -5,6 +5,7 @@
 
 #ifdef PLATFORM_WIN
 #include <Iphlpapi.h>
+#include <Ipifcons.h>
 #pragma comment(lib, "Iphlpapi.lib")
 #pragma comment(lib, "ws2_32.lib")
 
@@ -738,13 +739,13 @@ CFStringRef _NotifySCNetworkChange = CFSTR(kNotifySCNetworkChange);
 }
 #endif
 
-NetworkInterfaceEvent::NetworkInterfaceEvent()
+NetworkInterfaces::NetworkInterfaces()
 {
 #if defined(PLATFORM_WIN)
 	struct _call
 	{	static void func(PVOID CallerContext, PMIB_IPINTERFACE_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
 		{
-			((NetworkInterfaceEvent*)CallerContext)->_bChanged = true;
+			((NetworkInterfaces*)CallerContext)->_bChanged = true;
 		}
 	};
 
@@ -769,11 +770,11 @@ NetworkInterfaceEvent::NetworkInterfaceEvent()
                                         CFNotificationSuspensionBehaviorDeliverImmediately
     );
 #else
-	_WaitingThread.Create(this, &NetworkInterfaceEvent::_WaitingFunc);
+	_WaitingThread.Create(this, &NetworkInterfaces::_WaitingFunc);
 #endif
 }
 
-NetworkInterfaceEvent::~NetworkInterfaceEvent()
+NetworkInterfaces::~NetworkInterfaces()
 {
 #if defined(PLATFORM_WIN)
     if(_CallbackHandle != INVALID_HANDLE_VALUE)
@@ -790,7 +791,7 @@ NetworkInterfaceEvent::~NetworkInterfaceEvent()
 }
 
 #if !defined(PLATFORM_WIN) && !defined(PLATFORM_IOS)
-void NetworkInterfaceEvent::_WaitingFunc()
+void NetworkInterfaces::_WaitingFunc()
 {
 	while(!_WaitingThread.WantExit())
 	{
@@ -870,5 +871,119 @@ void NetworkInterfaceEvent::_WaitingFunc()
 	}
 }
 #endif // #if !defined(PLATFORM_WIN) && !defined(PLATFORM_IOS)
+
+bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only_up, bool skip_loopback)
+{
+	list.ShrinkSize(0);
+
+#if defined(PLATFORM_WIN)
+	rt::Buffer<BYTE> data_buf;
+	data_buf.SetSize(40960);
+
+	ULONG outBufLen = (ULONG)data_buf.GetSize();
+	DWORD gaa = GAA_FLAG_SKIP_ANYCAST|GAA_FLAG_INCLUDE_PREFIX|GAA_FLAG_SKIP_DNS_SERVER;
+
+	auto dwRetVal = GetAdaptersAddresses(AF_UNSPEC, gaa, NULL, (IP_ADAPTER_ADDRESSES *)data_buf.Begin(), &outBufLen);
+	if(dwRetVal == ERROR_BUFFER_OVERFLOW)
+	{
+		data_buf.SetSize(outBufLen + 1024);
+		outBufLen = (ULONG)data_buf.GetSize();
+		dwRetVal = GetAdaptersAddresses(AF_UNSPEC, gaa, NULL, (IP_ADAPTER_ADDRESSES *)data_buf.Begin(), &outBufLen);
+	}
+	if(dwRetVal != NO_ERROR)return false;
+
+	auto* nic = (IP_ADAPTER_ADDRESSES *)data_buf.Begin();
+    for(; nic; nic = nic->Next)
+	{
+		if(only_up && nic->OperStatus != IfOperStatusUp)continue;
+		if(skip_loopback && nic->IfType == IF_TYPE_SOFTWARE_LOOPBACK)continue;
+
+		auto& itm = list.push_back();
+		rt::Zero(itm);
+
+		{	auto len = os::__UTF8(nic->FriendlyName).SubStrHead(sizeof(itm.Name)-1).CopyTo(itm.Name);
+			if(len < sizeof(itm.Name)-1)
+				itm.Name[len++] = ':';
+			os::__UTF8(nic->Description).SubStrHead(sizeof(itm.Name)-1-len).CopyTo(&itm.Name[len]);
+		}
+
+		if(!(nic->Flags&IP_ADAPTER_NO_MULTICAST))
+			((DWORD&)itm.Type) |= NITYPE_MULTICAST;
+
+		if(nic->ReceiveLinkSpeed != 0xffffffffffffffff && nic->ReceiveLinkSpeed != 0xffffffffffffffff)
+			itm.LinkSpeed = (nic->ReceiveLinkSpeed + nic->TransmitLinkSpeed)/2;
+
+		itm.MTU = nic->Mtu;
+		itm.IanaType = nic->IfType;
+
+		switch(nic->IfType)
+		{
+		case IF_TYPE_SOFTWARE_LOOPBACK:	((DWORD&)itm.Type) |= NITYPE_LOOPBACK; break;
+		case IF_TYPE_IEEE80211:			((DWORD&)itm.Type) |= NITYPE_WIFI; break;
+		case IF_TYPE_ETHERNET_CSMACD:	((DWORD&)itm.Type) |= NITYPE_ETHERNET; break;
+		case IF_TYPE_WWANPP:			
+		case IF_TYPE_WWANPP2:			((DWORD&)itm.Type) |= NITYPE_CELLULAR; break;
+		}
+
+		if(nic->Flags&IP_ADAPTER_IPV4_ENABLED)((DWORD&)itm.Type) |= NITYPE_IPV4;
+		if(nic->Flags&IP_ADAPTER_IPV6_ENABLED)((DWORD&)itm.Type) |= NITYPE_IPV6;
+		//if(nic->TunnelType != TUNNEL_TYPE_NONE)
+
+		if(nic->OperStatus == IfOperStatusUp)
+		{
+			((DWORD&)itm.Type) |= NITYPE_ONLINE;
+
+			// copy first address per-AF
+			{	DWORD fill = (nic->Flags&(IP_ADAPTER_IPV4_ENABLED|IP_ADAPTER_IPV6_ENABLED));
+				DWORD curr = 0;
+
+				auto* addr = nic->FirstUnicastAddress;
+				while(addr && fill != curr)
+				{
+					if(addr->Address.lpSockaddr->sa_family == AF_INET)
+					{
+						if((curr&IP_ADAPTER_IPV4_ENABLED) == 0) // pick the first one
+						{
+							itm.IPv4_Local = *(DWORD*)(((InetAddr*)addr->Address.lpSockaddr)->GetBinaryAddress());
+							ConvertLengthToIpv4Mask(addr->OnLinkPrefixLength, (PULONG)&itm.IPv4_SubnetMask);
+							itm.IPv4_Boardcast = itm.IPv4_Local|~itm.IPv4_SubnetMask;
+							curr |= IP_ADAPTER_IPV4_ENABLED;
+						}
+					}
+					else if(addr->Address.lpSockaddr->sa_family == AF_INET6)
+					{
+						if((curr&IP_ADAPTER_IPV6_ENABLED) == 0) // pick the first one
+						{
+							rt::CopyByteTo<16>(((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress(), itm.IPv6_Local);
+							curr |= IP_ADAPTER_IPV6_ENABLED;
+						}
+					}
+
+					addr = addr->Next;
+				}
+			}
+
+			//if(nic->Flags&IP_ADAPTER_IPV6_ENABLED)
+			//{
+			//	auto* addr = nic->FirstMulticastAddress;
+			//	while(addr)
+			//	{
+			//		if(addr->Address.lpSockaddr->sa_family == AF_INET6)
+			//		{
+			//			auto* ipv6 = ((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress();
+			//			_LOG((int)ipv6[15]);  // https://menandmice.com/blog/ipv6-reference-multicast
+			//		}
+
+			//		addr = addr->Next;
+			//	}
+			//}
+		}
+	}
+#else
+
+#endif // #if defined(PLATFORM_WIN)
+	return true;
+}
+
 
 } // namespace inet

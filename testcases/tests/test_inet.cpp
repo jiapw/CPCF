@@ -283,14 +283,17 @@ void rt::UnitTests::recv_pump()
 
 void rt::UnitTests::net_interfaces()
 {
-	inet::NetworkInterfaceEvent evt;
+	rt::BufferEx<inet::NetworkInterface>	nic;
+	inet::NetworkInterfaces::Populate(nic);
+
+	inet::NetworkInterfaces evt;
 
 	for(;;)
 	{
 		os::Sleep(100);
-		if(evt.Has())
+		if(evt.IsChanged())
 		{
-			do{ os::Sleep(500); }while(evt.Has()); // eta all event followed up
+			do{ os::Sleep(500); }while(evt.IsChanged()); // eta all event followed up
 			_LOGC("Event fired");
 		}
 	}

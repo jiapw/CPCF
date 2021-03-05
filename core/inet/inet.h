@@ -359,25 +359,64 @@ public:
 	void	SetSendTimeout(DWORD send_msec);
 };
 
-class NetworkInterfaceEvent
+
+enum NITYPE
+{
+	NITYPE_UNKNOWN = 0,
+	NITYPE_LOOPBACK,
+	NITYPE_ADHOC,		// p2p direct link
+	NITYPE_HOTSPOT,		// personal hotspot
+	NITYPE_WIFI,
+	NITYPE_CELLULAR,
+	NITYPE_ETHERNET,
+	NITYPE_VPN,
+	NITYPE_TUNNEL,		// virtual interface
+	NITYPE_HPC,			// like InfiniBand or Optical fiber
+
+	NITYPE_IPV4			= 0x0100,
+	NITYPE_IPV6			= 0x0200,
+	NITYPE_ONLINE		= 0x1000,
+	NITYPE_MULTICAST	= 0x2000,
+	NITYPE_BROADCAST	= 0x4000,
+};
+
+struct NetworkInterface
+{
+#if defined(PLATFORM_WIN)
+	char		Name[256];
+	ULONGLONG	LinkSpeed;
+	UINT		MTU;
+	DWORD		IanaType;
+#else
+	char		Name[32];
+#endif
+	NITYPE		Type;
+	DWORD		IPv4_Local;
+	DWORD		IPv4_Boardcast;		// or p2p destination NICTYPE_ADHOC
+	DWORD		IPv4_SubnetMask;
+	BYTE		IPv6_Local[16];
+};
+
+class NetworkInterfaces
 {
 protected:
 #if defined(PLATFORM_WIN)
-	HANDLE					_CallbackHandle = INVALID_HANDLE_VALUE;
+	HANDLE		_CallbackHandle = INVALID_HANDLE_VALUE;
 #elif defined(PLATFORM_IOS)
 #else // for linux and mac
-	int						_NetLinkSocket = -1;
-	os::Thread				_WaitingThread;
-	void					_WaitingFunc();
+	int			_NetLinkSocket = -1;
+	os::Thread	_WaitingThread;
+	void		_WaitingFunc();
 #endif
 
-	bool					_bChanged = false;
+	bool		_bChanged = false;
 
 public:
-	NetworkInterfaceEvent();
-	~NetworkInterfaceEvent();
+	NetworkInterfaces();
+	~NetworkInterfaces();
 
-	bool		Has(bool clear = true){ bool ret = _bChanged; if(clear)_bChanged = false; return ret; }
+	bool		IsChanged(bool clear = true){ bool ret = _bChanged; if(clear)_bChanged = false; return ret; }
+	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_loopback = true);
 };
 
 enum _tagSocketEventType
