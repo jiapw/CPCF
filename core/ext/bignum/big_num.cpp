@@ -620,7 +620,7 @@ void BN_AbsMul(const BN_Unsigned& a, UINT b_in, ext::BigNumMutable& ret)
 	for(UINT i=0; i<a_len; i++)
 	{
 		auto* v = (unsigned long long *)(c + i);
-		v[1] += _addcarry_u64(0, *v, pa[i]*b, v);
+		v[1] += rt::AddCarry(0, *v, pa[i]*b, v);
 	}
 
 	ret.TrimLeadingZero();
@@ -651,10 +651,10 @@ void BN_AbsMul(const BN_Unsigned& a, ULONGLONG b_in, ext::BigNumMutable& ret) //
 	for(UINT i=0; i<a_len; i++)
 	{
 		auto* v = (unsigned long long *)(c + i);
-		v[1] += _addcarry_u64(0, *v, pa[i]*b1, v);
+		v[1] += rt::AddCarry(0, *v, pa[i]*b1, v);
 
 		v = (unsigned long long *)(c + i + 1);
-		v[1] += _addcarry_u64(0, *v, pa[i]*b2, v);
+		v[1] += rt::AddCarry(0, *v, pa[i]*b2, v);
 	}
 
 	ret.TrimLeadingZero();
@@ -677,7 +677,7 @@ void BN_AbsMul(UINT b_in, ext::BigNumMutable& ret)
 	for(UINT i=0; i<a_len; i++)
 	{
 		unsigned long long muli;
-		carry = ((ULONGLONG)_addcarry_u64(0, carry, c[i]*b, &muli))<<32;
+		carry = ((ULONGLONG)rt::AddCarry(0, carry, c[i]*b, &muli))<<32;
 		carry += (muli >> 32);
 
 		c[i] = (UINT)muli;
@@ -708,14 +708,14 @@ void BN_Mul(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable& ret)
 		for(UINT j=0; j<b_len; j++)
 		{
 			auto* v = (unsigned long long*)(c + i + j);
-			carries[i + j + 2] += _addcarry_u64(0, *v, pa_i*pb[j], v);
+			carries[i + j + 2] += rt::AddCarry(0, *v, pa_i*pb[j], v);
 		}
 	}
 
 	{	int carry = 0;
 		for(UINT i=0; i<b_len+a_len+2; i++)
 		{
-			carry = _addcarry_u32(carry, carries[i], c[i], c + i);
+			carry = rt::AddCarry(carry, carries[i], c[i], c + i);
 		}
 		ASSERT(carry == 0);
 	}
