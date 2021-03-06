@@ -366,12 +366,11 @@ enum NetworkInterfaceType
 	NITYPE_LOOPBACK,
 	NITYPE_ADHOC,		// p2p direct link
 	NITYPE_HOTSPOT,		// personal hotspot
-	NITYPE_WIFI,
+	NITYPE_LAN,			// wifi or ethernet
 	NITYPE_CELLULAR,
-	NITYPE_ETHERNET,
+	NITYPE_USB,
 	NITYPE_VPN,
 	NITYPE_TUNNEL,		// virtual interface
-	NITYPE_HPC,			// like InfiniBand or Optical fiber
 	NITYPE_MASK = 0xff,
 
 	NITYPE_IPV4			= 0x0100,
