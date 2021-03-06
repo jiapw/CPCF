@@ -360,7 +360,7 @@ public:
 };
 
 
-enum NITYPE
+enum NetworkInterfaceType
 {
 	NITYPE_UNKNOWN = 0,
 	NITYPE_LOOPBACK,
@@ -391,7 +391,7 @@ struct NetworkInterface
 #else
 	char		Name[32];
 #endif
-	NITYPE		Type;
+	DWORD		Type;				// NetworkInterfaceType
 	DWORD		IPv4_Local;
 	DWORD		IPv4_Boardcast;		// or p2p destination NICTYPE_ADHOC
 	DWORD		IPv4_SubnetMask;
@@ -400,6 +400,7 @@ struct NetworkInterface
 	bool		IsOnline() const { return NITYPE_ONLINE&Type; }
 	bool		HasIPv4() const { return NITYPE_IPV4&Type; }
 	bool		HasIPv6() const { return NITYPE_IPV6&Type; }
+	bool		IsDualStack() const { return (NITYPE_IPV4|NITYPE_IPV6) == (Type&(NITYPE_IPV4|NITYPE_IPV6)); }
 };
 
 class NetworkInterfaces

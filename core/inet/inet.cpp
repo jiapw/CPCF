@@ -908,7 +908,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 		}
 
 		if(!(nic->Flags&IP_ADAPTER_NO_MULTICAST))
-			((DWORD&)itm.Type) |= NITYPE_MULTICAST;
+			itm.Type |= NITYPE_MULTICAST;
 
 		if(nic->ReceiveLinkSpeed != 0xffffffffffffffff && nic->ReceiveLinkSpeed != 0xffffffffffffffff)
 			itm.LinkSpeed = (nic->ReceiveLinkSpeed + nic->TransmitLinkSpeed)/2;
@@ -918,20 +918,20 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 
 		switch(nic->IfType)
 		{
-		case IF_TYPE_SOFTWARE_LOOPBACK:	((DWORD&)itm.Type) |= NITYPE_LOOPBACK; break;
-		case IF_TYPE_IEEE80211:			((DWORD&)itm.Type) |= NITYPE_WIFI; break;
-		case IF_TYPE_ETHERNET_CSMACD:	((DWORD&)itm.Type) |= NITYPE_ETHERNET; break;
+		case IF_TYPE_SOFTWARE_LOOPBACK:	itm.Type |= NITYPE_LOOPBACK; 	break;
+		case IF_TYPE_IEEE80211:			itm.Type |= NITYPE_WIFI; 		break;
+		case IF_TYPE_ETHERNET_CSMACD:	itm.Type |= NITYPE_ETHERNET; 	break;
 		case IF_TYPE_WWANPP:			
-		case IF_TYPE_WWANPP2:			((DWORD&)itm.Type) |= NITYPE_CELLULAR; break;
+		case IF_TYPE_WWANPP2:			itm.Type |= NITYPE_CELLULAR; 	break;
 		}
 
-		if(nic->Flags&IP_ADAPTER_IPV4_ENABLED)((DWORD&)itm.Type) |= NITYPE_IPV4;
-		if(nic->Flags&IP_ADAPTER_IPV6_ENABLED)((DWORD&)itm.Type) |= NITYPE_IPV6;
+		if(nic->Flags&IP_ADAPTER_IPV4_ENABLED)itm.Type |= NITYPE_IPV4;
+		if(nic->Flags&IP_ADAPTER_IPV6_ENABLED)itm.Type |= NITYPE_IPV6;
 		//if(nic->TunnelType != TUNNEL_TYPE_NONE)
 
 		if(nic->OperStatus == IfOperStatusUp)
 		{
-			((DWORD&)itm.Type) |= NITYPE_ONLINE;
+			itm.Type |= NITYPE_ONLINE;
 
 			// copy first address per-AF
 			{	DWORD fill = (nic->Flags&(IP_ADAPTER_IPV4_ENABLED|IP_ADAPTER_IPV6_ENABLED));
@@ -980,7 +980,78 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 		}
 	}
 #else
+	struct ifaddrs * ifaps = nullptr;
+	if(getifaddrs(&ifaps))return false;
+	
+	auto* ifap = ifaps;
+	for(; ifap; ifap = ifap->ifa_next)
+	{
+		auto flag = ifap->ifa_flags;
+		if(only_up && (flag&IFF_UP) == 0)continue;
+		if(skip_loopback && (flag&IFF_LOOPBACK))continue;
 
+		rt::String_Ref name(ifap->ifa_name);
+		name = name.SubStrHead(sizeof(NetworkInterface::Name)-1);
+
+		NetworkInterface* pitm = nullptr;
+		for(UINT i=0; i<list.GetSize(); i++)
+		{
+			if(memcmp(name.Begin(), list[i].Name, name.GetLength()+1) == 0)
+			{	pitm = &list[i];
+				break;
+			}
+		}
+		
+		if(pitm == nullptr)
+		{
+			pitm = &list.push_back();
+			auto& itm = *pitm;
+
+			rt::Zero(itm);
+			name.CopyTo(itm.Name);
+			
+			if(flag&IFF_UP)itm.Type |= NITYPE_ONLINE;
+			if(flag&IFF_MULTICAST)itm.Type |= NITYPE_MULTICAST;
+
+			if(flag&IFF_LOOPBACK){ itm.Type |= NITYPE_LOOPBACK; }
+			else if(flag&IFF_POINTOPOINT){ itm.Type |= NITYPE_ADHOC; }
+			{
+				// ... guess type by interface name
+			}
+		}
+		else
+		{
+			if(pitm->IsDualStack())continue;
+		}
+
+		auto& itm = *pitm;
+		if(ifap->ifa_addr->sa_family == AF_INET) // ipv4
+		{
+			if(itm.Type&NITYPE_IPV4)continue; // report first IP only
+
+			itm.Type |= NITYPE_IPV4;
+			itm.IPv4_Local = *(DWORD*)(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress());
+			
+			if(ifap->ifa_netmask)
+				itm.IPv4_SubnetMask = *(DWORD*)(((InetAddr*)ifap->ifa_netmask)->GetBinaryAddress());
+				
+			if(ifap->ifa_broadaddr)
+				itm.IPv4_Boardcast = *(DWORD*)(((InetAddr*)ifap->ifa_broadaddr)->GetBinaryAddress());
+			else if(ifap->ifa_netmask)
+				itm.IPv4_Boardcast = itm.IPv4_Local|~itm.IPv4_SubnetMask;
+		}
+		
+		if(ifap->ifa_addr->sa_family == AF_INET6) // ipv6
+		{
+			if(itm.Type&NITYPE_IPV6)continue; // report first IP only
+			
+			itm.Type |= NITYPE_IPV6;
+			rt::CopyByteTo<16>(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress(), itm.IPv6_Local);
+		}		
+	}
+	
+	freeifaddrs(ifaps);
+	
 #endif // #if defined(PLATFORM_WIN)
 	return true;
 }
