@@ -284,7 +284,25 @@ void rt::UnitTests::recv_pump()
 void rt::UnitTests::net_interfaces()
 {
 	rt::BufferEx<inet::NetworkInterface>	nic;
-	inet::NetworkInterfaces::Populate(nic);
+	inet::NetworkInterfaces::Populate(nic, false, false);
+
+	for(auto it : nic)
+	{
+		_LOG("NIC: <"<<it.Name<<"> T"<<(it.Type&inet::NITYPE_MASK)<<' '<<(it.IsOnline()?"online":"offline"));
+		if(!it.IsOnline())continue;
+
+		if(it.HasIPv4())
+			_LOG("\tIPv4:"<<rt::tos::ip(inet::InetAddr(it.IPv4_Local,0)).TrimAfterReverse(':')<<'/'
+						  <<rt::tos::ip(inet::InetAddr(it.IPv4_Boardcast,0)).TrimAfterReverse(':'));
+
+		if(it.HasIPv6())
+		{
+			inet::InetAddrV6 addr;
+			addr.SetBinaryAddress(it.IPv6_Local);
+			_LOG("\tIPv6:"<<rt::tos::ip(addr).TrimAfterReverse(':')<<
+						  ((it.Type&inet::NITYPE_MULTICAST)?"/multicast":""));
+		}
+	}
 
 	inet::NetworkInterfaces evt;
 

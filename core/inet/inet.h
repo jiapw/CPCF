@@ -372,6 +372,7 @@ enum NITYPE
 	NITYPE_VPN,
 	NITYPE_TUNNEL,		// virtual interface
 	NITYPE_HPC,			// like InfiniBand or Optical fiber
+	NITYPE_MASK = 0xff,
 
 	NITYPE_IPV4			= 0x0100,
 	NITYPE_IPV6			= 0x0200,
@@ -395,6 +396,10 @@ struct NetworkInterface
 	DWORD		IPv4_Boardcast;		// or p2p destination NICTYPE_ADHOC
 	DWORD		IPv4_SubnetMask;
 	BYTE		IPv6_Local[16];
+
+	bool		IsOnline() const { return NITYPE_ONLINE&Type; }
+	bool		HasIPv4() const { return NITYPE_IPV4&Type; }
+	bool		HasIPv6() const { return NITYPE_IPV6&Type; }
 };
 
 class NetworkInterfaces
