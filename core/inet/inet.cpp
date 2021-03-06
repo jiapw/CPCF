@@ -1023,8 +1023,8 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 				// sadly to guess type based on interface name, which is not reliable
 				if(name.StartsWith("ap") || name.StartsWith("swlan")){ itm.Type |= NITYPE_HOTSPOT; }
 				else if(name.StartsWith("awdl")){ itm.Type |= NITYPE_ADHOC; }  // Apple Wireless Direct Link (AirDrop,AirPlay), can be bluetooth
-				else if(name.StartsWith("llw") || name.StartsWith("wlan" || name.StartsWith("eth") || name.StartsWith("en")|| name.StartsWith("em")){ itm.Type |= NITYPE_LAN; }
-				else if(name.StartsWith("xhc")){ itm.Type |= NITYPE_USB; }
+				else if(name.StartsWith("llw") || name.FindString("wlan")>=0 || name.StartsWith("eth") || name.StartsWith("wlp") || name.StartsWith("en")|| name.StartsWith("em")){ itm.Type |= NITYPE_LAN; }
+				else if(name.StartsWith("xhc") || name.StartsWith("usb")){ itm.Type |= NITYPE_USB; }
 				else if(name.StartsWith("pdp_ip") || name.StartsWith("rmnet")){ itm.Type |= NITYPE_CELLULAR; }
 				else if(name.StartsWith("utun") || name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec") || name.StartsWith("bridge")){ itm.Type |= NITYPE_TUNNEL; }
 			}
