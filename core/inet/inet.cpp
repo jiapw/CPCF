@@ -750,14 +750,15 @@ NetworkInterfaces::NetworkInterfaces()
 {
 #if defined(PLATFORM_WIN)
 	struct _call
-	{	static void func(PVOID CallerContext, PMIB_IPINTERFACE_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
+	{	static void func(PVOID CallerContext, PMIB_UNICASTIPADDRESS_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
 		{
+			if(NotificationType == MibParameterNotification)return;
             ((NetworkInterfaces*)CallerContext)->_LastEventFired = os::Timestamp::Get();
 		}
 	};
 
 	ASSERT(_CallbackHandle == INVALID_HANDLE_VALUE);
-	if(NO_ERROR != ::NotifyIpInterfaceChange(AF_UNSPEC, _call::func, this, false, &_CallbackHandle))
+	if(NO_ERROR != ::NotifyUnicastIpAddressChange(AF_UNSPEC, _call::func, this, false, &_CallbackHandle))
 		_LOG_WARNING("[NET]: NotifyIpInterfaceChange failed");
 #elif defined(PLATFORM_IOS)
     struct _call
