@@ -933,7 +933,11 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
     for(; nic; nic = nic->Next)
 	{
 		if(only_up && nic->OperStatus != IfOperStatusUp)continue;
-		if(skip_loopback && nic->IfType == IF_TYPE_SOFTWARE_LOOPBACK)continue;
+
+		bool is_tunnel = wcsstr(nic->FriendlyName,L"6TO4") || wcsstr(nic->FriendlyName,L"4TO6") || wcsstr(nic->FriendlyName,L"Teredo") ||
+						 wcsstr(nic->FriendlyName,L"isatap");
+
+		if(skip_loopback && (is_tunnel || (nic->IfType == IF_TYPE_SOFTWARE_LOOPBACK)))continue;
 
 		auto& itm = list.push_back();
 		rt::Zero(itm);
@@ -960,6 +964,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 		case IF_TYPE_USB:				itm.Type = NITYPE_USB; 		    break;
 		case IF_TYPE_WWANPP:			
 		case IF_TYPE_WWANPP2:			itm.Type = NITYPE_CELLULAR; 	break;
+		default: if(is_tunnel)itm.Type = NITYPE_TUNNEL;					break;
 		}
 
         if(!(nic->Flags&IP_ADAPTER_NO_MULTICAST))
@@ -1029,7 +1034,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 				else if(name.StartsWith("llw") || name.FindString("wlan")>=0 || name.StartsWith("eth") || name.StartsWith("wlp") || name.StartsWith("en")|| name.StartsWith("em")){ if_type = NITYPE_LAN; }
 				else if(name.StartsWith("XHC") || name.StartsWith("usb")){ if_type = NITYPE_USB; }
 				else if(name.StartsWith("pdp_ip") || name.StartsWith("rmnet")){ if_type = NITYPE_CELLULAR; }
-				else if(name.StartsWith("utun")){ if_type = NITYPE_VPN; }
+				else if(name.StartsWith("utun") || name.StartsWith("vpn")){ if_type = NITYPE_VPN; }
 				else if(name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec")){ if_type = NITYPE_TUNNEL; }
 			}
             
