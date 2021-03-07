@@ -874,7 +874,7 @@ void NetworkInterfaces::_WaitingFunc()
 
 bool NetworkInterfaces::_IsIPv6AddressTrivial(LPCBYTE ipv6)
 {
-	if(ipv6[0] == 0xfe && (ipv6[1]&0xc0) == 0x80)return true;  // link-local
+	if(ipv6[0] == 0xfe && (ipv6[1]&0xc0) == 0x80)return true;  // link-local, maybe multicast? https://menandmice.com/blog/ipv6-reference-multicast
 
 	return false;
 }
@@ -980,21 +980,6 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 					addr = addr->Next;
 				}
 			}
-
-			//if(nic->Flags&IP_ADAPTER_IPV6_ENABLED)
-			//{
-			//	auto* addr = nic->FirstMulticastAddress;
-			//	while(addr)
-			//	{
-			//		if(addr->Address.lpSockaddr->sa_family == AF_INET6)
-			//		{
-			//			auto* ipv6 = ((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress();
-			//			_LOG((int)ipv6[15]);  // https://menandmice.com/blog/ipv6-reference-multicast
-			//		}
-
-			//		addr = addr->Next;
-			//	}
-			//}
 		}
 	}
 #else
@@ -1071,7 +1056,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 			if((itm.Type&NITYPE_IPV6) && !_IsIPv6AddressTrivial(itm.IPv6_Local))continue; // report first IP only, or overwrite trivial ones
 			
 			itm.Type |= NITYPE_IPV6;
-			rt::CopyByteTo<16>(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress(), itm.IPv6_Local);
+			rt::CopyByteTo<16>(((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress(), itm.IPv6_Local);
 		}		
 	}
 	
