@@ -373,8 +373,6 @@ enum NetworkInterfaceType
 	NITYPE_TUNNEL,		// virtual interface
 	NITYPE_MASK = 0xff,
 
-	NITYPE_IPV4			= 0x0100,
-	NITYPE_IPV6			= 0x0200,
 	NITYPE_ONLINE		= 0x1000,
 	NITYPE_MULTICAST	= 0x2000,
 	NITYPE_BROADCAST	= 0x4000,
@@ -387,20 +385,24 @@ struct NetworkInterface
 	char		Name[256];
 	ULONGLONG	LinkSpeed;
 	UINT		MTU;
-	DWORD		IanaType;
 #else
 	char		Name[32];
 #endif
-	DWORD		Type;				// NetworkInterfaceType
-	DWORD		IPv4_Local;
-	DWORD		IPv4_Boardcast;		// or p2p destination NICTYPE_ADHOC
-	DWORD		IPv4_SubnetMask;
-	BYTE		IPv6_Local[16];
+	DWORD		Type;			// NetworkInterfaceType
+	struct {
+		DWORD	Local;
+		DWORD	Boardcast;		// or p2p destination NICTYPE_ADHOC
+		DWORD	SubnetMask;
+	}			v4[4];
+	UINT		v4Count;
+	struct {
+		BYTE	Local[16];
+	}			v6[8];
+	UINT		v6Count;
 
 	bool		IsOnline() const { return NITYPE_ONLINE&Type; }
-	bool		HasIPv4() const { return NITYPE_IPV4&Type; }
-	bool		HasIPv6() const { return NITYPE_IPV6&Type; }
-	bool		IsDualStack() const { return (NITYPE_IPV4|NITYPE_IPV6) == (Type&(NITYPE_IPV4|NITYPE_IPV6)); }
+	bool		HasIPv4() const { return v4Count; }
+	bool		HasIPv6() const { return v6Count; }
 };
 
 class NetworkInterfaces
@@ -431,7 +433,7 @@ public:
 	~NetworkInterfaces();
 
     ConfigState	GetState() const;
-	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_misc = true, bool dedup = true);
+	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_loopback = true);
 };
 
 enum _tagSocketEventType

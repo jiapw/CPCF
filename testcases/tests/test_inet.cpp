@@ -285,21 +285,21 @@ void rt::UnitTests::net_interfaces()
 {
 	auto scan = [](){
 		rt::BufferEx<inet::NetworkInterface>	nic;
-		inet::NetworkInterfaces::Populate(nic, false, false, false);
+		inet::NetworkInterfaces::Populate(nic, false, false);
 
 		for(auto it : nic)
 		{
 			_LOG("NIC: <"<<it.Name<<"> T"<<(it.Type&inet::NITYPE_MASK)<<' '<<(it.IsOnline()?"online":"offline"));
 			if(!it.IsOnline())continue;
 
-			if(it.HasIPv4())
-				_LOG("\tIPv4:"<<rt::tos::ip(inet::InetAddr(it.IPv4_Local,0)).TrimAfterReverse(':')<<'/'
-							  <<rt::tos::ip(inet::InetAddr(it.IPv4_Boardcast,0)).TrimAfterReverse(':'));
+			for(UINT i=0; i<it.v4Count; i++)
+				_LOG("\tIPv4:"<<rt::tos::ip(inet::InetAddr(it.v4[i].Local,0)).TrimAfterReverse(':')<<'/'
+							  <<rt::tos::ip(inet::InetAddr(it.v4[i].Boardcast,0)).TrimAfterReverse(':'));
 
-			if(it.HasIPv6())
+			for(UINT i=0; i<it.v6Count; i++)
 			{
 				inet::InetAddrV6 addr;
-				addr.SetBinaryAddress(it.IPv6_Local);
+				addr.SetBinaryAddress(it.v6[i].Local);
 				_LOG("\tIPv6:"<<rt::tos::ip(addr).TrimAfterReverse(':')<<
 							  ((it.Type&inet::NITYPE_MULTICAST)?"/multicast":""));
 			}

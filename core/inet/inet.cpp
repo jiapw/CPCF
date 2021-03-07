@@ -908,7 +908,7 @@ bool NetworkInterfaces::_IsIPv4AddressTrivial(LPCBYTE ipv4)
 	return false;
 }
 
-bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only_up, bool skip_misc, bool dedup)
+bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only_up, bool skip_loopback)
 {
 	list.ShrinkSize(0);
 
@@ -932,7 +932,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
     for(; nic; nic = nic->Next)
 	{
 		if(only_up && nic->OperStatus != IfOperStatusUp)continue;
-		if(skip_misc && nic->IfType == IF_TYPE_SOFTWARE_LOOPBACK)continue;
+		if(skip_loopback && nic->IfType == IF_TYPE_SOFTWARE_LOOPBACK)continue;
 
 		auto& itm = list.push_back();
 		rt::Zero(itm);
@@ -947,7 +947,6 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 			itm.LinkSpeed = (nic->ReceiveLinkSpeed + nic->TransmitLinkSpeed)/2;
 
 		itm.MTU = nic->Mtu;
-		itm.IanaType = nic->IfType;
 
 		switch(nic->IfType)
 		{
@@ -965,43 +964,28 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
         if(!(nic->Flags&IP_ADAPTER_NO_MULTICAST))
             itm.Type |= NITYPE_MULTICAST;
 
-		if(nic->Flags&IP_ADAPTER_IPV4_ENABLED)itm.Type |= NITYPE_IPV4;
-		if(nic->Flags&IP_ADAPTER_IPV6_ENABLED)itm.Type |= NITYPE_IPV6;
 		//if(nic->TunnelType != TUNNEL_TYPE_NONE)
 
-		if(nic->OperStatus == IfOperStatusUp)
+		if(nic->OperStatus == IfOperStatusUp)itm.Type |= NITYPE_ONLINE;
+		
+		// copy first address per-AF
+		auto* addr = nic->FirstUnicastAddress;
+		while(addr && itm.v4Count < sizeofArray(NetworkInterface::v4) && itm.v6Count < sizeofArray(NetworkInterface::v6))
 		{
-			itm.Type |= NITYPE_ONLINE;
-
-			// copy first address per-AF
-			{	DWORD fill = (nic->Flags&(IP_ADAPTER_IPV4_ENABLED|IP_ADAPTER_IPV6_ENABLED));
-				DWORD curr = 0;
-
-				auto* addr = nic->FirstUnicastAddress;
-				while(addr && fill != curr)
-				{
-					if(addr->Address.lpSockaddr->sa_family == AF_INET)
-					{
-						if(((curr&IP_ADAPTER_IPV4_ENABLED) == 0) || _IsIPv4AddressTrivial((LPCBYTE)&itm.IPv4_Local)) // pick the first one
-						{
-							itm.IPv4_Local = *(DWORD*)(((InetAddr*)addr->Address.lpSockaddr)->GetBinaryAddress());
-							ConvertLengthToIpv4Mask(addr->OnLinkPrefixLength, (PULONG)&itm.IPv4_SubnetMask);
-							itm.IPv4_Boardcast = itm.IPv4_Local|~itm.IPv4_SubnetMask;
-							curr |= IP_ADAPTER_IPV4_ENABLED;
-						}
-					}
-					else if(addr->Address.lpSockaddr->sa_family == AF_INET6)
-					{
-						if(((curr&IP_ADAPTER_IPV6_ENABLED) == 0) || _IsIPv6AddressTrivial(itm.IPv6_Local)) // pick the first one and overwrite trivial ones
-						{
-							rt::CopyByteTo<16>(((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress(), itm.IPv6_Local);
-							curr |= IP_ADAPTER_IPV6_ENABLED;
-						}
-					}
-
-					addr = addr->Next;
-				}
+			if(addr->Address.lpSockaddr->sa_family == AF_INET)
+			{
+				auto& ip = itm.v4[itm.v4Count++];
+					
+				ip.Local = *(DWORD*)(((InetAddr*)addr->Address.lpSockaddr)->GetBinaryAddress());
+				ConvertLengthToIpv4Mask(addr->OnLinkPrefixLength, (PULONG)&ip.SubnetMask);
+				ip.Boardcast = ip.Local|~ip.SubnetMask;
 			}
+			else if(addr->Address.lpSockaddr->sa_family == AF_INET6)
+			{
+				rt::CopyByteTo<16>(((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress(), itm.v6[itm.v6Count++].Local);
+			}
+
+			addr = addr->Next;
 		}
 	}
 #else
@@ -1080,28 +1064,23 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
         if(online)
         {
             auto& itm = *pitm;
-            if(ifap->ifa_addr->sa_family == AF_INET) // ipv4
+            if(ifap->ifa_addr->sa_family == AF_INET && itm.v4Count < sizeofArray(NetworkInterface::v4)) // ipv4
             {
-                if((itm.Type&NITYPE_IPV4) && !_IsIPv4AddressTrivial((LPCBYTE)&itm.IPv4_Local))continue; // report first IP only
-
-                itm.Type |= NITYPE_IPV4;
-                itm.IPv4_Local = *(DWORD*)(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress());
+				auto& ip = itm.v4[itm.v4Count++];
+                ip.Local = *(DWORD*)(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress());
                 
                 if(ifap->ifa_netmask)
-                    itm.IPv4_SubnetMask = *(DWORD*)(((InetAddr*)ifap->ifa_netmask)->GetBinaryAddress());
+                    ip.SubnetMask = *(DWORD*)(((InetAddr*)ifap->ifa_netmask)->GetBinaryAddress());
                     
                 if(ifap->ifa_broadaddr)
-                    itm.IPv4_Boardcast = *(DWORD*)(((InetAddr*)ifap->ifa_broadaddr)->GetBinaryAddress());
+                    ip.Boardcast = *(DWORD*)(((InetAddr*)ifap->ifa_broadaddr)->GetBinaryAddress());
                 else if(ifap->ifa_netmask)
-                    itm.IPv4_Boardcast = itm.IPv4_Local|~itm.IPv4_SubnetMask;
+                    ip.Boardcast = ip.Local|~ip.SubnetMask;
             }
             
-            if(ifap->ifa_addr->sa_family == AF_INET6) // ipv6
-            {
-                if((itm.Type&NITYPE_IPV6) && !_IsIPv6AddressTrivial(itm.IPv6_Local))continue; // report first IP only, or overwrite trivial ones
-                
-                itm.Type |= NITYPE_IPV6;
-                rt::CopyByteTo<16>(((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress(), itm.IPv6_Local);
+            if(ifap->ifa_addr->sa_family == AF_INET6 && itm.v6Count < sizeofArray(NetworkInterface::v6)) // ipv6
+            {               
+                rt::CopyByteTo<16>(((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress(), itm.v6[itm.v6Count++].Local);
             }
         }
 	}
