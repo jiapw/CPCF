@@ -292,14 +292,14 @@ void rt::UnitTests::net_interfaces()
 			_LOG("NIC: <"<<it.Name<<"> T"<<(it.Type&inet::NITYPE_MASK)<<' '<<(it.IsOnline()?"online":"offline"));
 			if(!it.IsOnline())continue;
 
-			if(it.HasIPv4())
-				_LOG("\tIPv4:"<<rt::tos::ip(inet::InetAddr(it.IPv4_Local,0)).TrimAfterReverse(':')<<'/'
-							  <<rt::tos::ip(inet::InetAddr(it.IPv4_Boardcast,0)).TrimAfterReverse(':'));
+			for(UINT i=0; i<it.v4Count; i++)
+				_LOG("\tIPv4:"<<rt::tos::ip(inet::InetAddr(it.v4[i].Local,0)).TrimAfterReverse(':')<<'/'
+							  <<rt::tos::ip(inet::InetAddr(it.v4[i].Boardcast,0)).TrimAfterReverse(':'));
 
-			if(it.HasIPv6())
+			for(UINT i=0; i<it.v6Count; i++)
 			{
 				inet::InetAddrV6 addr;
-				addr.SetBinaryAddress(it.IPv6_Local);
+				addr.SetBinaryAddress(it.v6[i].Local);
 				_LOG("\tIPv6:"<<rt::tos::ip(addr).TrimAfterReverse(':')<<
 							  ((it.Type&inet::NITYPE_MULTICAST)?"/multicast":""));
 			}
@@ -312,11 +312,19 @@ void rt::UnitTests::net_interfaces()
 	for(;;)
 	{
 		os::Sleep(100);
-		if(evt.IsChanged())
+		if(evt.GetState() == inet::NetworkInterfaces::Reconfiguring)
 		{
-			do{ os::Sleep(500); }while(evt.IsChanged()); // eta all event followed up
-			_LOGC("\n\nEvent fired");
-			scan();
+            _LOGC("\n\nNetwork Interface reconfiguring ...");
+            for(;;)
+            {
+                os::Sleep(100);
+                if(evt.GetState() == inet::NetworkInterfaces::Reconfigured)
+                {
+                    _LOGC("Reconfigured:");
+                    scan();
+                    break;
+                }
+            }
 		}
 	}
 }

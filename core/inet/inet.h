@@ -373,11 +373,10 @@ enum NetworkInterfaceType
 	NITYPE_TUNNEL,		// virtual interface
 	NITYPE_MASK = 0xff,
 
-	NITYPE_IPV4			= 0x0100,
-	NITYPE_IPV6			= 0x0200,
 	NITYPE_ONLINE		= 0x1000,
 	NITYPE_MULTICAST	= 0x2000,
 	NITYPE_BROADCAST	= 0x4000,
+    NITYPE_ADDRESS_DUPLICATED = 0x8000,
 };
 
 struct NetworkInterface
@@ -386,24 +385,35 @@ struct NetworkInterface
 	char		Name[256];
 	ULONGLONG	LinkSpeed;
 	UINT		MTU;
-	DWORD		IanaType;
 #else
 	char		Name[32];
 #endif
-	DWORD		Type;				// NetworkInterfaceType
-	DWORD		IPv4_Local;
-	DWORD		IPv4_Boardcast;		// or p2p destination NICTYPE_ADHOC
-	DWORD		IPv4_SubnetMask;
-	BYTE		IPv6_Local[16];
+	DWORD		Type;			// NetworkInterfaceType
+	struct {
+		DWORD	Local;
+		DWORD	Boardcast;		// or p2p destination NICTYPE_ADHOC
+		DWORD	SubnetMask;
+	}			v4[2];
+	UINT		v4Count;
+	struct {
+		BYTE	Local[16];
+	}			v6[4];
+	UINT		v6Count;
 
 	bool		IsOnline() const { return NITYPE_ONLINE&Type; }
-	bool		HasIPv4() const { return NITYPE_IPV4&Type; }
-	bool		HasIPv6() const { return NITYPE_IPV6&Type; }
-	bool		IsDualStack() const { return (NITYPE_IPV4|NITYPE_IPV6) == (Type&(NITYPE_IPV4|NITYPE_IPV6)); }
+	bool		HasIPv4() const { return v4Count; }
+	bool		HasIPv6() const { return v6Count; }
 };
 
 class NetworkInterfaces
 {
+public:
+    enum ConfigState
+    {
+        Unchanged = 0,
+        Reconfiguring,
+        Reconfigured
+    };
 protected:
 #if defined(PLATFORM_WIN)
 	HANDLE		_CallbackHandle = INVALID_HANDLE_VALUE;
@@ -414,14 +424,15 @@ protected:
 	void		_WaitingFunc();
 #endif
 
-	bool		_bChanged = false;
-	static bool	_IsIPv6AddressTrivial(LPCBYTE ipv6);
-	static bool	_IsIPv4AddressTrivial(LPCBYTE ipv4);
+    mutable LONGLONG    _LastEventFired = 0;
+    
+	static bool	        _IsIPv6AddressTrivial(LPCBYTE ipv6);
+	static bool	        _IsIPv4AddressTrivial(LPCBYTE ipv4);
 public:
 	NetworkInterfaces();
 	~NetworkInterfaces();
 
-	bool		IsChanged(bool clear = true){ bool ret = _bChanged; if(clear)_bChanged = false; return ret; }
+    ConfigState	GetState() const;
 	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_loopback = true);
 };
 

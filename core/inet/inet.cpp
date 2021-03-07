@@ -732,25 +732,33 @@ SOCKET SocketEvent::my_fd_set::get_next_event()
 	return INVALID_SOCKET;
 }
 
-#if defined(PLATFORM_IOS)
 namespace _details
 {
-CFStringRef _NotifySCNetworkChange = CFSTR(kNotifySCNetworkChange);
-}
+#if defined(PLATFORM_IOS) || defined(PLATFORM_ANDROID)
+static const UINT _NetworkInterfacesReconfigClaimDown = 2500; // msec
+#else
+static const UINT _NetworkInterfacesReconfigClaimDown = 1500; // msec
 #endif
+
+#if defined(PLATFORM_IOS)
+CFStringRef _NotifySCNetworkChange = CFSTR(kNotifySCNetworkChange);
+#endif
+}
+
 
 NetworkInterfaces::NetworkInterfaces()
 {
 #if defined(PLATFORM_WIN)
 	struct _call
-	{	static void func(PVOID CallerContext, PMIB_IPINTERFACE_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
+	{	static void func(PVOID CallerContext, PMIB_UNICASTIPADDRESS_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
 		{
-			((NetworkInterfaces*)CallerContext)->_bChanged = true;
+			if(NotificationType == MibParameterNotification)return;
+            ((NetworkInterfaces*)CallerContext)->_LastEventFired = os::Timestamp::Get();
 		}
 	};
 
 	ASSERT(_CallbackHandle == INVALID_HANDLE_VALUE);
-	if(NO_ERROR != ::NotifyIpInterfaceChange(AF_UNSPEC, _call::func, this, false, &_CallbackHandle))
+	if(NO_ERROR != ::NotifyUnicastIpAddressChange(AF_UNSPEC, _call::func, this, false, &_CallbackHandle))
 		_LOG_WARNING("[NET]: NotifyIpInterfaceChange failed");
 #elif defined(PLATFORM_IOS)
     struct _call
@@ -758,12 +766,12 @@ NetworkInterfaces::NetworkInterfaces()
         static void func(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
         {
             if(CFStringCompare(name, _details::_NotifySCNetworkChange, 0) == kCFCompareEqualTo)
-                *((bool*)observer) = true;
+                *((LONGLONG*)observer) = os::Timestamp::Get();
         }
     };
 
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), //center
-                                        &_bChanged, // observer
+                                        &_LastEventFired, // observer
                                         _call::func, // callback
                                         _details::_NotifySCNetworkChange, // event name
                                         NULL, // object
@@ -780,7 +788,7 @@ NetworkInterfaces::~NetworkInterfaces()
     if(_CallbackHandle != INVALID_HANDLE_VALUE)
         ::CancelMibChangeNotify2(_CallbackHandle);
 #elif defined(PLATFORM_IOS)
-    CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), &_bChanged, NULL, NULL);
+    CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), &_LastEventFired, NULL, NULL);
 #else
     auto t = _NetLinkSocket;
     _NetLinkSocket = -1;
@@ -814,7 +822,7 @@ void NetworkInterfaces::_WaitingFunc()
                msg.event_code == KEV_DL_LINK_OFF || msg.event_code == KEV_DL_LINK_ON ||
                msg.event_code == KEV_DL_LINK_ADDRESS_CHANGED
             )
-            {  _bChanged = true; }
+            {  _LastEventFired = os::Timestamp::Get(); }
         }
 #else
 		struct sockaddr_nl addr;
@@ -860,7 +868,8 @@ void NetworkInterfaces::_WaitingFunc()
 					break;
 					
 				if(type == RTM_NEWADDR || type == RTM_DELADDR)
-				{	_bChanged = true;
+                {
+                    _LastEventFired = os::Timestamp::Get();
 					break;
 				}
 			}
@@ -871,6 +880,20 @@ void NetworkInterfaces::_WaitingFunc()
 	}
 }
 #endif // #if !defined(PLATFORM_WIN) && !defined(PLATFORM_IOS)
+
+NetworkInterfaces::ConfigState NetworkInterfaces::GetState() const
+{
+    if(_LastEventFired)
+    {
+        if(os::Timestamp::Get() - _LastEventFired > _details::_NetworkInterfacesReconfigClaimDown)
+        {
+            _LastEventFired = 0;
+            return Reconfigured;
+        }
+        else return Reconfiguring;
+    }
+    else return Unchanged;
+}
 
 bool NetworkInterfaces::_IsIPv6AddressTrivial(LPCBYTE ipv6)
 {
@@ -921,65 +944,49 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 			os::__UTF8(nic->Description).SubStrHead(sizeof(itm.Name)-1-len).CopyTo(&itm.Name[len]);
 		}
 
-		if(!(nic->Flags&IP_ADAPTER_NO_MULTICAST))
-			itm.Type |= NITYPE_MULTICAST;
-
 		if(nic->ReceiveLinkSpeed != 0xffffffffffffffff && nic->ReceiveLinkSpeed != 0xffffffffffffffff)
 			itm.LinkSpeed = (nic->ReceiveLinkSpeed + nic->TransmitLinkSpeed)/2;
 
 		itm.MTU = nic->Mtu;
-		itm.IanaType = nic->IfType;
 
 		switch(nic->IfType)
 		{
-		case IF_TYPE_SOFTWARE_LOOPBACK:	itm.Type |= NITYPE_LOOPBACK; 	break;
+		case IF_TYPE_SOFTWARE_LOOPBACK:	itm.Type = NITYPE_LOOPBACK; 	break;
 		case IF_TYPE_IEEE80211:
 		case IF_TYPE_IEEE8023AD_LAG:
 		case IF_TYPE_IEEE802154:		
 		case IF_TYPE_ETHERNET_CSMACD:	
-		case IF_TYPE_IEEE80216_WMAN:	itm.Type |= NITYPE_LAN; 		break;
-		case IF_TYPE_USB:				itm.Type |= NITYPE_USB; 		break;
+		case IF_TYPE_IEEE80216_WMAN:	itm.Type = NITYPE_LAN; 		    break;
+		case IF_TYPE_USB:				itm.Type = NITYPE_USB; 		    break;
 		case IF_TYPE_WWANPP:			
-		case IF_TYPE_WWANPP2:			itm.Type |= NITYPE_CELLULAR; 	break;
+		case IF_TYPE_WWANPP2:			itm.Type = NITYPE_CELLULAR; 	break;
 		}
 
-		if(nic->Flags&IP_ADAPTER_IPV4_ENABLED)itm.Type |= NITYPE_IPV4;
-		if(nic->Flags&IP_ADAPTER_IPV6_ENABLED)itm.Type |= NITYPE_IPV6;
+        if(!(nic->Flags&IP_ADAPTER_NO_MULTICAST))
+            itm.Type |= NITYPE_MULTICAST;
+
 		//if(nic->TunnelType != TUNNEL_TYPE_NONE)
 
-		if(nic->OperStatus == IfOperStatusUp)
+		if(nic->OperStatus == IfOperStatusUp)itm.Type |= NITYPE_ONLINE;
+		
+		// copy first address per-AF
+		auto* addr = nic->FirstUnicastAddress;
+		while(addr && itm.v4Count < sizeofArray(NetworkInterface::v4) && itm.v6Count < sizeofArray(NetworkInterface::v6))
 		{
-			itm.Type |= NITYPE_ONLINE;
-
-			// copy first address per-AF
-			{	DWORD fill = (nic->Flags&(IP_ADAPTER_IPV4_ENABLED|IP_ADAPTER_IPV6_ENABLED));
-				DWORD curr = 0;
-
-				auto* addr = nic->FirstUnicastAddress;
-				while(addr && fill != curr)
-				{
-					if(addr->Address.lpSockaddr->sa_family == AF_INET)
-					{
-						if(((curr&IP_ADAPTER_IPV4_ENABLED) == 0) || _IsIPv4AddressTrivial((LPCBYTE)&itm.IPv4_Local)) // pick the first one
-						{
-							itm.IPv4_Local = *(DWORD*)(((InetAddr*)addr->Address.lpSockaddr)->GetBinaryAddress());
-							ConvertLengthToIpv4Mask(addr->OnLinkPrefixLength, (PULONG)&itm.IPv4_SubnetMask);
-							itm.IPv4_Boardcast = itm.IPv4_Local|~itm.IPv4_SubnetMask;
-							curr |= IP_ADAPTER_IPV4_ENABLED;
-						}
-					}
-					else if(addr->Address.lpSockaddr->sa_family == AF_INET6)
-					{
-						if(((curr&IP_ADAPTER_IPV6_ENABLED) == 0) || _IsIPv6AddressTrivial(itm.IPv6_Local)) // pick the first one and overwrite trivial ones
-						{
-							rt::CopyByteTo<16>(((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress(), itm.IPv6_Local);
-							curr |= IP_ADAPTER_IPV6_ENABLED;
-						}
-					}
-
-					addr = addr->Next;
-				}
+			if(addr->Address.lpSockaddr->sa_family == AF_INET)
+			{
+				auto& ip = itm.v4[itm.v4Count++];
+					
+				ip.Local = *(DWORD*)(((InetAddr*)addr->Address.lpSockaddr)->GetBinaryAddress());
+				ConvertLengthToIpv4Mask(addr->OnLinkPrefixLength, (PULONG)&ip.SubnetMask);
+				ip.Boardcast = ip.Local|~ip.SubnetMask;
 			}
+			else if(addr->Address.lpSockaddr->sa_family == AF_INET6)
+			{
+				rt::CopyByteTo<16>(((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress(), itm.v6[itm.v6Count++].Local);
+			}
+
+			addr = addr->Next;
 		}
 	}
 #else
@@ -990,6 +997,11 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 	for(; ifap; ifap = ifap->ifa_next)
 	{
 		auto flag = ifap->ifa_flags;
+        bool online = (flag&IFF_UP) &&
+                      ifap->ifa_addr &&
+                      (ifap->ifa_addr->sa_family == AF_INET || ifap->ifa_addr->sa_family == AF_INET6);
+                      
+        
 		if(only_up && (flag&IFF_UP) == 0)continue;
 		if(skip_loopback && (flag&IFF_LOOPBACK))continue;
 
@@ -999,65 +1011,67 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 		NetworkInterface* pitm = nullptr;
 		for(UINT i=0; i<list.GetSize(); i++)
 		{
-			if(memcmp(name.Begin(), list[i].Name, name.GetLength()+1) == 0)
-			{	pitm = &list[i];
-				break;
-			}
+			if(!pitm && memcmp(name.Begin(), list[i].Name, name.GetLength()+1) == 0)
+            {	pitm = &list[i];
+                break;
+            }
 		}
-		
+        
 		if(pitm == nullptr)
 		{
-			pitm = &list.push_back();
-			auto& itm = *pitm;
-
-			rt::Zero(itm);
-			name.CopyTo(itm.Name);
-			
-			if(flag&IFF_UP)itm.Type |= NITYPE_ONLINE;
-			if(flag&IFF_MULTICAST)itm.Type |= NITYPE_MULTICAST;
-
-			if(flag&IFF_LOOPBACK){ itm.Type |= NITYPE_LOOPBACK; }
-			else if(flag&IFF_POINTOPOINT){ itm.Type |= NITYPE_ADHOC; }
+            UINT if_type;
+			if(flag&IFF_LOOPBACK){ if_type = NITYPE_LOOPBACK; }
+			else if(flag&IFF_POINTOPOINT){ if_type = NITYPE_ADHOC; }
 			{
 				// sadly to guess type based on interface name, which is not reliable
-				if(name.StartsWith("ap") || name.StartsWith("swlan")){ itm.Type |= NITYPE_HOTSPOT; }
-				else if(name.StartsWith("awdl") || name.StartsWith("p2p")){ itm.Type |= NITYPE_ADHOC; }  // Apple Wireless Direct Link (AirDrop,AirPlay), can be bluetooth
-				else if(name.StartsWith("llw") || name.FindString("wlan")>=0 || name.StartsWith("eth") || name.StartsWith("wlp") || name.StartsWith("en")|| name.StartsWith("em")){ itm.Type |= NITYPE_LAN; }
-				else if(name.StartsWith("xhc") || name.StartsWith("usb")){ itm.Type |= NITYPE_USB; }
-				else if(name.StartsWith("pdp_ip") || name.StartsWith("rmnet")){ itm.Type |= NITYPE_CELLULAR; }
-				else if(name.StartsWith("utun")){ itm.Type |= NITYPE_VPN; }
-				else if(name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec") || name.StartsWith("bridge")){ itm.Type |= NITYPE_TUNNEL; }
+				if(name.StartsWith("bridge") || name.StartsWith("ap") || name.StartsWith("swlan")){ if_type = NITYPE_HOTSPOT; }
+				else if(name.StartsWith("awdl") || name.StartsWith("p2p")){ if_type = NITYPE_ADHOC; }  // Apple Wireless Direct Link (AirDrop,AirPlay), can be bluetooth
+				else if(name.StartsWith("llw") || name.FindString("wlan")>=0 || name.StartsWith("eth") || name.StartsWith("wlp") || name.StartsWith("en")|| name.StartsWith("em")){ if_type = NITYPE_LAN; }
+				else if(name.StartsWith("XHC") || name.StartsWith("usb")){ if_type = NITYPE_USB; }
+				else if(name.StartsWith("pdp_ip") || name.StartsWith("rmnet")){ if_type = NITYPE_CELLULAR; }
+				else if(name.StartsWith("utun")){ if_type = NITYPE_VPN; }
+				else if(name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec")){ if_type = NITYPE_TUNNEL; }
 			}
-		}
-		else
-		{
-			if(pitm->IsDualStack())continue;
-		}
+            
+            if(skip_loopback && if_type == NITYPE_TUNNEL)continue;
+            
+            pitm = &list.push_back();
+            auto& itm = *pitm;
 
-		auto& itm = *pitm;
-		if(ifap->ifa_addr->sa_family == AF_INET) // ipv4
-		{
-			if((itm.Type&NITYPE_IPV4) && !_IsIPv4AddressTrivial((LPCBYTE)&itm.IPv4_Local))continue; // report first IP only
+            rt::Zero(itm);
+            name.CopyTo(itm.Name);
 
-			itm.Type |= NITYPE_IPV4;
-			itm.IPv4_Local = *(DWORD*)(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress());
-			
-			if(ifap->ifa_netmask)
-				itm.IPv4_SubnetMask = *(DWORD*)(((InetAddr*)ifap->ifa_netmask)->GetBinaryAddress());
-				
-			if(ifap->ifa_broadaddr)
-				itm.IPv4_Boardcast = *(DWORD*)(((InetAddr*)ifap->ifa_broadaddr)->GetBinaryAddress());
-			else if(ifap->ifa_netmask)
-				itm.IPv4_Boardcast = itm.IPv4_Local|~itm.IPv4_SubnetMask;
+            itm.Type = if_type;
+            if(online)itm.Type |= NITYPE_ONLINE;
+            if(flag&IFF_MULTICAST)itm.Type |= NITYPE_MULTICAST;
 		}
-		
-		if(ifap->ifa_addr->sa_family == AF_INET6) // ipv6
-		{
-			if((itm.Type&NITYPE_IPV6) && !_IsIPv6AddressTrivial(itm.IPv6_Local))continue; // report first IP only, or overwrite trivial ones
-			
-			itm.Type |= NITYPE_IPV6;
-			rt::CopyByteTo<16>(((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress(), itm.IPv6_Local);
-		}		
+        else
+        {
+            if(online)pitm->Type |= NITYPE_ONLINE;
+        }
+
+        if(online)
+        {
+            auto& itm = *pitm;
+            if(ifap->ifa_addr->sa_family == AF_INET && itm.v4Count < sizeofArray(NetworkInterface::v4)) // ipv4
+            {
+				auto& ip = itm.v4[itm.v4Count++];
+                ip.Local = *(DWORD*)(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress());
+                
+                if(ifap->ifa_netmask)
+                    ip.SubnetMask = *(DWORD*)(((InetAddr*)ifap->ifa_netmask)->GetBinaryAddress());
+                    
+                if(ifap->ifa_broadaddr)
+                    ip.Boardcast = *(DWORD*)(((InetAddr*)ifap->ifa_broadaddr)->GetBinaryAddress());
+                else if(ifap->ifa_netmask)
+                    ip.Boardcast = ip.Local|~ip.SubnetMask;
+            }
+            
+            if(ifap->ifa_addr->sa_family == AF_INET6 && itm.v6Count < sizeofArray(NetworkInterface::v6)) // ipv6
+            {               
+                rt::CopyByteTo<16>(((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress(), itm.v6[itm.v6Count++].Local);
+            }
+        }
 	}
 	
 	freeifaddrs(ifaps);
