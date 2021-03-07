@@ -1002,32 +1002,20 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
                       
         
 		if(only_up && (flag&IFF_UP) == 0)continue;
-		if(skip_misc)
-        {
-            if(flag&IFF_LOOPBACK)continue;
-            //if(ifap->ifa_addr->sa_family == AF_INET6 && _IsIPv6AddressTrivial(((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress()))
-                //continue;
-        }
+		if(skip_loopback && (flag&IFF_LOOPBACK))continue;
 
 		rt::String_Ref name(ifap->ifa_name);
 		name = name.SubStrHead(sizeof(NetworkInterface::Name)-1);
 
 		NetworkInterface* pitm = nullptr;
-        bool duplicated = false;
 		for(UINT i=0; i<list.GetSize(); i++)
 		{
 			if(!pitm && memcmp(name.Begin(), list[i].Name, name.GetLength()+1) == 0)
-				pitm = &list[i];
-            
-            if(!duplicated &&
-               (    (ifap->ifa_addr->sa_family == AF_INET && *(DWORD*)(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress()) == list[i].IPv4_Local)
-                ||  (ifap->ifa_addr->sa_family == AF_INET6 && rt::IsEqual<16>(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress(), list[i].IPv6_Local))
-               )
-            )duplicated = true;
+            {	pitm = &list[i];
+                break;
+            }
 		}
         
-        if(dedup && duplicated)continue;
-		
 		if(pitm == nullptr)
 		{
             UINT if_type;
@@ -1044,7 +1032,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 				else if(name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec")){ if_type = NITYPE_TUNNEL; }
 			}
             
-            if(skip_misc && if_type == NITYPE_TUNNEL)continue;
+            if(skip_loopback && if_type == NITYPE_TUNNEL)continue;
             
             pitm = &list.push_back();
             auto& itm = *pitm;

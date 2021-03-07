@@ -393,11 +393,11 @@ struct NetworkInterface
 		DWORD	Local;
 		DWORD	Boardcast;		// or p2p destination NICTYPE_ADHOC
 		DWORD	SubnetMask;
-	}			v4[4];
+	}			v4[2];
 	UINT		v4Count;
 	struct {
 		BYTE	Local[16];
-	}			v6[8];
+	}			v6[4];
 	UINT		v6Count;
 
 	bool		IsOnline() const { return NITYPE_ONLINE&Type; }
