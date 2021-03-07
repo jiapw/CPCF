@@ -415,7 +415,8 @@ protected:
 #endif
 
 	bool		_bChanged = false;
-
+	static bool	_IsIPv6AddressTrivial(LPCBYTE ipv6);
+	static bool	_IsIPv4AddressTrivial(LPCBYTE ipv4);
 public:
 	NetworkInterfaces();
 	~NetworkInterfaces();

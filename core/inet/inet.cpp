@@ -872,6 +872,20 @@ void NetworkInterfaces::_WaitingFunc()
 }
 #endif // #if !defined(PLATFORM_WIN) && !defined(PLATFORM_IOS)
 
+bool NetworkInterfaces::_IsIPv6AddressTrivial(LPCBYTE ipv6)
+{
+	if(ipv6[0] == 0xfe && (ipv6[1]&0xc0) == 0x80)return true;  // link-local
+
+	return false;
+}
+
+bool NetworkInterfaces::_IsIPv4AddressTrivial(LPCBYTE ipv4)
+{
+	if(ipv4[0] == 169 && ipv4[1] == 254)return true;	// link-local
+
+	return false;
+}
+
 bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only_up, bool skip_loopback)
 {
 	list.ShrinkSize(0);
@@ -946,7 +960,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 				{
 					if(addr->Address.lpSockaddr->sa_family == AF_INET)
 					{
-						if((curr&IP_ADAPTER_IPV4_ENABLED) == 0) // pick the first one
+						if(((curr&IP_ADAPTER_IPV4_ENABLED) == 0) || _IsIPv4AddressTrivial((LPCBYTE)&itm.IPv4_Local)) // pick the first one
 						{
 							itm.IPv4_Local = *(DWORD*)(((InetAddr*)addr->Address.lpSockaddr)->GetBinaryAddress());
 							ConvertLengthToIpv4Mask(addr->OnLinkPrefixLength, (PULONG)&itm.IPv4_SubnetMask);
@@ -956,7 +970,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 					}
 					else if(addr->Address.lpSockaddr->sa_family == AF_INET6)
 					{
-						if((curr&IP_ADAPTER_IPV6_ENABLED) == 0) // pick the first one
+						if(((curr&IP_ADAPTER_IPV6_ENABLED) == 0) || _IsIPv6AddressTrivial(itm.IPv6_Local)) // pick the first one and overwrite trivial ones
 						{
 							rt::CopyByteTo<16>(((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress(), itm.IPv6_Local);
 							curr |= IP_ADAPTER_IPV6_ENABLED;
@@ -1022,11 +1036,12 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 			{
 				// sadly to guess type based on interface name, which is not reliable
 				if(name.StartsWith("ap") || name.StartsWith("swlan")){ itm.Type |= NITYPE_HOTSPOT; }
-				else if(name.StartsWith("awdl")){ itm.Type |= NITYPE_ADHOC; }  // Apple Wireless Direct Link (AirDrop,AirPlay), can be bluetooth
+				else if(name.StartsWith("awdl") || name.StartsWith("p2p")){ itm.Type |= NITYPE_ADHOC; }  // Apple Wireless Direct Link (AirDrop,AirPlay), can be bluetooth
 				else if(name.StartsWith("llw") || name.FindString("wlan")>=0 || name.StartsWith("eth") || name.StartsWith("wlp") || name.StartsWith("en")|| name.StartsWith("em")){ itm.Type |= NITYPE_LAN; }
 				else if(name.StartsWith("xhc") || name.StartsWith("usb")){ itm.Type |= NITYPE_USB; }
 				else if(name.StartsWith("pdp_ip") || name.StartsWith("rmnet")){ itm.Type |= NITYPE_CELLULAR; }
-				else if(name.StartsWith("utun") || name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec") || name.StartsWith("bridge")){ itm.Type |= NITYPE_TUNNEL; }
+				else if(name.StartsWith("utun")){ itm.Type |= NITYPE_VPN; }
+				else if(name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec") || name.StartsWith("bridge")){ itm.Type |= NITYPE_TUNNEL; }
 			}
 		}
 		else
@@ -1037,7 +1052,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 		auto& itm = *pitm;
 		if(ifap->ifa_addr->sa_family == AF_INET) // ipv4
 		{
-			if(itm.Type&NITYPE_IPV4)continue; // report first IP only
+			if((itm.Type&NITYPE_IPV4) && !_IsIPv4AddressTrivial((LPCBYTE)&itm.IPv4_Local))continue; // report first IP only
 
 			itm.Type |= NITYPE_IPV4;
 			itm.IPv4_Local = *(DWORD*)(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress());
@@ -1053,7 +1068,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 		
 		if(ifap->ifa_addr->sa_family == AF_INET6) // ipv6
 		{
-			if(itm.Type&NITYPE_IPV6)continue; // report first IP only
+			if((itm.Type&NITYPE_IPV6) && !_IsIPv6AddressTrivial(itm.IPv6_Local))continue; // report first IP only, or overwrite trivial ones
 			
 			itm.Type |= NITYPE_IPV6;
 			rt::CopyByteTo<16>(((InetAddr*)ifap->ifa_addr)->GetBinaryAddress(), itm.IPv6_Local);
