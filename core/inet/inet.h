@@ -378,6 +378,7 @@ enum NetworkInterfaceType
 	NITYPE_ONLINE		= 0x1000,
 	NITYPE_MULTICAST	= 0x2000,
 	NITYPE_BROADCAST	= 0x4000,
+    NITYPE_ADDRESS_DUPLICATED = 0x8000,
 };
 
 struct NetworkInterface
@@ -404,6 +405,13 @@ struct NetworkInterface
 
 class NetworkInterfaces
 {
+public:
+    enum ConfigState
+    {
+        Unchanged = 0,
+        Reconfiguring,
+        Reconfigured
+    };
 protected:
 #if defined(PLATFORM_WIN)
 	HANDLE		_CallbackHandle = INVALID_HANDLE_VALUE;
@@ -414,15 +422,16 @@ protected:
 	void		_WaitingFunc();
 #endif
 
-	bool		_bChanged = false;
-	static bool	_IsIPv6AddressTrivial(LPCBYTE ipv6);
-	static bool	_IsIPv4AddressTrivial(LPCBYTE ipv4);
+    mutable LONGLONG    _LastEventFired = 0;
+    
+	static bool	        _IsIPv6AddressTrivial(LPCBYTE ipv6);
+	static bool	        _IsIPv4AddressTrivial(LPCBYTE ipv4);
 public:
 	NetworkInterfaces();
 	~NetworkInterfaces();
 
-	bool		IsChanged(bool clear = true){ bool ret = _bChanged; if(clear)_bChanged = false; return ret; }
-	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_loopback = true);
+    ConfigState	GetState() const;
+	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_misc = true, bool dedup = true);
 };
 
 enum _tagSocketEventType

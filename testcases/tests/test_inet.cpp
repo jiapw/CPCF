@@ -285,7 +285,7 @@ void rt::UnitTests::net_interfaces()
 {
 	auto scan = [](){
 		rt::BufferEx<inet::NetworkInterface>	nic;
-		inet::NetworkInterfaces::Populate(nic, false, false);
+		inet::NetworkInterfaces::Populate(nic, false, false, false);
 
 		for(auto it : nic)
 		{
@@ -312,11 +312,19 @@ void rt::UnitTests::net_interfaces()
 	for(;;)
 	{
 		os::Sleep(100);
-		if(evt.IsChanged())
+		if(evt.GetState() == inet::NetworkInterfaces::Reconfiguring)
 		{
-			do{ os::Sleep(500); }while(evt.IsChanged()); // eta all event followed up
-			_LOGC("\n\nEvent fired");
-			scan();
+            _LOGC("\n\nNetwork Interface reconfiguring ...");
+            for(;;)
+            {
+                os::Sleep(100);
+                if(evt.GetState() == inet::NetworkInterfaces::Reconfigured)
+                {
+                    _LOGC("Reconfigured:");
+                    scan();
+                    break;
+                }
+            }
 		}
 	}
 }
