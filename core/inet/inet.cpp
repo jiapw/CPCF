@@ -1034,7 +1034,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 				else if(name.StartsWith("llw") || name.FindString("wlan")>=0 || name.StartsWith("eth") || name.StartsWith("wlp") || name.StartsWith("en")|| name.StartsWith("em")){ if_type = NITYPE_LAN; }
 				else if(name.StartsWith("XHC") || name.StartsWith("usb")){ if_type = NITYPE_USB; }
 				else if(name.StartsWith("pdp_ip") || name.StartsWith("rmnet")){ if_type = NITYPE_CELLULAR; }
-				else if(name.StartsWith("utun") || name.StartsWith("vpn")){ if_type = NITYPE_VPN; }
+				else if(name.StartsWith("utun") || name.StartsWith("vpn") || name.StartsWith("tun")){ if_type = NITYPE_VPN; }
 				else if(name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec")){ if_type = NITYPE_TUNNEL; }
 			}
             
