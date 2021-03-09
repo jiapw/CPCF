@@ -698,6 +698,15 @@ public:
 		return !token.IsEmpty();
 	}
 	template<bool merge_adjecent_sep, char quote1, char quote2, typename T>
+	INLFUNC UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const // return count of field actually parsed
+	{	rt::String_Ref* seg = (rt::String_Ref*)_alloca(sizeof(rt::String_Ref)*fields_count);
+		UINT co = Split<merge_adjecent_sep, quote1, quote2>(seg, fields_count, seps);
+		for(UINT i=0; i<co; i++)
+			if(seg[i].ToNumber(fields[i]) == 0)fields[i] = def_val;
+		for(UINT i=co; i<fields_count; i++)fields[i] = def_val;
+		return co;
+	}
+	template<bool merge_adjecent_sep, char quote1, char quote2, typename T>
 	INLFUNC UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const // return count of field actually parsed
 	{	if(_SC::IsEmpty())return 0;
 		UINT i=0;	const char* start = _SC::_p;	const char* tail = End();
@@ -747,9 +756,17 @@ public:
 	FORCEINL UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const // return count of field actually parsed
 	{	return Split<merge_adjecent_sep, '"', '\'', T>(fields, fields_count, seps);
 	}
+	template<bool merge_adjecent_sep, typename T>
+	INLFUNC UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const // return count of field actually parsed
+	{	return SplitNumbers<merge_adjecent_sep, '"', '\'', T>(fields, fields_count, seps);
+	}
 	template<typename T>
 	FORCEINL UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const // return count of field actually parsed
 	{	return Split<false, '"', '\'', T>(fields, fields_count, seps);
+	}
+	template<typename T>
+	INLFUNC UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const // return count of field actually parsed
+	{	return SplitNumbers<false, '"', '\'', T>(fields, fields_count, seps);
 	}
 	t_String_Ref UnescapeCharacters(char escape_sign = '\\')
 	{	LPCSTR s = Begin();	LPCSTR end = End();
