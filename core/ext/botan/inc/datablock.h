@@ -98,7 +98,6 @@ public:
     INLFUNC DataBlockRef(){ Bytes = nullptr; }
 	INLFUNC DataBlockRef(decltype(NULL) x){ if(x==0){ Bytes = nullptr; }else if(x==-1){ Bytes = (LPBYTE)-1; }else{ ASSERT(0); } }
 	INLFUNC DataBlockRef(const DataBlockRef& x){ Bytes = (LPBYTE)x.Bytes; }
-	INLFUNC ~DataBlockRef(){}
 
 	INLFUNC LPDWORD		GetDWords(){ return (LPDWORD)GetBytes(); }
 	INLFUNC LPCDWORD	GetDWords() const { return (LPCDWORD)GetBytes(); }
@@ -167,15 +166,32 @@ public:
 };
 #pragma pack(pop)
 
-
-#pragma pack(push,1)
-template<UINT _LEN, bool is_sec = false>
-struct DataBlock
+namespace _details
 {
+template<UINT _LEN, bool is_sec = false>
+struct DataBlockStg
+{	TYPETRAITS_DECLARE_POD;
 	union 
 	{	DWORD	DWords[_LEN/sizeof(DWORD)];
 		BYTE	Bytes[_LEN];
 	};
+};
+	template<UINT _LEN> // secret data block will put data on heap to avoid being collected by crash report
+	struct DataBlockStg<_LEN, true>  
+	{	TYPETRAITS_DECLARE_NON_POD;
+		union 
+		{	DWORD*	DWords;
+			BYTE*	Bytes;
+		};
+		DataBlockStg(){ Bytes = _Malloc8AL(BYTE, _LEN); }
+		~DataBlockStg(){ rt::Zero(Bytes, _LEN); _SafeFree8AL(Bytes); }
+	};
+} // namespace _details
+
+#pragma pack(push,1)
+template<UINT _LEN, bool is_sec = false>
+struct DataBlock: public _details::DataBlockStg<_LEN, is_sec>
+{
 	INLFUNC bool	_IsSymbolicZero() const { return false; }
 	INLFUNC bool	_IsSymbolicVoid() const { return false; }
 	LPDWORD			GetDWords(){ return DWords; }
@@ -230,7 +246,6 @@ public:
 	INLFUNC auto&		Zero(){ dwop::set(GetDWords(), (DWORD)0); return *this; }
 	INLFUNC auto&		Void(){ dwop::set(GetDWords(), (DWORD)0xffffffff); return *this; }
 
-	TYPETRAITS_DECLARE_POD;
 public:
 	struct hash_compare
 	{	
@@ -259,11 +274,6 @@ public:
 	{	return s << rt::tos::Base32LowercaseOnStack<_LEN*8/5 + 4>((LPCBYTE)d, _LEN);
 	}
 };
-	template<UINT _LEN>
-	struct DataBlock<_LEN, true>: public DataBlock<_LEN, false>
-	{
-		~DataBlock(){ rt::Zero(*this); }
-	};
 #pragma pack(pop)
 
 } // namespace sec
