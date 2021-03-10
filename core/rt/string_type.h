@@ -699,7 +699,7 @@ public:
 	}
 	template<bool merge_adjecent_sep, char quote1, char quote2, typename T>
 	INLFUNC UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const // return count of field actually parsed
-	{	rt::String_Ref* seg = (rt::String_Ref*)_alloca(sizeof(rt::String_Ref)*fields_count);
+	{	t_String_Ref* seg = (t_String_Ref*)_alloca(sizeof(t_String_Ref)*fields_count);
 		UINT co = Split<merge_adjecent_sep, quote1, quote2>(seg, fields_count, seps);
 		for(UINT i=0; i<co; i++)
 			if(seg[i].ToNumber(fields[i]) == 0)fields[i] = def_val;
