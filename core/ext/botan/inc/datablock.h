@@ -168,29 +168,50 @@ public:
 
 namespace _details
 {
-template<UINT _LEN, bool is_sec = false>
-struct DataBlockStg
-{	TYPETRAITS_DECLARE_POD;
-	union 
-	{	DWORD	DWords[_LEN/sizeof(DWORD)];
-		BYTE	Bytes[_LEN];
-	};
-};
-	template<UINT _LEN> // secret data block will put data on heap to avoid being collected by crash report
-	struct DataBlockStg<_LEN, true>  
-	{	TYPETRAITS_DECLARE_NON_POD;
+template<UINT _LEN, bool is_sec, bool on_heap>
+struct DataBlockStg;
+	template<UINT _LEN>
+	struct DataBlockStg<_LEN, false, false>
+	{	TYPETRAITS_DECLARE_POD;
 		union 
+		{	DWORD	DWords[_LEN/sizeof(DWORD)];
+			BYTE	Bytes[_LEN];
+		};
+	};
+	template<UINT _LEN>
+	struct DataBlockStg<_LEN, true, false>
+	{	TYPETRAITS_DECLARE_POD;
+		union 
+		{	DWORD	DWords[_LEN/sizeof(DWORD)];
+			BYTE	Bytes[_LEN];
+		};
+		~DataBlockStg(){ rt::Zero(Bytes, _LEN); }
+	};
+	template<UINT _LEN> // secret data block will put data on heap to avoid being collected by crash report
+	struct DataBlockStg<_LEN, true, true>
+	{	TYPETRAITS_DECLARE_NON_POD;
+		union
 		{	DWORD*	DWords;
 			BYTE*	Bytes;
 		};
 		DataBlockStg(){ Bytes = _Malloc8AL(BYTE, _LEN); }
 		~DataBlockStg(){ rt::Zero(Bytes, _LEN); _SafeFree8AL(Bytes); }
 	};
+	template<UINT _LEN> // secret data block will put data on heap to avoid being collected by crash report
+	struct DataBlockStg<_LEN, false, true>
+	{	TYPETRAITS_DECLARE_NON_POD;
+		union
+		{	DWORD*	DWords;
+			BYTE*	Bytes;
+		};
+		DataBlockStg(){ Bytes = _Malloc8AL(BYTE, _LEN); }
+		~DataBlockStg(){ _SafeFree8AL(Bytes); }
+	};
 } // namespace _details
 
 #pragma pack(push,1)
-template<UINT _LEN, bool is_sec = false>
-struct DataBlock: public _details::DataBlockStg<_LEN, is_sec>
+template<UINT _LEN, bool is_sec = false, bool on_heap = false>
+struct DataBlock: public _details::DataBlockStg<_LEN, is_sec, on_heap>
 {
 	INLFUNC bool	_IsSymbolicZero() const { return false; }
 	INLFUNC bool	_IsSymbolicVoid() const { return false; }
@@ -204,8 +225,8 @@ public:
 	static const UINT LEN = _LEN;
     operator	LPCBYTE () const { return (LPCBYTE)GetBytes(); }
 	operator	LPBYTE () { return (LPBYTE)GetBytes(); }
-    operator    DataBlock<_LEN, !is_sec>& (){ return (DataBlock<_LEN, !is_sec>&)*this; }
-    operator    const DataBlock<_LEN, !is_sec>& () const { return (DataBlock<_LEN, !is_sec>&)*this; }
+    operator    DataBlock<_LEN, !is_sec, on_heap>& (){ return *(DataBlock<_LEN, !is_sec, on_heap>*)this; }
+    operator    const DataBlock<_LEN, !is_sec, on_heap>& () const { return *(DataBlock<_LEN, !is_sec, on_heap>*)this; }
 	template<typename T>
 	const BYTE&  operator [](T i) const { return GetBytes()[i]; }
 	template<typename T>
@@ -260,14 +281,11 @@ public:
 
 public:
 	template<bool sb>
-	INLFUNC const DataBlock<_LEN, sb>& operator = (const DataBlock<_LEN, sb>& x){ From(x); }
+	INLFUNC const DataBlock<_LEN, sb>& operator = (const DataBlock<_LEN, sb>& x){ From(x); return x; }
 
 	typedef DataBlockRef<_LEN> RefType;
 	INLFUNC RefType Ref(){ return RefType(*this); }
 	INLFUNC const RefType Ref() const { return RefType(*this); }
-
-	INLFUNC operator DataBlock<_LEN, false>& (){ return *(DataBlock<_LEN, false>*)this; }
-	INLFUNC operator const DataBlock<_LEN, false>& () const { return *(const DataBlock<_LEN, false>*)this; }
 
 	template<typename OStream>
 	friend INLFUNC OStream& operator <<(OStream& s, const DataBlock& d)

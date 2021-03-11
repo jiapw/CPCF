@@ -247,7 +247,9 @@ void Free32AL(LPCVOID ptr_in)
 		if( offset <=32 && offset>0 )
 		{	//Detect buffer overrun
 			user_block_size = *((size_t*)&ptr[-offset-sizeof(size_t)]);
-
+#if defined(PLATFORM_DEBUG_BUILD)
+			memset((LPVOID)ptr_in, 0xdd, user_block_size);
+#endif
 			int i; 
 			for(i=0;i<offset-1;i++)
 			{// check prefix bytes
