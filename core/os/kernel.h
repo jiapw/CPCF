@@ -226,6 +226,7 @@ extern UINT GetPowerState(bool * pHasBattery = nullptr, bool* pPlugged = nullptr
 extern void GetDeviceModel(rt::String& model);
 extern void Sleep(DWORD msec = INFINITE, const bool* interrupt_flag = nullptr);
 extern void Halt();
+extern int	GetKeyHit();
 
 extern LPVOID VMAlloc(SIZE_T length);
 extern void	  VMFree(LPVOID ptr, SIZE_T size);

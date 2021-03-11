@@ -15,6 +15,7 @@
 #include <Sddl.h>
 #include <fcntl.h>
 #include <Wincon.h>
+#include <conio.h>
 #include <io.h>
 #include <iostream>
 #include <ShellAPI.h>
@@ -1387,6 +1388,19 @@ int  GetProcessId()
 #else
 	return getpid();
 #endif
+}
+
+int	GetKeyHit()
+{
+	if(_kbhit())
+	{
+		int k = _getch();
+		if(k>='a' && k<='z')
+			k -= 'a' - 'A';
+		return k;
+	}
+	else
+		return 0;
 }
 
 } // namespace os
