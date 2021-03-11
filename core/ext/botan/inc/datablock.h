@@ -193,12 +193,13 @@ struct DataBlockStg;
 template<UINT _LEN, bool is_sec = false>
 struct DataBlock: public _details::DataBlockStg<_LEN, is_sec>
 {
+    typedef _details::DataBlockStg<_LEN, is_sec> _SC;
 	INLFUNC bool	_IsSymbolicZero() const { return false; }
 	INLFUNC bool	_IsSymbolicVoid() const { return false; }
-	LPDWORD			GetDWords(){ return DWords; }
-	LPCDWORD		GetDWords() const { return DWords; }
-	LPBYTE			GetBytes(){ return Bytes; }
-	LPCBYTE			GetBytes() const { return Bytes; }
+	LPDWORD			GetDWords(){ return _SC::DWords; }
+	LPCDWORD		GetDWords() const { return _SC::DWords; }
+	LPBYTE			GetBytes(){ return _SC::Bytes; }
+	LPCBYTE			GetBytes() const { return _SC::Bytes; }
 
 public:
 	typedef dword_op<_LEN/4> dwop;
@@ -233,9 +234,9 @@ public:
     //INLFUNC void   Xor(const DataBlock& x){ dwop::xor_to(DWords, x.GetDWords()); }
     //template<bool sb> INLFUNC void   Xor(const DataBlock<_LEN, sb>& x){ dwop::xor_to(DWords, x.GetDWords()); }
     
-	INLFUNC void		From(const DataBlock& x){	dwop::set(DWords, x.GetDWords()); }
+	INLFUNC void		From(const DataBlock& x){	dwop::set(GetDWords(), x.GetDWords()); }
 	INLFUNC int			Compare(const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()); }
-    INLFUNC void		operator ^= (const DataBlock& x){ dwop::xor_to(DWords, x.GetDWords()); }
+    INLFUNC void		operator ^= (const DataBlock& x){ dwop::xor_to(GetDWords(), x.GetDWords()); }
 	INLFUNC bool		operator < (const DataBlock& x) const	{ return dwop::cmp(GetDWords(), x.GetDWords()) < 0; }
 	INLFUNC bool		operator <= (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) <= 0; }
 	INLFUNC bool		operator > (const DataBlock& x) const { return dwop::cmp(GetDWords(), x.GetDWords()) > 0; }
@@ -257,7 +258,7 @@ public:
 		INLFUNC size_t operator()(const DataBlock& key) const { return rt::_details::_HashValueFix<_LEN>::Val(key.Bytes); }
 		INLFUNC bool operator()(const DataBlock& _Keyval1, const DataBlock& _Keyval2) const	{ return _Keyval1 < _Keyval2; }
 	};
-	INLFUNC rt::String_Ref ToString() const { return rt::String_Ref((LPCSTR)Bytes,_LEN); }
+	INLFUNC rt::String_Ref ToString() const { return rt::String_Ref((LPCSTR)GetBytes(),_LEN); }
 
 public:
 	template<bool sb>

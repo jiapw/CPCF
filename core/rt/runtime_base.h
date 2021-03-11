@@ -851,20 +851,6 @@ extern bool IsMemoryExceptionEnabledInThread();
 namespace rt
 {
 
-template<typename T_POD>
-class PodOnHeap		// put temp variable on heap to avoid being collected by crash report
-{	T_POD* _p;
-	static_assert(TypeTraits<T_POD>::IsPOD, "T_POD should be a POD type");
-public:
-	PodOnHeap(){ _p = _Malloc8AL(T_POD, 1); }
-	~PodOnHeap(){ _SafeFree8AL(_p); }
-	operator T_POD* (){ return _p; }
-	T_POD* operator ->(){ return _p; }
-	operator const T_POD* () const { return _p; }
-	const T_POD* operator ->() const { return _p; }
-	static size_t size(){ return sizeof(T_POD); }
-};
-
 //INLFUNC void Randomize( DWORD seed = time(NULL) ){ srand(seed); }
 
 template<typename T>
