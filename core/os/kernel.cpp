@@ -92,9 +92,6 @@ extern int _objc_get_battery_state(bool* plugged);
 
 #endif
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_MAC)
-#include <ncurses.h>
-#endif
 
 #ifdef PLATFORM_DEBUG_BUILD
 namespace os

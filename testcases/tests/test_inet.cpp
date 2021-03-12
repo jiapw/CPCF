@@ -231,7 +231,7 @@ struct SocketIOObj_Routing: public IOObjectDatagram
 	void OnRecv(LPVOID data, UINT size)
 	{
 		if(data)
-			_LOG("["<<Name<<"] Recv: \""<<rt::DS(data, size)<<"\" from: "<<rt::tos::ip(GetFromAddressIPv4()));
+			_LOG("["<<Name<<"] Recv: \""<<rt::DS(data, size)<<"\" from: "<<rt::tos::ip(GetFromAddressIPv4()).TrimBefore(':'));
 	}
 
 	SocketIOObj_Routing(const rt::String_Ref& name):Name(name){}
@@ -256,12 +256,13 @@ void rt::UnitTests::recv_pump()
 		SocketIOObj_Routing	local("Local");
 		local.Create(local_addr, SOCK_DGRAM, true);
 		core.AddObject(&local);
-
+		
 		InetAddr local_send_addr;
 		local_send_addr.SetAsAny();
 		local_send_addr.SetPort(20000);
 		Socket local_send;
-		local_send.Create(local_addr, SOCK_DGRAM, true);
+		local_send.Create(local_send_addr, SOCK_DGRAM, true);
+	
 
 		local_send.SendTo("from any", sizeof("from any")-1, remote_addr);
 		os::Sleep(10);

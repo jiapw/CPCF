@@ -103,7 +103,9 @@ protected:
 	bool	__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy = false);
 
 public:
+#if defined(PLATFORM_WIN)
 	IOObject(){ rt::Zero(_OverlappedRecv); }
+#endif	
 	void	SetBufferSize(UINT sz = 1500){ VERIFY(_RecvBuf.ChangeSize(sz, false)); }
 	SOCKET	GetHandle() const { return m_hSocket; }
 	LPBYTE	GetBuffer(){ return _RecvBuf; }
@@ -139,8 +141,9 @@ class IOObjectDatagram: public IOObject // UDP
 			}
 #endif
 public:
-	ADDRESS_FAMILY	GetFromAddressFamily() const { return ((sockaddr*)_RecvFrom)->sa_family; }
+	WORD			GetFromAddressFamily() const { return ((sockaddr*)_RecvFrom)->sa_family; }
 	UINT			GetFromAddressSize() const { return _RecvFromSize; }
+	LPCVOID			GetFromAddressPtr() const { return _RecvFrom; }
 	bool			IsFromAddressIPv4() const { return GetFromAddressFamily() == AF_INET && _RecvFromSize>=sizeof(InetAddr); }  
 	bool			IsFromAddressIPv6() const { return GetFromAddressFamily() == AF_INET6 && _RecvFromSize>=sizeof(InetAddrV6); }
 	auto&			GetFromAddressIPv4() const { ASSERT(IsFromAddressIPv4()); return *(const InetAddr*)_RecvFrom; }
@@ -179,8 +182,8 @@ void OnRecv(IOObjectStream* p, T* obj, UINT size){ obj->OnRecv(obj->GetBuffer(),
 template<typename T>
 bool OnRecv(IOObjectDatagram* p, T* obj)
 {	socklen_t addr_len = sizeof(inet::InetAddrV6);
-	int len = ::recvfrom(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0, (sockaddr*)obj->GetRecvFromPtr(), &addr_len);
-	if(len>0){ obj->OnRecv(obj->GetBuffer(), len, obj->GetRecvFromPtr(), addr_len); return true; }
+	int len = ::recvfrom(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0, (sockaddr*)obj->GetFromAddressPtr(), &addr_len);
+	if(len>0){ obj->OnRecv(obj->GetBuffer(), len); return true; }
 	return len != 0 && (errno == EAGAIN || errno == EINTR);
 }
 template<typename T>

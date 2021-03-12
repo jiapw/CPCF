@@ -2,6 +2,7 @@
 #include "../../essentials.h"
 #include "../tests/test.h"
 
+class TestMain;
 extern void TestMain();
 
 int main(int argc, char **argv)
