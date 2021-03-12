@@ -745,12 +745,11 @@ CFStringRef _NotifySCNetworkChange = CFSTR(kNotifySCNetworkChange);
 #endif
 }
 
-
 NetworkInterfaces::NetworkInterfaces()
 {
 #if defined(PLATFORM_WIN)
 	struct _call
-	{	static void func(PVOID CallerContext, PMIB_UNICASTIPADDRESS_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
+	{	static void NETIOAPI_API_ func(PVOID CallerContext, PMIB_UNICASTIPADDRESS_ROW Row, MIB_NOTIFICATION_TYPE NotificationType)
 		{
 			if(NotificationType == MibParameterNotification)return;
             ((NetworkInterfaces*)CallerContext)->_LastEventFired = os::Timestamp::Get();

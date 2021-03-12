@@ -103,6 +103,7 @@ protected:
 	bool	__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy = false);
 
 public:
+	IOObject(){ rt::Zero(_OverlappedRecv); }
 	void	SetBufferSize(UINT sz = 1500){ VERIFY(_RecvBuf.ChangeSize(sz, false)); }
 	SOCKET	GetHandle() const { return m_hSocket; }
 	LPBYTE	GetBuffer(){ return _RecvBuf; }
@@ -122,17 +123,15 @@ class IOObjectDatagram: public IOObject // UDP
 	template<typename t_IOObject>
 	friend class RecvPump;
 
-protected:
 	BYTE	_RecvFrom[sizeof(inet::InetAddrV6)];
 	int		_RecvFromSize;
 #if defined(PLATFORM_WIN)
-	DWORD	_Flag;
 	bool	PumpNext()
 			{	ASSERT(_RecvBuf.GetSize());
 				WSABUF b = { (UINT)_RecvBuf.GetSize(), (LPSTR)_RecvBuf.Begin() };
 				_RecvFromSize = sizeof(_RecvFrom);
-				DWORD recv = 0;
-				if(	::WSARecvFrom(m_hSocket, &b, 1, &recv, &_Flag, (sockaddr*)_RecvFrom, &_RecvFromSize, &_OverlappedRecv, nullptr) == 0 ||
+				DWORD recv = 0;	DWORD flag = 0;
+				if(	::WSARecvFrom(m_hSocket, &b, 1, &recv, &flag, (sockaddr*)_RecvFrom, &_RecvFromSize, &_OverlappedRecv, nullptr) == 0 ||
 					::WSAGetLastError() == WSA_IO_PENDING
 				)return true;
 				_OverlappedRecv.hEvent = INVALID_HANDLE_VALUE;
@@ -140,9 +139,14 @@ protected:
 			}
 #endif
 public:
-	LPCBYTE		GetRecvFromPtr() const { return _RecvFrom; }
-	UINT		GetRecvFromSize() const { return _RecvFromSize; }
-	static void OnRecv(LPVOID data, UINT size, LPCVOID from = nullptr, UINT from_size = 0){ ASSERT(0); } // should be overrided
+	ADDRESS_FAMILY	GetFromAddressFamily() const { return ((sockaddr*)_RecvFrom)->sa_family; }
+	UINT			GetFromAddressSize() const { return _RecvFromSize; }
+	bool			IsFromAddressIPv4() const { return GetFromAddressFamily() == AF_INET && _RecvFromSize>=sizeof(InetAddr); }  
+	bool			IsFromAddressIPv6() const { return GetFromAddressFamily() == AF_INET6 && _RecvFromSize>=sizeof(InetAddrV6); }
+	auto&			GetFromAddressIPv4() const { ASSERT(IsFromAddressIPv4()); return *(const InetAddr*)_RecvFrom; }
+	auto&			GetFromAddressIPv6() const { ASSERT(IsFromAddressIPv6()); return *(const InetAddrV6*)_RecvFrom; }
+	
+	static void		OnRecv(LPVOID data, UINT size){ ASSERT(0); } // should be overrided
 };
 
 struct IOObjectStream: public IOObject // TCP
@@ -168,13 +172,9 @@ namespace _details
 {
 #if defined(PLATFORM_WIN)
 template<typename T>
-void OnRecv(IOObjectDatagram* p, T* obj, UINT size)
-{	obj->OnRecv(obj->GetBuffer(), size, obj->GetRecvFromPtr(), obj->GetRecvFromSize());
-}
+void OnRecv(IOObjectDatagram* p, T* obj, UINT size){ obj->OnRecv(obj->GetBuffer(), size); }
 template<typename T>
-void OnRecv(IOObjectStream* p, T* obj, UINT size)
-{	obj->OnRecv(obj->GetBuffer(), size);
-}
+void OnRecv(IOObjectStream* p, T* obj, UINT size){ obj->OnRecv(obj->GetBuffer(), size); }
 #else
 template<typename T>
 bool OnRecv(IOObjectDatagram* p, T* obj)
@@ -243,6 +243,7 @@ public:
 
 	bool AddObject(t_IOObject* obj) // // lifecycle is **not** maintained by RecvPump
 	{	
+		if(obj->GetBufferSize() == 0)obj->SetBufferSize();
 		((inet::Socket*)obj)->EnableNonblockingIO(true);
 		if(!_AddObject(obj->GetHandle(), obj))return false;
 #if defined(PLATFORM_WIN)

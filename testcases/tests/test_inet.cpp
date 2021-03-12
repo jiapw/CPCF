@@ -2,7 +2,9 @@
 #include "../../core/inet/recv_pump.h"
 #include "test.h"
 
-inet::Socket	a,b,c;
+using namespace inet;
+
+Socket	a,b,c;
 
 void rt::UnitTests::socket()
 {
@@ -11,7 +13,7 @@ void rt::UnitTests::socket()
 		static DWORD _func(LPVOID p)
 		{
 			LPCSTR name = (LPCSTR)p;
-			inet::SocketEvent	sevt;
+			SocketEvent	sevt;
 			sevt.Add(a);
 			sevt.Add(b);
 
@@ -23,11 +25,11 @@ void rt::UnitTests::socket()
 				{
 					for(int i=0;i<ret;i++)
 					{
-						inet::SOCKET s = sevt.GetNextSocketEvent_Read();
+						SOCKET s = sevt.GetNextSocketEvent_Read();
 						char message[512];
-						inet::InetAddr addr;
+						InetAddr addr;
 						UINT l = 0;
-						((inet::Socket&)s).RecvFrom(message, sizeof(message), l, addr);
+						((Socket&)s).RecvFrom(message, sizeof(message), l, addr);
 						if(l <= 0)return 0;
 						_LOG(name<<": "<<rt::String_Ref(message, l)<<"\ton "<<addr.GetPort());
 					}
@@ -40,8 +42,8 @@ void rt::UnitTests::socket()
 		}
 	};
 
-    inet::InetAddr ips[4];
-    UINT co = inet::GetLocalAddresses(ips, 4, true, nullptr, nullptr, "en");
+    InetAddr ips[4];
+    UINT co = GetLocalAddresses(ips, 4, true, nullptr, nullptr, "en");
     
     for(UINT i=0; i<co; i++)
     {
@@ -50,7 +52,7 @@ void rt::UnitTests::socket()
     
     return;
 
-	inet::InetAddr addr;
+	InetAddr addr;
 	addr.SetAsLocal();
 		
 	addr.SetPort(10000);
@@ -98,13 +100,13 @@ void test_socket_io(bool recv)
 {
 	if(recv)
 	{
-		inet::Socket	s;
-		//s.Create(inet::InetAddr(INADDR_ANY, 2000), SOCK_DGRAM);
-		if(!s.Create(inet::InetAddr("10.0.0.15", 2000), SOCK_DGRAM))return;
-		//if(!s.Create(inet::InetAddr("192.168.1.111", 2000), SOCK_DGRAM))return;
+		Socket	s;
+		//s.Create(InetAddr(INADDR_ANY, 2000), SOCK_DGRAM);
+		if(!s.Create(InetAddr("10.0.0.15", 2000), SOCK_DGRAM))return;
+		//if(!s.Create(InetAddr("192.168.1.111", 2000), SOCK_DGRAM))return;
 		s.EnableNonblockingIO();
 
-		inet::SocketEvent	sevt;
+		SocketEvent	sevt;
 		sevt.Add(s);
 
 		int q = 0;
@@ -115,11 +117,11 @@ void test_socket_io(bool recv)
 			{
 				for(int i=0;i<ret;i++)
 				{
-					inet::SOCKET s = sevt.GetNextSocketEvent_Read();
+					SOCKET s = sevt.GetNextSocketEvent_Read();
 					char message[512];
-					inet::InetAddr addr;
+					InetAddr addr;
 					UINT l = 0;
-					((inet::Socket&)s).RecvFrom(message, sizeof(message), l, addr);
+					((Socket&)s).RecvFrom(message, sizeof(message), l, addr);
 					if(l <= 0)return;
 					_LOG(l<<"\tfrom "<<rt::tos::ip(addr)<<'\t'<<q++);
 				}
@@ -129,13 +131,13 @@ void test_socket_io(bool recv)
 	}
 	else
 	{
-		inet::Socket	s;
-		s.Create(inet::InetAddr(INADDR_ANY, 10001), SOCK_DGRAM);
+		Socket	s;
+		s.Create(InetAddr(INADDR_ANY, 10001), SOCK_DGRAM);
 		s.EnableNonblockingIO();
 
 		for(;;)
 		{
-			s.SendTo("123",3, inet::InetAddr("10.0.0.12",10000));
+			s.SendTo("123",3, InetAddr("10.0.0.12",10000));
 			os::Sleep(1000);
 		}
 	}
@@ -155,24 +157,24 @@ void rt::UnitTests::socket_io()
 
 void rt::UnitTests::socket_socket_event()
 {
-	inet::Socket recv[2];
-	recv[0].Create(inet::InetAddr("11.1.1.22", 20001), SOCK_DGRAM);
-	recv[1].Create(inet::InetAddr("11.1.1.22", 20002), SOCK_DGRAM);
+	Socket recv[2];
+	recv[0].Create(InetAddr("11.1.1.22", 20001), SOCK_DGRAM);
+	recv[1].Create(InetAddr("11.1.1.22", 20002), SOCK_DGRAM);
 
-	inet::SocketEvent se;
+	SocketEvent se;
 	se.Add(recv[0]);
 	se.Add(recv[1]);
 
 	os::Thread sender;
 	sender.Create([](){
 
-		inet::InetAddr target[2] = {
+		InetAddr target[2] = {
 			{"11.1.1.22", 20001},
 			{"11.1.1.22", 20002}
 		};
 
-		inet::Socket send;
-		send.Create(inet::InetAddr("11.1.1.22", 20000), SOCK_DGRAM);
+		Socket send;
+		send.Create(InetAddr("11.1.1.22", 20000), SOCK_DGRAM);
 
 		for(UINT i=0;;i++)
 		{
@@ -193,11 +195,11 @@ void rt::UnitTests::socket_socket_event()
 		{
 			char buf[1024];
 			UINT read = 0;
-			inet::InetAddr from;
+			InetAddr from;
 
 			for(UINT i=0; i<count; i++)
 			{
-				inet::Socket sock;
+				Socket sock;
 				sock.Attach(se.GetNextSocketEvent_Read());
 				sock.RecvFrom(buf, sizeof(buf), read, from);
 				sock.Detach();  // don't miss that
@@ -211,9 +213,9 @@ void rt::UnitTests::socket_socket_event()
 volatile int packet_count = 0;
 volatile int packet_error = 0;
 
-struct SocketIOObj: public inet::IOObjectDatagram
+struct SocketIOObj: public IOObjectDatagram
 {
-	void OnRecv(LPVOID data, UINT size, LPCVOID from = nullptr, UINT from_size = 0)
+	void OnRecv(LPVOID data, UINT size)
 	{
 		if(data && size)
 			os::AtomicIncrement(&packet_count);
@@ -222,103 +224,154 @@ struct SocketIOObj: public inet::IOObjectDatagram
 	}
 };
 
+struct SocketIOObj_Routing: public IOObjectDatagram
+{
+	rt::String Name;
+
+	void OnRecv(LPVOID data, UINT size)
+	{
+		if(data)
+			_LOG("["<<Name<<"] Recv: \""<<rt::DS(data, size)<<"\" from: "<<rt::tos::ip(GetFromAddressIPv4()));
+	}
+
+	SocketIOObj_Routing(const rt::String_Ref& name):Name(name){}
+};
+
 void rt::UnitTests::recv_pump()
 {
-	rt::Buffer<SocketIOObj> sockets;
-	sockets.SetSize(100);
-
-	int port_base = 21000;
-	for(UINT i=0; i<sockets.GetSize(); i++)
 	{
-		inet::InetAddr addr("0.0.0.0", port_base + i);
-		VERIFY(sockets[i].Create(addr, SOCK_DGRAM));
-		sockets[i].SetBufferSize(2000);
+		RecvPump<SocketIOObj_Routing>	core;
+		VERIFY(core.Init());
+
+		InetAddr remote_addr;
+		remote_addr.SetAsLocal();
+		remote_addr.SetPort(20010);
+		SocketIOObj_Routing	remote("Remote");
+		remote.Create(remote_addr, SOCK_DGRAM);
+		core.AddObject(&remote);
+
+		InetAddr local_addr;
+		local_addr.SetAsLocal();
+		local_addr.SetPort(20000);
+		SocketIOObj_Routing	local("Local");
+		local.Create(local_addr, SOCK_DGRAM, true);
+		core.AddObject(&local);
+
+		InetAddr local_send_addr;
+		local_send_addr.SetAsAny();
+		local_send_addr.SetPort(20000);
+		Socket local_send;
+		local_send.Create(local_addr, SOCK_DGRAM, true);
+
+		local_send.SendTo("from any", sizeof("from any")-1, remote_addr);
+		os::Sleep(10);
+
+		local.SendTo("from local", sizeof("from local")-1, remote_addr);
+		os::Sleep(10);
+
+		remote.SendTo("from remote", sizeof("from remote")-1, local_addr);
+
+		os::Sleep(2000);
+		core.Term();
 	}
 
-	inet::RecvPump<SocketIOObj>	core;
-	VERIFY(core.Init());
+
+	{	rt::Buffer<SocketIOObj> sockets;
+		sockets.SetSize(100);
+
+		int port_base = 21000;
+		for(UINT i=0; i<sockets.GetSize(); i++)
+		{
+			InetAddr addr("0.0.0.0", port_base + i);
+			VERIFY(sockets[i].Create(addr, SOCK_DGRAM));
+			sockets[i].SetBufferSize(2000);
+		}
+
+		RecvPump<SocketIOObj>	core;
+		VERIFY(core.Init());
 	
-	inet::InetAddr addr;
-	addr.SetAsLocal();
+		InetAddr addr;
+		addr.SetAsLocal();
 
-	inet::Socket sender;
-	sender.Create(addr, SOCK_DGRAM);
+		Socket sender;
+		sender.Create(addr, SOCK_DGRAM);
 
-	for(UINT q=0; q<3; q++)
-	for(UINT i=0; i<sockets.GetSize(); i++)
-	{
-		addr.SetPort(port_base + i);
-		sockets[i].SendTo(&i, 4, addr);
-	}
+		for(UINT q=0; q<3; q++)
+		for(UINT i=0; i<sockets.GetSize(); i++)
+		{
+			addr.SetPort(port_base + i);
+			sockets[i].SendTo(&i, 4, addr);
+		}
 
-	os::Sleep(2000);
-	_LOG("1 Packet Recv = "<<packet_count<<", "<<packet_error);
+		os::Sleep(2000);
+		_LOG("1 Packet Recv = "<<packet_count<<", "<<packet_error);
 
-	for(UINT i=0; i<sockets.GetSize(); i++)
-	{
-		core.AddObject(&sockets[i]);
-	}
+		for(UINT i=0; i<sockets.GetSize(); i++)
+		{
+			core.AddObject(&sockets[i]);
+		}
 
-	os::Sleep(2000);
-	_LOG("2 Packet Recv = "<<packet_count<<", "<<packet_error);
+		os::Sleep(2000);
+		_LOG("2 Packet Recv = "<<packet_count<<", "<<packet_error);
 	
-	for(UINT i=0; i<sockets.GetSize(); i++)
-	{
-		addr.SetPort(port_base + i);
-		sockets[i].SendTo(&i, 4, addr);
+		for(UINT i=0; i<sockets.GetSize(); i++)
+		{
+			addr.SetPort(port_base + i);
+			sockets[i].SendTo(&i, 4, addr);
+		}
+
+		os::Sleep(2000);
+		_LOG("3 Packet Recv = "<<packet_count<<", "<<packet_error);
+
+		for(UINT i=0; i<sockets.GetSize(); i++)
+		{
+			addr.SetPort(port_base + i);
+			sender.SendTo(&i, 4, addr);
+		}
+
+		os::Sleep(2000);
+		_LOG("4 Packet Recv = "<<packet_count<<", "<<packet_error);
 	}
-
-	os::Sleep(2000);
-	_LOG("3 Packet Recv = "<<packet_count<<", "<<packet_error);
-
-	for(UINT i=0; i<sockets.GetSize(); i++)
-	{
-		addr.SetPort(port_base + i);
-		sender.SendTo(&i, 4, addr);
-	}
-
-	os::Sleep(2000);
-	_LOG("4 Packet Recv = "<<packet_count<<", "<<packet_error);
 }
 
 void rt::UnitTests::net_interfaces()
 {
 	auto scan = [](){
-		rt::BufferEx<inet::NetworkInterface>	nic;
-		inet::NetworkInterfaces::Populate(nic, false, false);
+		rt::BufferEx<NetworkInterface>	nic;
+		NetworkInterfaces::Populate(nic, false, false);
 
 		for(auto it : nic)
 		{
-			_LOG("NIC: <"<<it.Name<<"> T"<<(it.Type&inet::NITYPE_MASK)<<' '<<(it.IsOnline()?"online":"offline"));
+			_LOG("NIC: <"<<it.Name<<"> T"<<(it.Type&NITYPE_MASK)<<' '<<(it.IsOnline()?"online":"offline"));
 			if(!it.IsOnline())continue;
 
 			for(UINT i=0; i<it.v4Count; i++)
-				_LOG("\tIPv4:"<<rt::tos::ip(inet::InetAddr(it.v4[i].Local,0)).TrimAfterReverse(':')<<'/'
-							  <<rt::tos::ip(inet::InetAddr(it.v4[i].Boardcast,0)).TrimAfterReverse(':'));
+				_LOG("\tIPv4:"<<rt::tos::ip(InetAddr(it.v4[i].Local,0)).TrimAfterReverse(':')<<'/'
+							  <<rt::tos::ip(InetAddr(it.v4[i].Boardcast,0)).TrimAfterReverse(':'));
 
 			for(UINT i=0; i<it.v6Count; i++)
 			{
-				inet::InetAddrV6 addr;
+				InetAddrV6 addr;
 				addr.SetBinaryAddress(it.v6[i].Local);
 				_LOG("\tIPv6:"<<rt::tos::ip(addr).TrimAfterReverse(':')<<
-							  ((it.Type&inet::NITYPE_MULTICAST)?"/multicast":""));
+							  ((it.Type&NITYPE_MULTICAST)?"/multicast":""));
 			}
 		}
 	};
 
 	scan();
-	inet::NetworkInterfaces evt;
+	NetworkInterfaces evt;
 
 	for(;;)
 	{
 		os::Sleep(100);
-		if(evt.GetState() == inet::NetworkInterfaces::Reconfiguring)
+		if(evt.GetState() == NetworkInterfaces::Reconfiguring)
 		{
             _LOGC("\n\nNetwork Interface reconfiguring ...");
             for(;;)
             {
                 os::Sleep(100);
-                if(evt.GetState() == inet::NetworkInterfaces::Reconfigured)
+                if(evt.GetState() == NetworkInterfaces::Reconfigured)
                 {
                     _LOGC("Reconfigured:");
                     scan();
