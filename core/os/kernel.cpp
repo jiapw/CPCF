@@ -92,6 +92,10 @@ extern int _objc_get_battery_state(bool* plugged);
 
 #endif
 
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_MAC)
+#include <ncurses.h>
+#endif
+
 #ifdef PLATFORM_DEBUG_BUILD
 namespace os
 {
@@ -1388,19 +1392,6 @@ int  GetProcessId()
 #else
 	return getpid();
 #endif
-}
-
-int	GetKeyHit()
-{
-	if(_kbhit())
-	{
-		int k = _getch();
-		if(k>='a' && k<='z')
-			k -= 'a' - 'A';
-		return k;
-	}
-	else
-		return 0;
 }
 
 } // namespace os
