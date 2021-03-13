@@ -265,11 +265,7 @@ void rt::UnitTests::recv_pump()
 	
 
 		local_send.SendTo("from any", sizeof("from any")-1, remote_addr);
-		os::Sleep(10);
-
 		local.SendTo("from local", sizeof("from local")-1, remote_addr);
-		os::Sleep(10);
-
 		remote.SendTo("from remote", sizeof("from remote")-1, local_addr);
 
 		os::Sleep(2000);

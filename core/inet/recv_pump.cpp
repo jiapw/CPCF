@@ -12,7 +12,7 @@
 namespace inet
 {
 
-bool AsyncIOCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UINT stack_size)
+bool AsyncDatagramCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UINT stack_size)
 {
 	ASSERT(!IsRunning());
 	ASSERT(_IOWorkers.GetSize() == 0);
@@ -49,7 +49,7 @@ bool AsyncIOCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UIN
 	return false;
 }
 
-void AsyncIOCoreBase::Term()
+void AsyncDatagramCoreBase::Term()
 {
 	if(!IsRunning())return;
 
@@ -80,7 +80,7 @@ void AsyncIOCoreBase::Term()
 	_IOWorkers.SetSize(0);
 }
 
-bool AsyncIOCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
+bool AsyncDatagramCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
 {
 	ASSERT(IsRunning());
 #if defined(PLATFORM_WIN)
@@ -101,7 +101,7 @@ bool AsyncIOCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
 #endif
 }
 
-void AsyncIOCoreBase::_RemoveObject(SOCKET obj)
+void AsyncDatagramCoreBase::_RemoveObject(SOCKET obj)
 {
 	ASSERT(IsRunning());
 #if defined(PLATFORM_WIN)
@@ -125,7 +125,7 @@ struct _FD
 	operator fd_set*(){ return &_fd; }
 };
 
-bool IOObject::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy)
+bool DatagramSocket::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy)
 {
 	int ret = 0;
 	static const timeval timeout = { 0, 100000 }; // 100 msec
@@ -141,37 +141,6 @@ bool IOObject::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, boo
 		  );
 
 	return false;
-}
-
-bool IOObject::Send(LPCVOID pData, UINT len, bool drop_if_busy)
-{
-	ASSERT(len);
-	static const timeval timeout = { 0, 100000 }; // 100 msec
-
-	int ret = 0;
-	LPCSTR d = (LPCSTR)pData;
-	while(len>0)
-	{	
-		ret = (int)send(m_hSocket,d,rt::min(32*1024U, len),0);
-		if(ret>0)
-		{	len -= ret;
-			d += ret;
-			continue;
-		}
-
-		ASSERT(ret == -1);
-		if(drop_if_busy || !IsLastOpPending())return false;
-
-		// wait to death
-		int _LastSelectRet;
-		while((_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, (timeval*)&timeout)) == 0);
-		if(_LastSelectRet == 1)
-			continue;
-		else
-			return false;
-	}
-	
-	return true;
 }
 
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)

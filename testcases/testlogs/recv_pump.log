@@ -1,10 +1,1 @@
 ﻿=== UnitTest<recv_pump>: BEGIN ===
-[Remote] Recv: "from any" from: 20000
-[Remote] Recv: "from local" from: 20000
-[Local] Recv: "from remote" from: 20010
-1 Packet Recv = 0, 0
-2 Packet Recv = 300, 0
-3 Packet Recv = 400, 0
-4 Packet Recv = 500, 0
-=== UnitTest<recv_pump>: END =====
-
