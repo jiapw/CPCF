@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6331BD4C25A011E90071B3C1 /* rocksdb_serving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */; };
-		746B67EC25DEEBB100A65224 /* recv_pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 746B67EA25DEEBB100A65224 /* recv_pump.cpp */; };
+		744E721825FC875D004FADCF /* datagram_pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 744E721725FC875D004FADCF /* datagram_pump.cpp */; };
 		746B67EF25DEEFD800A65224 /* test_inet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 746B67EE25DEEFD800A65224 /* test_inet.cpp */; };
 		7484A61E25E716B1009A0263 /* big_num.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7484A61A25E716B1009A0263 /* big_num.cpp */; };
 		7484A61F25E716B1009A0263 /* precision_num.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7484A61C25E716B1009A0263 /* precision_num.cpp */; };
@@ -80,8 +80,8 @@
 /* Begin PBXFileReference section */
 		6331BD4A25A011E90071B3C1 /* rocksdb_serving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rocksdb_serving.h; path = ../../../core/ext/rocksdb/rocksdb_serving.h; sourceTree = "<group>"; };
 		6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rocksdb_serving.cpp; path = ../../../core/ext/rocksdb/rocksdb_serving.cpp; sourceTree = "<group>"; };
-		746B67EA25DEEBB100A65224 /* recv_pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = recv_pump.cpp; path = ../../../core/inet/recv_pump.cpp; sourceTree = "<group>"; };
-		746B67EB25DEEBB100A65224 /* recv_pump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = recv_pump.h; path = ../../../core/inet/recv_pump.h; sourceTree = "<group>"; };
+		744E721625FC875D004FADCF /* datagram_pump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = datagram_pump.h; path = ../../../core/inet/datagram_pump.h; sourceTree = "<group>"; };
+		744E721725FC875D004FADCF /* datagram_pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = datagram_pump.cpp; path = ../../../core/inet/datagram_pump.cpp; sourceTree = "<group>"; };
 		746B67EE25DEEFD800A65224 /* test_inet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_inet.cpp; path = ../../tests/test_inet.cpp; sourceTree = "<group>"; };
 		7484A61925E71697009A0263 /* string_type_ops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = string_type_ops.h; path = ../../../core/rt/string_type_ops.h; sourceTree = "<group>"; };
 		7484A61A25E716B1009A0263 /* big_num.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = big_num.cpp; path = ../../../core/ext/bignum/big_num.cpp; sourceTree = "<group>"; };
@@ -324,8 +324,8 @@
 		93C4A242169FED0400D3C820 /* inet */ = {
 			isa = PBXGroup;
 			children = (
-				746B67EA25DEEBB100A65224 /* recv_pump.cpp */,
-				746B67EB25DEEBB100A65224 /* recv_pump.h */,
+				744E721725FC875D004FADCF /* datagram_pump.cpp */,
+				744E721625FC875D004FADCF /* datagram_pump.h */,
 				941D3E442130737100F97118 /* http_client.cpp */,
 				941D3E432130737100F97118 /* http_client.h */,
 				941D3E422130737100F97118 /* inet.cpp */,
@@ -427,7 +427,6 @@
 				941D3E632130738800F97118 /* file_dir.cpp in Sources */,
 				941D3E3D2130734F00F97118 /* entrypoint.cpp in Sources */,
 				941D3E97213073CD00F97118 /* xml_xhtml.cpp in Sources */,
-				746B67EC25DEEBB100A65224 /* recv_pump.cpp in Sources */,
 				746B67EF25DEEFD800A65224 /* test_inet.cpp in Sources */,
 				941D3E3B2130734F00F97118 /* test_ipp.cpp in Sources */,
 				941D3E382130734F00F97118 /* test_http.cpp in Sources */,
@@ -439,6 +438,7 @@
 				95C9EC94232A3D5D002A4B91 /* json.cpp in Sources */,
 				941D3E482130737100F97118 /* inet.cpp in Sources */,
 				6331BD4C25A011E90071B3C1 /* rocksdb_serving.cpp in Sources */,
+				744E721825FC875D004FADCF /* datagram_pump.cpp in Sources */,
 				7484A61E25E716B1009A0263 /* big_num.cpp in Sources */,
 				941D3E9D2130779000F97118 /* exprtk.cpp in Sources */,
 				941D3E492130737100F97118 /* http_client.cpp in Sources */,

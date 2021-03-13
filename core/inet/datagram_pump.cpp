@@ -1,4 +1,4 @@
-#include "recv_pump.h"
+#include "datagram_pump.h"
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 #include <sys/epoll.h>
@@ -98,7 +98,8 @@ bool AsyncDatagramCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
 	return _Core == h;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
     struct kevent event;
-    EV_SET(&event, obj, EVFILT_READ, EV_ADD, 0, 0, cookie);
+    rt::Zero(event);
+    EV_SET(&event, obj, EVFILT_READ, EV_ADD|EV_ENABLE, 0, 0, cookie);
     return kevent(_Core, &event, 1, NULL, 0, NULL) != -1;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 	epoll_event epevt;

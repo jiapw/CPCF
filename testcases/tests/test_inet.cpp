@@ -1,5 +1,5 @@
 #include "../../core/inet/inet.h"
-#include "../../core/inet/recv_pump.h"
+#include "../../core/inet/datagram_pump.h"
 #include "test.h"
 
 using namespace inet;
@@ -245,34 +245,39 @@ void rt::UnitTests::recv_pump()
 
 		InetAddr remote_addr;
 		remote_addr.SetAsLocal();
-		remote_addr.SetPort(20010);
+		remote_addr.SetPort(33010);
 		SocketIOObj_Routing	remote("Remote");
 		remote.Create(remote_addr);
 		core.AddObject(&remote);
 
 		InetAddr local_addr;
 		local_addr.SetAsLocal();
-		local_addr.SetPort(20000);
+		local_addr.SetPort(33000);
 		SocketIOObj_Routing	local("Local");
 		local.Create(local_addr, true);
 		core.AddObject(&local);
+        
+        _LOG("Local: "<<rt::tos::ip(local_addr));
 		
 		InetAddr local_send_addr;
 		local_send_addr.SetAsAny();
-		local_send_addr.SetPort(20000);
+		local_send_addr.SetPort(33000);
 		Socket local_send;
 		local_send.Create(local_send_addr, SOCK_DGRAM, true);
 	
+        for(UINT i=0; i<5; i++)
+        {
 
 		local_send.SendTo("from any", sizeof("from any")-1, remote_addr);
-		os::Sleep(10);
+		os::Sleep(100);
 
 		local.SendTo("from local", sizeof("from local")-1, remote_addr);
-		os::Sleep(10);
+		os::Sleep(100);
 
 		remote.SendTo("from remote", sizeof("from remote")-1, local_addr);
-		os::Sleep(10);
-
+        os::Sleep(1000);
+        }
+        
 		core.Term();
 	}
 
