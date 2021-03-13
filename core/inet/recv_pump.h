@@ -83,23 +83,26 @@ public:
 #pragma pack(push, 1)
 struct Datagram
 {
-    LPBYTE      RecvBuf;
-    UINT        RecvSize;
-    UINT        PeerAddressSize;
+    LPBYTE		RecvBuf;
+    DWORD		RecvSize;
+    int			PeerAddressSize;
     union {
         WORD        PeerAddressFamily; // AF_INET, AF_INET6
         InetAddr    PeerAddressV4;
         InetAddrV6  PeerAddressV6;
     };
+
+    bool        IsIPv4() const { return PeerAddressFamily == AF_INET && PeerAddressSize>=sizeof(InetAddr); }
+    bool        IsIPv6() const { return PeerAddressFamily == AF_INET6 && PeerAddressSize>=sizeof(InetAddrV6); }
 };
 #pragma pack(pop)
 
 ////////////////////////////////////////////////////
 // Non-blocking I/O is used, the # of UDP packet is not equal to # of events by epoll/kevent.
-class DatagramSocket: public inet::Socket
+class DatagramSocket: public Socket
 {
     template<typename SocketObject>
-    class DatagramPump;
+    friend class DatagramPump;
     
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target);
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target);
@@ -111,19 +114,15 @@ class DatagramSocket: public inet::Socket
     
 protected:
 #if defined(PLATFORM_WIN)
-    rt::BufferEx<BYTE>    _RecvBuf; // MTU + sizeof(inet::InetAddrV6) + sizeof(WSAOVERLAPPED)
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-#else
-	#error AsyncIOCore Unsupported Platform
+    rt::BufferEx<BYTE>	_RecvBuf; // MTU + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)
+	void				_InitBuf(UINT mtu);
+	Datagram&			_GetDatagram(){ return *(Datagram*)(_RecvBuf.End() - sizeof(Datagram) - sizeof(WSAOVERLAPPED)); }
+	LPWSAOVERLAPPED		_GetOverlapped(){ return (LPWSAOVERLAPPED)(_RecvBuf.End() - sizeof(WSAOVERLAPPED)); }
 #endif
 
 	bool	__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy = false);
 
 public:
-#if defined(PLATFORM_WIN)
-    DatagramSocket(){ rt::Zero(_OverlappedRecv); }
-#endif	
 	SOCKET	GetHandle() const { return m_hSocket; }
     bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false){ return Socket::Create(bind_to, SOCK_DGRAM, reuse_addr); }
     bool    Create(const InetAddr &bind_to, bool reuse_addr = false){ return Socket::Create(bind_to, SOCK_DGRAM, reuse_addr); }
@@ -131,26 +130,22 @@ public:
 #if defined(PLATFORM_WIN)
     bool    PumpNext()
             {   ASSERT(_RecvBuf.GetSize());
-                WSABUF b = { (UINT)_RecvBuf.GetSize() - sizeof(inet::InetAddrV6) - sizeof(WSAOVERLAPPED) - sizeof(int), (LPSTR)_RecvBuf.Begin() };
-                _RecvFromSize = sizeof(_RecvFrom);
-                DWORD recv = 0;    DWORD flag = 0;
-                if(    ::WSARecvFrom(m_hSocket, &b, 1, &recv, &flag, (sockaddr*)_RecvFrom, &_RecvFromSize, &_OverlappedRecv, nullptr) == 0 ||
+                WSABUF b = { (UINT)_RecvBuf.GetSize() - sizeof(Datagram) - sizeof(WSAOVERLAPPED), (LPSTR)_RecvBuf.Begin() };
+				auto* g = (Datagram*)(_RecvBuf.Begin() + b.len);
+				ASSERT(g->RecvBuf == (LPBYTE)b.buf);
+				g->PeerAddressSize = sizeof(InetAddrV6);
+				g->RecvSize = 0;
+                DWORD flag = 0;
+				auto overlap = (LPWSAOVERLAPPED)&g[1];
+                if( ::WSARecvFrom(m_hSocket, &b, 1, &g->RecvSize, &flag, (sockaddr*)&g->PeerAddressFamily, &g->PeerAddressSize, overlap, nullptr) == 0 ||
                     ::WSAGetLastError() == WSA_IO_PENDING
                 )return true;
-                _OverlappedRecv.hEvent = INVALID_HANDLE_VALUE;
+                overlap->hEvent = INVALID_HANDLE_VALUE;
                 return false;
             }
 #endif
-public:
-    WORD            GetFromAddressFamily() const { return ((sockaddr*)_RecvFrom)->sa_family; }
-    UINT            GetFromAddressSize() const { return _RecvFromSize; }
-    LPCVOID         GetFromAddressPtr() const { return _RecvFrom; }
-    bool            IsFromAddressIPv4() const { return GetFromAddressFamily() == AF_INET && _RecvFromSize>=sizeof(InetAddr); }
-    bool            IsFromAddressIPv6() const { return GetFromAddressFamily() == AF_INET6 && _RecvFromSize>=sizeof(InetAddrV6); }
-    auto&           GetFromAddressIPv4() const { ASSERT(IsFromAddressIPv4()); return *(const InetAddr*)_RecvFrom; }
-    auto&           GetFromAddressIPv6() const { ASSERT(IsFromAddressIPv6()); return *(const InetAddrV6*)_RecvFrom; }
-    
-    static void     OnRecv(LPVOID data, UINT size){ ASSERT(0); } // should be overrided
+public:   
+    static void     OnRecv(Datagram* g){ ASSERT(0); } // should be overrided
 
 	// blocking call
 	bool	        SendTo(LPCVOID pData, UINT len,const InetAddr &target, bool drop_if_busy = false){ return __SendTo(pData, len, &target, sizeof(InetAddr), drop_if_busy); }
@@ -161,33 +156,16 @@ template<typename t_IOObject> // IOObjectDatagram or IOObjectStream
 class RecvPump;
 
 #if !defined(PLATFORM_WIN)
-struct IOObjectDatagram;
 namespace _details
 {
 template<typename T>
-bool OnRecv(IOObjectDatagram* p, T* obj);
-} // namespace _details
-#endif
-
-namespace _details
-{
-#if defined(PLATFORM_WIN)
-template<typename T>
-void OnRecv(IOObjectDatagram* p, T* obj, UINT size){ obj->OnRecv(obj->GetBuffer(), size); }
-template<typename T>
-void OnRecv(IOObjectStream* p, T* obj, UINT size){ obj->OnRecv(obj->GetBuffer(), size); }
-#else
-template<typename T>
-bool OnRecv(IOObjectDatagram* p, T* obj)
-{	socklen_t addr_len = sizeof(inet::InetAddrV6);
-	int len = ::recvfrom(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0, (sockaddr*)obj->GetFromAddressPtr(), &addr_len);
-    if(len>0){ p->_RecvFromSize = addr_len; obj->OnRecv(obj->GetBuffer(), len); return true; }
-	return len != 0 && (errno == EAGAIN || errno == EINTR);
-}
-template<typename T>
-bool OnRecv(IOObjectStream* p, T* obj)
-{	int len = ::recv(p->GetHandle(), obj->GetBuffer(), obj->GetBufferSize(), 0);
-	if(len>0){ obj->OnRecv(obj->GetBuffer(), len); return true; }
+inline bool OnRecv(T* obj, rt::Buffer<BYTE>& buf)
+{	
+	Datagram g;
+	g.RecvBuf = buf.Begin();
+	g.PeerAddressSize = sizeof(inet::InetAddrV6);
+	int len = ::recvfrom(p->GetHandle(), g.RecvBuf, buf.GetSize(), 0, (sockaddr*)&g.PeerAddressFamily, &g.PeerAddressSize);
+    if(len>0){ obj->OnRecv(&g); return true; }
 	return len != 0 && (errno == EAGAIN || errno == EINTR);
 }
 template<typename T_OBJ, int SIZE, int ITER = 0, bool STOP = ITER == SIZE>
@@ -195,8 +173,8 @@ struct OnRecvAll
 {
     static void Call(const AsyncDatagramCoreBase::Event& evt, rt::Buffer<BYTE>& buf)
     {   if(ITER < evt.count)
-        {   if(!OnRecv((T_OBJ*)evt.cookies[ITER], (T_OBJ*)evt.cookies[ITER]))
-                ((T_OBJ*)evt.cookies[ITER])->OnRecv(nullptr, 0); // indicate error
+        {   if(!OnRecv((T_OBJ*)evt.cookies[ITER])
+                ((T_OBJ*)evt.cookies[ITER])->OnRecv(nullptr); // indicate error
             OnRecvAll<T_OBJ,SIZE,ITER+1>::Call(evt);
         }
     }
@@ -206,8 +184,8 @@ struct OnRecvAll
     {
         static void Call(const AsyncDatagramCoreBase::Event& evt, rt::Buffer<BYTE>& buf){}
     };
-#endif
 } // namespace _details
+#endif
 
 template<typename SocketObject> // IOObjectDatagram or IOObjectStream
 class DatagramPump: public AsyncDatagramCoreBase
@@ -225,9 +203,11 @@ class DatagramPump: public AsyncDatagramCoreBase
 			if(AsyncDatagramCoreBase::_PickUpEvent(evt))
 			{
 #if defined(PLATFORM_WIN)
-				_details::OnRecv((SocketObject*)evt.cookie, (SocketObject*)evt.cookie, evt.bytes_transferred);
+				auto& g = ((SocketObject*)evt.cookie)->_GetDatagram();
+				g.RecvSize = evt.bytes_transferred;
+				((SocketObject*)evt.cookie)->OnRecv(&g);
 				if(!((SocketObject*)evt.cookie)->PumpNext())
-					((SocketObject*)evt.cookie)->OnRecv(nullptr, 0); // indicate error
+					((SocketObject*)evt.cookie)->OnRecv(nullptr); // indicate error
 #else
                 _details::OnRecvAll<SocketObject, sizeofArray(evt.cookies)>::Call(evt, buf);
 #endif
@@ -248,21 +228,21 @@ public:
 		return _Init(_call::_func, concurrency, stack_size);
 	}
 
-	bool AddObject(t_IOObject* obj) // // lifecycle is **not** maintained by RecvPump
+	bool AddObject(SocketObject* obj) // // lifecycle is **not** maintained by RecvPump
 	{	
-		((inet::Socket*)obj)->EnableNonblockingIO(true);
+		((Socket*)obj)->EnableNonblockingIO(true);
 		if(!_AddObject(obj->GetHandle(), obj))return false;
 #if defined(PLATFORM_WIN)
-        DatagramPump
-		if(!obj->PumpNext()){ obj->OnRecv(nullptr, 0); return false; }
+        obj->_InitBuf(_MTU);
+		if(!obj->PumpNext()){ obj->OnRecv(nullptr); return false; }
 #endif
 		return true;
 	}
 
-	void RemoveObject(t_IOObject* obj)
+	void RemoveObject(SocketObject* obj)
 	{	
 #if defined(PLATFORM_WIN)
-		obj->_OverlappedRecv.hEvent = INVALID_HANDLE_VALUE;
+		obj->_GetOverlapped()->hEvent = INVALID_HANDLE_VALUE;
 #endif
 		_RemoveObject(obj->GetHandle());
 	}

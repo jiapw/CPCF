@@ -12,6 +12,15 @@
 namespace inet
 {
 
+#if defined(PLATFORM_WIN)
+void DatagramSocket::_InitBuf(UINT mtu)
+{
+	VERIFY(_RecvBuf.SetSize(mtu + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)));
+	_RecvBuf.Zero();
+	_GetDatagram().RecvBuf = _RecvBuf.Begin();
+}
+#endif
+
 bool AsyncDatagramCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UINT stack_size)
 {
 	ASSERT(!IsRunning());
@@ -178,7 +187,7 @@ struct CopyAllEvents
 } // namespace _details
 #endif
 
-bool AsyncIOCoreBase::_PickUpEvent(Event& e)
+bool AsyncDatagramCoreBase::_PickUpEvent(Event& e)
 {
     ASSERT(IsRunning());
 

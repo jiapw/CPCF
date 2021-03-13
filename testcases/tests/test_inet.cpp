@@ -213,25 +213,25 @@ void rt::UnitTests::socket_socket_event()
 volatile int packet_count = 0;
 volatile int packet_error = 0;
 
-struct SocketIOObj: public IOObjectDatagram
+struct SocketIOObj: public DatagramSocket
 {
-	void OnRecv(LPVOID data, UINT size)
+	void OnRecv(Datagram* g)
 	{
-		if(data && size)
+		if(g)
 			os::AtomicIncrement(&packet_count);
 		else
 			os::AtomicIncrement(&packet_error);
 	}
 };
 
-struct SocketIOObj_Routing: public IOObjectDatagram
+struct SocketIOObj_Routing: public DatagramSocket
 {
 	rt::String Name;
 
-	void OnRecv(LPVOID data, UINT size)
+	void OnRecv(Datagram* g)
 	{
-		if(data)
-			_LOG("["<<Name<<"] Recv: \""<<rt::DS(data, size)<<"\" from: "<<rt::tos::ip(GetFromAddressIPv4()).TrimBefore(':'));
+		if(g)
+			_LOG("["<<Name<<"] Recv: \""<<rt::DS(g->RecvBuf, g->RecvSize)<<"\" from: "<<rt::tos::ip(g->PeerAddressV4).TrimBefore(':'));
 	}
 
 	SocketIOObj_Routing(const rt::String_Ref& name):Name(name){}
@@ -240,21 +240,21 @@ struct SocketIOObj_Routing: public IOObjectDatagram
 void rt::UnitTests::recv_pump()
 {
 	{
-		RecvPump<SocketIOObj_Routing>	core;
+		DatagramPump<SocketIOObj_Routing>	core;
 		VERIFY(core.Init());
 
 		InetAddr remote_addr;
 		remote_addr.SetAsLocal();
 		remote_addr.SetPort(20010);
 		SocketIOObj_Routing	remote("Remote");
-		remote.Create(remote_addr, SOCK_DGRAM);
+		remote.Create(remote_addr);
 		core.AddObject(&remote);
 
 		InetAddr local_addr;
 		local_addr.SetAsLocal();
 		local_addr.SetPort(20000);
 		SocketIOObj_Routing	local("Local");
-		local.Create(local_addr, SOCK_DGRAM, true);
+		local.Create(local_addr, true);
 		core.AddObject(&local);
 		
 		InetAddr local_send_addr;
@@ -265,10 +265,14 @@ void rt::UnitTests::recv_pump()
 	
 
 		local_send.SendTo("from any", sizeof("from any")-1, remote_addr);
-		local.SendTo("from local", sizeof("from local")-1, remote_addr);
-		remote.SendTo("from remote", sizeof("from remote")-1, local_addr);
+		os::Sleep(10);
 
-		os::Sleep(2000);
+		local.SendTo("from local", sizeof("from local")-1, remote_addr);
+		os::Sleep(10);
+
+		remote.SendTo("from remote", sizeof("from remote")-1, local_addr);
+		os::Sleep(10);
+
 		core.Term();
 	}
 
@@ -280,11 +284,11 @@ void rt::UnitTests::recv_pump()
 		for(UINT i=0; i<sockets.GetSize(); i++)
 		{
 			InetAddr addr("0.0.0.0", port_base + i);
-			VERIFY(sockets[i].Create(addr, SOCK_DGRAM));
+			VERIFY(sockets[i].Create(addr));
 			sockets[i].SetBufferSize(2000);
 		}
 
-		RecvPump<SocketIOObj>	core;
+		DatagramPump<SocketIOObj>	core;
 		VERIFY(core.Init());
 	
 		InetAddr addr;
