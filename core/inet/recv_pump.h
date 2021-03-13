@@ -85,7 +85,7 @@ struct Datagram
 {
     LPBYTE		RecvBuf;
     DWORD		RecvSize;
-    int			PeerAddressSize;
+    socklen_t	PeerAddressSize;
     union {
         WORD        PeerAddressFamily; // AF_INET, AF_INET6
         InetAddr    PeerAddressV4;
@@ -164,8 +164,8 @@ inline bool OnRecv(T* obj, rt::Buffer<BYTE>& buf)
 	Datagram g;
 	g.RecvBuf = buf.Begin();
 	g.PeerAddressSize = sizeof(inet::InetAddrV6);
-	int len = ::recvfrom(p->GetHandle(), g.RecvBuf, buf.GetSize(), 0, (sockaddr*)&g.PeerAddressFamily, &g.PeerAddressSize);
-    if(len>0){ obj->OnRecv(&g); return true; }
+	int len = ::recvfrom(obj->GetHandle(), g.RecvBuf, buf.GetSize(), 0, (sockaddr*)&g.PeerAddressFamily, &g.PeerAddressSize);
+    if(len>0){ g.RecvSize = len; obj->OnRecv(&g); return true; }
 	return len != 0 && (errno == EAGAIN || errno == EINTR);
 }
 template<typename T_OBJ, int SIZE, int ITER = 0, bool STOP = ITER == SIZE>
@@ -173,9 +173,9 @@ struct OnRecvAll
 {
     static void Call(const AsyncDatagramCoreBase::Event& evt, rt::Buffer<BYTE>& buf)
     {   if(ITER < evt.count)
-        {   if(!OnRecv((T_OBJ*)evt.cookies[ITER])
+        {   if(!OnRecv((T_OBJ*)evt.cookies[ITER], buf))
                 ((T_OBJ*)evt.cookies[ITER])->OnRecv(nullptr); // indicate error
-            OnRecvAll<T_OBJ,SIZE,ITER+1>::Call(evt);
+            OnRecvAll<T_OBJ,SIZE,ITER+1>::Call(evt, buf);
         }
     }
 };

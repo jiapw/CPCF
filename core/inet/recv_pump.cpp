@@ -160,7 +160,7 @@ struct CopyAllEvents
 {
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
     template<typename T>
-    static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch)
+    static void Copy(AsyncDatagramCoreBase::Event& evt, const T* ke, int batch)
     {   if(ITER < batch)
         {   evt.cookies[ITER] = ke[ITER].udata;
             CopyAllEvents<SIZE,ITER+1>::Copy(evt, ke, batch);
@@ -168,7 +168,7 @@ struct CopyAllEvents
     }
 #else
     template<typename T>
-    static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch)
+    static void Copy(AsyncDatagramCoreBase::Event& evt, const T* ke, int batch)
     {   if(ITER < batch)
         {
             if(ke[ITER].events&EPOLLIN)
@@ -182,7 +182,7 @@ struct CopyAllEvents
     struct CopyAllEvents<SIZE, ITER, true>
     {
         template<typename T>
-        static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch){}
+        static void Copy(AsyncDatagramCoreBase::Event& evt, const T* ke, int batch){}
     };
 } // namespace _details
 #endif
@@ -202,18 +202,18 @@ bool AsyncDatagramCoreBase::_PickUpEvent(Event& e)
 	ASSERT(e.cookie);
 	return e.bytes_transferred;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-    struct kevent evts[AsyncIOCoreBase::EVENT_BATCH_SIZE];
+    struct kevent evts[AsyncDatagramCoreBase::EVENT_BATCH_SIZE];
     int batch = 0;
-    if((batch = kevent(_Core, NULL, 0, evts, AsyncIOCoreBase::EVENT_BATCH_SIZE, NULL)) > 0 && IsRunning())
+    if((batch = kevent(_Core, NULL, 0, evts, AsyncDatagramCoreBase::EVENT_BATCH_SIZE, NULL)) > 0 && IsRunning())
     {
         _details::CopyAllEvents<sizeofArray(evts)>::Copy(e, evts, batch);
         e.count = batch;
         return true;
     }
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	epoll_event epevts[AsyncIOCoreBase::EVENT_BATCH_SIZE];
+	epoll_event epevts[AsyncDatagramCoreBase::EVENT_BATCH_SIZE];
     int batch = 0;
-	if((batch = epoll_wait(_Core, epevts, AsyncIOCoreBase::EVENT_BATCH_SIZE, 200)) > 0 && IsRunning())
+	if((batch = epoll_wait(_Core, epevts, AsyncDatagramCoreBase::EVENT_BATCH_SIZE, 200)) > 0 && IsRunning())
 	{
         e.count = 0;
         _details::CopyAllEvents<sizeofArray(epevts)>::Copy(e, epevts, batch);
