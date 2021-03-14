@@ -1,4 +1,4 @@
-#include "recv_pump.h"
+#include "datagram_pump.h"
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 #include <sys/epoll.h>
@@ -12,7 +12,16 @@
 namespace inet
 {
 
-bool AsyncIOCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UINT stack_size)
+#if defined(PLATFORM_WIN)
+void DatagramSocket::_InitBuf(UINT mtu)
+{
+	VERIFY(_RecvBuf.SetSize(mtu + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)));
+	_RecvBuf.Zero();
+	_GetDatagram().RecvBuf = _RecvBuf.Begin();
+}
+#endif
+
+bool AsyncDatagramCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UINT stack_size)
 {
 	ASSERT(!IsRunning());
 	ASSERT(_IOWorkers.GetSize() == 0);
@@ -49,7 +58,7 @@ bool AsyncIOCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UIN
 	return false;
 }
 
-void AsyncIOCoreBase::Term()
+void AsyncDatagramCoreBase::Term()
 {
 	if(!IsRunning())return;
 
@@ -80,7 +89,7 @@ void AsyncIOCoreBase::Term()
 	_IOWorkers.SetSize(0);
 }
 
-bool AsyncIOCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
+bool AsyncDatagramCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
 {
 	ASSERT(IsRunning());
 #if defined(PLATFORM_WIN)
@@ -89,7 +98,8 @@ bool AsyncIOCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
 	return _Core == h;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
     struct kevent event;
-    EV_SET(&event, obj, EVFILT_READ, EV_ADD, 0, 0, cookie);
+    rt::Zero(event);
+    EV_SET(&event, obj, EVFILT_READ, EV_ADD|EV_ENABLE, 0, 0, cookie);
     return kevent(_Core, &event, 1, NULL, 0, NULL) != -1;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 	epoll_event epevt;
@@ -101,7 +111,7 @@ bool AsyncIOCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
 #endif
 }
 
-void AsyncIOCoreBase::_RemoveObject(SOCKET obj)
+void AsyncDatagramCoreBase::_RemoveObject(SOCKET obj)
 {
 	ASSERT(IsRunning());
 #if defined(PLATFORM_WIN)
@@ -125,7 +135,7 @@ struct _FD
 	operator fd_set*(){ return &_fd; }
 };
 
-bool IOObject::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy)
+bool DatagramSocket::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy)
 {
 	int ret = 0;
 	static const timeval timeout = { 0, 100000 }; // 100 msec
@@ -143,37 +153,6 @@ bool IOObject::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, boo
 	return false;
 }
 
-bool IOObject::Send(LPCVOID pData, UINT len, bool drop_if_busy)
-{
-	ASSERT(len);
-	static const timeval timeout = { 0, 100000 }; // 100 msec
-
-	int ret = 0;
-	LPCSTR d = (LPCSTR)pData;
-	while(len>0)
-	{	
-		ret = (int)send(m_hSocket,d,rt::min(32*1024U, len),0);
-		if(ret>0)
-		{	len -= ret;
-			d += ret;
-			continue;
-		}
-
-		ASSERT(ret == -1);
-		if(drop_if_busy || !IsLastOpPending())return false;
-
-		// wait to death
-		int _LastSelectRet;
-		while((_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, (timeval*)&timeout)) == 0);
-		if(_LastSelectRet == 1)
-			continue;
-		else
-			return false;
-	}
-	
-	return true;
-}
-
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
 namespace _details
 {
@@ -182,7 +161,7 @@ struct CopyAllEvents
 {
 #if defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
     template<typename T>
-    static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch)
+    static void Copy(AsyncDatagramCoreBase::Event& evt, const T* ke, int batch)
     {   if(ITER < batch)
         {   evt.cookies[ITER] = ke[ITER].udata;
             CopyAllEvents<SIZE,ITER+1>::Copy(evt, ke, batch);
@@ -190,7 +169,7 @@ struct CopyAllEvents
     }
 #else
     template<typename T>
-    static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch)
+    static void Copy(AsyncDatagramCoreBase::Event& evt, const T* ke, int batch)
     {   if(ITER < batch)
         {
             if(ke[ITER].events&EPOLLIN)
@@ -204,12 +183,12 @@ struct CopyAllEvents
     struct CopyAllEvents<SIZE, ITER, true>
     {
         template<typename T>
-        static void Copy(AsyncIOCoreBase::Event& evt, const T* ke, int batch){}
+        static void Copy(AsyncDatagramCoreBase::Event& evt, const T* ke, int batch){}
     };
 } // namespace _details
 #endif
 
-bool AsyncIOCoreBase::_PickUpEvent(Event& e)
+bool AsyncDatagramCoreBase::_PickUpEvent(Event& e)
 {
     ASSERT(IsRunning());
 
@@ -224,18 +203,18 @@ bool AsyncIOCoreBase::_PickUpEvent(Event& e)
 	ASSERT(e.cookie);
 	return e.bytes_transferred;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-    struct kevent evts[AsyncIOCoreBase::EVENT_BATCH_SIZE];
+    struct kevent evts[AsyncDatagramCoreBase::EVENT_BATCH_SIZE];
     int batch = 0;
-    if((batch = kevent(_Core, NULL, 0, evts, AsyncIOCoreBase::EVENT_BATCH_SIZE, NULL)) > 0 && IsRunning())
+    if((batch = kevent(_Core, NULL, 0, evts, AsyncDatagramCoreBase::EVENT_BATCH_SIZE, NULL)) > 0 && IsRunning())
     {
         _details::CopyAllEvents<sizeofArray(evts)>::Copy(e, evts, batch);
         e.count = batch;
         return true;
     }
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
-	epoll_event epevts[AsyncIOCoreBase::EVENT_BATCH_SIZE];
+	epoll_event epevts[AsyncDatagramCoreBase::EVENT_BATCH_SIZE];
     int batch = 0;
-	if((batch = epoll_wait(_Core, epevts, AsyncIOCoreBase::EVENT_BATCH_SIZE, 200)) > 0 && IsRunning())
+	if((batch = epoll_wait(_Core, epevts, AsyncDatagramCoreBase::EVENT_BATCH_SIZE, 200)) > 0 && IsRunning())
 	{
         e.count = 0;
         _details::CopyAllEvents<sizeofArray(epevts)>::Copy(e, epevts, batch);

@@ -138,9 +138,9 @@ class InetAddrT : public t_ADDR
 public:
 	typedef t_ADDR	ADDRESS_TYPE;
 	// constructors
-	INLFUNC InetAddrT(){ OP::Init(*this); OP::SetAny(*this); } // Default 0.0.0.0:0
+	INLFUNC InetAddrT() = default;
 	INLFUNC explicit InetAddrT(const t_ADDR& sin) { memcpy(this, &sin, sizeof(t_ADDR)); }
-	INLFUNC explicit InetAddrT(SOCKET sock_peer){ InetAddrT(); SetAsPeer(sock_peer); }
+	INLFUNC explicit InetAddrT(SOCKET sock_peer){ OP::Init(*this); SetAsPeer(sock_peer); }
 	INLFUNC InetAddrT(WORD ushPort, LPCVOID pAddressBin) // dotted IP addr string or domain
 	{	OP::Init(*this);
 		SetBinaryAddress(pAddressBin);
@@ -151,15 +151,16 @@ public:
 		SetAddress(pHostname, ushPort);
 	}
 	INLFUNC bool IsLoopback() const { return _details::InetAddrT_Op<t_ADDR>::IsAddressLoopback(*this); }
-	INLFUNC bool SetAsLocal(bool no_loopback = false){ return GetLocalAddresses(this,1,no_loopback); }
-	INLFUNC void SetAsLoopback(){ return _details::InetAddrT_Op<t_ADDR>::AssignLoopbackAddress(*this); }
-	INLFUNC void SetAsAny(){ return _details::InetAddrT_Op<t_ADDR>::SetAny(*this); }
+	INLFUNC bool SetAsLocal(bool no_loopback = false){ OP::Init(*this); return GetLocalAddresses(this,1,no_loopback); }
+	INLFUNC void SetAsLoopback(){ OP::Init(*this); return _details::InetAddrT_Op<t_ADDR>::AssignLoopbackAddress(*this); }
+	INLFUNC void SetAsAny(){ OP::Init(*this); return _details::InetAddrT_Op<t_ADDR>::SetAny(*this); }
 	INLFUNC bool SetAsPeer(SOCKET peer)
-	{	SOCKET_SIZE_T len = sizeof(t_ADDR);
+	{	OP::Init(*this);
+		SOCKET_SIZE_T len = sizeof(t_ADDR);
 		return 0 == getpeername(peer,(sockaddr*)this,&len) && len == sizeof(t_ADDR);
 	}
 	bool SetAddress(LPCSTR pHostname, WORD port = 0)  // www.xxx.com:pp (port is optional)
-	{
+	{	OP::Init(*this);
 		rt::String_Ref ap[2];
 		if(2 == rt::String_Ref(pHostname).Split(ap, 2, ':'))
 		{	
@@ -209,7 +210,7 @@ public:
 	INLFUNC void CopyAddress(LPVOID p) const { OP::CopyAddress(p, *this); }
 	INLFUNC LPCBYTE GetBinaryAddress() const { return OP::GetAddressPtr(*this); }
 	INLFUNC LPCWORD GetBinaryPort() const { return OP::GetPortPtr(*this); }
-	INLFUNC void SetBinaryAddress(LPCVOID addr_bin){ OP::SetBinaryAddress(*this, addr_bin); }
+	INLFUNC void SetBinaryAddress(LPCVOID addr_bin){ OP::Init(*this); OP::SetBinaryAddress(*this, addr_bin); }
 	INLFUNC void SetPort(const WORD ushPort = 0){ *OP::GetPortPtr(*this) = htons(ushPort); }
 	INLFUNC void SetBinaryPort(LPCWORD pPort){ *OP::GetPortPtr(*this) = *pPort; }
 	INLFUNC LPCSTR GetDottedDecimalAddress(LPSTR text_out) const	// buf size = 16/46 for ipv4/ipv6
