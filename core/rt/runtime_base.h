@@ -738,7 +738,7 @@ struct PodRef		// caution: map.insert(std::make_pair(x->y,x)) is incorrect, shou
 						if(_p == 0 || x._p == (const T_POD*)-1)return true;
 						return *_p < *x._p;
 					}
-	T_POD*			operator ->(){ ASSERT(_p); return _p; }
+	T_POD*			operator ->(){ ASSERT(_p); return (T_POD*)_p; }
 	const T_POD*	operator ->() const { ASSERT(_p); return _p; }
 	struct hash_compare
 	{
@@ -1142,6 +1142,42 @@ template<typename T> BYTE AddCarry(BYTE b_in, T a, T b, T* out){ return _details
 namespace rt
 {
 
+template<typename T_NUM>
+bool CyclicLessThanOrEqual(T_NUM a, T_NUM b)
+{
+	static_assert(rt::TypeTraits<T_NUM>::IsNumeric, "T_NUM must be native numeric type");
+	static_assert(rt::IsTypeSame<typename rt::TypeTraits<T_NUM>::t_Unsigned, T_NUM>::Result, "T_NUM must be unsigned type");
+	static const T_NUM sign_bit = ((T_NUM)1)<<(sizeof(T_NUM)*8-1);
+
+	if((a^b) > sign_bit)
+	{	// warpped
+		if(a < b)return b - a < sign_bit;
+		else if(b < a)return a - b > sign_bit;
+		else return true;
+	}
+	else
+	{	return a<=b;
+	}
+}
+
+template<typename T_NUM>
+bool CyclicLessThan(T_NUM a, T_NUM b)
+{
+	static_assert(rt::TypeTraits<T_NUM>::IsNumeric, "T_NUM must be native numeric type");
+	static_assert(rt::IsTypeSame<typename rt::TypeTraits<T_NUM>::t_Unsigned, T_NUM>::Result, "T_NUM must be unsigned type");
+	static const T_NUM sign_bit = ((T_NUM)1)<<(sizeof(T_NUM)*8-1);
+
+	if((a^b) > sign_bit)
+	{	// warpped
+		if(a < b)return b - a < sign_bit;
+		else if(b < a)return a - b > sign_bit;
+		else return true;
+	}
+	else
+	{	return a<b;
+	}
+}
+
 namespace _details
 {
 template<class T, typename t_Val, class t_GetKey>	// T should have operator [], and the element should have operator <
@@ -1323,10 +1359,8 @@ public:
 		return (m_z << 16) + m_w;
 	}
 	template<typename T>
-	FORCEINL void Randomize(T& pod)
-	{	Randomize(&pod, sizeof(T));
-	}
-	FORCEINL void Randomize(LPVOID p_in, SIZE_T sz)
+	FORCEINL auto& Randomize(T& pod){ return Randomize(&pod, sizeof(T)); }
+	FORCEINL auto& Randomize(LPVOID p_in, SIZE_T sz)
 	{	UINT* p = (UINT*)p_in;
 		for(UINT i=0;i<sz/sizeof(UINT);i++)
 			p[i] = GetNext();
@@ -1338,6 +1372,7 @@ public:
 			for(SIZE_T i=0;t<tend;t++, i++)
 				*t = num[i];
 		}
+		return *this;
 	}
 	FORCEINL operator UINT(){ return GetNext(); }
 };

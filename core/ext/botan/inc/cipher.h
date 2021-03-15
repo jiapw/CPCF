@@ -66,7 +66,7 @@ struct	_AES_Traits;
 template<int _LEN>
 struct CipherInitVec: public DataBlock<_LEN>
 {    CipherInitVec(UINT random_seed){ Init(random_seed); }
-     void Init(DWORD s){ return rt::Randomizer(s).Randomize(*this); }
+     void Init(DWORD s){ rt::Randomizer(s).Randomize(*this); }
 };
 
 } // namespace _details

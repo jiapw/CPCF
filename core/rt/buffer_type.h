@@ -659,6 +659,25 @@ public:
 		_SC::_xt::ctor(p, x);
 		return p - _SC::Begin();
 	}
+	template<typename compr_less>
+	INLFUNC SSIZE_T SortedPush(const t_Val& x, compr_less& compr)
+	{
+		if(GetSize() == 0 || compr(x, first())){ push_front(x); return 0; }
+		if(	_len_reserved == _SC::GetSize() &&
+			!reserve(_SC::GetSize()*2 + 1)
+		)
+		{	return -1;
+		}
+		_SC::_len++;
+		auto* p = &_SC::Last();
+		for(p--;;p--)
+		{	if(compr(x, *p)){ rt::Copy(p[1], *p); }
+			else break;
+		}
+		p++;
+		_SC::_xt::ctor(p, x);
+		return p - _SC::Begin();
+	}
 	INLFUNC bool Include(const t_Val& x) // newly included item is at the end
 	{	if(_SC::Find(x) == -1){	push_back(x); return true; }
 		return false;
