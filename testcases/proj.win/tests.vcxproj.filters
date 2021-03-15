@@ -112,13 +112,13 @@
     <ClCompile Include="..\tests\test_inet.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\core\inet\recv_pump.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\core\ext\bignum\precision_num.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\bignum\big_num.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\inet\datagram_pump.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

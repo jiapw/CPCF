@@ -180,7 +180,7 @@
     <ClCompile Include="..\..\core\ext\lib_inc.c" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb.cpp" />
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb_serving.cpp" />
-    <ClCompile Include="..\..\core\inet\recv_pump.cpp" />
+    <ClCompile Include="..\..\core\inet\datagram_pump.cpp" />
     <ClCompile Include="..\..\core\inet\http_client.cpp" />
     <ClCompile Include="..\..\core\inet\inet.cpp" />
     <ClCompile Include="..\..\core\inet\tinyhttpd.cpp" />
