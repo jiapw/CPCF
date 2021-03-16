@@ -1139,8 +1139,12 @@ template<typename T> BYTE SubBorrow(BYTE b_in, T a, T b, T* out){ return _detail
 template<typename T> BYTE AddCarry(BYTE b_in, T a, T b, T* out){ return _details::AdvBitOps<T>::AddCarry(b_in, a, b, out); }
 }
 
+
 namespace rt
 {
+
+template<typename T> class TypeTraits;
+template<typename T1, typename T2> struct IsTypeSame;
 
 template<typename T_NUM>
 bool CyclicLessThanOrEqual(T_NUM a, T_NUM b)
