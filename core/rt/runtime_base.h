@@ -1273,26 +1273,20 @@ protected:
 #endif
 };
 
-template<UINT INIT_INTERVAL>
 struct FrequencyDivision
 {
-	int	 _TickOffset;
-	UINT _Interval;
+	UINT	_TickDiv;
+	UINT	_Interval;
+	UINT	_TriggerEdge;
 public:
-	FrequencyDivision(){ Reset(); }
-	void Reset(){ _TickOffset = -1; _Interval = INIT_INTERVAL; }
-	void SetInterval(UINT inv){ _Interval = inv; }
-	bool Hit(UINT tick, bool no_phase_align = false)
-	{	if(no_phase_align)
-		{	return (tick-_TickOffset)%_Interval == 0;
-		}
-		else
-		{	if(_TickOffset < 0)
-			{	_TickOffset = tick;
-				return true; 
-			}
-			return (tick-_TickOffset)%_Interval == 0;
-		}
+	FrequencyDivision(UINT intv, UINT edge = 0){ SetInterval(intv, edge); Reset(); }
+	void Reset(){ _TickDiv = 0; }
+	void SetInterval(UINT intv, UINT edge = 0){ _Interval = intv; _TriggerEdge = edge; }
+	bool Hit(UINT tick)
+	{	UINT td = tick/_Interval;
+		if(td >= _TickDiv && (tick%_Interval)>=_TriggerEdge){ _TickDiv = td+1; return true; }
+		if(td + 1 < _TickDiv)_TickDiv = td;
+		return false;
 	}
 	bool operator ()(UINT tick){ return Hit(tick); }
 };
