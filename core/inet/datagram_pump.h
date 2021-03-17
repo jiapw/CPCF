@@ -121,29 +121,15 @@ protected:
 #endif
 
 	bool	__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy = false);
+#if defined(PLATFORM_WIN)
+    bool    _PumpNext();
+#endif
 
 public:
 	SOCKET	GetHandle() const { return m_hSocket; }
-    bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false){ return Socket::Create(bind_to, SOCK_DGRAM, reuse_addr); }
-    bool    Create(const InetAddr &bind_to, bool reuse_addr = false){ return Socket::Create(bind_to, SOCK_DGRAM, reuse_addr); }
+    bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false);
+    bool    Create(const InetAddr &bind_to, bool reuse_addr = false);
 
-#if defined(PLATFORM_WIN)
-    bool    PumpNext()
-            {   ASSERT(_RecvBuf.GetSize());
-                WSABUF b = { (UINT)_RecvBuf.GetSize() - sizeof(Datagram) - sizeof(WSAOVERLAPPED), (LPSTR)_RecvBuf.Begin() };
-				auto* g = (Datagram*)(_RecvBuf.Begin() + b.len);
-				ASSERT(g->RecvBuf == (LPBYTE)b.buf);
-				g->PeerAddressSize = sizeof(InetAddrV6);
-				g->RecvSize = 0;
-                DWORD flag = 0;
-				auto overlap = (LPWSAOVERLAPPED)&g[1];
-                if( ::WSARecvFrom(m_hSocket, &b, 1, &g->RecvSize, &flag, (sockaddr*)&g->PeerAddressFamily, &g->PeerAddressSize, overlap, nullptr) == 0 ||
-                    ::WSAGetLastError() == WSA_IO_PENDING
-                )return true;
-                overlap->hEvent = INVALID_HANDLE_VALUE;
-                return false;
-            }
-#endif
 public:   
     static void     OnRecv(Datagram* g){ ASSERT(0); } // should be overrided
 
@@ -206,7 +192,7 @@ class DatagramPump: public AsyncDatagramCoreBase
 				auto& g = ((SocketObject*)evt.cookie)->_GetDatagram();
 				g.RecvSize = evt.bytes_transferred;
 				((SocketObject*)evt.cookie)->OnRecv(&g);
-				if(!((SocketObject*)evt.cookie)->PumpNext())
+				if(!((SocketObject*)evt.cookie)->_PumpNext())
 					((SocketObject*)evt.cookie)->OnRecv(nullptr); // indicate error
 #else
                 _details::OnRecvAll<SocketObject, sizeofArray(evt.cookies)>::Call(evt, buf);
@@ -234,7 +220,7 @@ public:
 		if(!_AddObject(obj->GetHandle(), obj))return false;
 #if defined(PLATFORM_WIN)
         obj->_InitBuf(_MTU);
-		if(!obj->PumpNext()){ obj->OnRecv(nullptr); return false; }
+		if(!obj->_PumpNext()){ obj->OnRecv(nullptr); return false; }
 #endif
 		return true;
 	}

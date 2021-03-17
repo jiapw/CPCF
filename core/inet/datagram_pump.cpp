@@ -21,6 +21,35 @@ void DatagramSocket::_InitBuf(UINT mtu)
 }
 #endif
 
+bool DatagramSocket::Create(const InetAddrV6 &bind_to, bool reuse_addr)
+{
+	return Socket::Create(bind_to, SOCK_DGRAM, reuse_addr);
+}
+
+bool DatagramSocket::Create(const InetAddr &bind_to, bool reuse_addr)
+{
+	return Socket::Create(bind_to, SOCK_DGRAM, reuse_addr);
+}
+
+#if defined(PLATFORM_WIN)
+bool DatagramSocket::_PumpNext()
+{
+	ASSERT(_RecvBuf.GetSize());
+    WSABUF b = { (UINT)_RecvBuf.GetSize() - sizeof(Datagram) - sizeof(WSAOVERLAPPED), (LPSTR)_RecvBuf.Begin() };
+	auto* g = (Datagram*)(_RecvBuf.Begin() + b.len);
+	ASSERT(g->RecvBuf == (LPBYTE)b.buf);
+	g->PeerAddressSize = sizeof(InetAddrV6);
+	g->RecvSize = 0;
+    DWORD flag = 0;
+	auto overlap = (LPWSAOVERLAPPED)&g[1];
+    if( ::WSARecvFrom(m_hSocket, &b, 1, &g->RecvSize, &flag, (sockaddr*)&g->PeerAddressFamily, &g->PeerAddressSize, overlap, nullptr) == 0 ||
+        ::WSAGetLastError() == WSA_IO_PENDING
+    )return true;
+    overlap->hEvent = INVALID_HANDLE_VALUE;
+    return false;
+}
+#endif
+
 bool AsyncDatagramCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UINT stack_size)
 {
 	ASSERT(!IsRunning());

@@ -244,6 +244,22 @@ extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopbac
 
 ////////////////////////////////////////////////////////////
 // Socket
+
+int Socket::GetBindPort() const
+{
+	BYTE addr[sizeof(InetAddrV6)];
+	int addrlen = sizeof(addr);
+	if(getsockname(m_hSocket, (sockaddr*)addr, &addrlen)==0)
+	{
+		if(((sockaddr*)addr)->sa_family == AF_INET)
+			return ((InetAddr*)addr)->GetPort();
+		else if(((sockaddr*)addr)->sa_family == AF_INET6)
+			return ((InetAddrV6*)addr)->GetPort();
+	}
+	
+	return 0;
+}
+
 int Socket::GetLastError()
 {
 #ifdef PLATFORM_WIN

@@ -273,6 +273,7 @@ public:
 	bool Create(const InetAddr &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddr), nSocketType, reuse_addr, PF_INET); }
 	bool GetPeerName(InetAddr &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddr)); }
 	bool GetBindName(InetAddr &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddr)); }
+	int  GetBindPort() const;
 	bool ConnectTo(const InetAddr &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
 	bool Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
 	bool SendTo(LPCVOID pData, UINT len,const InetAddr &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr)); }
