@@ -898,8 +898,7 @@ public:
 /*
  Return Value:
  0: |a| > b or |a| = |b|, proceed to perform division
- 2: |a| < |b|, return
- 2:  a = 0 or b = 0, return
+ 1: |a| < |b|, a = 0 or b = 0, edge case, could early out
  
  */
 int Div_Standard_test(const BigNumMutable& a_temp, const BigNumMutable& b_temp){
@@ -957,7 +956,7 @@ void Div_Make_new_U(BigNumMutable& uu, BigNumMutable& u, uint32_t j, uint32_t n,
 	if(uu.IsZero()){
 		return;
 	}
-	int uu_len = uu.GetLength();
+	uint32_t uu_len = uu.GetLength();
 	if(uu_len <= n){
 		uu.ExtendLength(n - uu_len + 1);
 	}
@@ -1015,7 +1014,7 @@ void Div_Unnormalize(ext::BigNumMutable& Remainder, BigNumMutable& a_temp, uint3
 	Remainder = a_temp;
 }
 /*
- Sgin Rules:
+ Sign Rules:
  for example: (result means 'this')
  -       20 /  3 --> result:  6   remainder:  2
  -      -20 /  3 --> result: -6   remainder: -2
@@ -1023,27 +1022,21 @@ void Div_Unnormalize(ext::BigNumMutable& Remainder, BigNumMutable& a_temp, uint3
  -      -20 / -3 --> result:  6   remainder: -2
  */
 void Div_Set_sign(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& Remainder){
-	bool a_negative = a.GetSign();
-	bool b_negative = b.GetSign();
-	if(a_negative && b_negative){
-		quotient.SetSign(false);
-		Remainder.SetSign(true);
-	}
-	else if(!a_negative && b_negative){
-		quotient.SetSign(true);
-		Remainder.SetSign(false);
-	}
-	else if(a_negative && !b_negative){
-		quotient.SetSign(true);
-		Remainder.SetSign(true);
-	}
+	quotient.SetSign(a.GetSign() != b.GetSign());
+	Remainder.SetSign(a.GetSign());
 }
 } //namespace _details
-void BN_Div(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& remainder) //quotient = (a/b) + remainder, a is dividend, b is divisor
+
+void BN_Div(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable *remainder, ext::BigNumMutable& quotient)	//quotient = (a/b) + remainder, a is dividend, b is divisor
 {
 	static_assert(sizeof(BN_BLK)==sizeof(uint64_t),"BN_Div2 only supports 64 bits blocks");
+
+	ext::BigNumMutable tmpRemainder;
+	if (!remainder)
+		remainder = &tmpRemainder;
+
 	quotient.SetZero();
-	remainder.SetZero();
+	remainder->SetZero();
 	BN_BLK a_value_size, u0 = 0, u1 = 0, v1 = 0, v0 = 0, u2 = 0;
 	BigNumMutable a_temp = 0;
 	a_temp += a;
@@ -1055,14 +1048,16 @@ void BN_Div(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::
 	uint32_t n = b_temp.GetLength();
 	uint32_t j = a_temp.GetLength() - b_temp.GetLength();
 	if(_details::Div_Standard_test(a_temp, b_temp)){
+		*remainder = a_temp;
+		_details::Div_Set_sign(a, b, quotient, *remainder);
 		return;
 	}
 	if(n == 1){
 		uint64_t r = 0;
 		_details::Div_DivInt(a_temp, (uint64_t) *(b_temp._Data), r);
-		remainder = r;
+		*remainder = r;
 		quotient = a_temp;
-		_details::Div_Set_sign(a, b, quotient, remainder);
+		_details::Div_Set_sign(a, b, quotient, *remainder);
 		return;
 	}
 	int d;
@@ -1093,8 +1088,8 @@ void BN_Div(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::
 		u2 = a_temp.Data()[j+n];
 		
 	}
-	_details::Div_Unnormalize(remainder, a_temp, n, d);
-	_details::Div_Set_sign(a, b, quotient, remainder);
+	_details::Div_Unnormalize(*remainder, a_temp, n, d);
+	_details::Div_Set_sign(a, b, quotient, *remainder);
 	return;
 }
 } // namespace _details
