@@ -7,60 +7,7 @@
 #include <immintrin.h>
 #endif
 
-/*
- original code from ttmathuint.h:2306
- */
-namespace ttmath{
-class big_ttmath: public ttmath::UInt<4>{
-public:
-	uint Div_Calculate(uint u2, uint u1, uint u0, uint v1, uint v0){
-		UInt<2> u_temp;
-		uint rp;
-		bool next_test;
-		
-		TTMATH_ASSERT( v1 != 0 )
-		
-		u_temp.table[1] = u2;
-		u_temp.table[0] = u1;
-		u_temp.DivInt(v1, &rp);
-		
-		TTMATH_ASSERT( u_temp.table[1]==0 || u_temp.table[1]==1 )
-		
-		do
-		{
-			bool decrease = false;
-			
-			if( u_temp.table[1] == 1 )
-				decrease = true;
-			else
-			{
-				UInt<2> temp1, temp2;
-				
-				UInt<2>::MulTwoWords(u_temp.table[0], v0, temp1.table+1, temp1.table);
-				temp2.table[1] = rp;
-				temp2.table[0] = u0;
-				
-				if( temp1 > temp2 )
-					decrease = true;
-			}
-			
-			next_test = false;
-			
-			if( decrease )
-			{
-				u_temp.SubOne();
-				rp += v1;
-				
-				if( rp >= v1 ) // it means that there wasn't a carry (r<b from the book)
-					next_test = true;
-			}
-		}
-		while( next_test );
-		TTMATH_LOG("UInt::Div3_Calculate")
-		return u_temp.table[0];
-	}
-};
-}
+
 namespace ext
 {
 
@@ -893,6 +840,61 @@ NativeFloat::NativeFloat(double x_in)
 	Exponent = ((x&0x7ff0000000000000ULL)>>52) - 1023 - 52;
 	Sign = x&0x8000000000000000ULL;
 }
+namespace _details{
+/*
+ original code from ttmathuint.h:2306
+ */
+namespace ttmath{
+class big_ttmath: public ::ttmath::UInt<4>{
+public:
+	uint64_t Div_Calculate(::ttmath::uint u2, ::ttmath::uint u1, ::ttmath::uint u0, ::ttmath::uint v1, ::ttmath::uint v0){
+		::ttmath::UInt<2> u_temp;
+		::ttmath::uint rp;
+		bool next_test;
+		
+		ASSERT( v1 != 0 );
+		
+		u_temp.table[1] = u2;
+		u_temp.table[0] = u1;
+		u_temp.DivInt(v1, &rp);
+		
+		ASSERT( u_temp.table[1]==0 || u_temp.table[1]==1 );
+		
+		do
+		{
+			bool decrease = false;
+			
+			if( u_temp.table[1] == 1 )
+				decrease = true;
+			else
+			{
+				UInt<2> temp1, temp2;
+				
+				UInt<2>::MulTwoWords(u_temp.table[0], v0, temp1.table+1, temp1.table);
+				temp2.table[1] = rp;
+				temp2.table[0] = u0;
+				
+				if( temp1 > temp2 )
+					decrease = true;
+			}
+			
+			next_test = false;
+			
+			if( decrease )
+			{
+				u_temp.SubOne();
+				rp += v1;
+				
+				if( rp >= v1 ) // it means that there wasn't a carry (r<b from the book)
+					next_test = true;
+			}
+		}
+		while( next_test );
+		TTMATH_LOG("UInt::Div3_Calculate")
+		return u_temp.table[0];
+	}
+};
+}
 /*
  Return Value:
  0: |a| > b or |a| = |b|, proceed to perform division
@@ -900,21 +902,21 @@ NativeFloat::NativeFloat(double x_in)
  2:  a = 0 or b = 0, return
  
  */
-int Div_Standard_Test(const BigNumMutable& a_temp, const BigNumMutable& b_temp){
+int Div_Standard_test(const BigNumMutable& a_temp, const BigNumMutable& b_temp){
 	if((!a_temp.IsZero() && !b_temp.IsZero()) && (a_temp.Abs() > b_temp || a_temp.Abs() == b_temp.Abs())){
 		return 0;
 	}
 	return 1;
 }
 
-void DivInt(BigNumMutable& a_temp, uint64_t divisor, uint64_t& remainder){
+void Div_DivInt(BigNumMutable& a_temp, uint64_t divisor, uint64_t& remainder){
 	a_temp.TrimLeadingZero();
 	BigNumMutable dividend = a_temp;
 	uint64_t r = 0;
 	int i = a_temp.GetLength() - 1;
 	for(; i >= 0; i--){
 		LPC_BN_BLK current = a_temp._Data + i;
-		ttmath::UInt<2>::DivTwoWords((uint64_t)r, (uint64_t) *(dividend._Data+i), (uint64_t)divisor, (ttmath::uint*) current , (ttmath::uint*) &r);
+		::ttmath::UInt<2>::DivTwoWords((uint64_t)r, (uint64_t) *(dividend._Data+i), (uint64_t)divisor, (::ttmath::uint*) current , (::ttmath::uint*) &r);
 	}
 	remainder = r;
 	return;
@@ -925,7 +927,7 @@ BN_BLK Div_Calculate(BN_BLK u2, BN_BLK u1, BN_BLK u0, BN_BLK v1, BN_BLK v0){
 	return bt.Div_Calculate((uint64_t)u2,(uint64_t)u1,(uint64_t)u0,(uint64_t)v1,(uint64_t)v0);
 }
 
-int find_Highest_bit (BigNumMutable& block){
+int Div_Find_highest_bit (BigNumMutable& block){
 	int bitposition = 0;
 	BN_BLK data = block.Last();
 	while(data!=0){
@@ -934,9 +936,9 @@ int find_Highest_bit (BigNumMutable& block){
 	}
 	return bitposition - 1;
 }
-BN_BLK BN_Div_Normalize(BigNumMutable& a, BigNumMutable& b, int& bits_moved){
+BN_BLK Div_Normalize(BigNumMutable& a, BigNumMutable& b, int& bits_moved){
 	int highest_bits = 0;
-	highest_bits = find_Highest_bit(b);
+	highest_bits = Div_Find_highest_bit(b);
 	const int block_size = 64;
 	bits_moved = block_size - highest_bits - 1;
 	BN_BLK u2 = a.Last();
@@ -951,7 +953,7 @@ BN_BLK BN_Div_Normalize(BigNumMutable& a, BigNumMutable& b, int& bits_moved){
 	return u2;
 }
 
-void make_New_U(BigNumMutable& uu, BigNumMutable& u, uint j, uint n, uint64_t u_max){
+void Div_Make_new_U(BigNumMutable& uu, BigNumMutable& u, int j, int n, uint64_t u_max){
 	if(uu.IsZero()){
 		return;
 	}
@@ -960,14 +962,14 @@ void make_New_U(BigNumMutable& uu, BigNumMutable& u, uint j, uint n, uint64_t u_
 		uu.ExtendLength(n - uu_len + 1);
 	}
 	uu.FillZero();
-	uint i;
+	int i;
 	for(i = 0; i < n; ++i,++j){
 		*(uu._Data+i) = *(u._Data+j);
 	}
 	uu._Data[i] = u_max;
 }
 
-int trimZeros(BigNumMutable& uu){
+int Div_trimZeros(BigNumMutable& uu){
 	int i = uu.GetLength()-1;
 	for(; i >= 0; i--){
 		if(*(uu._Data+i) != 0){
@@ -979,11 +981,11 @@ int trimZeros(BigNumMutable& uu){
 	return zero_trimmed;
 }
 
-void multiply_subtract(BigNumMutable& uu, BigNumMutable& vv, BN_BLK& qp){
+void Div_Multiply_subtract(BigNumMutable& uu, BigNumMutable& vv, BN_BLK& qp){
 	BigNumMutable vvv = vv;
 	BN_AbsMul(vvv, qp, vvv);
-	int trimmed_u = trimZeros(uu);
-	int trimmed_v = trimZeros(vv);
+	int trimmed_u = Div_trimZeros(uu);
+	int trimmed_v = Div_trimZeros(vv);
 	uu -= vvv;
 	if(uu.IsNegative())
 	{
@@ -994,7 +996,7 @@ void multiply_subtract(BigNumMutable& uu, BigNumMutable& vv, BN_BLK& qp){
 	vv.ExtendLength(trimmed_v);
 }
 
-void copy_New_U(BigNumMutable& uu, BigNumMutable& u, uint64_t j, int n){
+void Div_Copy_new_U(BigNumMutable& uu, BigNumMutable& u, int j, int n){
 	int i = 0;
 	for(;i < n;i++){
 		*(u._Data + i + j) = *(uu._Data + i);
@@ -1020,7 +1022,7 @@ void Div_Unnormalize(ext::BigNumMutable& Remainder, BigNumMutable& a_temp, int n
  -       20 / -3 --> result: -6   remainder:  2
  -      -20 / -3 --> result:  6   remainder: -2
  */
-void SetSign(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& Remainder){
+void Div_Set_sign(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& Remainder){
 	bool a_negative = a.GetSign();
 	bool b_negative = b.GetSign();
 	if(a_negative && b_negative){
@@ -1036,8 +1038,8 @@ void SetSign(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext:
 		Remainder.SetSign(true);
 	}
 }
-
-void BN_Div2(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& remainder) //quotient = (a/b) + remainder, a is dividend, b is divisor
+} //namespace _details
+void BN_Div(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& remainder) //quotient = (a/b) + remainder, a is dividend, b is divisor
 {
 	static_assert(sizeof(BN_BLK)==sizeof(uint64_t),"BN_Div2 only supports 64 bits blocks");
 	quotient.SetZero();
@@ -1051,20 +1053,20 @@ void BN_Div2(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext:
 	b_temp._Sign = false;
 	int m = a_temp.GetLength();
 	int n = b_temp.GetLength();
-	uint j = a_temp.GetLength() - b_temp.GetLength();
-	if(Div_Standard_Test(a_temp, b_temp)){
+	int j = a_temp.GetLength() - b_temp.GetLength();
+	if(_details::Div_Standard_test(a_temp, b_temp)){
 		return;
 	}
 	if(n == 1){
 		uint64_t r = 0;
-		DivInt(a_temp, (uint64_t) *(b_temp._Data), r);
+		_details::Div_DivInt(a_temp, (uint64_t) *(b_temp._Data), r);
 		remainder = r;
 		quotient = a_temp;
-		SetSign(a, b, quotient, remainder);
+		_details::Div_Set_sign(a, b, quotient, remainder);
 		return;
 	}
 	int d;
-	a_value_size = BN_Div_Normalize(a_temp, b_temp, d);
+	a_value_size = _details::Div_Normalize(a_temp, b_temp, d);
 	if(j+n == a_temp.GetLength()){
 		u2 = a_value_size;
 	}
@@ -1080,10 +1082,10 @@ void BN_Div2(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext:
 		u0 = a_temp.Data()[j+n-2];
 		v1 = b_temp.Data()[n-1];
 		v0 = b_temp.Data()[n-2];
-		BN_BLK qp = Div_Calculate(u2, u1, u0, v1, v0);
-		make_New_U(uu, a_temp, j, n , u2);
-		multiply_subtract(uu,vv,qp);
-		copy_New_U(uu, a_temp, j, n);
+		BN_BLK qp = _details::Div_Calculate(u2, u1, u0, v1, v0);
+		_details::Div_Make_new_U(uu, a_temp, j, n , u2);
+		_details::Div_Multiply_subtract(uu,vv,qp);
+		_details::Div_Copy_new_U(uu, a_temp, j, n);
 		*(quotient._Data+j) = qp;
 		if(j--==0){
 			break;
@@ -1091,8 +1093,8 @@ void BN_Div2(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext:
 		u2 = a_temp.Data()[j+n];
 		
 	}
-	Div_Unnormalize(remainder, a_temp, n, d);
-	SetSign(a, b, quotient, remainder);
+	_details::Div_Unnormalize(remainder, a_temp, n, d);
+	_details::Div_Set_sign(a, b, quotient, remainder);
 	return;
 }
 } // namespace _details

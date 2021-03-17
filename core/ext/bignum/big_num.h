@@ -88,7 +88,7 @@ extern void		BN_AbsMul(UINT b, ext::BigNumMutable& ret); // ret *= b
 
 extern bool		BN_Div(const BN_Unsigned& a, UINT b, UINT* reminder, ext::BigNumMutable& ret); // ret = (a - *reminder)/b
 // BN div BN may use https://www.youtube.com/watch?v=6bpLYxk9TUQ
-extern void     BN_Div2(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& Remainder);
+extern void     BN_Div(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& Remainder);
 
 extern double	BN_2_double(const BN_Ref& x);
 extern float	BN_2_float(const BN_Ref& x);
@@ -380,6 +380,8 @@ public:
 	void Mul(const BigNumRef& a, float b){ _details::BN_Mul(a, _details::NativeFloat(b), *this); }
 	void Mul(const BigNumRef& a, double b){ _details::BN_Mul(a, _details::NativeFloat(b), *this); }
 	void Div(const BigNumRef& a, UINT b, UINT* reminder = nullptr){ _details::BN_Div(a, b, reminder, *this); }
+	void Div(const BigNumRef& a, const BigNumRef& b, BigNumMutable* reminder = nullptr){ _details::BN_Div(a, b, *this, *reminder); }
+
 	void DivFast(const BigNumRef& a, const BigNumRef& b); // this ~= a/b (9 digits precision)
 	void DivRough(const BigNumRef& a, const BigNumRef& b); // this ~= a/b (19 digits precision)
 
