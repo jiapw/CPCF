@@ -130,7 +130,7 @@ struct string_ops
 
 template<typename T>
 INLFUNC T		_pow(T x, int y){ return (T)pow((double)x,y); }
-INLFUNC float	_pow(float x, int y){ return pow(x,y); }
+INLFUNC float	_pow(float x, int y){ return (float)pow(x,y); }
 
 template<typename t_Left, typename t_Right>
 class String_AddExpr;
