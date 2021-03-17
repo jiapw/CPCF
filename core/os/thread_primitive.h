@@ -116,7 +116,9 @@ INLFUNC SIZE_T GetCurrentThreadId()
 #if defined(PLATFORM_WIN)
 	return ::GetCurrentThreadId();
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
-	return (SIZE_T)pthread_mach_thread_np(pthread_self());
+    uint64_t tid;
+    VERIFY(pthread_threadid_np(NULL, &tid) == 0);
+    return (SIZE_T)tid;
 #else
 	return (SIZE_T)pthread_self();
 #endif
@@ -187,9 +189,25 @@ protected:
 	friend class Event;
 	pthread_mutex_t hCS;
 public:
-	FORCEINL void Lock(){ VERIFY(0 == pthread_mutex_lock(&hCS)); _OwnerTID = GetCurrentThreadId(); }
-	FORCEINL void Unlock(){ _OwnerTID = 0; VERIFY(0 == pthread_mutex_unlock(rt::_CastToNonconst(&hCS))); }
-	FORCEINL bool TryLock(){ if(0 == pthread_mutex_trylock(&hCS)){ _OwnerTID = GetCurrentThreadId(); return true; } return false;	}
+    FORCEINL void Lock()
+    {   VERIFY(0 == pthread_mutex_lock(&hCS));
+        if(_OwnerTID == GetCurrentThreadId())
+        {    _Recurrence++;    }
+        else{ _OwnerTID = GetCurrentThreadId(); _Recurrence = 1; }
+    }
+    FORCEINL void Unlock()
+    {   _Recurrence--;
+        if(_Recurrence == 0)_OwnerTID = 0;
+        VERIFY(0 == pthread_mutex_unlock(&hCS));
+    }
+    FORCEINL bool TryLock()
+    {   if(0 == pthread_mutex_trylock(&hCS))
+        {   if(_OwnerTID == GetCurrentThreadId()){ _Recurrence++; }
+            else{ _OwnerTID = GetCurrentThreadId(); _Recurrence = 1; }
+            return true;
+        }
+        return false;
+    }
 	CriticalSection()
 	{ 	pthread_mutexattr_t attributes;
 		pthread_mutexattr_init(&attributes);
