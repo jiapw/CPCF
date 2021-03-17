@@ -248,7 +248,7 @@ extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT Size_InOut, bool no_loopbac
 int Socket::GetBindPort() const
 {
 	BYTE addr[sizeof(InetAddrV6)];
-	int addrlen = sizeof(addr);
+	socklen_t addrlen = sizeof(addr);
 	if(getsockname(m_hSocket, (sockaddr*)addr, &addrlen)==0)
 	{
 		if(((sockaddr*)addr)->sa_family == AF_INET)
