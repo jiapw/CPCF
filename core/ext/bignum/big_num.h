@@ -88,6 +88,7 @@ extern void		BN_AbsMul(UINT b, ext::BigNumMutable& ret); // ret *= b
 
 extern bool		BN_Div(const BN_Unsigned& a, UINT b, UINT* reminder, ext::BigNumMutable& ret); // ret = (a - *reminder)/b
 // BN div BN may use https://www.youtube.com/watch?v=6bpLYxk9TUQ
+extern void     BN_Div2(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& Remainder);
 
 extern double	BN_2_double(const BN_Ref& x);
 extern float	BN_2_float(const BN_Ref& x);
