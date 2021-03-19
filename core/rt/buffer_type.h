@@ -1200,6 +1200,7 @@ class TopWeightedValues
 		T_WEIGHT	Wei;
 	};
 public:
+	static const int TOP_COUNT_CLAMP = rt::TypeTraits<UINT>::MaxVal()/8*7; // all weight will be halfed if top exceeds TOP_WEIGHT_CLAMP
 	static const int UNMATCHED = 0;
 	static const int MATCHED = 1;
 	static const int MATCHED_WITH_TOP = 2;
@@ -1242,7 +1243,18 @@ public:
 			}
 	int		Sample(const T& val, T_WEIGHT wei = 1)		// UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
 			{	int ret = _Match(val, wei);
-				if(ret == UNMATCHED && wei > _TopValues[TOP_K-1].Wei)
+				if(ret == MATCHED_WITH_TOP)
+				{	if(	_TopValues[0].Count > TOP_COUNT_CLAMP || 
+						_TopValues[0].Wei > rt::TypeTraits<T_WEIGHT>::MaxVal()/8*7
+					)
+					{	for(UINT i=0; i<TOP_K; i++)
+						{	_TopValues[i].Count >>=1;
+							_TopValues[i].Wei /= 2;
+						}
+					}
+					return ret;
+				}
+				else if(ret == UNMATCHED && wei > _TopValues[TOP_K-1].Wei)
 				{	UINT i=TOP_K-1;
 					for(; i>0; i--)
 					{	if(_TopValues[i-1].Wei < wei){ _TopValues[i] = _TopValues[i-1]; }
@@ -1254,6 +1266,7 @@ public:
 				}
 				return ret;
 			}
+	UINT	GetCapacity() const { return TOP_K; }
 	bool	IsEmpty() const { return GetWeight() <= 0; }
 	auto	GetWeight() const { return _TopValues[0].Wei; }
 	auto	GetWeight(UINT i) const { return _TopValues[i].Wei; }
