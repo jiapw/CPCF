@@ -435,7 +435,7 @@ public:
 	~NetworkInterfaces();
 
     ConfigState	GetState() const;
-	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_loopback = true);
+	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_trivial = true);
 };
 
 enum _tagSocketEventType

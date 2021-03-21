@@ -924,7 +924,7 @@ bool NetworkInterfaces::_IsIPv4AddressTrivial(LPCBYTE ipv4)
 	return false;
 }
 
-bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only_up, bool skip_loopback)
+bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only_up, bool skip_trivial)
 {
 	list.ShrinkSize(0);
 
@@ -952,7 +952,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 		bool is_tunnel = wcsstr(nic->FriendlyName,L"6TO4") || wcsstr(nic->FriendlyName,L"4TO6") || wcsstr(nic->FriendlyName,L"Teredo") ||
 						 wcsstr(nic->FriendlyName,L"isatap");
 
-		if(skip_loopback && (is_tunnel || (nic->IfType == IF_TYPE_SOFTWARE_LOOPBACK)))continue;
+		if(skip_trivial && (is_tunnel || (nic->IfType == IF_TYPE_SOFTWARE_LOOPBACK)))continue;
 
 		auto& itm = list.push_back();
 		rt::Zero(itm);
@@ -1003,7 +1003,9 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 			}
 			else if(addr->Address.lpSockaddr->sa_family == AF_INET6)
 			{
-				rt::CopyByteTo<16>(((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress(), itm.v6[itm.v6Count++].Local);
+				auto* bin = ((InetAddrV6*)addr->Address.lpSockaddr)->GetBinaryAddress();
+				if(!skip_trivial || ((*(WORD*)bin)& 0xc0ff ) != 0x80fe)
+					rt::CopyByteTo<16>(bin, itm.v6[itm.v6Count++].Local);
 			}
 
 			addr = addr->Next;
@@ -1023,7 +1025,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
                       
         
 		if(only_up && (flag&IFF_UP) == 0)continue;
-		if(skip_loopback && (flag&IFF_LOOPBACK))continue;
+		if(skip_trivial && (flag&IFF_LOOPBACK))continue;
 
 		rt::String_Ref name(ifap->ifa_name);
 		name = name.SubStrHead(sizeof(NetworkInterface::Name)-1);
@@ -1053,7 +1055,7 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
 				else if(name.StartsWith("gif") || name.StartsWith("stf") || name.StartsWith("sit") || name.StartsWith("ipsec")){ if_type = NITYPE_TUNNEL; }
 			}
             
-            if(skip_loopback && if_type == NITYPE_TUNNEL)continue;
+            if(skip_trivial && if_type == NITYPE_TUNNEL)continue;
             
             pitm = &list.push_back();
             auto& itm = *pitm;
@@ -1088,8 +1090,10 @@ bool NetworkInterfaces::Populate(rt::BufferEx<NetworkInterface>& list, bool only
             }
             
             if(ifap->ifa_addr->sa_family == AF_INET6 && itm.v6Count < sizeofArray(NetworkInterface::v6)) // ipv6
-            {               
-                rt::CopyByteTo<16>(((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress(), itm.v6[itm.v6Count++].Local);
+            {       
+				auto* bin = ((InetAddrV6*)ifap->ifa_addr)->GetBinaryAddress();
+				if(!skip_trivial || ((*(WORD*)bin)& 0xc0ff ) != 0x80fe)
+	                rt::CopyByteTo<16>(bin, itm.v6[itm.v6Count++].Local);
             }
         }
 	}
