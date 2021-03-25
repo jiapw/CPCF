@@ -1281,7 +1281,7 @@ struct FrequencyDivision
 public:
 	FrequencyDivision(UINT intv, UINT edge = 0){ SetInterval(intv, edge); Reset(); }
 	void Reset(){ _TickDiv = 0; }
-	void SetInterval(UINT intv, UINT edge = 0){ _Interval = intv; _TriggerEdge = edge; }
+	void SetInterval(UINT intv, UINT edge = 0){ ASSERT(intv > edge); _Interval = intv; _TriggerEdge = edge; }
 	bool Hit(UINT tick)
 	{	UINT td = tick/_Interval;
 		if(td >= _TickDiv && (tick%_Interval)>=_TriggerEdge){ _TickDiv = td+1; return true; }

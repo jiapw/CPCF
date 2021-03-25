@@ -486,9 +486,14 @@ class PodOnHeap        // put temp variable on heap to avoid being collected by 
     static_assert(TypeTraits<T_POD>::IsPOD, "T_POD should be a POD type");
 public:
     PodOnHeap(){ _p = _Malloc8AL(T_POD, 1); }
+	PodOnHeap(PodOnHeap&& x){ _p = x._p; x._p = nullptr; }
+	PodOnHeap(const PodOnHeap& x){ _p = _Malloc8AL(T_POD, 1); *_p = *x; }
+	PodOnHeap(const T_POD& x){ _p = _Malloc8AL(T_POD, 1); *_p = x; }
     ~PodOnHeap(){ _SafeFree8AL(_p); }
+	operator T_POD& (){ return *_p; }
     operator T_POD* (){ return _p; }
     T_POD* operator ->(){ return _p; }
+	operator const T_POD& () const { return *_p; }
     operator const T_POD* () const { return _p; }
     const T_POD* operator ->() const { return _p; }
     static size_t size(){ return sizeof(T_POD); }
