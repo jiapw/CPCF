@@ -112,9 +112,14 @@ void AsyncDatagramCoreBase::Term()
 #endif
 	}
 
+#if defined(PLATFORM_IOS)
+    for(UINT i=0;i<_IOWorkers.GetSize();i++)
+        _IOWorkers[i].WaitForEnding(100, true);
+#else
 	for(UINT i=0;i<_IOWorkers.GetSize();i++)
 		_IOWorkers[i].WaitForEnding();
-
+#endif
+    
 	_IOWorkers.SetSize(0);
 }
 
