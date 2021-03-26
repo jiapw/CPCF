@@ -118,11 +118,11 @@ template<UINT _METHOD = HASH_MD5> class HmacHash;
 						{	public: \
 							static const int HASHSIZE = _details::_HashSize<HASH_##tag>::size; \
 							protected:	BYTE	_Context[_details::_get_hmachash_context_size<HASH_##tag>::Result]; \
-							public:		HmacHash(LPCVOID key, UINT key_len){ int sz; IPPCALL(ippsHMAC##tag##GetSize)(&sz); ASSERT(sz <= (int)sizeof(_Context)); Reset(key, key_len); } \
-										void Reset(LPCVOID key, UINT key_len){ IPPCALL(ippsHMAC##tag##Init)((LPCBYTE)key, key_len, (IppsHMAC##tag##State*)_Context); } \
+							public:		HmacHash(LPCVOID key, UINT key_len){ int sz; IPPCALL(ippsHMAC_GetSize)(&sz); ASSERT(sz <= (int)sizeof(_Context)); Reset(key, key_len); } \
+void Reset(LPCVOID key, UINT key_len){ IPPCALL(ippsHMAC_Init)((LPCBYTE)key, key_len, (IppsHMACState*)_Context, ippHashAlg_##tag); } \
 										void Update(const rt::String_Ref& x){ Update(x.Begin(), (UINT)x.GetLength()); } \
-										void Update(LPCVOID data, UINT size){ IPPCALL(ippsHMAC##tag##Update)((LPCBYTE)data,size,(IppsHMAC##tag##State*)_Context); } \
-										void Finalize(LPVOID HashValue){ IPPCALL(ippsHMAC##tag##Final)((LPBYTE)HashValue,_details::_HashSize<HASH_##tag>::size,(IppsHMAC##tag##State*)_Context); } \
+										void Update(LPCVOID data, UINT size){ IPPCALL(ippsHMAC_Update)((LPCBYTE)data,size,(IppsHMACState*)_Context); } \
+										void Finalize(LPVOID HashValue){ IPPCALL(ippsHMAC_Final)((LPBYTE)HashValue,_details::_HashSize<HASH_##tag>::size,(IppsHMACState*)_Context); } \
 										void Calculate(LPCVOID message, UINT message_len, LPVOID HashValue){ Update(message, message_len); Finalize(HashValue); } \
 						}; \
 

@@ -16,6 +16,7 @@ val is 3
 Precompiled:
 val > 3
 
+LoadEnvironmentVariablesAsOptions on Mac/iOS is not implemented
 
 Precompiled:
 

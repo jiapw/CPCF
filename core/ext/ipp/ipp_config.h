@@ -69,7 +69,7 @@
 
 #include "../../os/predefines.h"
 
-#define IPP_LINK_STATIC_LIB_M8
+#define IPP_LINK_STATIC_LIB_PX
 
 #define PNG_USE_GLOBAL_ARRAYS
 #define PNG_SETJMP_SUPPORTED
@@ -95,31 +95,55 @@
 #pragma warning(disable:4819)
 
 
-#if defined(IPP_LINK_STATIC_LIB_W7)
-	#define IPPAPI(type,name,arg) extern type __STDCALL w7_##name arg;
-	#define IPPCALL(name) w7_##name
-#elif defined(IPP_LINK_STATIC_LIB_V8)
-	#define IPPAPI(type,name,arg) extern type __STDCALL v8_##name arg;
-	#define IPPCALL(name) v8_##name
-#elif defined(IPP_LINK_STATIC_LIB_P8)
-	#define IPPAPI(type,name,arg) extern type __STDCALL p8_##name arg;
-	#define IPPCALL(name) p8_##name
-#elif defined(IPP_LINK_STATIC_LIB_MX)
-	#define IPPAPI(type,name,arg) extern type __STDCALL mx_##name arg;
-	#define IPPCALL(name) mx_##name
-#elif defined(IPP_LINK_STATIC_LIB_M7)
-	#define IPPAPI(type,name,arg) extern type __STDCALL m7_##name arg;
+#if defined(IPP_LINK_STATIC_LIB_N8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n8_##name arg;
+	#define IPPCALL(name) n8_##name
+#elif defined(IPP_LINK_STATIC_LIB_M7)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL m7_##name arg;
 	#define IPPCALL(name) m7_##name
-#elif defined(IPP_LINK_STATIC_LIB_Y8)
-	#define IPPAPI(type,name,arg) extern type __STDCALL y8_##name arg;
+#elif defined(IPP_LINK_STATIC_LIB_Y8) // work but very slow
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL y8_##name arg;
 	#define IPPCALL(name) y8_##name
+#elif defined(IPP_LINK_STATIC_LIB_E9) // work but very slow
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL e9_##name arg;
+	#define IPPCALL(name) e9_##name
+#elif defined(IPP_LINK_STATIC_LIB_L9) // work but very slow	, will crash
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL l9_##name arg;
+	#define IPPCALL(name) l9_##name
+#elif defined(IPP_LINK_STATIC_LIB_K0) //crash
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL k0_##name arg;
+	#define IPPCALL(name) k0_##name
+#elif defined(IPP_LINK_STATIC_LIB_N0)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n0_##name arg;
+	#define IPPCALL(name) n0_##name
+#elif defined(IPP_LINK_STATIC_LIB_MX)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL mx_##name arg;
+	#define IPPCALL(name) mx_##name
+#elif defined(IPP_LINK_STATIC_LIB_U8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL u8_##name arg;
+	#define IPPCALL(name) u8_##name
+#elif defined(IPP_LINK_STATIC_LIB_N8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n8_##name arg;
+	#define IPPCALL(name) n8_##name
+#elif defined(IPP_LINK_STATIC_LIB_M8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL m8_##name arg;
+	#define IPPCALL(name) m8_##name
+#elif defined(IPP_LINK_STATIC_LIB_W7)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL w7_##name arg;
+	#define IPPCALL(name) w7_##name
+#elif defined(IPP_LINK_STATIC_LIB_V8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL v8_##name arg;
+	#define IPPCALL(name) v8_##name
+#elif defined(IPP_LINK_STATIC_LIB_P8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL p8_##name arg;
+	#define IPPCALL(name) p8_##name
 #else
-	#define IPP_LINK_STATIC_LIB_PX
-	#define IPPAPI(type,name,arg) extern type __STDCALL name arg;
+	#define IPP_LINK_STATIC_LIB_PX //fastest
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL name arg;
 	#define IPPCALL(name) name
 #endif
 
-#define IPPAPI_NOPREFIX(type,name,arg) extern type __STDCALL name arg;
+#define IPPAPI_NOPREFIX(type,name,arg) extern type IPP_STDCALL name arg;
 
 #if defined(PLATFORM_WIN)
 

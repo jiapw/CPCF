@@ -7,12 +7,8 @@
 #include "png/pngstruct.h"
 #include "png/pnginfo.h"
 
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-#include "ipp_ijl/ijl.h"
-#else
 #include "jpg/cdjpeg.h"
 #include "jpg/jversion.h"
-#endif // PLATFORM_INTEL_IPP_SUPPORT
 
 #include "gif/gif_lib.h"
 
@@ -518,70 +514,6 @@ bool ImageDecoder::Decode(LPCVOID pDataIn, UINT DataLen, DWORD image_codec)
 	}
 	else if(m_ImageCodec == ImageCodec_JPG)
 	{
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		// Use IPP IJL
-		JPEG_CORE_PROPERTIES	m_JcProps;
-		VERIFY(ijlInit(&m_JcProps) == IJL_OK);
-
-		m_DecodedImageStep = 0;
-		m_BufferUsedLen = 0;
-
-		m_JcProps.JPGFile = nullptr;
-		m_JcProps.JPGBytes = rt::_CastToNonconst(pData);
-		m_JcProps.JPGSizeBytes = DataLen;
-		if(ijlRead(&m_JcProps, IJL_JBUFF_READPARAMS)!=IJL_OK)
-		{
-			ijlFree(&m_JcProps);
-			return false;
-		}
-
-		m_DecodedImageWidth = m_JcProps.JPGWidth;
-		m_DecodedImageHeight = m_JcProps.JPGHeight;
-		m_DecodedImageChannel = m_JcProps.JPGChannels;
-
-		m_DecodedImageStep = m_DecodedImageWidth*m_DecodedImageChannel;
-		m_DecodedImageStep = (m_DecodedImageStep + 3)&0xfffffffc;
-		m_FrameCount = 1;
-
-		if(!_SetBufferSize(m_DecodedImageHeight*m_DecodedImageStep))
-			return false;
-
-		m_JcProps.DIBBytes = m_TempBuffer;
-
-		switch(m_DecodedImageChannel)
-		{
-		case 1:
-			m_JcProps.JPGColor = IJL_G;
-			m_JcProps.DIBColor = IJL_G;
-			break;
-		case 3:
-			m_JcProps.JPGColor = IJL_YCBCR;
-			m_JcProps.DIBColor = IJL_RGB;
-			break;
-		case 4:
-			m_JcProps.JPGColor = IJL_RGBA_FPX;
-			m_JcProps.DIBColor = IJL_RGBA_FPX;
-			break;
-		default:
-			return false;
-		}
-
-		// Set up the info on the desired DIB properties.
-		m_JcProps.DIBWidth = m_DecodedImageWidth;
-		m_JcProps.DIBHeight = m_DecodedImageHeight; // Implies a bottom-up DIB.
-		m_JcProps.DIBChannels = m_DecodedImageChannel;
-		m_JcProps.DIBPadBytes = m_DecodedImageStep - m_DecodedImageWidth*m_DecodedImageChannel;
-
-		// Now get the actual JPEG image data into the pixel buffer.
-		if(ijlRead(&m_JcProps, IJL_JBUFF_READWHOLEIMAGE) == IJL_OK)
-		{
-			ijlFree(&m_JcProps);
-			m_BufferUsedLen = m_DecodedImageStep*m_DecodedImageHeight;
-			return true;
-		}
-
-		ijlFree(&m_JcProps);
-#else
 		// Use libjpg instead
 		bool ret = false;
 		struct jpeg_decompress_struct cinfo;
@@ -624,7 +556,6 @@ bool ImageDecoder::Decode(LPCVOID pDataIn, UINT DataLen, DWORD image_codec)
 		}
 		jpeg_destroy_decompress(&cinfo);
 		return ret;
-#endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT
 	}
 	else if(m_ImageCodec == ImageCodec_GIF || m_ImageCodec == ImageCodec_GIF_ANI)
 	{
@@ -807,59 +738,6 @@ bool ImageEncoder::Encode(LPCBYTE pData,int Channel,int Width,int Height,int Ste
 	}
 	else if(codec == ImageCodec_JPG)
 	{
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		JPEG_CORE_PROPERTIES	m_JcProps;
-		VERIFY(ijlInit(&m_JcProps) == IJL_OK);
-
-		if(!_SetBufferSize(Channel*Width*Height + 1024))
-			return false;
-
-		m_BufferUsedLen = 0;
-
-		m_JcProps.jquality = m_Quality;
-		m_JcProps.DIBWidth = Width;
-		m_JcProps.DIBHeight = Height;
-		m_JcProps.DIBBytes = rt::_CastToNonconst(pData);
-		if(Step)m_JcProps.DIBPadBytes = Step - Width*Channel;
-
-		m_JcProps.DIBChannels = Channel;
-		switch(Channel)
-		{
-		case 1:
-			m_JcProps.JPGColor = IJL_G;
-			m_JcProps.JPGSubsampling = IJL_NONE;
-			m_JcProps.DIBColor = IJL_G;
-			break;
-		case 3:
-			m_JcProps.JPGColor = IJL_YCBCR;
-			m_JcProps.JPGSubsampling = (IJL_JPGSUBSAMPLING)(m_Flag);
-			m_JcProps.DIBColor = IJL_RGB;
-			break;
-		case 4:
-			m_JcProps.JPGColor = IJL_RGBA_FPX;
-			m_JcProps.JPGSubsampling = (IJL_JPGSUBSAMPLING)(m_Flag==IJL_NONE?IJL_NONE:(m_Flag+2));
-			m_JcProps.DIBColor = IJL_RGBA_FPX;
-			break;
-		default:
-			return false;
-		}
-
-		m_JcProps.JPGFile = nullptr;
-		m_JcProps.JPGBytes = m_TempBuffer;
-		m_JcProps.JPGSizeBytes = (int)m_TempBuffer.GetSize();
-
-		m_JcProps.JPGWidth = Width;
-		m_JcProps.JPGHeight = Height;
-		m_JcProps.JPGChannels = Channel;
-
-		if(ijlWrite(&m_JcProps,IJL_JBUFF_WRITEWHOLEIMAGE) == IJL_OK)
-		{
-			m_BufferUsedLen = m_JcProps.JPGSizeBytes;
-			ijlFree(&m_JcProps);
-			return true;
-		}
-		ijlFree(&m_JcProps);
-#else
 		// Use libjpg instead
 		if(Channel != 1 && Channel != 3)return false; // consider libjpeg-turbo to support RGBA
 
@@ -907,7 +785,6 @@ bool ImageEncoder::Encode(LPCBYTE pData,int Channel,int Width,int Height,int Ste
 		jpeg_destroy_compress(&cinfo);
 
 		return true;
-#endif
 	}
 	else if(codec == ImageCodec_GIF)
 	{

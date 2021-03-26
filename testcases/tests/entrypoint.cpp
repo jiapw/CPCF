@@ -31,6 +31,16 @@ void TestMain()
 	}
 	else
 	{
+	if(!os::CommandLine::Get().HasOption("verify"))
+	{
+		TYPETRAITS_UNITTEST(big_num);
+		TYPETRAITS_UNITTEST(botan_cipher);
+		TYPETRAITS_UNITTEST(crypto_func);
+//		TYPETRAITS_UNITTEST(recv_pump);
+		return;
+	}
+	else
+	{
 		TYPETRAITS_UNITTEST(rt);
 		TYPETRAITS_UNITTEST(buffer);
 		TYPETRAITS_UNITTEST(sortedpush);
@@ -40,7 +50,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(json);
 		TYPETRAITS_UNITTEST(express_tk);
 		TYPETRAITS_UNITTEST(xml);
-		//TYPETRAITS_UNITTEST(html);
+		TYPETRAITS_UNITTEST(html);
 		TYPETRAITS_UNITTEST(precompiler);
 		
 		TYPETRAITS_UNITTEST(timedate);

@@ -1,61 +1,74 @@
-/* /////////////////////////////////////////////////////////////////////////////
+/*
+// Copyright 2005-2020 Intel Corporation All Rights Reserved.
 //
-//                  INTEL CORPORATION PROPRIETARY INFORMATION
-//     This software is supplied under the terms of a license agreement or
-//     nondisclosure agreement with Intel Corporation and may not be copied
-//     or disclosed except in accordance with the terms of that agreement.
-//          Copyright(c) 2005-2012 Intel Corporation. All Rights Reserved.
+// The source code, information and material ("Material") contained herein is
+// owned by Intel Corporation or its suppliers or licensors, and title
+// to such Material remains with Intel Corporation or its suppliers or
+// licensors. The Material contains proprietary information of Intel
+// or its suppliers and licensors. The Material is protected by worldwide
+// copyright laws and treaty provisions. No part of the Material may be used,
+// copied, reproduced, modified, published, uploaded, posted, transmitted,
+// distributed or disclosed in any way without Intel's prior express written
+// permission. No license under any patent, copyright or other intellectual
+// property rights in the Material is granted to or conferred upon you,
+// either expressly, by implication, inducement, estoppel or otherwise.
+// Any license under such intellectual property rights must be express and
+// approved by Intel in writing.
 //
-//
-//                  Intel(R) Performance Primitives
-//                  Color Conversion Library (ippCC)
+// Unless otherwise agreed by Intel in writing,
+// you may not remove or alter this notice or any other notice embedded in
+// Materials by Intel or Intel's suppliers or licensors in any way.
 //
 */
-#if !defined( __IPPCC_H__ ) || defined( _OWN_BLDPCS )
-#define __IPPCC_H__
 
-#if defined (_WIN32_WCE) && defined (_M_IX86) && defined (__stdcall)
-  #define _IPP_STDCALL_CDECL
-  #undef __stdcall
+/*
+//              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
+//              Color Conversion Library (ippCC)
+//
+//
+*/
+
+
+#if !defined( IPPCC_H__ ) || defined( _OWN_BLDPCS )
+#define IPPCC_H__
+
+#ifndef IPPDEFS_H__
+  #include "ippdefs.h"
 #endif
 
-#ifndef __IPPDEFS_H__
-  #include "ippdefs.h"
+#include "ippcc_l.h"
+
+#if (defined( IPP_ENABLED_THREADING_LAYER ) || defined( IPP_ENABLED_THREADING_LAYER_REDEFINITIONS ))
+    #include "ippcc_tl.h"
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if !defined( _IPP_NO_DEFAULT_LIB )
-  #if defined( _IPP_PARALLEL_DYNAMIC )
-    #pragma comment( lib, "ippcc" )
-    #pragma comment( lib, "ippcore" )
-  #elif defined( _IPP_PARALLEL_STATIC )
-    #pragma comment( lib, "ippcc_t" )
-    #pragma comment( lib, "ippi_t" )
-    #pragma comment( lib, "ipps_t" )
-    #pragma comment( lib, "ippcore_t" )
+#if !defined( IPP_NO_DEFAULT_LIB )
+  #if defined( _IPP_SEQUENTIAL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcc" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcore" )
   #elif defined( _IPP_SEQUENTIAL_STATIC )
-    #pragma comment( lib, "ippcc_l" )
-    #pragma comment( lib, "ippi_l" )
-    #pragma comment( lib, "ipps_l" )
-    #pragma comment( lib, "ippcore_l" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippccmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippimt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippsmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippvmmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcoremt" )
+  #elif defined( _IPP_PARALLEL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcc" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcore" )
+  #elif defined( _IPP_PARALLEL_STATIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippccmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippimt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippsmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippvmmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcoremt" )
   #endif
 #endif
 
 
-#if !defined( _OWN_BLDPCS )
-
-typedef enum {
-    ippDitherNone,
-    ippDitherFS,
-    ippDitherJJN,
-    ippDitherStucki,
-    ippDitherBayer
-} IppiDitherType;
-
-#endif /* _OWN_BLDPCS */
 
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -156,17 +169,17 @@ IPPAPI(IppStatus, ippiBGRToYCbCr420_709HDTV_8u_AC4P3R,(const Ipp8u* pSrc   , int
 //    G' = 1.164*(Y - 16) - 0.534*(Cr - 128 )- 0.213*( Cb - 128 )
 //    B' = 1.164*(Y - 16) + 2.115*(Cb - 128 )
 */
+IPPAPI(IppStatus, ippiBGRToYCbCr420_709CSC_8u_AC4P3R,(const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToYCrCb420_709CSC_8u_AC4P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 
-  IPPAPI(IppStatus, ippiBGRToYCbCr420_709CSC_8u_AC4P3R,(const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-  IPPAPI(IppStatus, ippiBGRToYCrCb420_709CSC_8u_AC4P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToYCbCr420_709CSC_8u_C3P3R,(const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToYCrCb420_709CSC_8u_C3P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToYCbCr420_709CSC_8u_C3P2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDstY, int dstYStep, Ipp8u* pDstCbCr,int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToYCbCr420_709CSC_8u_AC4P2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDstY, int dstYStep, Ipp8u* pDstCbCr,int dstCbCrStep, IppiSize roiSize ))
 
-  IPPAPI(IppStatus, ippiBGRToYCbCr420_709CSC_8u_C3P3R,(const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-  IPPAPI(IppStatus, ippiBGRToYCrCb420_709CSC_8u_C3P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-  IPPAPI(IppStatus, ippiBGRToYCbCr420_709CSC_8u_C3P2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDstY, int dstYStep, Ipp8u* pDstCbCr,int dstCbCrStep, IppiSize roiSize ))
-
-  IPPAPI(IppStatus, ippiYCbCr420ToBGR_709CSC_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize))
-  IPPAPI(IppStatus, ippiYCbCrToBGR_709CSC_8u_P3C3R,( const Ipp8u* pSrc[3],int srcStep,Ipp8u* pDst,int dstStep,IppiSize roiSize ))
-  IPPAPI(IppStatus, ippiYCbCrToBGR_709CSC_8u_P3C4R,( const Ipp8u* pSrc[3],int srcStep,Ipp8u* pDst,int dstStep,IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiYCbCr420ToBGR_709CSC_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCrToBGR_709CSC_8u_P3C3R,( const Ipp8u* pSrc[3],int srcStep,Ipp8u* pDst,int dstStep,IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCrToBGR_709CSC_8u_P3C4R,( const Ipp8u* pSrc[3],int srcStep,Ipp8u* pDst,int dstStep,IppiSize roiSize, Ipp8u aval))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Names:
@@ -179,6 +192,7 @@ IPPAPI(IppStatus, ippiBGRToYCbCr420_709HDTV_8u_AC4P3R,(const Ipp8u* pSrc   , int
 //  ippiYCbCr422ToRGB_8u_P3C3R
 //
 //  ippiRGBToYCbCr422_8u_C3C2R,        ippiYCbCr422ToRGB_8u_C2C3R,
+//                                     ippiYCbCr422ToRGB_8u_C2C4R,
 //  ippiRGBToYCbCr422_8u_P3C2R,        ippiYCbCr422ToRGB_8u_C2P3R,
 //
 //  ippiRGBToYCbCr420_8u_C3P3R,        ippiYCbCr420ToRGB_8u_P3C3R,
@@ -201,10 +215,13 @@ IPPAPI(IppStatus, ippiBGRToYCbCr420_709HDTV_8u_AC4P3R,(const Ipp8u* pSrc   , int
 //  ippiYCbCr422ToRGB444_8u16u_P3C3R,  ippiYCbCr422ToBGR444_8u16u_P3C3R,
 //
 //  ippiRGBToYCrCb422_8u_C3C2R,        ippiYCrCb422ToRGB_8u_C2C3R,
+//                                     ippiYCrCb422ToBGR_8u_C2C3R,
+//                                     ippiYCrCb422ToRGB_8u_C2C4R,
+//                                     ippiYCrCb422ToBGR_8u_C2C4R,
 //  ippiRGBToYCrCb422_8u_P3C2R,        ippiYCrCb422ToRGB_8u_C2P3R,
 //
 //
-//  Purpose:    Converts an RGB(BGR) image to the YCbCr (CbYCr, YCrCb) image and vice versa.
+//  Purpose:    Converts an RGB/BGR image to the YCbCr/CbYCr/YCrCb image and vice versa.
 //  Parameters:
 //     pSrc     Pointer to the source image (for pixel-order data).An array of
 //              pointers to separate source color planes (for plane-order data)
@@ -213,6 +230,7 @@ IPPAPI(IppStatus, ippiBGRToYCbCr420_709HDTV_8u_AC4P3R,(const Ipp8u* pSrc   , int
 //     roiSize  Size of source and destination ROI in pixels
 //     srcStep  Step in bytes through the source image to jump on the next line
 //     dstStep  Step in bytes through the destination image to jump on the next line
+//     aval     Constant value to create the fourth channel.
 //  Returns:
 //     ippStsNullPtrErr  pSrc == NULL, or pDst == NULL
 //     ippStsSizeErr     roiSize has field with zero or negative value
@@ -249,246 +267,49 @@ IPPAPI(IppStatus, ippiBGRToYCbCr420_709HDTV_8u_AC4P3R,(const Ipp8u* pSrc   , int
 //   Note that for the YCbCr-to-RGB equations, the RGB values must be saturated
 //   at the 0 and 255 levels due to occasional excursions outside the nominal
 //   YCbCr ranges.
+//   Note that two-planar YCbCr420 image is also known as NV12 format and YCrCb420 as NV21.
+//
 //   ippiRGBToCbYCr422Gamma_8u_C3C2R function additionally performs gamma-correction, there is
 //   sample down filter(1/4,1/2,1/4).
 */
-IPPAPI(IppStatus, ippiRGBToYCbCr420_8u_C3P2R,( const Ipp8u* pRGB, int rgbStep,  Ipp8u* pY,
-      int YStep,Ipp8u* pCbCr, int CbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiRGBToYCbCr420_8u_C3P2R,( const Ipp8u* pRGB, int rgbStep,  Ipp8u* pY, int YStep,Ipp8u* pCbCr, int CbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiRGBToYCbCr420_8u_C4P2R,( const Ipp8u* pRGB, int rgbStep,  Ipp8u* pY, int YStep,Ipp8u* pCbCr, int CbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToYCbCr420_8u_C3P2R,( const Ipp8u* pRGB, int rgbStep,  Ipp8u* pY, int YStep,Ipp8u* pCbCr, int CbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToYCbCr420_8u_AC4P2R,( const Ipp8u* pRGB, int rgbStep,  Ipp8u* pY, int YStep,Ipp8u* pCbCr, int CbCrStep, IppiSize roiSize ))
 
-IPPAPI(IppStatus, ippiYCbCr420ToRGB_8u_P2C3R,(const Ipp8u* pY, int pYStep,const Ipp8u* pCbCr, int CbCrStep,
-Ipp8u* pRGB, int rgbStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420ToRGB_8u_P2C3R,(const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420ToRGB_8u_P2C4R,(const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiYCbCr420ToBGR_8u_P2C3R,(const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420ToBGR_8u_P2C4R,(const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
 
-IPPAPI(IppStatus, ippiRGBToYCbCr420_8u_C4P2R,( const Ipp8u* pRGB, int rgbStep,  Ipp8u* pY,
-      int YStep,Ipp8u* pCbCr, int CbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiBGRToCbYCr422_8u_AC4C2R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiCbYCr422ToBGR_8u_C2C4R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiYCbCr411ToBGR_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr411ToBGR_8u_P3C4R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiCbYCr422ToRGB_8u_C2C3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToCbYCr422Gamma_8u_C3C2R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToCbYCr422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr422ToRGB_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
 
-IPPAPI(IppStatus, ippiYCbCr420ToRGB_8u_P2C4R,(const Ipp8u* pY, int pYStep,const Ipp8u* pCbCr, int CbCrStep,
-Ipp8u* pRGB, int rgbStep, IppiSize roiSize, Ipp8u aval ))
+IPPAPI(IppStatus, ippiRGBToYCbCr422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr422ToRGB_8u_C2C3R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr422ToRGB_8u_C2C4R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval ))
+IPPAPI(IppStatus, ippiRGBToYCbCr422_8u_P3C2R,(const Ipp8u* pSrc[3], int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr422ToRGB_8u_C2P3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420ToBGR_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420ToRGB_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYCbCr420_8u_C3P3R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize))
 
-IPPAPI(IppStatus, ippiCbYCr422ToBGR_8u_C2C4R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiRGBToYCrCb422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCrCb422ToRGB_8u_C2C3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCrCb422ToBGR_8u_C2C3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCrCb422ToRGB_8u_C2C4R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiYCrCb422ToBGR_8u_C2C4R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
 
-IPPAPI(IppStatus, ippiBGRToCbYCr422_8u_AC4C2R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr411ToBGR_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst,
-       int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus,ippiYCbCr411ToBGR_8u_P3C4R,(const Ipp8u* pSrc[3],int srcStep[3],
-       Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
-
-IPPAPI(IppStatus, ippiCbYCr422ToRGB_8u_C2C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiRGBToCbYCr422Gamma_8u_C3C2R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiRGBToCbYCr422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr422ToRGB_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiRGBToYCbCr422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCr422ToRGB_8u_C2C3R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiRGBToYCbCr422_8u_P3C2R,(const Ipp8u* pSrc[3], int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCr422ToRGB_8u_C2P3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr420ToBGR_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr420ToRGB_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYCbCr420_8u_C3P3R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize))
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB565_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr422ToBGR565_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB555_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr422ToBGR555_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYCrCb422_8u_P3C2R,(const Ipp8u* pSrc[3], int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCrCb422ToRGB_8u_C2P3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
 
 
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB444_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR444_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR565_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB565_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR444_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB444_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR555_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB555_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr420ToBGR565_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToRGB565_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr420ToBGR555_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToRGB555_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiYCbCr420ToBGR444_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToRGB444_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR565_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB565_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR555_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB555_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR444_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB444_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPPAPI(IppStatus, ippiRGBToYCrCb422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCrCb422ToRGB_8u_C2C3R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYCrCb422_8u_P3C2R,(const Ipp8u* pSrc[3], int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCrCb422ToRGB_8u_C2P3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name: ippiYCbCrToBGR(RGB)565(555,444)Dither_8u16u_C3R
-//        ippiYCbCrToBGR(RGB)565(555,444)Dither_8u16u_P3C3R
-//        ippiYCbCr422ToBGR(RGB)565(555,444)Dither_8u16u_P3C3R
-//        ippiYCbCr420ToBGR(RGB)565(555,444)Dither_8u16u_P3C3R
-//        ippiYUV420ToBGR(RGB)565(555,444)Dither_8u16u_P3C3R
-//  Purpose:
-//      Converts a YCbCr(YUV) image to the 16-bit per pixel BGR(RGB) image with dithering.
-//  Parameters:
-//     pSrc   Pointer to the source image (for pixel-order data).An array of pointers
-//            to separate source color planes (for plane-order data)
-//     pDst   Pointer to the destination image (for pixel-order data).An array of pointers
-//            to separate destination color planes (for plane-order data)
-//     roiSize  Size of the source and destination ROI in pixels.
-//     srcStep  Step in bytes through the source image to jump on the next line
-//     dstStep  Step in bytes through the destination image to jump on the next line
-//  Returns:
-//           ippStsNullPtrErr  pSrc == NULL, or pDst == NULL
-//           ippStsSizeErr     roiSize has a field with zero or negative value
-//           ippStsNoErr       No errors
-//  After color conversion bit reduction is performed using Bayer's dithering algorithm
-*/
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR565Dither_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB565Dither_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR555Dither_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB555Dither_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR444Dither_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB444Dither_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToBGR565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToRGB565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToBGR555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToRGB555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToBGR444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr420ToRGB444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB555Dither_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR555Dither_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB565Dither_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR565Dither_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToRGB444Dither_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr422ToBGR444Dither_8u16u_C2C3R,(const Ipp8u* pSrc, int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToBGR444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToRGB444Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToBGR555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToRGB555Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToBGR565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToRGB565Dither_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  Name:       ippiBGR565ToYUV420_16u8u_C3P3R/ippiBGR555ToYUV420_16u8u_C3P3R
-//  Return:
-//    ippStsNoErr           Ok
-//    ippStsNullPtrErr      one or more pointers are NULL
-//    ippStsSizeErr         if roiSize.width < 2 or if roiSize.height < 0
-//  Arguments:
-//    pSrc          Pointer to the source image
-//    srcStep       Step through the source image
-//    pDst          An array of pointers  to separate destination color planes.
-//    dstStep       An array of step in bytes through the destination planes
-//    roiSize       region of interest to be processed, in pixels
-*/
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR565ToYUV420_16u8u_C3P3R,( const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR555ToYUV420_16u8u_C3P3R,( const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToBGR_8u_C2C4R / ippiYCbCr422ToBGR_8u_C2C3R
 //  Purpose:    Converts a YUY2 image to the BGRA / RGB24 image
@@ -506,6 +327,8 @@ IPPAPI(IppStatus, ippiBGR555ToYUV420_16u8u_C3P3R,( const Ipp16u* pSrc, int srcSt
 */
 IPPAPI(IppStatus, ippiYCbCr422ToBGR_8u_C2C4R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst,int dstStep, IppiSize roiSize, Ipp8u aval  ))
 IPPAPI(IppStatus, ippiYCbCr422ToBGR_8u_C2C3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst,int dstStep, IppiSize roiSize  ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCrToBGR_8u_P3C4R / ippiYCbCrToBGR_8u_P3C3R
 //  Purpose:    Converts a P444 image to the BGRA / RGB24 image
@@ -522,24 +345,8 @@ IPPAPI(IppStatus, ippiYCbCr422ToBGR_8u_C2C3R,( const Ipp8u* pSrc, int srcStep, I
 */
 IPPAPI(IppStatus, ippiYCbCrToBGR_8u_P3C4R,( const Ipp8u* pSrc[3],int srcStep,Ipp8u* pDst,int dstStep,IppiSize roiSize, Ipp8u aval  ))
 IPPAPI(IppStatus, ippiYCbCrToBGR_8u_P3C3R,( const Ipp8u* pSrc[3],int srcStep,Ipp8u* pDst,int dstStep,IppiSize roiSize ))
-/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  Name:       ippiYCbCr411ToBGR565_8u16u_P3C3R / ippiYCbCr411ToBGR555_8u16u_P3C3R
-//  Purpose:    Converts a P411 image to the RGB565 / RGB555 image
-//  Return:
-//    ippStsNoErr              Ok
-//    ippStsNullPtrErr        One or more pointers are NULL
-//    ippStsSizeErr            if roiSize.width < 4 or if roiSize.height < 1
-//  Arguments:
-//    pSrc                     array of pointers to the components of the source image
-//    srcStep                  array of step values for every component
-//    pDst                     pointer to the destination image
-//    dstStep                  step for the destination image
-//     roiSize                 region of interest to be processed, in pixels
-*/
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr411ToBGR565_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst,int dstStep,IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCr411ToBGR555_8u16u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp16u* pDst,int dstStep,IppiSize roiSize ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiBGRToYCbCr411_8u_C3P3R/ippiBGRToYCbCr411_8u_AC4P3R/ippiBGR565ToYCbCr411_16u8u_C3P3R/ippiBGR555ToYCbCr411_16u8u_C3P3R
 //  Purpose:    Converts a RGB24/RGBA/RGB565/RGB565 image to the P411 image
@@ -556,10 +363,8 @@ IPPAPI(IppStatus, ippiYCbCr411ToBGR555_8u16u_P3C3R,(const Ipp8u* pSrc[3],int src
 */
 IPPAPI(IppStatus, ippiBGRToYCbCr411_8u_C3P3R,   (const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 IPPAPI(IppStatus, ippiBGRToYCbCr411_8u_AC4P3R,  (const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR565ToYCbCr411_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR555ToYCbCr411_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiBGRToYCbCr422_8u_C3P3R/ippiBGRToYCbCr422_8u_AC4P3R/ippiBGR565ToYCbCr422_16u8u_C3P3R/ippiBGR555ToYCbCr422_16u8u_C3P3R
 //  Purpose:    Converts a RGB24/RGBA/RGB565/RGB565 image to the P422 image
@@ -576,10 +381,8 @@ IPPAPI(IppStatus, ippiBGR555ToYCbCr411_16u8u_C3P3R,(const Ipp16u* pSrc, int srcS
 */
 IPPAPI(IppStatus, ippiBGRToYCbCr422_8u_C3P3R,   (const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
 IPPAPI(IppStatus, ippiBGRToYCbCr422_8u_AC4P3R,  (const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR565ToYCbCr422_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR555ToYCbCr422_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiBGRToYCbCr420_8u_C3P3R/ippiBGRToYCbCr420_8u_AC4P3R/ippiBGR565ToYCbCr420_16u8u_C3P3R/ippiBGR555ToYCbCr420_16u8u_C3P3R
 //  Purpose:    Converts a RGB24/RGBA/RGB565/RGB565 image to the IYUV image
@@ -596,10 +399,8 @@ IPPAPI(IppStatus, ippiBGR555ToYCbCr422_16u8u_C3P3R,(const Ipp16u* pSrc, int srcS
 */
 IPPAPI(IppStatus, ippiBGRToYCbCr420_8u_C3P3R,   (const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 IPPAPI(IppStatus, ippiBGRToYCbCr420_8u_AC4P3R,  (const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR565ToYCbCr420_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR555ToYCbCr420_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiBGRToYCbCr422_8u_C3C2R/ippiBGRToYCbCr422_8u_AC4C2R/ippiBGR555ToYCbCr422_16u8u_C3C2R/ippiBGR565ToYCbCr422_16u8u_C3C2R
 //  Purpose:    Converts a RGB24/RGBA/RGB565/RGB565 image to the YUY2 image
@@ -616,10 +417,8 @@ IPPAPI(IppStatus, ippiBGR555ToYCbCr420_16u8u_C3P3R,(const Ipp16u* pSrc, int srcS
 */
 IPPAPI(IppStatus, ippiBGRToYCbCr422_8u_C3C2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
 IPPAPI(IppStatus, ippiBGRToYCbCr422_8u_AC4C2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR555ToYCbCr422_16u8u_C3C2R,( const Ipp16u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR565ToYCbCr422_16u8u_C3C2R,( const Ipp16u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiBGRToYCrCb420_8u_C3P3R/ippiBGRToYCrCb420_8u_AC4P3R/ippiBGR555ToYCrCb420_16u8u_C3P3R/ippiBGR565ToYCrCb420_16u8u_C3P3R
 //  Purpose:    Converts a RGB24/RGBA/RGB565/RGB565 image to the YV12 image
@@ -636,10 +435,7 @@ IPPAPI(IppStatus, ippiBGR565ToYCbCr422_16u8u_C3C2R,( const Ipp16u* pSrc, int src
 */
 IPPAPI(IppStatus, ippiBGRToYCrCb420_8u_C3P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 IPPAPI(IppStatus, ippiBGRToYCrCb420_8u_AC4P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR555ToYCrCb420_16u8u_C3P3R,( const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR565ToYCrCb420_16u8u_C3P3R,( const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:   ippiRGBToYCrCb420_8u_AC4P3R
@@ -656,6 +452,8 @@ IPPAPI(IppStatus, ippiBGR565ToYCrCb420_16u8u_C3P3R,( const Ipp16u* pSrc, int src
 //    roiSize Size of the source and destination ROI in pixels.
 */
 IPPAPI(IppStatus, ippiRGBToYCrCb420_8u_AC4P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:   ippiYCrCb420ToRGB_8u_P3C4R  and  ippiYCbCr420ToBGR_8u_P3C4R
 //  Purpose:    Converts a YV12 image to the a RGBA image and converts a IYUV image to the a BGRA
@@ -664,15 +462,41 @@ IPPAPI(IppStatus, ippiRGBToYCrCb420_8u_AC4P3R,( const Ipp8u* pSrc, int srcStep, 
 //    ippStsNullPtrErr      one or more pointers are NULL
 //    ippStsDoubleSize    Indicates a warning if roiSize is not a multiple of 2.
 //  Arguments:
-//    pSrc           An array of pointers to ROI in separate planes of the source image.
+//    pSrc         An array of pointers to ROI in separate planes of the source image.
 //    srcStep      An array of distances in bytes between starts of consecutive lines in the source image planes.
-//    pDst           Pointer to the destination image ROI.
+//    pDst         Pointer to the destination image ROI.
 //    dstStep      Distance in bytes between starts of consecutive lines in the destination image.
-//   roiSize         Size of the source and destination ROI in pixels.
-//    aval           Constant value to create the fourth channel.
+//    roiSize      Size of the source and destination ROI in pixels.
+//    aval         Constant value to create the fourth channel.
 */
 IPPAPI(IppStatus, ippiYCbCr420ToBGR_8u_P3C4R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize,  Ipp8u aval))
-IPPAPI(IppStatus, ippiYCrCb420ToRGB_8u_P3C4R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize,  Ipp8u aval ))
+IPPAPI(IppStatus, ippiYCrCb420ToRGB_8u_P3C4R,(const Ipp8u* pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize,  Ipp8u aval))
+
+
+/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  Name:   ippiYCrCb420ToRGB_8u_P2C4R,  ippiYCrCb420ToBGR_8u_P2C4R, ippiYCrCb420ToRGB_8u_P2C3R, ippiYCrCb420ToBGR_8u_P2C3R
+//  Purpose:    Converts NV21 two-plane image to RGBA/BGRA/RGB/BGR image
+//  Return:
+//    ippStsNoErr         No errors
+//    ippStsNullPtrErr    One or more pointers are NULL
+//    ippStsSizeErr       roiSize has field with zero or negative value
+//    ippStsDoubleSize    Indicates a warning if roiSize is not a multiple of 2.
+//  Arguments:
+//    pSrcY        Pointer to the source image Y plane.
+//    srcYStep     Step through the source image Y plane.
+//    pSrcCrCb     Pointer to the source image CrCb plane.
+//    srcCrCbStep  Step through the source image CrCb plane.
+//    pDst         Pointer to the destination image ROI.
+//    dstStep      Distance in bytes between starts of consecutive lines in the destination image.
+//    roiSize      Size of the source and destination ROI in pixels.
+//    aval         Constant value to create the fourth channel.
+*/
+IPPAPI(IppStatus, ippiYCrCb420ToRGB_8u_P2C4R, (const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCrCb, int srcCrCbStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiYCrCb420ToBGR_8u_P2C4R, (const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCrCb, int srcCrCbStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiYCrCb420ToRGB_8u_P2C3R, (const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCrCb, int srcCrCbStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCrCb420ToBGR_8u_P2C3R, (const Ipp8u* pSrcY, int srcYStep, const Ipp8u* pSrcCrCb, int srcCrCbStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:   ippiRGBToYCbCr_8u_AC4P3R and ippiRGBToYCbCr_8u_C3P3R
 //  Purpose:    Converts a RGBA and RGB image to the YUV 4:4:4 image
@@ -688,6 +512,8 @@ IPPAPI(IppStatus, ippiYCrCb420ToRGB_8u_P3C4R,(const Ipp8u* pSrc[3],int srcStep[3
 */
 IPPAPI(IppStatus, ippiRGBToYCbCr_8u_AC4P3R,( const Ipp8u* pSrc  , int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiRGBToYCbCr_8u_C3P3R,( const Ipp8u* pSrc   , int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:  ippiYCbCrToRGB_8u_P3C4R
 //  Purpose:    Converts a YUV 4:4:4 image to the a RGBA image
@@ -703,6 +529,7 @@ IPPAPI(IppStatus, ippiRGBToYCbCr_8u_C3P3R,( const Ipp8u* pSrc   , int srcStep, I
 //    aval               Constant value to create the fourth channel.
 */
 IPPAPI(IppStatus, ippiYCbCrToRGB_8u_P3C4R,( const Ipp8u* pSrc[3], int srcStep, Ipp8u* pDst   , int dstStep, IppiSize roiSize, Ipp8u aval ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422_8u_P3C2R
@@ -728,6 +555,8 @@ IPPAPI(IppStatus, ippiYCbCrToRGB_8u_P3C4R,( const Ipp8u* pSrc[3], int srcStep, I
 */
 IPPAPI (IppStatus, ippiYCbCr422_8u_P3C2R,          ( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize  roiSize))
 IPPAPI (IppStatus, ippiYCbCr422ToCbYCr422_8u_P3C2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize  roiSize))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCrCb420ToBGR_Filter_8u_P3C4R
 //  Purpose:    Converts a YV12 image to the RGB32 image
@@ -745,6 +574,7 @@ IPPAPI (IppStatus, ippiYCbCr422ToCbYCr422_8u_P3C2R,( const Ipp8u* pSrc[3], int s
 //    aval          Constant value to create the fourth channel.
 */
 IPPAPI(IppStatus, ippiYCrCb420ToBGR_Filter_8u_P3C4R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiJoin420_8u_P2C2R, ippiJoin420_Filter_8u_P2C2R
@@ -786,11 +616,9 @@ IPPAPI(IppStatus, ippiYCrCb420ToBGR_Filter_8u_P3C4R,(const Ipp8u* pSrc[3], int s
 //     ( the height of slices should be a multiple of 16).
 //
 */
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_8u_P2C2R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P2C2R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize,int layout))
 
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_8u_P2C2R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr,
-                  int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P2C2R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr,
-        int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize,int layout))
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:
@@ -833,12 +661,8 @@ IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P2C2R,(const Ipp8u* pSrcY, in
 //    The function ippiSplit420_Filter_8u_P2P3R usually operates on the sliced images
 //    ( the height of slices should be a multiple of 16).
 */
-
-
-IPPAPI(IppStatus, ippiYCbCr420ToYCrCb420_Filter_8u_P2P3R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr,
-                  int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize,int layout))
-IPPAPI(IppStatus, ippiYCbCr420ToYCrCb420_8u_P2P3R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr,
-                  int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420ToYCrCb420_Filter_8u_P2P3R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize,int layout))
+IPPAPI(IppStatus, ippiYCbCr420ToYCrCb420_8u_P2P3R,(const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
 
 
 /* ////////////////////////////////////////////////////////////////////////////
@@ -863,13 +687,18 @@ IPPAPI(IppStatus, ippiYCbCr420ToYCrCb420_8u_P2P3R,(const Ipp8u* pSrcY, int srcYS
 //                   Y0U0Y1V0,Y2U1Y3V1,...
 //    for ippiUYToYU422_8u_C2P2R sequence of bytes in the destination image is( UYVY ):
 //                   U0Y0V0Y1,U1Y2V1Y3,...
-//    Sequence of bytes in the destination image is( NV12 ):
+//    Sequence of bytes in the destination image is:
+//      NV12
+//        Y plane    Y0Y1Y2Y3
+//       UV plane    U0V0U1V1
+//      NV21
 //        Y plane    Y0Y1Y2Y3
 //       UV plane    U0V0U1V1
 */
-
 IPPAPI(IppStatus, ippiYCbCr422ToYCbCr420_8u_C2P2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr,int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCrCb420_8u_C2P2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCrCb,int dstUVStep, IppiSize roiSize ))
 IPPAPI(IppStatus, ippiCbYCr422ToYCbCr420_8u_C2P2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr,int dstCbCrStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCrCb420_8u_C2P3R, ippiCbYCr422ToYCrCb420_8u_C2P3R
@@ -896,6 +725,7 @@ IPPAPI(IppStatus, ippiCbYCr422ToYCbCr420_8u_C2P2R,( const Ipp8u* pSrc, int srcSt
 IPPAPI(IppStatus, ippiYCbCr422ToYCrCb420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize ))
 IPPAPI(IppStatus, ippiCbYCr422ToYCrCb420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize ))
 
+
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYUToUY422_8u_C2R, ippiUYToYU422_8u_C2R
 //  Purpose:    Converts a 2-channel YUY2 image to the UYVY image and vice versa
@@ -920,6 +750,7 @@ IPPAPI(IppStatus, ippiCbYCr422ToYCrCb420_8u_C2P3R,( const Ipp8u* pSrc, int srcSt
 IPPAPI(IppStatus, ippiYCbCr422ToCbYCr422_8u_C2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
 IPPAPI(IppStatus, ippiCbYCr422ToYCbCr422_8u_C2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
 
+
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYVToUY420_8u_P3C2R, ippiYVToYU420_8u_P3C2R
 //  Purpose:    Converts a 3-plane YV12 image to 2-channel YUY2,UYVY images
@@ -942,9 +773,9 @@ IPPAPI(IppStatus, ippiCbYCr422ToYCbCr422_8u_C2R,( const Ipp8u* pSrc, int srcStep
 //    for ippiUYToYU422_8u_C2P2R sequence of bytes in the destination image is( UYVY ):
 //                   U0Y0V0Y1,U1Y2V1Y3,...
 */
-
 IPPAPI(IppStatus, ippiYCrCb420ToCbYCr422_8u_P3C2R,( const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize ))
 IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_8u_P3C2R,( const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:   ippiRGBToYCbCr422_8u_C3P3R/ippiYCbCr422ToBGR_8u_P3C3R
@@ -963,7 +794,6 @@ IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_8u_P3C2R,( const Ipp8u* pSrc[3],int src
 */
 IPPAPI(IppStatus, ippiRGBToYCbCr422_8u_C3P3R,(const Ipp8u* pSrc   , int srcStep   , Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
 IPPAPI(IppStatus, ippiYCbCr422ToBGR_8u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst   , int dstStep   , IppiSize roiSize))
-
 
 
 /* ////////////////////////////////////////////////////////////////////////////
@@ -991,6 +821,7 @@ IPPAPI(IppStatus, ippiYCbCr422ToBGR_8u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[
 */
 IPPAPI(IppStatus, ippiYCrCb420ToYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr,int dstCbCrStep, IppiSize roiSize ))
 
+
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYUToUY420_8u_P2C2R
 //  Purpose:    Converts a 2-plane NV12 image to the 2-channel UYVY image
@@ -1017,6 +848,7 @@ IPPAPI(IppStatus, ippiYCrCb420ToYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3],int src
 */
 IPPAPI(IppStatus, ippiYCbCr420ToCbYCr422_8u_P2C2R,( const Ipp8u* pSrcY, int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
 
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCbCr422_8u_C2P3R
 //  Purpose:    Converts a YUY2 image to the P422 image
@@ -1038,12 +870,10 @@ IPPAPI(IppStatus, ippiYCbCr420ToCbYCr422_8u_P2C2R,( const Ipp8u* pSrcY, int srcY
 //  Notes:
 //    roiSize.width  should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCrCb422ToYCbCr422_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiCbYCr422ToYCbCr422_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCrCb422ToYCbCr422_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiCbYCr422ToYCbCr422_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCbCr420_8u_C2P3R
@@ -1066,12 +896,11 @@ IPPAPI(IppStatus, ippiCbYCr422ToYCbCr422_8u_C2P3R,( const Ipp8u* pSrc, int srcSt
 //  Notes:
 //    roiSize.width and roiSize.height  should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCbCr420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiCbYCr422ToYCbCr420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCrCb422ToYCbCr420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCbCr420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiCbYCr422ToYCbCr420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCrCb422ToYCbCr420_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCbCr411_8u_C2P3R
 //  Purpose:    Converts a YUY2 image to the P411 image
@@ -1093,12 +922,10 @@ IPPAPI(IppStatus, ippiYCrCb422ToYCbCr420_8u_C2P3R,( const Ipp8u* pSrc, int srcSt
 //  Notes:
 //    roiSize.width  should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiCbYCr422ToYCbCr411_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCrCb422ToYCbCr411_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiCbYCr422ToYCbCr411_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCrCb422ToYCbCr411_8u_C2P3R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:    ippiYCbCr422ToYCbCr420_8u_P3P2R
@@ -1123,12 +950,10 @@ IPPAPI(IppStatus, ippiYCrCb422ToYCbCr411_8u_C2P3R,( const Ipp8u* pSrc, int srcSt
 //  Notes:
 //    roiSize.width and roiSize.height should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:    ippiYCbCr422ToYCbCr411_8u_P3P2R
@@ -1152,10 +977,9 @@ IPPAPI(IppStatus, ippiYCbCr420ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int sr
 //    roiSize.width  should be multiple 4.
 //    roiSize.height should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCrCb420ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCrCb420ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCbCr420_8u_P3R
@@ -1178,12 +1002,11 @@ IPPAPI(IppStatus, ippiYCrCb420ToYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int sr
 //  Notes:
 //    roiSize.width and roiSize.height  should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCbCr420_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCbCr420_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr420ToYCbCr422_Filter_8u_P3R
 //  Purpose:    Converts a IYUV image to the P422 image.
@@ -1205,10 +1028,10 @@ IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_8u_P3R,( const Ipp8u* pSrc[3], int srcS
 //    roiSize.height should be multiple 8.
 //    We use here Catmull-Rom interpolation.
 */
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_Filter_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_Filter_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr420ToYCbCr422_Filter_8u_P2P3R
 //  Purpose:    Converts a NV12 image to the P422 image.
@@ -1230,8 +1053,9 @@ IPPAPI(IppStatus, ippiYCrCb420ToYCbCr422_Filter_8u_P3R,( const Ipp8u* pSrc[3], i
 //    roiSize.height should be multiple 8.
 //    We use here Catmull-Rom interpolation.
 */
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-       Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
+
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr420ToYCbCr422_8u_P2P3R
 //  Purpose:    Converts a NV12 image to the P422 image.
@@ -1254,11 +1078,9 @@ IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_Filter_8u_P2P3R,(const Ipp8u* pSrcY,int
 //    roiSize.width  should be multiple 2.
 //    roiSize.height should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr422_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 
-IPPAPI(IppStatus, ippiYCbCr420_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr420ToYCbCr411_8u_P2P3R
@@ -1280,8 +1102,8 @@ Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 //    roiSize.width  should be multiple 4.
 //    roiSize.height should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr420ToYCbCr411_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr420ToYCbCr411_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr411ToYCbCr422_8u_P3C2R
@@ -1302,10 +1124,9 @@ Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 //  Notes:
 //    roiSize.width  should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P3C2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst,
-        int dstStep, IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCbCr411ToYCrCb422_8u_P3C2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst,
-        int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P3C2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCrCb422_8u_P3C2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr411ToYCbCr422_8u_P3R
@@ -1326,10 +1147,9 @@ IPPAPI(IppStatus, ippiYCbCr411ToYCrCb422_8u_P3C2R,( const Ipp8u* pSrc[3], int sr
 //  Notes:
 //    roiSize.width should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCbCr411ToYCrCb422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCrCb422_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr411ToYCbCr420_8u_P3R
@@ -1349,8 +1169,8 @@ IPPAPI(IppStatus, ippiYCbCr411ToYCrCb422_8u_P3R,( const Ipp8u* pSrc[3], int srcS
 //    roiSize.width  should be multiple 4.
 //    roiSize.height should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:    ippiYCbCr411ToYCbCr420_8u_P3P2R
@@ -1372,8 +1192,8 @@ IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P3R,( const Ipp8u* pSrc[3], int srcS
 //    roiSize.width  should be multiple 4.
 //    roiSize.height should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:    ippiYCbCr411ToYCbCr411_8u_P3P2R
@@ -1394,8 +1214,8 @@ IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P3P2R,( const Ipp8u* pSrc[3], int sr
 //  Notes:
 //    roiSize.width  should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr411ToYCbCr422_8u_P2C2R
@@ -1416,8 +1236,8 @@ IPPAPI(IppStatus, ippiYCbCr411_8u_P3P2R,( const Ipp8u* pSrc[3], int srcStep[3], 
 //  Notes:
 //    roiSize.width  should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P2C2R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P2C2R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr411ToYCbCr422_8u_P2P3R
@@ -1438,8 +1258,8 @@ Ipp8u* pDst, int dstStep, IppiSize roiSize ))
 //  Notes:
 //    roiSize.width  should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCbCr422_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr411ToYCrCb420_8u_P2P3R
@@ -1463,10 +1283,9 @@ Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 //    roiSize.width  should be multiple 4.
 //    roiSize.height should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr411ToYCrCb420_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
-IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCrCb420_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411ToYCbCr420_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr411_8u_P2P3R
@@ -1487,8 +1306,8 @@ Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 //  Notes:
 //    roiSize.width  should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr411_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep,
-Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr411_8u_P2P3R,(const Ipp8u* pSrcY,int srcYStep,const Ipp8u* pSrcCbCr, int srcCbCrStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCbCr411_8u_C2P2R
@@ -1509,8 +1328,8 @@ Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 //  Notes:
 //    roiSize.width  should be multiple 4.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_C2P2R,( const Ipp8u* pSrc, int srcStep,  Ipp8u* pDstY,
-        int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_C2P2R,( const Ipp8u* pSrc, int srcStep,  Ipp8u* pDstY, int dstYStep,Ipp8u* pDstCbCr, int dstCbCrStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCbCr411_8u_P3R
@@ -1529,8 +1348,8 @@ IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_C2P2R,( const Ipp8u* pSrc, int srcSt
 //  Notes:
 //    roiSize.width and roiSize.height  should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],
-        int dstStep[3], IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_P3R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCrCb422_8u_P3C2R
@@ -1549,8 +1368,8 @@ IPPAPI(IppStatus, ippiYCbCr422ToYCbCr411_8u_P3R,( const Ipp8u* pSrc[3], int srcS
 //  Notes:
 //    roiSize.width and should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCrCb422_8u_P3C2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst,
-        int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCrCb422_8u_P3C2R,( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCbCr422ToYCrCb422_8u_C2R
@@ -1569,8 +1388,25 @@ IPPAPI(IppStatus, ippiYCbCr422ToYCrCb422_8u_P3C2R,( const Ipp8u* pSrc[3], int sr
 //  Notes:
 //    roiSize.width should be multiple 2.
 */
-IPPAPI(IppStatus, ippiYCbCr422ToYCrCb422_8u_C2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst,
-        int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus, ippiYCbCr422ToYCrCb422_8u_C2R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
+
+/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  Name:    ippiYCbCr422ToGray_8u_C2C1R
+//  Purpose:    Converts an YUY2/YUY2 image to the Gray image
+//  Return:
+//    ippStsNoErr              No errors
+//    ippStsNullPtrErr         One or more pointers are NULL
+//    ippStsSizeErr            roiSize has a field with zero or negative value
+//
+//  Arguments:
+//    pSrc                     Pointer to the source image
+//    srcStep                  Step in bytes through the source image to jump on the next line
+//    pDst                     Pointer to the destination image
+//    dstStep                  Step in bytes through the destination image to jump on the next line
+//    roiSize                  Region of interest (ROI) to be processed, in pixels
+*/
+IPPAPI(IppStatus, ippiYCbCr422ToGray_8u_C2C1R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
 
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -1621,38 +1457,14 @@ IPPAPI(IppStatus, ippiYCbCr422ToYCrCb422_8u_C2R,( const Ipp8u* pSrc, int srcStep
 //   YCbCr ranges.
 //
 */
-IPPAPI(IppStatus, ippiRGBToYCbCr_8u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYCbCr_8u_AC4R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYCbCr_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep,
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCrToRGB_8u_P3C3R,(const Ipp8u*  pSrc[3],int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCrToRGB_8u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCrToRGB_8u_AC4R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCrToRGB_8u_P3R,(const Ipp8u*  pSrc[3],int srcStep,
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR444_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB444_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR555_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB555_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToBGR565_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYCbCrToRGB565_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp16u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYCbCr_8u_C3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYCbCr_8u_AC4R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYCbCr_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCrToRGB_8u_P3C3R,(const Ipp8u*  pSrc[3],int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCrToRGB_8u_C3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCrToRGB_8u_AC4R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCrToRGB_8u_P3R,(const Ipp8u*  pSrc[3],int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiRGBToYUV_8u_C3R,  ippiYUVToRGB_8u_C3R.
@@ -1699,30 +1511,15 @@ IPPAPI(IppStatus, ippiYCbCrToRGB565_8u16u_C3R,(const Ipp8u* pSrc, int srcStep,
 //   NTSC or PAL digital encoder or decoder.
 //
 */
-/* Pixel to Pixel */
-IPPAPI(IppStatus, ippiRGBToYUV_8u_C3R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYUVToRGB_8u_C3R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-/* Pixel to Pixel */
-IPPAPI(IppStatus, ippiRGBToYUV_8u_AC4R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYUVToRGB_8u_AC4R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-       /* Google */
-IPPAPI(IppStatus, ippiYUVToRGB_8u_C3C4R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
-/* Plane to Plane */
-IPPAPI(IppStatus, ippiRGBToYUV_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep ,
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYUVToRGB_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep,
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-/* Pixel to Plane */
-IPPAPI(IppStatus, ippiRGBToYUV_8u_C3P3R,( const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-/* Plane to Pixel */
-IPPAPI(IppStatus, ippiYUVToRGB_8u_P3C3R,(const Ipp8u*  pSrc[3], int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYUV_8u_C3R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUVToRGB_8u_C3R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYUV_8u_AC4R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUVToRGB_8u_AC4R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUVToRGB_8u_C3C4R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, Ipp8u aval))
+IPPAPI(IppStatus, ippiRGBToYUV_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep , Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUVToRGB_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYUV_8u_C3P3R,( const Ipp8u* pSrc, int srcStep , Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUVToRGB_8u_P3C3R,(const Ipp8u*  pSrc[3], int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
 
 
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1741,6 +1538,7 @@ IPPAPI(IppStatus, ippiYUVToRGB_8u_P3C3R,(const Ipp8u*  pSrc[3], int srcStep,
 */
 IPPAPI(IppStatus, ippiBGRToYUV420_8u_AC4P3R,  (const Ipp8u*  pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize ))
 
+
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:   ippiRGBToYUV_8u_AC4P4R
 //  PVCS ID 8868
@@ -1756,24 +1554,6 @@ IPPAPI(IppStatus, ippiBGRToYUV420_8u_AC4P3R,  (const Ipp8u*  pSrc, int srcStep, 
 */
 IPPAPI(IppStatus, ippiRGBToYUV_8u_AC4P4R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[4], int dstStep, IppiSize roiSize))
 
-/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  Name:   ippiRGB565ToYUV420_16u8u_C3P3R/ippiRGB565ToYUV422_16u8u_C3P3R
-//  PVCS ID 8910
-//  Return:
-//    ippStsNoErr            Ok
-//    ippStsNullPtrErr      one or more pointers are NULL
-//    ippStsDoubleSize    Indicates a warning if roiSize is not a multiple of 2.
-//  Arguments:
-//   pSrc        Pointer to the source image ROI for pixel-order image.
-//   srcStep     Distance in bytes between starts of consecutive lines in the source image.
-//   pDst        An array of pointers to ROI in the separate destination color and alpha planes for planar images.
-//   dstStep     Distance in bytes between starts of consecutive lines in the destination image.
-//   roiSize     Size of the source and destination ROI in pixels.
-*/
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiRGB565ToYUV420_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiRGB565ToYUV422_16u8u_C3P3R,(const Ipp16u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiRGBToYUV422_8u_C3P3R,  ippiYUV422ToRGB_8u_P3C3R.
@@ -1838,39 +1618,19 @@ IPPAPI(IppStatus, ippiRGB565ToYUV422_16u8u_C3P3R,(const Ipp16u* pSrc, int srcSte
 */
 IPPAPI(IppStatus, ippiYUV420ToRGB_8u_P3AC4R,(const Ipp8u*  pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiYUV422ToRGB_8u_P3AC4R,(const Ipp8u*  pSrc[3],int srcStep[3],Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYUV422_8u_C3P3R,(const Ipp8u* pSrc, int srcStep,
-       Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize))
-IPPAPI(IppStatus, ippiYUV422ToRGB_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3],
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYUV422_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep ,
-       Ipp8u* pDst[3], int dstStep[3],IppiSize roiSize))
-IPPAPI(IppStatus, ippiYUV422ToRGB_8u_P3R,(const Ipp8u* pSrc[3],
-       int srcStep[3],Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYUV420_8u_C3P3R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYUV422_8u_C3P3R,(const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUV422ToRGB_8u_P3C3R,(const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYUV422_8u_P3R,(const Ipp8u*  pSrc[3], int srcStep , Ipp8u* pDst[3], int dstStep[3],IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUV422ToRGB_8u_P3R,(const Ipp8u* pSrc[3], int srcStep[3],Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYUV420_8u_C3P3R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
 IPPAPI(IppStatus, ippiYUV420ToRGB_8u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
 IPPAPI(IppStatus, ippiYUV420ToBGR_8u_P3C3R,(const Ipp8u*       pSrc[3], int srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYUV420_8u_P3R,(const Ipp8u* pSrc[3], int srcStep ,
-       Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
-IPPAPI(IppStatus, ippiYUV420ToRGB_8u_P3R,(const Ipp8u* pSrc[3],int srcStep[3],
-       Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiRGBToYUV422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep ,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYUV422ToRGB_8u_C2C3R,(const Ipp8u* pSrc,int srcStep,
-       Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToBGR565_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToBGR555_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToBGR444_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToRGB565_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToRGB555_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiYUV420ToRGB444_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp16u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToYUV420_8u_P3R,(const Ipp8u* pSrc[3], int srcStep , Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUV420ToRGB_8u_P3R,(const Ipp8u* pSrc[3],int srcStep[3], Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
+
+IPPAPI(IppStatus, ippiRGBToYUV422_8u_C3C2R,(const Ipp8u* pSrc, int srcStep , Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUV422ToRGB_8u_C2C3R,(const Ipp8u* pSrc,int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiRGBToYUV422_8u_P3,   ippiYUV422ToRGB_8u_P3.
@@ -1921,21 +1681,60 @@ IPPAPI(IppStatus, ippiYUV420ToRGB444_8u16u_P3C3R,(const Ipp8u* pSrc[3], int srcS
 //   NTSC or PAL digital encoder or decoder.
 //
 */
-/* Plane to Plane */
 IPPAPI(IppStatus, ippiRGBToYUV422_8u_P3,(const Ipp8u* pSrc[3], Ipp8u* pDst[3], IppiSize imgSize))
 IPPAPI(IppStatus, ippiYUV422ToRGB_8u_P3,(const Ipp8u* pSrc[3], Ipp8u* pDst[3], IppiSize imgSize))
-/* Pixel to Plane */
 IPPAPI(IppStatus, ippiRGBToYUV422_8u_C3P3,(const Ipp8u* pSrc, Ipp8u* pDst[3], IppiSize imgSize))
-/* Plane to Pixel */
 IPPAPI(IppStatus, ippiYUV422ToRGB_8u_P3C3,(const Ipp8u* pSrc[3],Ipp8u* pDst, IppiSize imgSize ))
-/* Pixel to Plane */
 IPPAPI(IppStatus, ippiRGBToYUV420_8u_C3P3,(const Ipp8u* pSrc, Ipp8u* pDst[3], IppiSize imgSize))
-/* Plane to Pixel */
 IPPAPI(IppStatus, ippiYUV420ToRGB_8u_P3C3,(const Ipp8u* pSrc[3], Ipp8u* pDst, IppiSize imgSize))
-/* Plane to Plane */
 IPPAPI(IppStatus, ippiRGBToYUV420_8u_P3,(const Ipp8u* pSrc[3], Ipp8u* pDst[3], IppiSize imgSize))
 IPPAPI(IppStatus, ippiYUV420ToRGB_8u_P3,(const Ipp8u* pSrc[3], Ipp8u* pDst[3], IppiSize imgSize))
 
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippiYUV422v210to(RGB/BGR)_16u_C3
+//  Purpose:    Converts YUV422(v210) image format to RGB/BGR(5-6-5) image format
+//  Parameters:
+//      pSrc    Pointer to source image
+//      pDst    Pointer to destination image
+//      width   Width of image in pixels
+//      height  Height of image in pixels
+//      srcStep Width of source image in bytes
+//      dstStep Width of destination image in bytes
+//
+//  Returns:
+//           ippStsNullPtrErr  pSrc == NULL, or pDst == NULL
+//           ippStsStepErr,    srcStep or dstStep is less than or equal to zero
+//           ippStsSizeErr     width or height parameters are zero or negative
+//           ippStsNoErr       No errors
+//  Notes:
+//           All formulas were taken from
+//           "Video Demystified A handbook for the Digital Engineer 4th edition" by Keith Jack
+//           Conversion from 10-bit YUV to RGB:
+//              R = Y + 1.540 * (V - 512)
+//              G = Y - 0.459 * (V - 512) - 0.183 * (U - 512)
+//              B = Y + 1.816 * (U - 512);
+*/
+IPPAPI(IppStatus, ippiYUV422v210ToRGB_709HDTV_32u16u_C3, (const Ipp32u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYUV422v210ToBGR_709HDTV_32u16u_C3, (const Ipp32u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippiYUV422v210toGray_16u_C1
+//  Purpose:    Converts YUV422(v210) image format to gray
+//  Parameters:
+//      pSrc    Pointer to source image
+//      pDst    Pointer to destination image
+//      width   Width of image in pixels
+//      height  Height of image in pixels
+//      srcStep Width of source image in bytes
+//      dstStep Width of destination image in bytes
+//
+//  Returns:
+//           ippStsNullPtrErr  pSrc == NULL, or pDst == NULL
+//           ippStsStepErr,    srcStep or dstStep is less than or equal to zero
+//           ippStsSizeErr     width or height parameters are zero or negative
+//           ippStsNoErr       No errors
+*/
+IPPAPI(IppStatus, ippiYUV422v210ToGray_709HDTV_32u16u_C3C1, (const Ipp32u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize))
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCoCgToBGR_16s8u_P3C3R  ippiYCoCgToBGR_16s8u_P3C4R
@@ -1978,6 +1777,7 @@ IPPAPI(IppStatus,ippiYCoCgToSBGR_32s16s_P3C3R,(const Ipp32s* pYCC[3], int yccSte
 IPPAPI(IppStatus,ippiSBGRToYCoCg_16s32s_C3P3R,(const Ipp16s* pBGR   , int bgrStep, Ipp32s*  pYCC[3], int yccStep, IppiSize roiSize ))
 IPPAPI(IppStatus,ippiYCoCgToSBGR_32s16s_P3C4R,(const Ipp32s* pYCC[3], int yccStep, Ipp16s*  pBGR   , int bgrStep, IppiSize roiSize, Ipp16s aval ))
 IPPAPI(IppStatus,ippiSBGRToYCoCg_16s32s_C4P3R,(const Ipp16s* pBGR   , int bgrStep, Ipp32s*  pYCC[3], int yccStep, IppiSize roiSize ))
+
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiYCoCgToBGR_Rev_16s8u_P3C3R  ippiYCoCgToBGR_Rev_16s8u_P3C4R
@@ -2026,6 +1826,7 @@ IPPAPI(IppStatus, ippiYCoCgToSBGR_Rev_32s16s_P3C4R,(const Ipp32s* pYCC[3], int y
 IPPAPI(IppStatus, ippiYCoCgToSBGR_Rev_32s16s_P3C3R,(const Ipp32s* pYCC[3], int yccStep, Ipp16s*  pBGR, int bgrStep, IppiSize roiSize ))
 IPPAPI(IppStatus, ippiSBGRToYCoCg_Rev_16s32s_C4P3R,(const Ipp16s* pBGR, int bgrStep, Ipp32s*  pYCC[3], int yccStep, IppiSize roiSize ))
 
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiRGBToGray
 //  Purpose:    Converts an RGB image to gray scale (fixed coefficients)
@@ -2064,8 +1865,31 @@ IPPAPI(IppStatus,ippiRGBToGray_8u_AC4C1R,(const Ipp8u* pSrc,int srcStep,Ipp8u* p
 IPPAPI(IppStatus,ippiRGBToGray_16u_AC4C1R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize))
 IPPAPI(IppStatus,ippiRGBToGray_16s_AC4C1R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize))
 IPPAPI(IppStatus,ippiRGBToGray_32f_AC4C1R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep,IppiSize roiSize))
-IPPAPI(IppStatus,ippiColorToGray_64f_C3C1R,(const Ipp64f* pSrc,int srcStep,Ipp64f* pDst, int dstStep,IppiSize roiSize,const Ipp64f coeffs[3]))
-IPPAPI(IppStatus,ippiColorToGray_64f_AC4C1R,(const Ipp64f* pSrc,int srcStep,Ipp64f* pDst, int dstStep,IppiSize roiSize,const Ipp64f coeffs[3]))
+
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippiGrayToRGB
+//  Purpose:    Converts gray scale image to RGB/BGR image by copiing luminance component to color components
+//  Parameters:
+//     pSrc              Pointer to the source image
+//     pDst              Pointer to the destination image
+//     roiSize           Size of source and destination ROI in pixels
+//     srcStep           Step in bytes through the source image to jump on the next line
+//     dstStep           Step in bytes through the destination image to jump on the next line
+//     aval              Constant value to create the fourth channel
+//  Returns:
+//     ippStsNullPtrErr  pSrc == NULL, or pDst == NULL
+//     ippStsSizeErr     roiSize has a field with zero or negative value
+//     ippStsNoErr       No errors
+//
+*/
+IPPAPI(IppStatus, ippiGrayToRGB_8u_C1C3R, (const Ipp8u*  pSrc, int srcStep, Ipp8u*  pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiGrayToRGB_16u_C1C3R,(const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiGrayToRGB_32f_C1C3R,(const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiGrayToRGB_8u_C1C4R, (const Ipp8u*  pSrc, int srcStep, Ipp8u*  pDst, int dstStep, IppiSize roiSize, Ipp8u  aval))
+IPPAPI(IppStatus, ippiGrayToRGB_16u_C1C4R,(const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize, Ipp16u aval))
+IPPAPI(IppStatus, ippiGrayToRGB_32f_C1C4R,(const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f aval))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiColorToGray
@@ -2094,11 +1918,13 @@ IPPAPI(IppStatus,ippiColorToGray_8u_C3C1R,(const Ipp8u* pSrc,int srcStep,Ipp8u* 
 IPPAPI(IppStatus,ippiColorToGray_16u_C3C1R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,const Ipp32f coeffs[3]))
 IPPAPI(IppStatus,ippiColorToGray_16s_C3C1R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,const Ipp32f coeffs[3]))
 IPPAPI(IppStatus,ippiColorToGray_32f_C3C1R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep,IppiSize roiSize,const Ipp32f coeffs[3]))
+IPPAPI(IppStatus,ippiColorToGray_64f_C3C1R,(const Ipp64f* pSrc,int srcStep,Ipp64f* pDst, int dstStep,IppiSize roiSize,const Ipp64f coeffs[3]))
 
 IPPAPI(IppStatus,ippiColorToGray_8u_AC4C1R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,const Ipp32f coeffs[3]))
 IPPAPI(IppStatus,ippiColorToGray_16u_AC4C1R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,const Ipp32f coeffs[3]))
 IPPAPI(IppStatus,ippiColorToGray_16s_AC4C1R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,const Ipp32f coeffs[3]))
 IPPAPI(IppStatus,ippiColorToGray_32f_AC4C1R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep,IppiSize roiSize,const Ipp32f coeffs[3]))
+IPPAPI(IppStatus,ippiColorToGray_64f_AC4C1R,(const Ipp64f* pSrc,int srcStep,Ipp64f* pDst, int dstStep,IppiSize roiSize,const Ipp64f coeffs[3]))
 
 
 /* ////////////////////////////////////////////////////////////////////////////
@@ -2234,6 +2060,7 @@ IPPAPI(IppStatus, ippiHLSToBGR_8u_P3R, (const Ipp8u*  pSrc[3], int srcStep, Ipp8
 IPPAPI(IppStatus, ippiHLSToBGR_8u_P3C3R, (const Ipp8u*  pSrc[3], int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiHLSToBGR_8u_C3P3R, (const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize))
 
+
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:        ippiRGBToHSV,   ippiHSVToRGB
 //  Purpose:    Converts an RGB image to the HSV color model and vice versa
@@ -2310,6 +2137,7 @@ IPPAPI(IppStatus, ippiHSVToRGB_16u_C3R,(const Ipp16u* pSrc,int srcStep,Ipp16u* p
 IPPAPI(IppStatus, ippiRGBToHSV_16u_AC4R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiHSVToRGB_16u_AC4R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
 
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:     ippiRGBToYCC,   ippiYCCToRGB
 //  Purpose:    Converts an RGB image to the YCC color model and vice versa.
@@ -2360,7 +2188,6 @@ IPPAPI(IppStatus, ippiHSVToRGB_16u_AC4R,(const Ipp16u* pSrc,int srcStep,Ipp16u* 
 //             [0..IPP_MAX_16u]            for the 16u depth,
 //             [IPP_MIN_16s..IPP_MAX_16s]  for the 16s depth.
 */
-
 IPPAPI(IppStatus, ippiRGBToYCC_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiYCCToRGB_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiRGBToYCC_8u_AC4R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
@@ -2380,6 +2207,7 @@ IPPAPI(IppStatus, ippiRGBToYCC_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* p
 IPPAPI(IppStatus, ippiYCCToRGB_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiRGBToYCC_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiYCCToRGB_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiRGBToXYZ,     ippiXYZToRGB
@@ -2435,6 +2263,7 @@ IPPAPI(IppStatus, ippiRGBToXYZ_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* p
 IPPAPI(IppStatus, ippiXYZToRGB_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiRGBToXYZ_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiXYZToRGB_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiRGBToLUV,     ippiLUVToRGB
@@ -2497,9 +2326,12 @@ IPPAPI(IppStatus, ippiXYZToRGB_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* 
 //     ippiXYZToRGB).
 //
 */
-
 IPPAPI(IppStatus, ippiRGBToLUV_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiBGRToLUV_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
+
 IPPAPI(IppStatus, ippiLUVToRGB_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiLUVToBGR_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
+
 IPPAPI(IppStatus, ippiRGBToLUV_8u_AC4R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiLUVToRGB_8u_AC4R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiRGBToLUV_16u_C3R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep, IppiSize roiSize))
@@ -2510,8 +2342,13 @@ IPPAPI(IppStatus, ippiRGBToLUV_16s_C3R,(const Ipp16s* pSrc,int srcStep,Ipp16s* p
 IPPAPI(IppStatus, ippiLUVToRGB_16s_C3R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiRGBToLUV_16s_AC4R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiLUVToRGB_16s_AC4R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep, IppiSize roiSize))
+
 IPPAPI(IppStatus, ippiRGBToLUV_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiBGRToLUV_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
+
 IPPAPI(IppStatus, ippiLUVToRGB_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiLUVToBGR_32f_C3R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
+
 IPPAPI(IppStatus, ippiRGBToLUV_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiLUVToRGB_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize))
 
@@ -2578,150 +2415,144 @@ IPPAPI(IppStatus, ippiLUVToRGB_32f_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp32f* 
 //     ippXYZToRGB_8u_C3R).
 //
 */
-
 IPPAPI(IppStatus, ippiBGRToLab_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst,int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToLab_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst,int dstStep, IppiSize roiSize))
+
 IPPAPI(IppStatus, ippiLabToBGR_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst,int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiLabToRGB_8u_C3R, (const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize))
+
+IPPAPI(IppStatus, ippiBGRToLab_32f_C3R, (const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToLab_32f_C3R, (const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize))
+
+IPPAPI(IppStatus, ippiLabToBGR_32f_C3R, (const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiLabToRGB_32f_C3R, (const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize))
 
 IPPAPI(IppStatus, ippiBGRToLab_8u16u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp16u* pDst,int dstStep, IppiSize roiSize))
 IPPAPI(IppStatus, ippiLabToBGR_16u8u_C3R,(const Ipp16u* pSrc,int srcStep,Ipp8u* pDst,int dstStep, IppiSize roiSize))
 
+
 /* ////////////////////////////////////////////////////////////////////////////
-//  Name:       ippiReduceBits_8u1u_C1R
-//  Purpose:    Reduces the bit resolution of an image
-//  Parameters:
-//     pSrc      Pointer to the source image
-//     pDst      Pointer to the destination image
-//     dstBitOffset   Offset in the first byte of the destination image row
-//     roiSize   Size of ROI in pixels.
-//     srcStep   Step in bytes through the source image to jump on the next line
-//     dstStep   Step in bytes through the destination image to jump on the next line
-//     noise     The number specifying the amount of noise added (as a percentage of a range [0..100]). Future plans
-//     seed      The seed value used by the pseudo-random number generation. Future plans
-//     dtype     The type of dithering to be used. The following types are supported:
-//        ippDitherNone     no dithering is done
-//        ippDitherStucki   Stucki's dithering algorithm
+// Name:       ippiReduceBits_8u1u_C1R
+// Purpose:    Reduces the bit resolution of an image.
+// Parameters:
+//     pSrc          - Pointer to the source image.
+//     pDst          - Pointer to the destination image.
+//     dstBitOffset  - Offset in the first byte of the destination image row.
+//     roiSize       - Size of ROI in pixels.
+//     srcStep       - Step in bytes through the source image to jump on the next line
+//     dstStep       - Step in bytes through the destination image to jump on the next line
+//     noise         - The number specifying the amount of noise added (as a percentage of a range [0..100]). Future plans
+//     seed          - The seed value used by the pseudo-random number generation. Future plans
+//     dtype         - The type of dithering to be used. The following types are supported:
+//        ippDitherNone     no dithering is done;
+//        ippDitherStucki   Stucki's dithering algorithm.
 //        The next types are not supported:
-//        ippDitherFS       Floid-Steinberg's dithering algorithm. Future plans
-//        ippDitherJJN      Jarvice-Judice-Ninke's dithering algorithm. Future plans
+//        ippDitherFS       Floid-Steinberg's dithering algorithm. Future plans;
+//        ippDitherJJN      Jarvice-Judice-Ninke's dithering algorithm. Future plans;
 //        ippDitherBayer    Bayer's dithering algorithm.  Future plans.
-//     threshold          Threshold level.
-//  Returns:
-//           ippStsNullPtrErr  pSrc == NULL, or pDst == NULL
-//           ippStsMemAllocErr  Memory allocation fails.
-//           ippStsSizeErr      roiSize has a field with zero or negative value
-//           ippStsDitherTypeErr   this dithering type is not supported
-//           ippStsNoErr       No errors
+//     threshold     - Threshold level.
+//    pBuffer        - Pointer to the buffer for internal calculations. Size of the buffer is calculated by ippiReduceBitsGetBufferSize.
+// Returns:
+//    ippStsNoErr           - Ok.
+//    ippStsNullPtrErr      - Error when any of the specified pointers is NULL.
+//    ippStsSizeErr         - Error when the roiSize has a zero or negative value.
+//    ippStsDitherTypeErr   - Error when the dithering type is not supported.
 */
 IPPAPI(IppStatus, ippiReduceBits_8u1u_C1R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep, int dstBitOffset, IppiSize roiSize,
-       int noise, int seed, IppiDitherType dtype, Ipp8u threshold))
+       int noise, int seed, IppiDitherType dtype, Ipp8u threshold, Ipp8u* pBuffer))
+
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippReduceBits
 //  Purpose:    Reduces the bit resolution of an image.
 //  Parameters:
-//     pSrc      Pointer to the source image .
-//     pDst      Pointer to the destination image .
-//     roiSize   Size of ROI in pixels.
-//     srcStep   Step in bytes through the source image to jump on the next line
-//     dstStep   Step in bytes through the destination image to jump on the next line
-//     noise     The number specifying the amount of noise added (as a percentage of a range [0..100])
-//     levels    The number of output levels for halftoning (dithering)[2.. MAX_LEVELS],
-//               where  MAX_LEVELS is  0x01 << depth, and depth is depth of the destination image
-//     dtype     The type of dithering to be used. The following types are supported:
-//        ippDitherNone     no dithering is done
-//        ippDitherStucki   Stucki's dithering algorithm
-//        ippDitherFS       Floid-Steinberg's dithering algorithm
-//        ippDitherJJN      Jarvice-Judice-Ninke's dithering algorithm
-//        ippDitherBayer    Bayer's dithering algorithm
+//     pSrc       - Pointer to the source image.
+//     pDst       - Pointer to the destination image.
+//     roiSize    - Size of ROI in pixels.
+//     srcStep    - Step in bytes through the source image to jump on the next line.
+//     dstStep    - Step in bytes through the destination image to jump on the next line.
+//     noise      - The number specifying the amount of noise added (as a percentage of a range [0..100]).
+//     levels     - The number of output levels for halftoning (dithering)[2.. MAX_LEVELS],
+//                  where  MAX_LEVELS is  0x01 << depth, and depth is depth of the destination image.
+//     dtype      - The type of dithering to be used. The following types are supported:
+//        ippDitherNone     no dithering is done;
+//        ippDitherStucki   Stucki's dithering algorithm;
+//        ippDitherFS       Floid-Steinberg's dithering algorithm;
+//        ippDitherJJN      Jarvice-Judice-Ninke's dithering algorithm;
+//        ippDitherBayer    Bayer's dithering algorithm.
+//    pBuffer     - Pointer to the buffer for internal calculations. Size of the buffer is calculated by ippiReduceBitsGetBufferSize.
+//
+// Note:
 //      RGB  values for the 32f data type should be in the range [0..1]
-//  Returns:
-//           ippStsNullPtrErr  pSrc == NULL, or pDst == NULL
-//           ippStsStepErr     srcStep or dstStep is less than or equal to zero
-//           ippStsSizeErr     roiSize has a field with zero or negative value
-//           ippStsNoiseValErr noise has illegal value
-//           ippStsDitherLevelsErr  levels value is out of admissible range
-//           ippStsNoErr       No errors
+// Returns:
+//    ippStsNoErr           - Ok.
+//    ippStsNullPtrErr      - Error when any of the specified pointers is NULL.
+//    ippStsStepErr         - Error when srcStep or dstStep is less than or equal to zero.
+//    ippStsSizeErr         - Error when the roiSize has a zero or negative value.
+//    ippStsNoiseValErr     - Error when the noise is less then 0 or greater then 100.
+//    ippStsDitherLevelsErr - Error when the levels value is out of admissible range.
+//    ippStsDitherTypeErr   - Error when the dithering type is not supported.
 */
+IPPAPI(IppStatus, ippiReduceBits_8u_C1R, (const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_8u_C3R, (const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_8u_C4R, (const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_8u_AC4R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_8u_C1R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_8u_C3R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_8u_AC4R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_8u_C4R,(const Ipp8u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+IPPAPI(IppStatus, ippiReduceBits_16u_C1R, (const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16u_C3R, (const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16u_C4R, (const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16u_AC4R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_16u_C1R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16u_C3R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_16u_AC4R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16u_C4R,(const Ipp16u* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+IPPAPI(IppStatus, ippiReduceBits_16u8u_C1R, (const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16u8u_C3R, (const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16u8u_C4R, (const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16u8u_AC4R,(const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_16u8u_C1R,(const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16u8u_C3R,(const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_16u8u_AC4R,(const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16u8u_C4R,(const Ipp16u* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+IPPAPI(IppStatus, ippiReduceBits_16s_C1R, (const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16s_C3R, (const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16s_C4R, (const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16s_AC4R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_16s_C1R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16s_C3R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_16s_AC4R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16s_C4R,(const Ipp16s* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+IPPAPI(IppStatus, ippiReduceBits_16s8u_C1R, (const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16s8u_C3R, (const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16s8u_C4R, (const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_16s8u_AC4R,(const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_16s8u_C1R,(const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16s8u_C3R,(const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_16s8u_AC4R,(const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_16s8u_C4R,(const Ipp16s* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+IPPAPI(IppStatus, ippiReduceBits_32f8u_C1R, (const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f8u_C3R, (const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f8u_C4R, (const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f8u_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_32f8u_C1R,(const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_32f8u_C3R,(const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_32f8u_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_32f8u_C4R,(const Ipp32f* pSrc,int srcStep,Ipp8u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+IPPAPI(IppStatus, ippiReduceBits_32f16u_C1R, (const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f16u_C3R, (const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f16u_C4R, (const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f16u_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_32f16u_C1R,(const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_32f16u_C3R,(const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_32f16u_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_32f16u_C4R,(const Ipp32f* pSrc,int srcStep,Ipp16u* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+IPPAPI(IppStatus, ippiReduceBits_32f16s_C1R, (const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f16s_C3R, (const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f16s_C4R, (const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
+IPPAPI(IppStatus, ippiReduceBits_32f16s_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize, int noise, IppiDitherType dtype, int levels, Ipp8u* pBuffer))
 
-IPPAPI(IppStatus, ippiReduceBits_32f16s_C1R,(const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_32f16s_C3R,(const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPP_DEPRECATED("is deprecated. API of this function is obsolete and will be changed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiReduceBits_32f16s_AC4R,(const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
-IPPAPI(IppStatus, ippiReduceBits_32f16s_C4R,(const Ipp32f* pSrc,int srcStep,Ipp16s* pDst, int dstStep,IppiSize roiSize,
-       int noise, IppiDitherType dtype, int levels))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Names:     ippiReduceBitsGetBufferSize
+//  Purpose:   Get the size (in bytes) of the buffer for ippiReduceBits functions.
+//  Parameters:
+//    ippChan     - Intel(R) IPP channels name of of the source images. Possible values are ippC1, ippC3 or ippC4.
+//    roiSize     - Size, in pixels, of the source images.
+//    noise       - The number specifying the amount of noise added (as a percentage of a range [0..100]).
+//    dtype       - The type of dithering to be used. The supported types are the same as for ippiReduceBits functions.
+//    pBufferSize - Pointer to the calculated buffer size (in bytes).
+//  Returns:
+//    ippStsNoErr          - Ok.
+//    ippStsNullPtrErr     - Error when any of the specified pointers is NULL.
+//    ippStsSizeErr        - Error when the roiSize has a zero or negative value.
+//    ippStsChannelErr     - Error when the ippChan has an illegal value.
+//    ippStsNoiseValErr    - Error when the noise is less then 0 or greater then 100.
+//    ippStsDitherTypeErr  - Error when the dithering type is not supported.
+*/
+IPPAPI(IppStatus, ippiReduceBitsGetBufferSize, (IppChannels ippChan, IppiSize roiSize, int noise, IppiDitherType dtype, int* pBufferSize))
+
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiColorTwist
@@ -2751,89 +2582,38 @@ IPPAPI(IppStatus, ippiReduceBits_32f16s_C4R,(const Ipp32f* pSrc,int srcStep,Ipp1
 //    roiSize         Size of the ROI
 //    twist           An array of color-twist matrix elements
 */
-IPP_DEPRECATED("is deprecated. 8s data type is obsolete and its support will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8s_C3R, ( const Ipp8s* pSrc, int srcStep, Ipp8s* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. 8s data type is obsolete and its support will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8s_C3IR, ( Ipp8s* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. 8s data type is obsolete and its support will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8s_AC4R, ( const Ipp8s* pSrc, int srcStep, Ipp8s* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. 8s data type is obsolete and its support will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8s_AC4IR, ( Ipp8s* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. 8s data type is obsolete and its support will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8s_P3R, ( const Ipp8s* pSrc[3], int srcStep,
-                    Ipp8s* pDst[3], int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. 8s data type is obsolete and its support will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8s_IP3R, ( Ipp8s* pSrcDst[3], int srcDstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_8u_C3R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_8u_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8u_C3IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_8u_AC4R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_8u_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8u_AC4IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep,
-                    Ipp8u* pDst[3], int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_8u_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_8u_IP3R, ( Ipp8u* pSrcDst[3], int srcDstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_16u_C3R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_16u_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_16u_C3IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_16u_AC4R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_16u_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_16u_AC4IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_16u_P3R, ( const Ipp16u* pSrc[3], int srcStep,
-                    Ipp16u* pDst[3], int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_16u_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_16u_IP3R, ( Ipp16u* pSrcDst[3], int srcDstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_16s_C3R, ( const Ipp16s* pSrc, int srcStep, Ipp16s* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_16s_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_16s_C3IR, ( Ipp16s* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_16s_AC4R, ( const Ipp16s* pSrc, int srcStep, Ipp16s* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_16s_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_16s_AC4IR, ( Ipp16s* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist32f_16s_P3R, ( const Ipp16s* pSrc[3], int srcStep,
-                    Ipp16s* pDst[3], int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist32f_16s_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist32f_16s_IP3R, ( Ipp16s* pSrcDst[3], int srcDstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist_32f_C3R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist_32f_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist_32f_C3IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist_32f_AC4R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist_32f_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist_32f_AC4IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize,
-                    const Ipp32f twist[3][4] ))
-IPPAPI ( IppStatus, ippiColorTwist_32f_P3R, ( const Ipp32f* pSrc[3], int srcStep,
-                    Ipp32f* pDst[3], int dstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiColorTwist_32f_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI ( IppStatus, ippiColorTwist_32f_IP3R, ( Ipp32f* pSrcDst[3], int srcDstStep,
-                    IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_8u_C3R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_8u_AC4R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
+IPPAPI ( IppStatus, ippiColorTwist32f_16u_C3R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16u_AC4R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16u_P3R, ( const Ipp16u* pSrc[3], int srcStep, Ipp16u* pDst[3], int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
+IPPAPI ( IppStatus, ippiColorTwist32f_16s_C3R, ( const Ipp16s* pSrc, int srcStep, Ipp16s* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16s_AC4R, ( const Ipp16s* pSrc, int srcStep, Ipp16s* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16s_P3R, ( const Ipp16s* pSrc[3], int srcStep, Ipp16s* pDst[3], int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
+IPPAPI ( IppStatus, ippiColorTwist_32f_C3R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist_32f_AC4R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist_32f_P3R, ( const Ipp32f* pSrc[3], int srcStep, Ipp32f* pDst[3], int dstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
+IPPAPI ( IppStatus, ippiColorTwist32f_8u_C3IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_8u_AC4IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_8u_IP3R, ( Ipp8u* pSrcDst[3], int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
+IPPAPI ( IppStatus, ippiColorTwist32f_16u_C3IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16u_AC4IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16u_IP3R, ( Ipp16u* pSrcDst[3], int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
+IPPAPI ( IppStatus, ippiColorTwist32f_16s_C3IR, ( Ipp16s* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16s_AC4IR, ( Ipp16s* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist32f_16s_IP3R, ( Ipp16s* pSrcDst[3], int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
+IPPAPI ( IppStatus, ippiColorTwist_32f_C3IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist_32f_AC4IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+IPPAPI ( IppStatus, ippiColorTwist_32f_IP3R, ( Ipp32f* pSrcDst[3], int srcDstStep, IppiSize roiSize, const Ipp32f twist[3][4] ))
+
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiColorTwist_32f_C4R
@@ -2862,9 +2642,7 @@ IPPAPI ( IppStatus, ippiColorTwist_32f_IP3R, ( Ipp32f* pSrcDst[3], int srcDstSte
 //    roiSize               Size of the ROI
 //    twist                 An array of color-twist matrix elements
 */
-
-IPPAPI ( IppStatus, ippiColorTwist_32f_C4R,( const Ipp32f* pSrc, int srcStep,Ipp32f* pDst, int dstStep,
-           IppiSize roiSize, const Ipp32f twist[4][4]))
+IPPAPI ( IppStatus, ippiColorTwist_32f_C4R,( const Ipp32f* pSrc, int srcStep,Ipp32f* pDst, int dstStep, IppiSize roiSize, const Ipp32f twist[4][4]))
 
 
 /* ////////////////////////////////////////////////////////////////////////////
@@ -2894,13 +2672,6 @@ IPPAPI ( IppStatus, ippiColorTwist_32f_C4R,( const Ipp32f* pSrc, int srcStep,Ipp
 //
 //                  Note: example for range[0,1].
 //
-//  Returns:
-//    ippStsNullPtrErr      One of the pointers is NULL
-//    ippStsSizeErr         roiSize has a field with zero or negative value
-//    ippStsStepErr         One of the step values is less than or equal to zero
-//    ippStsGammaRangeErr   vMax - vMin <= 0 (for 32f)
-//    ippStsNoErr           OK
-//
 //  Parameters:
 //    pSrc                  Pointer  to the source image (pixel-order data). An array
 //                          of pointers to separate source color planes (planar data)
@@ -2912,61 +2683,61 @@ IPPAPI ( IppStatus, ippiColorTwist_32f_C4R,( const Ipp32f* pSrc, int srcStep,Ipp
 //    srcDstStep            Step through the source/destination image (in-place flavors)
 //    roiSize               Size of the ROI
 //    vMin, vMax            Minimum and maximum values of the input 32f data.
+//  Returns:
+//    ippStsNullPtrErr      One of the pointers is NULL
+//    ippStsSizeErr         roiSize has a field with zero or negative value
+//    ippStsStepErr         One of the step values is less than or equal to zero
+//    ippStsGammaRangeErr   vMax - vMin <= 0 (for 32f)
+//    ippStsNoErr           OK
 */
-IPPAPI(IppStatus,ippiGammaFwd_8u_C3R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_8u_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_8u_C3IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaInv_8u_C3R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_8u_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaInv_8u_C3IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaFwd_8u_AC4R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_8u_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_8u_AC4IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaInv_8u_AC4R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_8u_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaInv_8u_AC4IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
 IPPAPI(IppStatus,ippiGammaFwd_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_8u_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_8u_IP3R, ( Ipp8u* pSrcDst[3], int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaInv_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_8u_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaInv_8u_IP3R, ( Ipp8u* pSrcDst[3], int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaFwd_16u_C3R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_16u_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_16u_C3IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaInv_16u_C3R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_16u_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaInv_16u_C3IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaFwd_16u_AC4R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_16u_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_16u_AC4IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaInv_16u_AC4R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_16u_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaInv_16u_AC4IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_8u_C3R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_8u_AC4R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
 IPPAPI(IppStatus,ippiGammaFwd_16u_P3R, ( const Ipp16u* pSrc[3], int srcStep, Ipp16u* pDst[3], int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_16u_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_16u_IP3R, ( Ipp16u* pSrcDst[3], int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_16u_C3R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_16u_AC4R,( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
+
+IPPAPI(IppStatus,ippiGammaFwd_32f_P3R, ( const Ipp32f* pSrc[3], int srcStep, Ipp32f* pDst[3], int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+IPPAPI(IppStatus,ippiGammaFwd_32f_C3R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+IPPAPI(IppStatus,ippiGammaFwd_32f_AC4R,( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+
+IPPAPI(IppStatus,ippiGammaInv_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaInv_8u_C3R, ( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaInv_8u_AC4R,( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
 IPPAPI(IppStatus,ippiGammaInv_16u_P3R, ( const Ipp16u* pSrc[3], int srcStep, Ipp16u* pDst[3], int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_16u_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+IPPAPI(IppStatus,ippiGammaInv_16u_C3R, ( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaInv_16u_AC4R,( const Ipp16u* pSrc, int srcStep, Ipp16u* pDst, int dstStep, IppiSize roiSize ))
+
+IPPAPI(IppStatus,ippiGammaInv_32f_P3R, ( const Ipp32f* pSrc[3], int srcStep, Ipp32f* pDst[3], int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+IPPAPI(IppStatus,ippiGammaInv_32f_C3R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+IPPAPI(IppStatus,ippiGammaInv_32f_AC4R,( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+
+IPPAPI(IppStatus,ippiGammaFwd_8u_IP3R, ( Ipp8u* pSrcDst[3], int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_8u_C3IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_8u_AC4IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+
+IPPAPI(IppStatus,ippiGammaInv_8u_IP3R, ( Ipp8u* pSrcDst[3], int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaInv_8u_C3IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaInv_8u_AC4IR, ( Ipp8u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+
+IPPAPI(IppStatus,ippiGammaFwd_16u_IP3R, ( Ipp16u* pSrcDst[3], int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_16u_C3IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaFwd_16u_AC4IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+
 IPPAPI(IppStatus,ippiGammaInv_16u_IP3R, ( Ipp16u* pSrcDst[3], int srcDstStep, IppiSize roiSize ))
-IPPAPI(IppStatus,ippiGammaFwd_32f_C3R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_32f_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_32f_C3IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
-IPPAPI(IppStatus,ippiGammaInv_32f_C3R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_32f_C3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaInv_32f_C3IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
-IPPAPI(IppStatus,ippiGammaFwd_32f_AC4R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_32f_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaFwd_32f_AC4IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
-IPPAPI(IppStatus,ippiGammaInv_32f_AC4R, ( const Ipp32f* pSrc, int srcStep, Ipp32f* pDst, int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_32f_AC4R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus,ippiGammaInv_32f_AC4IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
-IPPAPI(IppStatus,ippiGammaFwd_32f_P3R, ( const Ipp32f* pSrc[3], int srcStep, Ipp32f* pDst[3], int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaFwd_32f_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+IPPAPI(IppStatus,ippiGammaInv_16u_C3IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+IPPAPI(IppStatus,ippiGammaInv_16u_AC4IR, ( Ipp16u* pSrcDst, int srcDstStep, IppiSize roiSize ))
+
 IPPAPI(IppStatus,ippiGammaFwd_32f_IP3R, ( Ipp32f* pSrcDst[3], int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
-IPPAPI(IppStatus,ippiGammaInv_32f_P3R, ( const Ipp32f* pSrc[3], int srcStep, Ipp32f* pDst[3], int dstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
-IPP_DEPRECATED("is deprecated. Removal 2H 2014 or later. Replace with ippiGammaInv_32f_P3R. For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+IPPAPI(IppStatus,ippiGammaFwd_32f_C3IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+IPPAPI(IppStatus,ippiGammaFwd_32f_AC4IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+
 IPPAPI(IppStatus,ippiGammaInv_32f_IP3R, ( Ipp32f* pSrcDst[3], int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax  ))
+IPPAPI(IppStatus,ippiGammaInv_32f_C3IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+IPPAPI(IppStatus,ippiGammaInv_32f_AC4IR, ( Ipp32f* pSrcDst, int srcDstStep, IppiSize roiSize, Ipp32f vMin, Ipp32f vMax ))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Names:     ippiToneMapLinear_32f8u_C1R ippiToneMapMean_32f8u_C1R
@@ -2989,6 +2760,7 @@ IPPAPI(IppStatus,ippiGammaInv_32f_IP3R, ( Ipp32f* pSrcDst[3], int srcDstStep, Ip
 */
 IPPAPI(IppStatus,ippiToneMapLinear_32f8u_C1R,(const Ipp32f* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
 IPPAPI(IppStatus,ippiToneMapMean_32f8u_C1R,  (const Ipp32f* pSrc, int srcStep, Ipp8u* pDst, int dstStep, IppiSize roiSize ))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Names:     ippiYCbCr420To411_8u_P3R  ippiYCbCr420To411_8u_P3R  ippiYCbCr1620To420_8u_P3R
@@ -3015,36 +2787,6 @@ IPPAPI(IppStatus, ippiYCbCr411To420_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep[
 IPPAPI(IppStatus, ippiYCbCr420To1620_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize) )
 IPPAPI(IppStatus, ippiYCbCr1620To420_8u_P3R, ( const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize) )
 
-/* /////////////////////////////////////////////////////////////////////////////
-//
-//  Names:        ippiRGBToRGB565_8u16u_C3R
-//                ippiBGRToBGR565_8u16u_C3R
-//
-//  Purpose:      Converts RGB(BGR) image to RGB565(BGR565) image and vice versa
-//
-//  Returns:
-//    ippStsNoErr         No errors
-//    ippStsNullPtrErr    One of the pointers is NULL
-//    ippStsSizeErr       The roiSize has a field with negative or zero value
-//    ippStsStepErr       One of steps is less than or equal to zero
-//
-//  Parameters:
-//    pSrc                Pointers to the source images
-//    srcStep             Steps through the source image
-//    pDst                Pointer to the destination image
-//    dstStep             Step through the destination image
-//    roiSize             Size of the image ROI
-//
-*/
-
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiRGBToRGB565_8u16u_C3R,(const Ipp8u*  pSrc, int srcStep, Ipp16u*  pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGRToBGR565_8u16u_C3R,(const Ipp8u*  pSrc, int srcStep, Ipp16u*  pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiRGB565ToRGB_16u8u_C3R,(const Ipp16u* pSrc, int srcStep,  Ipp8u*  pDst, int dstStep, IppiSize roiSize ))
-IPP_DEPRECATED("is deprecated. This color format is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippiBGR565ToBGR_16u8u_C3R,(const Ipp16u* pSrc, int srcStep,  Ipp8u*  pDst, int dstStep, IppiSize roiSize ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Names:        ippiCFAToRGB_8u_C1C3R
@@ -3069,19 +2811,9 @@ IPPAPI(IppStatus, ippiBGR565ToBGR_16u8u_C3R,(const Ipp16u* pSrc, int srcStep,  I
 //
 */
 
-#if !defined( _OWN_BLDPCS )
-typedef enum {
-  ippiBayerBGGR,
-  ippiBayerRGGB,
-  ippiBayerGBRG,
-  ippiBayerGRBG
-} IppiBayerGrid;
-#endif /* _OWN_BLDPCS */
+IPPAPI(IppStatus, ippiCFAToRGB_8u_C1C3R,(const Ipp8u* pSrc, IppiRect srcRoi, IppiSize srcSize, int srcStep, Ipp8u* pDst, int dstStep, IppiBayerGrid grid, int interpolation))
+IPPAPI(IppStatus, ippiCFAToRGB_16u_C1C3R,(const Ipp16u* pSrc, IppiRect srcRoi, IppiSize srcSize, int srcStep, Ipp16u* pDst, int dstStep, IppiBayerGrid grid, int interpolation))
 
-IPPAPI(IppStatus, ippiCFAToRGB_8u_C1C3R,(const Ipp8u* pSrc, IppiRect srcRoi, IppiSize srcSize, int srcStep,
-   Ipp8u* pDst, int dstStep, IppiBayerGrid grid, int interpolation))
-IPPAPI(IppStatus, ippiCFAToRGB_16u_C1C3R,(const Ipp16u* pSrc, IppiRect srcRoi, IppiSize srcSize, int srcStep,
-   Ipp16u* pDst, int dstStep, IppiBayerGrid grid, int interpolation))
 
 /* ////////////////////////////////////////////////////////////////////////////
 //  Name:       ippiCbYCr422ToYCbCr420_Interlace_8u_C2P3R,
@@ -3120,14 +2852,11 @@ IPPAPI(IppStatus, ippiCFAToRGB_16u_C1C3R,(const Ipp16u* pSrc, IppiRect srcRoi, I
 //
 //
 */
-IPPAPI(IppStatus, ippiCbYCr422ToYCbCr420_Interlace_8u_C2P3R,(const Ipp8u* pSrc,
-                int srcStep,Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCr422To420_Interlace_8u_P3R,(const Ipp8u* pSrc[3],
-           int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCr420ToCbYCr422_Interlace_8u_P3C2R,(const Ipp8u* pSrc[3],
-               int   srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
-IPPAPI(IppStatus, ippiYCbCr420To422_Interlace_8u_P3R,(const Ipp8u* pSrc[3],
-          int srcStep[3], Ipp8u* pDst[3],  int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiCbYCr422ToYCbCr420_Interlace_8u_C2P3R,(const Ipp8u* pSrc, int srcStep,Ipp8u* pDst[3],int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr422To420_Interlace_8u_P3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3], int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420ToCbYCr422_Interlace_8u_P3C2R,(const Ipp8u* pSrc[3], int   srcStep[3], Ipp8u* pDst, int dstStep, IppiSize roiSize))
+IPPAPI(IppStatus, ippiYCbCr420To422_Interlace_8u_P3R,(const Ipp8u* pSrc[3], int srcStep[3], Ipp8u* pDst[3],  int dstStep[3], IppiSize roiSize))
+
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Names:        ippiDemosaicAHD_8u_C1C3R
@@ -3164,7 +2893,7 @@ IPPAPI(IppStatus, ippiDemosaicAHD_16u_C1C3R,(const Ipp16u* pSrc, IppiRect srcRoi
 
 /* ///////////////////////////////////////////////////////////////////////////
 //  Name:
-//    ippiRGBToYCoCg_8u_C3P3R   
+//    ippiRGBToYCoCg_8u_C3P3R
 //
 //  Purpose:
 //    RGB to YCoCg color conversion
@@ -3180,17 +2909,12 @@ IPPAPI(IppStatus, ippiDemosaicAHD_16u_C1C3R,(const Ipp16u* pSrc, IppiRect srcRoi
 //    IppStatus
 //
 */
-IPPAPI(IppStatus, ippiRGBToYCoCg_8u_C3P3R,(
-  const Ipp8u*   pSrc,
-        int      srcStep,
-        Ipp8u*   pDst[3],
-        int      dstStep,
-        IppiSize roi))
+IPPAPI(IppStatus, ippiRGBToYCoCg_8u_C3P3R, (const Ipp8u* pSrc, int srcStep, Ipp8u* pDst[3], int dstStep, IppiSize roi))
 
 
 /* ///////////////////////////////////////////////////////////////////////////
 //  Name:
-//    ippiYCoCgToRGB_8u_P3C3R   
+//    ippiYCoCgToRGB_8u_P3C3R
 //
 //  Purpose:
 //    YCoCg to RGB  color conversion
@@ -3206,23 +2930,41 @@ IPPAPI(IppStatus, ippiRGBToYCoCg_8u_C3P3R,(
 //    IppStatus
 //
 */
-IPPAPI(IppStatus, ippiYCoCgToRGB_8u_P3C3R,(
-  const Ipp8u*   pSrc[3],
-        int      srcStep,
-        Ipp8u*   pDst,
-        int      dstStep,
-        IppiSize roi))
+IPPAPI(IppStatus, ippiYCoCgToRGB_8u_P3C3R, (const Ipp8u* pSrc[3], int srcStep, Ipp8u* pDst, int dstStep, IppiSize roi))
 
+IPPAPI(IppStatus, ippiRGBToLab_32f_P3R, (const Ipp32f* pSrc[3], int srcStep[3], Ipp32f* pDst[3], int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiRGBToLab_64f_P3R, (const Ipp64f* pSrc[3], int srcStep[3], Ipp64f* pDst[3], int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiLabToRGB_32f_P3R, (const Ipp32f* pSrc[3], int srcStep[3], Ipp32f* pDst[3], int dstStep[3], IppiSize roiSize))
+IPPAPI(IppStatus, ippiLabToRGB_64f_P3R, (const Ipp64f* pSrc[3], int srcStep[3], Ipp64f* pDst[3], int dstStep[3], IppiSize roiSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Names:        ippiCFAToBGRA_VNG_8u_C1C4R
+//                ippiCFAToBGRA_VNG_16u_C1C4R
+//
+//  Purpose:      Bayer transform. Converts color filter array image to RGB image using Variable Numbers of Gradients algorithm
+//  Returns:
+//    ippStsNoErr         No errors
+//    ippStsNullPtrErr    One of the pointers is NULL
+//    ippStsBadArgErr     Wrong value of grid
+//    ippStsSizeErr       The srcSize.width<2 or the srcSize.height<2 or
+//                        the roiSize has a field with negative or zero value
+//  Parameters:
+//    pSrc                Pointers to the source image
+//    srcRoi              ROI in source image(top left corner and size)
+//    srcSize             Size of source image
+//    srcStep             Steps through the source image
+//    scale               Color scale coefficients by channels
+//    pDst                Pointer to the destination image
+//    dstStep             Step through the destination image
+//    grid                Type of baeyers grid
+//
+*/
+
+IPPAPI(IppStatus, ippiCFAToBGRA_VNG_8u_C1C4R, (const Ipp8u*  pSrc, IppiRect srcRoi, IppiSize srcSize, int srcStep, Ipp32f scale[4], Ipp8u* pDst, int dstStep, IppiBayerGrid grid))
+IPPAPI(IppStatus, ippiCFAToBGRA_VNG_16u_C1C4R, (const Ipp16u*  pSrc, IppiRect srcRoi, IppiSize srcSize, int srcStep, Ipp32f scale[4], Ipp16u* pDst, int dstStep, IppiBayerGrid grid))
 
 #ifdef __cplusplus
 }
 #endif
 
-#if defined (_IPP_STDCALL_CDECL)
-  #undef  _IPP_STDCALL_CDECL
-  #define __stdcall __cdecl
-#endif
-
-#endif /* __IPPCC_H__ */
-/* ////////////////////////////// End of file /////////////////////////////// */
-
+#endif /* IPPCC_H__ */

@@ -1,6 +1,6 @@
-/* 
-// Copyright 2001-2020 Intel Corporation All Rights Reserved.
-// 
+/*
+// Copyright 2016-2020 Intel Corporation All Rights Reserved.
+//
 // The source code, information and material ("Material") contained herein is
 // owned by Intel Corporation or its suppliers or licensors, and title
 // to such Material remains with Intel Corporation or its suppliers or
@@ -14,32 +14,33 @@
 // either expressly, by implication, inducement, estoppel or otherwise.
 // Any license under such intellectual property rights must be express and
 // approved by Intel in writing.
-// 
+//
 // Unless otherwise agreed by Intel in writing,
 // you may not remove or alter this notice or any other notice embedded in
 // Materials by Intel or Intel's suppliers or licensors in any way.
-// 
+//
 */
 
-/* 
+/*
 //              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
-//              Purpose: Describes the Intel(R) IPP version
-// 
-// 
+//              Color Conversion (ippCC_TL)
+//
+//
 */
 
 
-#if !defined( IPPVERSION_H__ )
-#define IPPVERSION_H__
+#if !defined( IPPCC_TL_REDEFS_H__ )
+#define IPPCC_TL_REDEFS_H__
 
-#define IPP_VERSION_MAJOR  2021
-#define IPP_VERSION_MINOR  1
-#define IPP_VERSION_UPDATE 0
 
-#define IPP_VERSION_STR "2021.1"
+#define   ippiRGBToLab_32f_P3R_L   ippiRGBToLab_32f_P3R_LT
+#define   ippiRGBToLab_64f_P3R_L   ippiRGBToLab_64f_P3R_LT
+#define   ippiLabToRGB_32f_P3R_L   ippiLabToRGB_32f_P3R_LT
+#define   ippiLabToRGB_64f_P3R_L   ippiLabToRGB_64f_P3R_LT
+#define   ippiRGBToLab_32f_P3R     ippiRGBToLab_32f_P3R_T
+#define   ippiRGBToLab_64f_P3R     ippiRGBToLab_64f_P3R_T
+#define   ippiLabToRGB_32f_P3R     ippiLabToRGB_32f_P3R_T
+#define   ippiLabToRGB_64f_P3R     ippiLabToRGB_64f_P3R_T
 
-// Major and minor interface version
-#define IPP_INTERFACE_VERSION_MAJOR 10
-#define IPP_INTERFACE_VERSION_MINOR 0
 
-#endif /* IPPVERSION_H__ */
+#endif /* IPPCC_TL_REDEFS_H__ */

@@ -1,5 +1,5 @@
 ﻿=== UnitTest<multithread>: BEGIN ===
-AtomicOr: 10 -> 1010
+AtomicOr: 1010 -> 1010
 ATOM Result: 456789
 CriticalSection Result: 456789
 Event Set: 0

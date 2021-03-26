@@ -26,7 +26,6 @@ static const int FALSE = 0;
 #endif
 
 #include "ipp/inc/ipp.h"
-#include "ipp/ipp_ijl/ijl_inc.c"
 #include "ipp/ipp_zlib/zlib_inc.c"
 
 /////////////////////////////////////////////////
@@ -34,10 +33,9 @@ static const int FALSE = 0;
 #else
 	#include <stdio.h>
 	#include "zlib/zlib/zlib_inc.c"
-	#include "ipp/jpg/jpg_inc.c"
 #endif
 /////////////////////////////////////////////////
-
+#include "ipp/jpg/jpg_inc.c"
 /////////////////////////////////////////////////
 // Clear some garbage symbol
 #undef Freq

@@ -31,6 +31,7 @@
 
 #include "hash.h"
 
+#define PLATFORM_INTEL_IPP_SUPPORT_disabled true
 namespace sec
 {
 //////////////////////////////////////////////////////
@@ -101,29 +102,15 @@ template<> class Cipher<_METHOD> \
 {		protected: BYTE _Context[_details::_cipher_spec<_METHOD>::ContextSize]; \
 public: static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockSize; \
 		static const UINT NativeKeySize = _details::_HashSize<_details::_AES_Traits<_METHOD>::KEY_HASHER>::size; \
-	INLFUNC Cipher(){ int len=0; ASSERT(ippStsNoErr == IPPCALL(ipps##MethodName##GetSize)(&len) && len <= (int)sizeof(_Context)); } \
-	INLFUNC ~Cipher(){ rt::Zero(_Context); } \
-	INLFUNC static void ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key); } \
-	INLFUNC void SetKey(LPCVOID key, UINT len) \
-	{	BYTE hash[NativeKeySize]; \
-		if(len != NativeKeySize){ ComputeKey(hash, key, len); key = hash; } \
-		IPPCALL(ipps##MethodName##Init)((LPCBYTE)key, (IppsRijndaelKeyLength)(sizeof(hash)*8), (Ipps##MethodName##Spec*)_Context); \
-        if(len != NativeKeySize)rt::Zero(hash); \
-	} \
-	INLFUNC void Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len){ ASSERT((Len%DataBlockSize) == 0); IPPCALL(ipps##MethodName##EncryptECB)((LPCBYTE)pPlain,(LPBYTE)pCrypt,(int)Len,(Ipps##MethodName##Spec*)_Context,IppsCPPaddingPKCS7); } \
-	INLFUNC void Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len){ ASSERT((Len%DataBlockSize) == 0); IPPCALL(ipps##MethodName##DecryptECB)((LPCBYTE)pCrypt,(LPBYTE)pPlain,(int)Len,(Ipps##MethodName##Spec*)_Context,IppsCPPaddingPKCS7); } \
-	INLFUNC void EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce) \
-	{	_details::CipherInitVec<DataBlockSize> IV(nonce); \
-		ASSERT((Len%DataBlockSize) == 0); \
-		IPPCALL(ipps##MethodName##EncryptCBC)((LPCBYTE)pPlain,(LPBYTE)pCrypt,(int)Len,(Ipps##MethodName##Spec*)_Context,IV,IppsCPPaddingNONE); \
-	} \
-	INLFUNC void DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce) \
-	{	_details::CipherInitVec<DataBlockSize> IV(nonce); \
-		ASSERT((Len%DataBlockSize) == 0); \
-		IPPCALL(ipps##MethodName##DecryptCBC)((LPCBYTE)pCrypt,(LPBYTE)pPlain,(int)Len,(Ipps##MethodName##Spec*)_Context,IV,IppsCPPaddingNONE); \
-	} \
-};
-
+INLFUNC Cipher(){int len=0; ASSERT(ippStsNoErr == IPPCALL(ippsAESGetSize)(&len));} \
+		INLFUNC ~Cipher(){rt::Zero(_Context);} \
+		INLFUNC static void ComputeKey(LPVOID key, LPCVOID data, UINT size){Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key);}\
+INLFUNC void SetKey(LPCVOID key, UINT len){BYTE hash[NativeKeySize];if(len != NativeKeySize){ComputeKey(hash, key, len);key = hash;}IPPCALL(ippsAESInit)((LPCBYTE)key, NativeKeySize,(IppsAESSpec*)_Context , _details::_cipher_spec<_METHOD>::ContextSize);if(len != NativeKeySize){rt::Zero(hash);}}\
+		INLFUNC void Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len){ASSERT((Len%DataBlockSize) == 0);IPPCALL(ippsAESEncryptECB)((LPCBYTE)pPlain,(LPBYTE)pCrypt,(int)Len,(IppsAESSpec*)_Context);}\
+		INLFUNC void Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len){ASSERT((Len%DataBlockSize) == 0); IPPCALL(ippsAESDecryptECB)((LPCBYTE)pCrypt,(LPBYTE)pPlain,(int)Len,(IppsAESSpec*)_Context);}\
+		INLFUNC void EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce){_details::CipherInitVec<DataBlockSize> IV(nonce);ASSERT((Len%DataBlockSize) == 0); IPPCALL(ippsAESEncryptCBC)((LPCBYTE)pPlain,(LPBYTE)pCrypt,(int)Len,(IppsAESSpec*)_Context,IV);}\
+		INLFUNC void DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce){_details::CipherInitVec<DataBlockSize> IV(nonce);ASSERT((Len%DataBlockSize) == 0);IPPCALL(ippsAESDecryptCBC)((LPCBYTE)pCrypt,(LPBYTE)pPlain,(int)Len,(IppsAESSpec*)_Context,IV);}\
+};\
 
 DEF_AES_CIPHER(CIPHER_AES128, Rijndael128)
 DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)

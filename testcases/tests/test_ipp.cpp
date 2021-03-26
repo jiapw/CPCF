@@ -362,14 +362,6 @@ void rt::UnitTests::ipp_image()
 		img.Save("test.jpg");
 		img.Save("test_large.gif");
 
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		img.GetSub(600,600,300,300).BoxFilter(ipp::Size(80,10));
-		img.GetSub(100,100,200,200).Add(rt::Vec3b(50));  // no memory copy here, the returned image object is referring the pixel buffer of 'img'
-		img.GetSub(200,200,200,200).Add(rt::Vec3b(0,0,50));
-		img.GetSub(100,200,200,200).RightShift(2);
-		img.GetSub(200,200,200,200).RotateTo(30, rt::Vec2d(100,100), img.GetSub(400,400,300,300));
-		img(100,100) = rt::Vec3b(255,0,0);
-#endif
 		ipp::ImageEncoder	enc;
 		enc.Encode((LPCBYTE)img.GetBits(), img.GetChannels(), img.GetWidth(), img.GetHeight(), img.GetStep(), ipp::ImageCodec_PNG);
 
@@ -424,10 +416,6 @@ void rt::UnitTests::ipp_image()
 
 		hdr = img;
         
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		hdr.Sqr();
-		hdr.Sqr();
-#endif
 		hdr.Save("test.pfm");
 		hdr.Save("test_piz.exr"); // PIZ is the default
 		hdr.Save("test_pxr24.exr", ipp::ImageCodec_EXR_PXR24);
@@ -435,17 +423,14 @@ void rt::UnitTests::ipp_image()
 
 		ipp::Image_3c32f	img_hdr;
 		img_hdr.Load("test_piz.exr");
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		img_hdr.Sqrt();
-#endif
 		img_hdr.Save("test_sqrt.png");
 	}
 }
 
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
 
-void rt::UnitTests::ipp_image_apps()
-{
+//void rt::UnitTests::ipp_image_apps()
+//{
 	//{	// VRF
 	//	float threshold = 0.04f;
 	//	UINT   size_min = 32;
@@ -647,137 +632,137 @@ void rt::UnitTests::ipp_image_apps()
 
 	//	enlarged.Save("see.png", ipp::ImageCodec_PNG);
 	//}
-}
+//}
 
 
-void rt::UnitTests::ipp_imageproc()
-{
-	{
-		ipp::Image_3c8u bg, lab, sh;
-		ipp::Image_4c8u h, b;
-
-		bg.Load("b.png");
-		h.Load("h.png");
-
-		ipp::Image_4c8u out;
-		out.SetSize(h);
-		lab.SetSize(h);
-		sh.SetSize(h);
-		b.SetSize(h);
-		ipp::GetEnv()->JpegEncodeQuality = 95;
-
-		srand((UINT)time(0));
-
-		bg.GammaInv();
-
-		for(UINT i=0; i<100; i++)
-		{
-			{
-				float a = 255*rand()/(float)RAND_MAX;
-				float b = 255*rand()/(float)RAND_MAX;
-				float c = 255*rand()/(float)RAND_MAX;
-
-				for(UINT y=0; y<bg.GetHeight(); y++)
-				for(UINT x=0; x<bg.GetWidth(); x++)
-				{
-					auto& p = bg(x,y);
-					auto& d = sh(x,y);
-
-					rt::Vec3f  v = p;
-					float bri = v.GetBrightness()*0.9f;
-					v.x += a;
-					v.y += b;
-					//v.z *= c;
-
-					bri /= v.GetBrightness();
-
-					v *= bri;
-
-					d = v;
-				}
-			}
-
-			sh.Gamma();
-			b.CopyFrom(sh);
-
-			out.AlphaBlend(h, b);
-			out.Save(rt::SS("hand_") + rt::tos::Number(i).RightAlign(4, '0') + ".png");
-		}
-	}
-
-	return;
-	
-	ipp::Image_3c8u	img, ret, resized;
-	img.Load("Konachan.com - 144591 sample.jpg");
-	ret.SetSize(img);
-
-	img.GammaTo(ret);		ret.Save("gamma.jpg");
-	img.GammaInvTo(ret);	ret.Save("gamma_inv.jpg");
-	ret = img;
-	ret.BoxFilter(ipp::Size(16,4));	ret.Save("boxfilter.png", ipp::ImageCodec_PNG);
-
-	resized.SetSize(512,512);
-	img.ResizeTo_Nearest(resized);
-	resized.Save("resized_nearest.jpg");
-	img.ResizeTo_Bilinear(resized);
-	resized.Save("resized_linear.jpg");
-	img.ResizeTo_SuperSampling(resized);
-	resized.Save("resized_super.jpg");
-	
-	ipp::Image_1c8u r,g,b;
-	r.SetSize(resized);
-	g.SetSize(resized);
-	b.SetSize(resized);
-	resized.ChannelSplit(r,g,b);
-	r.HaarWaveletFwd(4);
-	g.HaarWaveletFwd(4);
-	b.HaarWaveletFwd(4);
-	resized.ChannelJoin(r,g,b);
-	resized.Save("haar_L1.jpg");
-
-	rt::Vec3f	im,bm;
-	img.Mean(im);
-	_LOG(im);
-	img.GaussTo(ret, 8);
-	ret.Mean(bm);
-	_LOG(bm);
-	_LOG(im.x/bm.x);
-
-	ret.Save("gauss_blur.jpg");
-}
-
-void rt::UnitTests::ipp_matting()
-{
-	ipp::Image_3c8u	w,b;
-
-	w.Load("w.png");
-	b.Load("b.png");
-
-	if(w.GetRegion() == b.GetRegion())
-	{
-		ipp::Image_4c8u	out;
-		out.SetSize(w);
-		for(UINT y=0;y<out.GetHeight();y++)
-		for(UINT x=0;x<out.GetWidth();x++)
-		{
-			rt::Vec4b& pf = out(x,y);
-			pf.a = b(x,y).GetBrightness() + 255 - w(x,y).GetBrightness();
-			
-			rt::Vec3b& pb = b(x,y);
-			if(pf.a)
-			{
-				pf.r = pb.r*255/pf.a;
-				pf.g = pb.g*255/pf.a;
-				pf.b = pb.b*255/pf.a;
-			}
-			else{ pf.r = pf.g = pf.b = 0; }
-		}
-		out.Save("matt.png",ipp::ImageCodec_PNG);
-	}
-	else
-	{	_LOG("size not match.");
-	}
-}
+//void rt::UnitTests::ipp_imageproc()
+//{
+//	{
+//		ipp::Image_3c8u bg, lab, sh;
+//		ipp::Image_4c8u h, b;
+//
+//		bg.Load("b.png");
+//		h.Load("h.png");
+//
+//		ipp::Image_4c8u out;
+//		out.SetSize(h);
+//		lab.SetSize(h);
+//		sh.SetSize(h);
+//		b.SetSize(h);
+//		ipp::GetEnv()->JpegEncodeQuality = 95;
+//
+//		srand((UINT)time(0));
+//
+//		bg.GammaInv();
+//
+//		for(UINT i=0; i<100; i++)
+//		{
+//			{
+//				float a = 255*rand()/(float)RAND_MAX;
+//				float b = 255*rand()/(float)RAND_MAX;
+//				float c = 255*rand()/(float)RAND_MAX;
+//
+//				for(UINT y=0; y<bg.GetHeight(); y++)
+//				for(UINT x=0; x<bg.GetWidth(); x++)
+//				{
+//					auto& p = bg(x,y);
+//					auto& d = sh(x,y);
+//
+//					rt::Vec3f  v = p;
+//					float bri = v.GetBrightness()*0.9f;
+//					v.x += a;
+//					v.y += b;
+//					//v.z *= c;
+//
+//					bri /= v.GetBrightness();
+//
+//					v *= bri;
+//
+//					d = v;
+//				}
+//			}
+//
+//			sh.Gamma();
+//			b.CopyFrom(sh);
+//
+//			out.AlphaBlend(h, b);
+//			out.Save(rt::SS("hand_") + rt::tos::Number(i).RightAlign(4, '0') + ".png");
+//		}
+//	}
+//
+//	return;
+//
+//	ipp::Image_3c8u	img, ret, resized;
+//	img.Load("Konachan.com - 144591 sample.jpg");
+//	ret.SetSize(img);
+//
+//	img.GammaTo(ret);		ret.Save("gamma.jpg");
+//	img.GammaInvTo(ret);	ret.Save("gamma_inv.jpg");
+//	ret = img;
+//	ret.BoxFilter(ipp::Size(16,4));	ret.Save("boxfilter.png", ipp::ImageCodec_PNG);
+//
+//	resized.SetSize(512,512);
+//	img.ResizeTo_Nearest(resized);
+//	resized.Save("resized_nearest.jpg");
+//	img.ResizeTo_Bilinear(resized);
+//	resized.Save("resized_linear.jpg");
+//	img.ResizeTo_SuperSampling(resized);
+//	resized.Save("resized_super.jpg");
+//
+//	ipp::Image_1c8u r,g,b;
+//	r.SetSize(resized);
+//	g.SetSize(resized);
+//	b.SetSize(resized);
+//	resized.ChannelSplit(r,g,b);
+//	r.HaarWaveletFwd(4);
+//	g.HaarWaveletFwd(4);
+//	b.HaarWaveletFwd(4);
+//	resized.ChannelJoin(r,g,b);
+//	resized.Save("haar_L1.jpg");
+//
+//	rt::Vec3f	im,bm;
+//	img.Mean(im);
+//	_LOG(im);
+//	img.GaussTo(ret, 8);
+//	ret.Mean(bm);
+//	_LOG(bm);
+//	_LOG(im.x/bm.x);
+//
+//	ret.Save("gauss_blur.jpg");
+//}
+//
+//void rt::UnitTests::ipp_matting()
+//{
+//	ipp::Image_3c8u	w,b;
+//
+//	w.Load("w.png");
+//	b.Load("b.png");
+//
+//	if(w.GetRegion() == b.GetRegion())
+//	{
+//		ipp::Image_4c8u	out;
+//		out.SetSize(w);
+//		for(UINT y=0;y<out.GetHeight();y++)
+//		for(UINT x=0;x<out.GetWidth();x++)
+//		{
+//			rt::Vec4b& pf = out(x,y);
+//			pf.a = b(x,y).GetBrightness() + 255 - w(x,y).GetBrightness();
+//
+//			rt::Vec3b& pb = b(x,y);
+//			if(pf.a)
+//			{
+//				pf.r = pb.r*255/pf.a;
+//				pf.g = pb.g*255/pf.a;
+//				pf.b = pb.b*255/pf.a;
+//			}
+//			else{ pf.r = pf.g = pf.b = 0; }
+//		}
+//		out.Save("matt.png",ipp::ImageCodec_PNG);
+//	}
+//	else
+//	{	_LOG("size not match.");
+//	}
+//}
 
 
 #endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT

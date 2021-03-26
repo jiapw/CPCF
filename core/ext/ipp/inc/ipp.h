@@ -1,37 +1,47 @@
-/* ////////////////////////////////////////////////////////////////////////////////////
-//
-//                   INTEL CORPORATION PROPRIETARY INFORMATION
-//      This software is supplied under the terms of a license agreement or
-//      nondisclosure agreement with Intel Corporation and may not be copied
-//      or disclosed except in accordance with the terms of that agreement.
-//           Copyright(c) 1999-2011 Intel Corporation. All Rights Reserved.
-//
-//  Master include file for Intel(R) Integrated Performance Primitives (Intel(R) IPP)
-//       Contains the references to include-files for all Intel(R) IPP libraries
+/* 
+// Copyright 1999-2020 Intel Corporation All Rights Reserved.
+// 
+// The source code, information and material ("Material") contained herein is
+// owned by Intel Corporation or its suppliers or licensors, and title
+// to such Material remains with Intel Corporation or its suppliers or
+// licensors. The Material contains proprietary information of Intel
+// or its suppliers and licensors. The Material is protected by worldwide
+// copyright laws and treaty provisions. No part of the Material may be used,
+// copied, reproduced, modified, published, uploaded, posted, transmitted,
+// distributed or disclosed in any way without Intel's prior express written
+// permission. No license under any patent, copyright or other intellectual
+// property rights in the Material is granted to or conferred upon you,
+// either expressly, by implication, inducement, estoppel or otherwise.
+// Any license under such intellectual property rights must be express and
+// approved by Intel in writing.
+// 
+// Unless otherwise agreed by Intel in writing,
+// you may not remove or alter this notice or any other notice embedded in
+// Materials by Intel or Intel's suppliers or licensors in any way.
+// 
 */
 
-#if !defined( __IPP_H__ )  || defined( _OWN_BLDPCS )
-#define __IPP_H__
+/* 
+//   Master include file for Intel(R) Integrated Performance Primitives (Intel(R) IPP)
+//        Contains the references to include-files for all Intel(R) IPP libraries
+// 
+*/
+
+
+#if !defined( IPP_H__ )  || defined( _OWN_BLDPCS )
+#define IPP_H__
 
 #include "ippversion.h"
 
 #include "ippdefs.h"
 
 #include "ippcore.h"
-#include "ippac.h"
 #include "ippcc.h"
 #include "ippdc.h"
 #include "ippch.h"
 #include "ippcv.h"
 #include "ippi.h"
-#include "ippj.h"
-#include "ippm.h"
 #include "ipps.h"
-#include "ippsc.h"
-#include "ippvc.h"
 #include "ippvm.h"
-#include "ippr.h"
-#include "ippdi.h"
 
-#endif /* __IPP_H__ */
-/* ////////////////////////// End of file "ipp.h" /////////////////////////// */
+#endif /* IPP_H__ */
