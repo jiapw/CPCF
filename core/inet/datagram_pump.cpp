@@ -13,11 +13,23 @@ namespace inet
 {
 
 #if defined(PLATFORM_WIN)
-void DatagramSocket::_InitBuf(UINT mtu)
+void DatagramSocket::_InitBuf(UINT mtu, UINT concurrency)
 {
-	VERIFY(_RecvBuf.SetSize(mtu + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)));
-	_RecvBuf.Zero();
-	_GetDatagram().RecvBuf = _RecvBuf.Begin();
+	ASSERT(concurrency);
+	ASSERT(mtu);
+
+	_Concurrency = concurrency;
+	_RecvBlockSize = mtu + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED);
+	VERIFY(_ConcurrentRecvBuf.ChangeSize(_RecvBlockSize*concurrency, false));
+	_ConcurrentRecvBuf.Zero();
+	for(UINT i=0; i<_Concurrency; i++)
+	{
+		auto& block = _GetRecvBlock(i);
+		block.Index = i;
+		block.hSocket = _hSocket;
+		block.Packet.RecvBuf = block.DataBuf;
+		block.Packet.RecvBufSize = mtu;
+	}
 }
 #endif
 
@@ -30,25 +42,6 @@ bool DatagramSocket::Create(const InetAddr &bind_to, bool reuse_addr)
 {
 	return Socket::Create(bind_to, SOCK_DGRAM, reuse_addr);
 }
-
-#if defined(PLATFORM_WIN)
-bool DatagramSocket::_PumpNext()
-{
-	ASSERT(_RecvBuf.GetSize());
-    WSABUF b = { (UINT)_RecvBuf.GetSize() - sizeof(Datagram) - sizeof(WSAOVERLAPPED), (LPSTR)_RecvBuf.Begin() };
-	auto* g = (Datagram*)(_RecvBuf.Begin() + b.len);
-	ASSERT(g->RecvBuf == (LPBYTE)b.buf);
-	g->PeerAddressSize = sizeof(InetAddrV6);
-	g->RecvSize = 0;
-    DWORD flag = 0;
-	auto overlap = (LPWSAOVERLAPPED)&g[1];
-    if( ::WSARecvFrom(m_hSocket, &b, 1, &g->RecvSize, &flag, (sockaddr*)&g->PeerAddressFamily, &g->PeerAddressSize, overlap, nullptr) == 0 ||
-        ::WSAGetLastError() == WSA_IO_PENDING
-    )return true;
-    overlap->hEvent = INVALID_HANDLE_VALUE;
-    return false;
-}
-#endif
 
 bool AsyncDatagramCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrency, UINT stack_size)
 {
@@ -176,12 +169,12 @@ bool DatagramSocket::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_le
 
 	do
 	{	
-		ret = (int)sendto(m_hSocket,(const char*)pData,len,0,(const sockaddr*)addr,addr_len);
+		ret = (int)sendto(_hSocket,(const char*)pData,len,0,(const sockaddr*)addr,addr_len);
 		if(ret == len)return true;
 	}while(	!drop_if_busy &&
 			ret < 0 &&
 			IsLastOpPending() &&
-			(select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, (timeval*)&timeout)) == 1
+			(select(1 + (int)_hSocket, NULL, _FD(_hSocket), NULL, (timeval*)&timeout)) == 1
 		  );
 
 	return false;
@@ -231,11 +224,11 @@ bool AsyncDatagramCoreBase::_PickUpEvent(Event& e)
 	::GetQueuedCompletionStatus(_Core, 
 								&e.bytes_transferred, 
 								(PULONG_PTR)&e.cookie,
-								(LPOVERLAPPED*)&pOverlapped, INFINITE
+								(LPOVERLAPPED*)&e.overlapped, INFINITE
 								);
-	if(!pOverlapped)return false;
+	if(!e.overlapped)return false;
 	ASSERT(e.cookie);
-	return e.bytes_transferred;
+	return true;
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
     struct kevent evts[AsyncDatagramCoreBase::EVENT_BATCH_SIZE];
     int batch = 0;
@@ -260,5 +253,61 @@ bool AsyncDatagramCoreBase::_PickUpEvent(Event& e)
 
 	return false;
 }
+
+#if defined(PLATFORM_WIN)
+namespace _details
+{
+} // namespace _details
+
+bool DatagramSocket::RecvBlock::PumpNext()
+{
+	ASSERT(Packet.RecvBuf == (LPBYTE)DataBuf);
+	WSABUF b = { (UINT)Packet.RecvBufSize, (LPSTR)Packet.RecvBuf };
+
+	Packet.PeerAddressSize = sizeof(InetAddrV6);
+	Packet.RecvSize = 0;
+	DWORD flag = 0;
+	if(::WSARecvFrom(hSocket, &b, 1, &Packet.RecvSize, &flag, (sockaddr*)&Packet.PeerAddressFamily, &Packet.PeerAddressSize, &Overlapped, nullptr) != SOCKET_ERROR)
+		return true;
+
+	auto last_error = ::WSAGetLastError();
+	if(last_error == WSA_IO_PENDING)return true;
+	if(last_error == WSA_INVALID_HANDLE || last_error == WSA_OPERATION_ABORTED)
+	{	
+		hSocket = INVALID_SOCKET; // already closed by other thread
+		goto FAILED;
+	}
+
+	if(inet::Socket::IsErrorUnrecoverable(last_error))goto FAILED;
+	
+	// attmpt to recover
+	for(UINT i=0; i<3; i++)
+	{
+		os::Sleep(1);
+
+		Packet.PeerAddressSize = sizeof(InetAddrV6);
+		Packet.RecvSize = 0;
+		DWORD flag = 0;
+		if(::WSARecvFrom(hSocket, &b, 1, &Packet.RecvSize, &flag, (sockaddr*)&Packet.PeerAddressFamily, &Packet.PeerAddressSize, &Overlapped, nullptr) != SOCKET_ERROR)
+			return true;
+
+		auto err = ::WSAGetLastError();
+		if(err == WSA_IO_PENDING)return true;
+		if(err == last_error || inet::Socket::IsErrorUnrecoverable(err))
+			break;
+
+		last_error = err;
+	}
+
+FAILED:
+	if(hSocket != INVALID_SOCKET)
+		inet::Socket(hSocket).Close();  // interrupt all pending recv on 
+
+	Overlapped.hEvent = INVALID_HANDLE_VALUE;
+
+	_LOG_WARNING("PumpNext fatal error ="<<last_error);
+	return false;
+}
+#endif
 
 } // namespace inet

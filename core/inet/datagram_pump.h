@@ -62,6 +62,7 @@ public:
 #if defined(PLATFORM_WIN)
 		DWORD	bytes_transferred;
         LPVOID  cookie;
+		WSAOVERLAPPED* overlapped;
 #else
         int     count;
         LPVOID  cookies[EVENT_BATCH_SIZE];
@@ -84,7 +85,8 @@ public:
 struct Datagram
 {
     LPBYTE		RecvBuf;
-    DWORD		RecvSize;
+	DWORD		RecvBufSize;	// MTU
+    DWORD		RecvSize;		// Last recv
     socklen_t	PeerAddressSize;
     union {
         WORD        PeerAddressFamily; // AF_INET, AF_INET6
@@ -114,19 +116,36 @@ class DatagramSocket: public Socket
     
 protected:
 #if defined(PLATFORM_WIN)
-    rt::BufferEx<BYTE>	_RecvBuf; // MTU + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)
-	void				_InitBuf(UINT mtu);
-	Datagram&			_GetDatagram(){ return *(Datagram*)(_RecvBuf.End() - sizeof(Datagram) - sizeof(WSAOVERLAPPED)); }
-	LPWSAOVERLAPPED		_GetOverlapped(){ return (LPWSAOVERLAPPED)(_RecvBuf.End() - sizeof(WSAOVERLAPPED)); }
-#endif
+	struct RecvBlock
+	{
+		TYPETRAITS_DECLARE_NON_POD;
+		int				Index;
+		SOCKET			hSocket;		// just a copy of DatagramSocket
+		Datagram		Packet;
+		WSAOVERLAPPED	Overlapped;
+		BYTE			DataBuf[1];	// MTU
+		UINT			GetSize() const { return offsetof(RecvBlock, DataBuf) + Packet.RecvBufSize; }
+		bool			PumpNext();
+	};
+    rt::BufferEx<BYTE>	_ConcurrentRecvBuf; // MTU + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)
+	UINT				_Concurrency = 0;
+	UINT				_RecvBlockSize = 0;
+	void				_InitBuf(UINT mtu, UINT concurrency);
+	RecvBlock&			_GetRecvBlock(UINT i){ return *(RecvBlock*)(_ConcurrentRecvBuf.Begin() + i*_RecvBlockSize); }
+	RecvBlock&			_GetRecvBlockFromOverlapped(WSAOVERLAPPED* overlapped) const 
+						{	ASSERT((LPCBYTE)overlapped > _ConcurrentRecvBuf.Begin() && (LPCBYTE)overlapped < _ConcurrentRecvBuf.End());
+							return *(RecvBlock*)(((LPCBYTE)overlapped) - offsetof(RecvBlock, Overlapped));
+						}
+	void				_ClearOverlapped()
+						{	for(UINT i=0; i<_Concurrency; i++)
+								_GetRecvBlock(i).Overlapped.hEvent = INVALID_HANDLE_VALUE;
+						}
+#endif // #if defined(PLATFORM_WIN)
 
 	bool	__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_len, bool drop_if_busy = false);
-#if defined(PLATFORM_WIN)
-    bool    _PumpNext();
-#endif
 
 public:
-	SOCKET	GetHandle() const { return m_hSocket; }
+	SOCKET	GetHandle() const { return _hSocket; }
     bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false);
     bool    Create(const InetAddr &bind_to, bool reuse_addr = false);
 
@@ -176,7 +195,12 @@ struct OnRecvAll
 template<typename SocketObject> // IOObjectDatagram or IOObjectStream
 class DatagramPump: public AsyncDatagramCoreBase
 {
-    UINT _MTU;
+#if defined(PLATFORM_WIN)
+public:
+	volatile int _PendingRecvCall = 0;
+#endif
+protected:
+	UINT _MTU;
 	void _IOPump()
 	{
 #if !defined(PLATFORM_WIN)
@@ -189,11 +213,13 @@ class DatagramPump: public AsyncDatagramCoreBase
 			if(AsyncDatagramCoreBase::_PickUpEvent(evt))
 			{
 #if defined(PLATFORM_WIN)
-				auto& g = ((SocketObject*)evt.cookie)->_GetDatagram();
-				g.RecvSize = evt.bytes_transferred;
-				((SocketObject*)evt.cookie)->OnRecv(&g);
-				if(!((SocketObject*)evt.cookie)->_PumpNext())
-					((SocketObject*)evt.cookie)->OnRecv(nullptr); // indicate error
+				auto& rb = ((SocketObject*)evt.cookie)->_GetRecvBlockFromOverlapped(evt.overlapped);
+				rb.Packet.RecvSize = evt.bytes_transferred;
+				((SocketObject*)evt.cookie)->OnRecv(&rb.Packet);
+				if(!rb.PumpNext())
+				{	os::AtomicDecrement(&_PendingRecvCall);
+					if(rb.Index == 0){ ((SocketObject*)evt.cookie)->OnRecv(nullptr); _LOG_POS_WARNING; } // indicate error
+				}
 #else
                 _details::OnRecvAll<SocketObject, sizeofArray(evt.cookies)>::Call(evt, buf);
 #endif
@@ -219,8 +245,14 @@ public:
 		((Socket*)obj)->EnableNonblockingIO(true);
 		if(!_AddObject(obj->GetHandle(), obj))return false;
 #if defined(PLATFORM_WIN)
-        obj->_InitBuf(_MTU);
-		if(!obj->_PumpNext()){ obj->OnRecv(nullptr); return false; }
+        obj->_InitBuf(_MTU, (UINT)_IOWorkers.GetSize());
+		for(UINT i=0; i<_IOWorkers.GetSize(); i++)
+			if(!obj->_GetRecvBlock(i).PumpNext())
+			{	RemoveObject(obj);
+				_LOG_POS_WARNING;
+				return false; 
+			}
+		os::AtomicAdd((UINT)_IOWorkers.GetSize(), &_PendingRecvCall);
 #endif
 		return true;
 	}
@@ -228,7 +260,7 @@ public:
 	void RemoveObject(SocketObject* obj)
 	{	
 #if defined(PLATFORM_WIN)
-		obj->_GetOverlapped()->hEvent = INVALID_HANDLE_VALUE;
+		obj->_ClearOverlapped();
 #endif
 		_RemoveObject(obj->GetHandle());
 	}

@@ -249,7 +249,7 @@ int Socket::GetBindPort() const
 {
 	BYTE addr[sizeof(InetAddrV6)];
 	socklen_t addrlen = sizeof(addr);
-	if(getsockname(m_hSocket, (sockaddr*)addr, &addrlen)==0)
+	if(getsockname(_hSocket, (sockaddr*)addr, &addrlen)==0)
 	{
 		if(((sockaddr*)addr)->sa_family == AF_INET)
 			return ((InetAddr*)addr)->GetPort();
@@ -269,11 +269,22 @@ int Socket::GetLastError()
 #endif
 }
 
-bool Socket::IsLastErrorUnrecoverableForDatagram()
+bool Socket::IsErrorUnrecoverable(int err)
 {
-	auto errcode = GetLastError();
 #if defined(PLATFORM_WIN)
-	return errcode != WSAECONNRESET && errcode != WSAENETRESET && errcode != WSAEMSGSIZE && errcode != 0;
+	switch(err)
+	{	case WSA_INVALID_HANDLE:
+		case WSA_OPERATION_ABORTED:
+		case WSAEBADF:
+		case WSAEACCES:
+		case WSAENOTSOCK:
+		case WSAENETDOWN:
+		case WSAESHUTDOWN:
+		case WSASYSNOTREADY:
+		case WSANOTINITIALISED:
+			return true;
+		default: return false;
+	}
 #else
 	return true;
 #endif
@@ -291,74 +302,79 @@ bool Socket::IsLastOpPending()
 
 Socket::Socket()
 {
-	m_hSocket = INVALID_SOCKET;
+	_hSocket = INVALID_SOCKET;
 }
 
 Socket::Socket(SOCKET s)
 {
-	m_hSocket = s;
+	_hSocket = s;
 }
 
 bool Socket::__Create(const struct sockaddr &BindTo, int addr_len, int nSocketType, bool reuse_addr, int AF)
 {
-	ASSERT(m_hSocket == INVALID_SOCKET);
-	m_hSocket = socket(AF, nSocketType, 0);
+	ASSERT(_hSocket == INVALID_SOCKET);
+	_hSocket = socket(AF, nSocketType, 0);
 
-	if(INVALID_SOCKET != m_hSocket)
+	if(INVALID_SOCKET != _hSocket)
 	{
 		int on = 1;
 		if(SOCK_STREAM == nSocketType)
 		{	linger l = {1,0};
-			VERIFY(0==::setsockopt(m_hSocket,SOL_SOCKET,SO_LINGER,(char*)&l,sizeof(linger)));
+			VERIFY(0==::setsockopt(_hSocket,SOL_SOCKET,SO_LINGER,(char*)&l,sizeof(linger)));
 #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
-			VERIFY(0==::setsockopt(m_hSocket,SOL_SOCKET,SO_NOSIGPIPE,(void *)&on, sizeof(on)));
+			VERIFY(0==::setsockopt(_hSocket,SOL_SOCKET,SO_NOSIGPIPE,(void *)&on, sizeof(on)));
 #endif
 		}
-#if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 		else if(SOCK_DGRAM == nSocketType)
 		{
-			VERIFY(0==::setsockopt(m_hSocket,SOL_SOCKET,SO_BROADCAST,(void *)&on, sizeof(on)));
-		}
+			VERIFY(0==::setsockopt(_hSocket,SOL_SOCKET,SO_BROADCAST,(LPCSTR)&on, sizeof(on)));
+
+#if defined(PLATFORM_WIN) // prevent 10054 error on UDP (https://stackoverflow.com/questions/34242622/windows-udp-sockets-recvfrom-fails-with-error-10054)
+			#define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR, 12)
+			BOOL bNewBehavior = FALSE;
+			DWORD dwBytesReturned = 0;
+			::WSAIoctl(_hSocket, SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytesReturned, NULL, NULL);
 #endif
+		}
+
 		if(reuse_addr)
-		{	VERIFY(0==setsockopt(m_hSocket,SOL_SOCKET,SO_REUSEADDR,(char*)&on,sizeof(on)));
-//			VERIFY(0==::setsockopt(m_hSocket,SOL_SOCKET,SO_REUSEPORT,(char *)&on, sizeof(on)));
+		{
+			VERIFY(0==setsockopt(_hSocket,SOL_SOCKET,SO_REUSEADDR,(char*)&on,sizeof(on)));
+			//VERIFY(0==::setsockopt(_hSocket,SOL_SOCKET,SO_REUSEPORT,(char *)&on, sizeof(on)));
 		}
 		
-		if(0==bind(m_hSocket,&BindTo,addr_len))
+		if(0==bind(_hSocket,&BindTo,addr_len))
 		{
 			return true;
 		}
 	}
 	
-	
-	
-	_LOG_WARNING("Socket Error = "<<GetLastError());
+	_LOGC_WARNING("[NET]: Socket Creation Error = "<<GetLastError());
 	Close();
 	return false;
 }
 
 void Socket::Attach(SOCKET hSocket)
 {
-	ASSERT(m_hSocket == INVALID_SOCKET);
-	m_hSocket = hSocket;
-	ASSERT(m_hSocket != INVALID_SOCKET);
+	ASSERT(_hSocket == INVALID_SOCKET);
+	_hSocket = hSocket;
+	ASSERT(_hSocket != INVALID_SOCKET);
 }
 
 SOCKET Socket::Detach()
 {
 	SOCKET s;
-	s = m_hSocket;
-	m_hSocket = INVALID_SOCKET;
+	s = _hSocket;
+	_hSocket = INVALID_SOCKET;
 	return s;
 }
 
 void Socket::Close()
 {
-	if(m_hSocket != INVALID_SOCKET)
+	if(_hSocket != INVALID_SOCKET)
 	{
-		SOCKET tmp = m_hSocket;
-		m_hSocket = INVALID_SOCKET;
+		SOCKET tmp = _hSocket;
+		_hSocket = INVALID_SOCKET;
 
 		int val;
 		SOCKET_SIZE_T len = sizeof(val);
@@ -380,30 +396,30 @@ void Socket::Close()
 
 bool Socket::__GetPeerName(struct sockaddr &ConnectedTo, int addr_len) const
 {
-	ASSERT(m_hSocket != INVALID_SOCKET);
+	ASSERT(_hSocket != INVALID_SOCKET);
 	SOCKET_SIZE_T size = addr_len;
-	return getpeername(m_hSocket,&ConnectedTo,&size)==0 && size == addr_len;
+	return getpeername(_hSocket,&ConnectedTo,&size)==0 && size == addr_len;
 }
 
 bool Socket::__GetBindName(struct sockaddr &bind, int addr_len)	const	// address of this socket
 {
-	ASSERT(m_hSocket != INVALID_SOCKET);
+	ASSERT(_hSocket != INVALID_SOCKET);
 	SOCKET_SIZE_T size = addr_len;
-	return getsockname(m_hSocket,&bind,&size)==0;
+	return getsockname(_hSocket,&bind,&size)==0;
 }
 
 bool Socket::__ConnectTo(const struct sockaddr &target, int addr_len)
 {
-	return connect(m_hSocket,&target,addr_len)==0;
+	return connect(_hSocket,&target,addr_len)==0;
 }
 
 bool Socket::IsValid() const
 {
-    if(INVALID_SOCKET == m_hSocket)return false;
+    if(INVALID_SOCKET == _hSocket)return false;
 
 	int val;
 	SOCKET_SIZE_T len = sizeof(val);
-	return getsockopt(m_hSocket,SOL_SOCKET,SO_TYPE,(char*)&val,&len) == 0;
+	return getsockopt(_hSocket,SOL_SOCKET,SO_TYPE,(char*)&val,&len) == 0;
 }
 
 bool Socket::IsConnected() const
@@ -412,22 +428,22 @@ bool Socket::IsConnected() const
 
 	InetAddrV6 peeraddr;
 	SOCKET_SIZE_T size = sizeof(InetAddrV6);
-	return getpeername(m_hSocket,peeraddr,&size)==0;
+	return getpeername(_hSocket,peeraddr,&size)==0;
 }
 
 bool Socket::Send(LPCVOID pData, UINT len)
 {
-	return len==send(m_hSocket,(const char*)pData,len,0);
+	return len==send(_hSocket,(const char*)pData,len,0);
 }
 
 bool Socket::__SendTo(LPCVOID pData, UINT len,const struct sockaddr &target, int addr_len)
 {
-	return len==sendto(m_hSocket,(const char*)pData,len,0,&target,addr_len);
+	return len==sendto(_hSocket,(const char*)pData,len,0,&target,addr_len);
 }
 
 bool Socket::Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek)
 {
-	UINT l = (UINT)recv(m_hSocket,(char*)pData,len,Peek?MSG_PEEK:0);
+	UINT l = (UINT)recv(_hSocket,(char*)pData,len,Peek?MSG_PEEK:0);
     if(l==SOCKET_ERROR)
     {   len_out = 0;
         return false;
@@ -439,7 +455,7 @@ bool Socket::Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek)
 bool Socket::__RecvFrom(LPVOID pData, UINT len, UINT& len_out, struct sockaddr &target, int addr_len, bool Peek)
 {
 	SOCKET_SIZE_T la = addr_len;
-	int l = (int)recvfrom(m_hSocket,(char*)pData,len,Peek?MSG_PEEK:0,&target,&la);
+	int l = (int)recvfrom(_hSocket,(char*)pData,len,Peek?MSG_PEEK:0,&target,&la);
     if(l==SOCKET_ERROR)
     {   len_out = 0;
         return false;
@@ -450,18 +466,18 @@ bool Socket::__RecvFrom(LPVOID pData, UINT len, UINT& len_out, struct sockaddr &
 
 bool Socket::SetBufferSize(int reserved_size, bool receiving_sending)
 {
-	return 0 == setsockopt(m_hSocket,SOL_SOCKET,receiving_sending?SO_RCVBUF:SO_SNDBUF,(char*)&reserved_size,sizeof(int));
+	return 0 == setsockopt(_hSocket,SOL_SOCKET,receiving_sending?SO_RCVBUF:SO_SNDBUF,(char*)&reserved_size,sizeof(int));
 }
 
 bool Socket::Listen(UINT pending_size)
 {
-	return 0 == listen(m_hSocket,pending_size);
+	return 0 == listen(_hSocket,pending_size);
 }
 	
 bool Socket::__Accept(Socket& connected_out, struct sockaddr& peer_addr, int addr_len)
 {
 	SOCKET_SIZE_T la = addr_len;
-	SOCKET sock = accept(m_hSocket,&peer_addr,&la);
+	SOCKET sock = accept(_hSocket,&peer_addr,&la);
 	if(INVALID_SOCKET != sock)
 	{
 		connected_out.Attach(sock);
@@ -477,10 +493,10 @@ void Socket::EnableNonblockingIO(bool enable)
 {
 #if defined(PLATFORM_WIN)
 	u_long flag = enable;
-	ioctlsocket(m_hSocket, FIONBIO, &flag);
+	ioctlsocket(_hSocket, FIONBIO, &flag);
 #else
 	u_long flag = enable;
-	ioctl(m_hSocket, FIONBIO, &flag);
+	ioctl(_hSocket, FIONBIO, &flag);
 #endif
 }
 
@@ -488,7 +504,7 @@ void Socket::EnableDatagramBroadcast(bool enable)
 {
 #if !defined(PLATFORM_WIN)
 	int option = enable;
-    if(-1 == setsockopt(m_hSocket, SOL_SOCKET, SO_BROADCAST, (char *)&option, sizeof(option)))
+    if(-1 == setsockopt(_hSocket, SOL_SOCKET, SO_BROADCAST, (char *)&option, sizeof(option)))
         _LOG_WARNING("[NET]: failed to enable broadcast (err:"<<strerror(errno)<<')');
 #endif
 }
@@ -533,19 +549,19 @@ bool SocketTimed::__ConnectTo(const struct sockaddr &target, int addr_len)
 {
 	timeval timeout = _timeout_send;
 	_LastSelectRet = 1;
-	int ret = connect(m_hSocket,&target,addr_len);
+	int ret = connect(_hSocket,&target,addr_len);
 	
 	return	ret == 0 ||
 			(	ret < 0 &&
 				IsLastOpPending() &&
-				(_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, &timeout)) == 1
+				(_LastSelectRet = select(1 + (int)_hSocket, NULL, _FD(_hSocket), NULL, &timeout)) == 1
 			);
 }
 
 bool SocketTimed::__Accept(Socket& connected_out, struct sockaddr& peer_addr, int addr_len)
 {
 	timeval timeout = _timeout_recv;
-	return	(_LastSelectRet = select(1 + (int)m_hSocket, _FD(m_hSocket), NULL, NULL, &timeout)) == 1 &&
+	return	(_LastSelectRet = select(1 + (int)_hSocket, _FD(_hSocket), NULL, NULL, &timeout)) == 1 &&
 			Socket::__Accept(connected_out, peer_addr, addr_len);
 }
 
@@ -553,7 +569,7 @@ bool SocketTimed::Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek)
 {
 	timeval timeout = _timeout_recv;
 	ASSERT(Peek == false);
-	return	((_LastSelectRet = select(1 + (int)m_hSocket, _FD(m_hSocket), NULL, NULL, &timeout)) == 1) &&
+	return	((_LastSelectRet = select(1 + (int)_hSocket, _FD(_hSocket), NULL, NULL, &timeout)) == 1) &&
 			Socket::Recv(pData, len, len_out, false);
 }
 
@@ -562,7 +578,7 @@ bool SocketTimed::__RecvFrom(LPVOID pData, UINT len, UINT& len_out, struct socka
 	timeval timeout = _timeout_recv;
 
 	ASSERT(Peek == false);
-	return	(_LastSelectRet = select(1 + (int)m_hSocket, _FD(m_hSocket), NULL, NULL, &timeout)) == 1 &&
+	return	(_LastSelectRet = select(1 + (int)_hSocket, _FD(_hSocket), NULL, NULL, &timeout)) == 1 &&
 			Socket::__RecvFrom(pData, len, len_out, target, addr_len, false);
 }
 
@@ -578,7 +594,7 @@ bool SocketTimed::Send(LPCVOID pData, UINT len, bool drop_if_busy)
 	LPCSTR d = (LPCSTR)pData;
 	while(len>0)
 	{	
-		ret = (int)send(m_hSocket,d,rt::min(32*1024U, len),0);
+		ret = (int)send(_hSocket,d,rt::min(32*1024U, len),0);
 		if(ret>0)
 		{	len -= ret;
 			d += ret;
@@ -591,7 +607,7 @@ bool SocketTimed::Send(LPCVOID pData, UINT len, bool drop_if_busy)
 		if(drop_if_busy || !IsLastOpPending())return false;
 
 		// wait to death
-		while((_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, &timeout)) == 0);
+		while((_LastSelectRet = select(1 + (int)_hSocket, NULL, _FD(_hSocket), NULL, &timeout)) == 0);
 		if(_LastSelectRet == 1)
 			continue;
 		else
@@ -608,12 +624,12 @@ bool SocketTimed::__SendTo(LPCVOID pData, UINT len,const struct sockaddr &target
 
 	do
 	{	timeout = _timeout_send;
-		ret = (int)sendto(m_hSocket,(const char*)pData,len,0,&target,addr_len);
+		ret = (int)sendto(_hSocket,(const char*)pData,len,0,&target,addr_len);
 		if(ret == len)return true;
 	}while(	!drop_if_busy &&
 			ret < 0 &&
 			IsLastOpPending() &&
-			(_LastSelectRet = select(1 + (int)m_hSocket, NULL, _FD(m_hSocket), NULL, &timeout)) == 1
+			(_LastSelectRet = select(1 + (int)_hSocket, NULL, _FD(_hSocket), NULL, &timeout)) == 1
 		  );
 
 	return false;

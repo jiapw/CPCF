@@ -261,7 +261,7 @@ class Socket
 	typedef const struct sockaddr CSA;
 	typedef struct sockaddr SA;
 protected:
-	SOCKET m_hSocket;
+	SOCKET _hSocket;
 	bool __Create(const struct sockaddr &BindTo, int addr_len, int nSocketType, bool reuse_addr, int AF);
 	bool __GetPeerName(struct sockaddr &ConnectedTo, int addr_len) const;	// address of the peer
 	bool __GetBindName(struct sockaddr &BindTo, int addr_len) const;		// address of this socket
@@ -294,12 +294,12 @@ public:
 	Socket(SOCKET s);
 	~Socket(){ Close(); }
 	
-	operator		SOCKET() const { return m_hSocket; }
-	bool			IsEmpty() const { return m_hSocket == INVALID_SOCKET; }
+	operator		SOCKET() const { return _hSocket; }
+	bool			IsEmpty() const { return _hSocket == INVALID_SOCKET; }
 
 public: //helpers
 	static	int		GetLastError();
-	static  bool	IsLastErrorUnrecoverableForDatagram();
+	static  bool	IsErrorUnrecoverable(int err);
 	static	bool	IsLastOpPending();
 
 public:
