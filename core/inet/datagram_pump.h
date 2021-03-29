@@ -148,7 +148,6 @@ public:
 	SOCKET	GetHandle() const { return _hSocket; }
     bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false);
     bool    Create(const InetAddr &bind_to, bool reuse_addr = false);
-	UINT	GetConcurrency() const { return _Concurrency; }
 
 public:   
     static void     OnRecv(Datagram* g){ ASSERT(0); } // should be overrided
