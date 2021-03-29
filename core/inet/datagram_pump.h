@@ -148,6 +148,7 @@ public:
 	SOCKET	GetHandle() const { return _hSocket; }
     bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false);
     bool    Create(const InetAddr &bind_to, bool reuse_addr = false);
+	UINT	GetConcurrency() const { return _Concurrency; }
 
 public:   
     static void     OnRecv(Datagram* g){ ASSERT(0); } // should be overrided
@@ -218,7 +219,10 @@ protected:
 				((SocketObject*)evt.cookie)->OnRecv(&rb.Packet);
 				if(!rb.PumpNext())
 				{	os::AtomicDecrement(&_PendingRecvCall);
-					if(rb.Index == 0){ ((SocketObject*)evt.cookie)->OnRecv(nullptr); _LOG_POS_WARNING; } // indicate error
+					if(rb.Index == 0)
+					{	((SocketObject*)evt.cookie)->OnRecv(nullptr);  // indicate error
+						_LOGC_WARNING("[NET]: DatagramPump: IOCP Concurrency Dropped");
+					}
 				}
 #else
                 _details::OnRecvAll<SocketObject, sizeofArray(evt.cookies)>::Call(evt, buf);
@@ -242,17 +246,20 @@ public:
 
 	bool AddObject(SocketObject* obj) // // lifecycle is **not** maintained by RecvPump
 	{	
+		if(!IsRunning())return false;
+
 		((Socket*)obj)->EnableNonblockingIO(true);
 		if(!_AddObject(obj->GetHandle(), obj))return false;
 #if defined(PLATFORM_WIN)
-        obj->_InitBuf(_MTU, (UINT)_IOWorkers.GetSize());
-		for(UINT i=0; i<_IOWorkers.GetSize(); i++)
+		UINT cocurrency = (UINT)_IOWorkers.GetSize()*10;
+        obj->_InitBuf(_MTU, cocurrency);
+		for(UINT i=0; i<cocurrency; i++)
 			if(!obj->_GetRecvBlock(i).PumpNext())
 			{	RemoveObject(obj);
 				_LOG_POS_WARNING;
 				return false;
 			}
-		os::AtomicAdd((UINT)_IOWorkers.GetSize(), &_PendingRecvCall);
+		os::AtomicAdd(cocurrency, &_PendingRecvCall);
 #endif
 		return true;
 	}

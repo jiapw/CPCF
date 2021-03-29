@@ -217,7 +217,7 @@ struct CopyAllEvents
 
 bool AsyncDatagramCoreBase::_PickUpEvent(Event& e)
 {
-    ASSERT(IsRunning());
+    if(!IsRunning())return false;
 
 #if defined(PLATFORM_WIN)
 	OVERLAPPED*	pOverlapped = NULL;
