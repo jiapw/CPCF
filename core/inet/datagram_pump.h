@@ -250,7 +250,7 @@ public:
 			if(!obj->_GetRecvBlock(i).PumpNext())
 			{	RemoveObject(obj);
 				_LOG_POS_WARNING;
-				return false; 
+				return false;
 			}
 		os::AtomicAdd((UINT)_IOWorkers.GetSize(), &_PendingRecvCall);
 #endif

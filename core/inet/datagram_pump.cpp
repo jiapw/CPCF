@@ -19,7 +19,7 @@ void DatagramSocket::_InitBuf(UINT mtu, UINT concurrency)
 	ASSERT(mtu);
 
 	_Concurrency = concurrency;
-	_RecvBlockSize = mtu + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED);
+	_RecvBlockSize = mtu + offsetof(RecvBlock, DataBuf);
 	VERIFY(_ConcurrentRecvBuf.ChangeSize(_RecvBlockSize*concurrency, false));
 	_ConcurrentRecvBuf.Zero();
 	for(UINT i=0; i<_Concurrency; i++)
@@ -283,8 +283,6 @@ bool DatagramSocket::RecvBlock::PumpNext()
 	// attmpt to recover
 	for(UINT i=0; i<3; i++)
 	{
-		os::Sleep(1);
-
 		Packet.PeerAddressSize = sizeof(InetAddrV6);
 		Packet.RecvSize = 0;
 		DWORD flag = 0;
