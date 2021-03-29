@@ -97,7 +97,7 @@ struct	_cipher_spec;
 template<UINT _METHOD>
 class Cipher;
 
-#define DEF_AES_CIPHER(_METHOD, MethodName) \
+#define DEF_AES_CIPHER(_METHOD) \
 template<> class Cipher<_METHOD> \
 {		protected: BYTE _Context[_details::_cipher_spec<_METHOD>::ContextSize]; \
 public: static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockSize; \
@@ -112,8 +112,8 @@ INLFUNC void SetKey(LPCVOID key, UINT len){BYTE hash[NativeKeySize];if(len != Na
 		INLFUNC void DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce){_details::CipherInitVec<DataBlockSize> IV(nonce);ASSERT((Len%DataBlockSize) == 0);IPPCALL(ippsAESDecryptCBC)((LPCBYTE)pCrypt,(LPBYTE)pPlain,(int)Len,(IppsAESSpec*)_Context,IV);}\
 };\
 
-DEF_AES_CIPHER(CIPHER_AES128, Rijndael128)
-DEF_AES_CIPHER(CIPHER_AES256, Rijndael256)
+DEF_AES_CIPHER(CIPHER_AES128)
+DEF_AES_CIPHER(CIPHER_AES256)
 
 #undef DEF_AES_CIPHER
 
