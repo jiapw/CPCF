@@ -97,9 +97,7 @@ void TestMain()
 			//TYPETRAITS_UNITTEST(ipp_zlib);
 			//TYPETRAITS_UNITTEST(ipp_zip);
 			//TYPETRAITS_UNITTEST(mkl_vector);
+			}
 		}
 	}
 }
-
-
-

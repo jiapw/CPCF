@@ -31,7 +31,7 @@
 
 #include "hash.h"
 
-#define PLATFORM_INTEL_IPP_SUPPORT_disabled true
+#define PLATFORM_INTEL_IPP_SUPPORT_disabled
 namespace sec
 {
 //////////////////////////////////////////////////////
