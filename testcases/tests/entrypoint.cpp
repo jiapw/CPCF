@@ -5,14 +5,14 @@ void exp_tracking_proc_ip();
 
 
 #if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
-extern "C" 
+extern "C"
 #endif
 void TestMain()
 {
-    rt::String out;
-    os::File::GetCurrentDirectory(out);
-    _LOGC(out);
-    
+	rt::String out;
+	os::File::GetCurrentDirectory(out);
+	_LOGC(out);
+	
 #if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
 	{   rt::String cd;
 		os::GetAppSandbox(cd, nullptr);
@@ -25,18 +25,8 @@ void TestMain()
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
 		//TYPETRAITS_UNITTEST(big_num);
-		TYPETRAITS_UNITTEST(crypto_func);
+		TYPETRAITS_UNITTEST(recv_pump);
 		//TYPETRAITS_UNITTEST(recv_pump);
-		return;
-	}
-	else
-	{
-	if(!os::CommandLine::Get().HasOption("verify"))
-	{
-		TYPETRAITS_UNITTEST(big_num);
-		TYPETRAITS_UNITTEST(botan_cipher);
-		TYPETRAITS_UNITTEST(crypto_func);
-//		TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}
 	else
@@ -50,7 +40,7 @@ void TestMain()
 		TYPETRAITS_UNITTEST(json);
 		TYPETRAITS_UNITTEST(express_tk);
 		TYPETRAITS_UNITTEST(xml);
-		TYPETRAITS_UNITTEST(html);
+		//TYPETRAITS_UNITTEST(html);
 		TYPETRAITS_UNITTEST(precompiler);
 		
 		TYPETRAITS_UNITTEST(timedate);
@@ -63,10 +53,10 @@ void TestMain()
 		TYPETRAITS_UNITTEST(sparsehash);
 		TYPETRAITS_UNITTEST(async_queue);
 		TYPETRAITS_UNITTEST(crypto_func);
-        TYPETRAITS_UNITTEST(file);
+		TYPETRAITS_UNITTEST(file);
 		TYPETRAITS_UNITTEST(rocks_db);
-        TYPETRAITS_UNITTEST(vm);
-        TYPETRAITS_UNITTEST(async_write);
+		TYPETRAITS_UNITTEST(vm);
+		TYPETRAITS_UNITTEST(async_write);
 		TYPETRAITS_UNITTEST(recv_pump);
 	
 		if(0) // non-static test
@@ -97,7 +87,6 @@ void TestMain()
 			//TYPETRAITS_UNITTEST(ipp_zlib);
 			//TYPETRAITS_UNITTEST(ipp_zip);
 			//TYPETRAITS_UNITTEST(mkl_vector);
-			}
 		}
 	}
 }
