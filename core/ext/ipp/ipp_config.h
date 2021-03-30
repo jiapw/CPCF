@@ -122,9 +122,6 @@
 #elif defined(IPP_LINK_STATIC_LIB_U8)//NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL u8_##name arg;
 	#define IPPCALL(name) u8_##name
-#elif defined(IPP_LINK_STATIC_LIB_N8)//NO, wont compile
-	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n8_##name arg;
-	#define IPPCALL(name) n8_##name
 #elif defined(IPP_LINK_STATIC_LIB_M8)//NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL m8_##name arg;
 	#define IPPCALL(name) m8_##name
