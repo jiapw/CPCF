@@ -90,7 +90,7 @@
 #define _IPP_SEQUENTIAL_STATIC
 #endif
 
-#define _IPP_NO_DEFAULT_LIB
+#define IPP_NO_DEFAULT_LIB
 
 #pragma warning(disable:4819)
 
