@@ -220,19 +220,19 @@ class _TSM_Updater
 	t_MTMutable&	_MTM;
 	bool			_UpdateBegin;
 public:
-	INLFUNC _TSM_Updater(t_MTMutable& x, bool just_try = false):_MTM(x){ _UpdateBegin = _MTM.BeginUpdate(just_try); _Cloned = nullptr; }
-	INLFUNC ~_TSM_Updater(){ if(_UpdateBegin)Commit(); }
+	_TSM_Updater(t_MTMutable& x, bool just_try = false):_MTM(x){ _UpdateBegin = _MTM.BeginUpdate(just_try); _Cloned = nullptr; }
+	~_TSM_Updater(){ if(_UpdateBegin)Commit(); }
 
-	INLFUNC bool		IsUpdating() const { return _UpdateBegin; }
-	INLFUNC bool		IsModified() const { return (bool)_Cloned; }
-	INLFUNC const auto&	GetUnmodified() const { return _MTM.Get(); }
-	INLFUNC auto&		GetModified(){ ASSERT(_UpdateBegin); ReadyModify(); return *_Cloned; }
+	bool		IsUpdating() const { return _UpdateBegin; }
+	bool		IsModified() const { return (bool)_Cloned; }
+	const auto&	GetUnmodified() const { return _MTM.Get(); }
+	auto&		GetModified(){ ASSERT(_UpdateBegin); ReadyModify(); return *_Cloned; }
 	
-	INLFUNC bool		ReadyModify(bool from_empty = false){ if(!_Cloned)_Cloned = from_empty?_MTM.New():_MTM.Clone(); return (bool)_Cloned; }
-	INLFUNC void		Revert(){ ASSERT(_UpdateBegin); _SafeDel(_Cloned); _MTM.EndUpdate(nullptr); _UpdateBegin = false; }
-	INLFUNC void		Commit(){ ASSERT(_UpdateBegin); _MTM.EndUpdate(_Cloned); _UpdateBegin = false; }
-	INLFUNC t_Object*	operator ->(){ ASSERT(_UpdateBegin); ReadyModify(); return _Cloned; }
-	INLFUNC t_Object&	Get(){ ASSERT(_UpdateBegin); ReadyModify(); return *_Cloned; }
+	bool		ReadyModify(bool from_empty = false){ if(!_Cloned)_Cloned = from_empty?_MTM.New():_MTM.Clone(); return (bool)_Cloned; }
+	void		Revert(){ ASSERT(_UpdateBegin); _SafeDel(_Cloned); _MTM.EndUpdate(nullptr); _UpdateBegin = false; }
+	void		Commit(){ ASSERT(_UpdateBegin); _MTM.EndUpdate(_Cloned); _UpdateBegin = false; }
+	t_Object*	operator ->(){ ASSERT(_UpdateBegin); ReadyModify(); return _Cloned; }
+	t_Object&	Get(){ ASSERT(_UpdateBegin); ReadyModify(); return *_Cloned; }
 };
 } // namespace _details
 
@@ -244,40 +244,45 @@ class ThreadSafeMutable
 	os::CriticalSection _cs;
 	T*					_p;
 #if defined(PLATFORM_DEBUG_BUILD)
-	bool				_bModifying = false;
+	bool		_bModifying = false;
 #endif
 protected:
-	INLFUNC bool		BeginUpdate(bool just_try = false)
-						{
-							if(just_try){ if(!_cs.TryLock())return false; }
-							else{ _cs.Lock(); }
+	bool		BeginUpdate(bool just_try = false)
+				{
+					if(just_try){ if(!_cs.TryLock())return false; }
+					else{ _cs.Lock(); }
 #if defined(PLATFORM_DEBUG_BUILD)
-							ASSERT(!_bModifying);
-							_bModifying = true;
+					ASSERT(!_bModifying);
+					_bModifying = true;
 #endif
-							return true; 
-						}
-	INLFUNC void		EndUpdate(T* pNew = nullptr)/* nullptr indicates no change */
-						{	if(pNew){	T* pOld = _p; _p = pNew; _SafeDel_Delayed(pOld, old_TTL); }
+					return true; 
+				}
+	void		EndUpdate(T* pNew = nullptr)/* nullptr indicates no change */
+				{	if(pNew){	T* pOld = _p; _p = pNew; _SafeDel_Delayed(pOld, old_TTL); }
 #if defined(PLATFORM_DEBUG_BUILD)
-							_bModifying = false;
+					_bModifying = false;
 #endif
-							_cs.Unlock();
-						}
+					_cs.Unlock();
+				}
 public:
-	typedef T			t_Object;
-	INLFUNC	ThreadSafeMutable(){ _p = nullptr; }
-	INLFUNC ~ThreadSafeMutable(){ Clear(); ASSERT(!_bModifying); }
+	typedef T	t_Object;
+	ThreadSafeMutable()
+	{	_p = nullptr; 
+#if defined(PLATFORM_DEBUG_BUILD)
+		_bModifying = false;
+#endif		
+	}
+	~ThreadSafeMutable(){ Clear(); ASSERT(!_bModifying); }
 
-	INLFUNC const T&	Get() const { static const T _t; return _p?*_p:_t; }
-	INLFUNC const T*	operator -> () const { return &Get(); }
-	INLFUNC T*			Clone() const { return _p?_New(T(*_p)):_New(T); }
-	INLFUNC T*			New() const { return _New(T); }
-	INLFUNC void		Clear(){ _cs.Lock(); _SafeDel_Delayed(_p, old_TTL); _cs.Unlock(); }
-	INLFUNC bool		IsEmpty() const { return _p == nullptr; }
+	const T&	Get() const { static const T _t; return _p?*_p:_t; }
+	const T*	operator -> () const { return &Get(); }
+	T*			Clone() const { return _p?_New(T(*_p)):_New(T); }
+	T*			New() const { return _New(T); }
+	void		Clear(){ _cs.Lock(); _SafeDel_Delayed(_p, old_TTL); _cs.Unlock(); }
+	bool		IsEmpty() const { return _p == nullptr; }
 	
 	//unsafe in multi-thread
-	INLFUNC T&			GetObject(){ ASSERT(_cs.IsOwnedByCurrentThread()); return (T&)Get(); }
+	T&			GetObject(){ ASSERT(_cs.IsOwnedByCurrentThread()); return (T&)Get(); }
 };
 
 #define THREADSAFEMUTABLE_LOCK(org_obj)				EnterCSBlock(*(os::CriticalSection*)&org_obj)
@@ -287,7 +292,6 @@ public:
 
 
 #if defined(PLATFORM_WIN)
-
 class LaunchProcess
 {
 #if defined(PLATFORM_WIN)
