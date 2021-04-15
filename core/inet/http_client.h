@@ -177,47 +177,47 @@ public:
     HttpSession();
     ~HttpSession();
 
-    void	SetProxy(const InetAddr& addr);	// SetProxy(InetAddr()); to disable proxy
-    bool	HasProxy() const { return m_ProxyServer.GetPort(); }
-    const InetAddr& GetProxy() { return m_ProxyServer; }
+    void			SetProxy(const InetAddr& addr);	// SetProxy(InetAddr()); to disable proxy
+    bool			HasProxy() const { return m_ProxyServer.GetPort(); }
+    auto&			GetProxy() const { return m_ProxyServer; }
+	auto&			GetResponseParsedHeader() const { return m_ResponseHeader; }
 
-    void	SetItemEventCallback(FUNC_EVENT_CALLBACK cb, LPVOID cookie){ m_pEventCallbackSaved = cb; m_pEventCallbackCookie = cookie; }
-    bool	Request_Get(LPCSTR pURL, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);	// no automatic redirection (3xx) handling
-    bool	Request_Post(LPCSTR pURL, LPCBYTE data, UINT sz=0, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
-    bool	Request_PostFile(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR local_filename, bool keep_alive = true); // as multipart/form-data
+    void			SetItemEventCallback(FUNC_EVENT_CALLBACK cb, LPVOID cookie){ m_pEventCallbackSaved = cb; m_pEventCallbackCookie = cookie; }
+    bool			Request_Get(LPCSTR pURL, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);	// no automatic redirection (3xx) handling
+    bool			Request_Post(LPCSTR pURL, LPCBYTE data, UINT sz=0, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
+    bool			Request_PostFile(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR local_filename, bool keep_alive = true); // as multipart/form-data
     struct DataBuf
     {	LPCVOID Data;
         UINT	Length;	
     };
-    bool	Request_Post(LPCSTR pURL, const DataBuf* pBufs, UINT BufCount, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
+    bool			Request_Post(LPCSTR pURL, const DataBuf* pBufs, UINT BufCount, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
 
-    void	SetDataCallback(FUNC_DATA_CALLBACK cb, LPVOID cookie){ m_pDataCallback = cb; m_pDataCallbackCookie = cookie; }
-    bool	Request_GetPartial(LPCSTR pURL, int start, int length = -1, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);
+    void			SetDataCallback(FUNC_DATA_CALLBACK cb, LPVOID cookie){ m_pDataCallback = cb; m_pDataCallbackCookie = cookie; }
+    bool			Request_GetPartial(LPCSTR pURL, int start, int length = -1, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);
     
-    bool	SetBindingAddress(LPCSTR dotted_ip);	// return false if the address is not available
-    bool    SetBindingAddress(const InetAddr& addr);
+    bool			SetBindingAddress(LPCSTR dotted_ip);	// return false if the address is not available
+    bool			SetBindingAddress(const InetAddr& addr);
 
-    bool	WaitResponse();
-    rt::String_Ref GetResponseAsString(){ return rt::String_Ref((LPCSTR)GetResponse(), GetResponseLength()); }
-    LPBYTE	GetResponse();	// the remaining response if some data has been removed by FUNC_DATA_CALLBACK
-    UINT	GetResponseLength() const; // the remaining length of the response if some data has been removed by FUNC_DATA_CALLBACK
-    UINT	GetResponseLengthTotal() const; // the total length of the response regardless data has been removed or not
-    LPCSTR	GetResponseHeader(){ return &_RecvBuffer(); }
-    UINT	GetResponseHeaderLength();
-    void	SetCommonHeaders(LPCSTR agent, bool keepalive = false);
-    DWORD	GetLastServerEvent() const { return m_LastResponseStage; }
-    UINT	GetInternalBufferSize() const { return (UINT)_RecvBufferPool.GetSize(); }
-	rt::String_Ref GetRequestHeader() { return _RequestHeader; }
+    bool			WaitResponse();
+    rt::String_Ref	GetResponseAsString(){ return rt::String_Ref((LPCSTR)GetResponse(), GetResponseLength()); }
+    LPBYTE			GetResponse();	// the remaining response if some data has been removed by FUNC_DATA_CALLBACK
+    UINT			GetResponseLength() const; // the remaining length of the response if some data has been removed by FUNC_DATA_CALLBACK
+    UINT			GetResponseLengthTotal() const; // the total length of the response regardless data has been removed or not
+    LPCSTR			GetResponseHeader(){ return &_RecvBuffer(); }
+    UINT			GetResponseHeaderLength();
+    void			SetCommonHeaders(LPCSTR agent, bool keepalive = false);
+    DWORD			GetLastServerEvent() const { return m_LastResponseStage; }
+    UINT			GetInternalBufferSize() const { return (UINT)_RecvBufferPool.GetSize(); }
+	rt::String_Ref	GetRequestHeader() { return _RequestHeader; }
 
-    void	CancelResponseWaiting(); // supposed to be called from other thread
-    void	ResetConnection();
+    void			CancelResponseWaiting(); // supposed to be called from other thread
+    void			ResetConnection();
 
-    void	SetHangingTimeout(DWORD msec){ _TcpConn.SetTimeout(msec); }	// limit the maximum time of server not responding
-    void	SetResponseTimeout(DWORD msec){ _Timeout = msec; }				// limit the total time of fulfilling the request 
+    void			SetHangingTimeout(DWORD msec){ _TcpConn.SetTimeout(msec); }	// limit the maximum time of server not responding
+    void			SetResponseTimeout(DWORD msec){ _Timeout = msec; }				// limit the total time of fulfilling the request 
 
-    const ResponseHeader& GetResponseParsedHeader()const{ return m_ResponseHeader; }
-    static bool ResolveRelativeURL(rt::String& out, const rt::String_Ref& tobe_resolved, const rt::String_Ref& refer);
-    static bool IsCompleteURL(const rt::String_Ref& url); // no component missing, no relative path
+    static bool		ResolveRelativeURL(rt::String& out, const rt::String_Ref& tobe_resolved, const rt::String_Ref& refer);
+    static bool		IsCompleteURL(const rt::String_Ref& url); // no component missing, no relative path
 };
 
 class HttpRequestAsync
@@ -319,43 +319,43 @@ class HttpNavigator	// a simple web navigator with redirection and cookie
     void						_ComposeAddtionalHeaderString(rt::String &outString);
 
 protected:
-    rt::String				m_NavigatedDestination;
-    HttpSession				m_HttpSession;
+    rt::String			_NavigatedDestination;
+    HttpSession			_HttpSession;
 
 protected:
     void				SetRedirected(const rt::String_Ref& url);
 
 public:
-    void				SetHangingTimeout(DWORD msec){ m_HttpSession.SetHangingTimeout(msec); }		// limit the maximum time of server not responding
-    void				SetResponseTimeout(DWORD msec){ m_HttpSession.SetResponseTimeout(msec); }	// limit the total time of fulfilling the request 
-    void				CancelResponseWaiting(){ m_HttpSession.CancelResponseWaiting(); }
+    void				SetHangingTimeout(DWORD msec){ _HttpSession.SetHangingTimeout(msec); }		// limit the maximum time of server not responding
+    void				SetResponseTimeout(DWORD msec){ _HttpSession.SetResponseTimeout(msec); }	// limit the total time of fulfilling the request 
+    void				CancelResponseWaiting(){ _HttpSession.CancelResponseWaiting(); }
     // automatic redirection (3xx) handling, cookie storage
     bool				NavigateTo(LPCSTR pURL, int max_redirection_times = 8, const char *pPostData = nullptr, int postDataLen = 0, HttpSession::_tagHttpVerb customVerb_for_post = HttpSession::HTTP_VERB_POST, bool bWaitResponse = true);
-    rt::String_Ref		GetNavigateDestination() const { return m_NavigatedDestination; };	// final redirected URL
+    rt::String_Ref		GetNavigateDestination() const { return _NavigatedDestination; };	// final redirected URL
     HttpNavigator(){}
 
 public:
-    LPBYTE				GetResponse(){ return m_HttpSession.GetResponse(); }
-    HttpSession&		GetHttpSession() { return m_HttpSession; }
-    UINT				GetResponseLength(){ return m_HttpSession.GetResponseLength(); }
+    LPBYTE				GetResponse(){ return _HttpSession.GetResponse(); }
+    HttpSession&		GetHttpSession() { return _HttpSession; }
+    UINT				GetResponseLength(){ return _HttpSession.GetResponseLength(); }
     rt::String_Ref		GetDocument(){ return rt::String_Ref((LPCSTR)GetResponse(),GetResponseLength()); }
  
     bool	SetBindingAddress(LPCSTR dotted_ip);
     bool	SetBindingAddress(const InetAddr& addr);
 
-    void	SetProxy(const InetAddr& addr) { m_HttpSession.SetProxy(addr); }     // SetProxy(inet::InetAddr()); to disable proxy
-    bool	HasProxy() const { return m_HttpSession.HasProxy(); }
+    void	SetProxy(const InetAddr& addr) { _HttpSession.SetProxy(addr); }     // SetProxy(inet::InetAddr()); to disable proxy
+    bool	HasProxy() const { return _HttpSession.HasProxy(); }
 
-    void	SetCommonHeaders(LPCSTR agent, bool keepalive = false){ m_HttpSession.SetCommonHeaders(agent,keepalive); }
+    void	SetCommonHeaders(LPCSTR agent, bool keepalive = false){ _HttpSession.SetCommonHeaders(agent,keepalive); }
     void	SetReferer(LPCSTR referer);
     void	AddAdditionalHeader(LPCSTR key, LPCSTR value);
-    void	SetItemEventCallback(HttpSession::FUNC_EVENT_CALLBACK cb, LPVOID cookie){ m_HttpSession.SetItemEventCallback(cb, cookie); }
+    void	SetItemEventCallback(HttpSession::FUNC_EVENT_CALLBACK cb, LPVOID cookie){ _HttpSession.SetItemEventCallback(cb, cookie); }
         
-    LPCSTR	GetResponseHeader(){ return m_HttpSession.GetResponseHeader(); }
-    UINT	GetResponseHeaderLength(){ return m_HttpSession.GetResponseHeaderLength(); }
-    UINT	GetResponseStatusCode(){ return m_HttpSession.GetResponseParsedHeader().m_StateCode; }
-    bool	IsResponseSuccess() const { return m_HttpSession.GetResponseParsedHeader().m_StateCode/100 == 2; }
-    const HttpSession::ResponseHeader& GetResponseParsedHeader() const {return m_HttpSession.GetResponseParsedHeader();}
+    LPCSTR	GetResponseHeader(){ return _HttpSession.GetResponseHeader(); }
+    UINT	GetResponseHeaderLength(){ return _HttpSession.GetResponseHeaderLength(); }
+    UINT	GetResponseStatusCode(){ return _HttpSession.GetResponseParsedHeader().m_StateCode; }
+    bool	IsResponseSuccess() const { return _HttpSession.GetResponseParsedHeader().m_StateCode/100 == 2; }
+    const HttpSession::ResponseHeader& GetResponseParsedHeader() const {return _HttpSession.GetResponseParsedHeader();}
 };
 
 
