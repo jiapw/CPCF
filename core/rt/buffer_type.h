@@ -46,6 +46,7 @@ namespace _details
 		static FORCEINL void ctor(t_Val*p, const t_Val& x){ new (p) t_Val(x); }
 		static FORCEINL void dtor(t_Val& x){ x.~t_Val(); }
 		static FORCEINL void dtor(t_Val*p, t_Val*end){ for(;p<end;p++) p->~t_Val(); }
+		static FORCEINL void copy(t_Val*p, t_Val*end, const t_Val*from){ for(;p<end;p++,from++)*p = *from; }
 	};
 		template<typename t_Val>
 		struct _xtor<false, t_Val>
@@ -54,12 +55,14 @@ namespace _details
 			static FORCEINL void ctor(t_Val*p, const t_Val& x){ rt::CopyByteTo(x, *p); }
 			static FORCEINL void dtor(t_Val& x){}
 			static FORCEINL void dtor(t_Val*p, t_Val*end){}
+			static FORCEINL void copy(t_Val*p, t_Val*end, const t_Val*from){ memcpy(p, from, (LPCBYTE)end - (LPCBYTE)p); }
 		};
 };
 
 template<typename t_Val, typename t_Index = SIZE_T>
 class Buffer_Ref
-{
+{	
+	static const bool IsElementNotPOD = !rt::TypeTraits<t_Val>::IsPOD;
 protected:
 	typedef _details::_xtor<!rt::TypeTraits<t_Val>::IsPOD, t_Val>	_xt;
 	typedef int (* _PtFuncCompare)(const void *, const void *);
@@ -72,35 +75,35 @@ public:
 	typedef ItemType*					LPItemType;
 	typedef const ItemType*				LPCItemType;
 
-	INLFUNC LPCItemType Begin()const { return &_p[0]; }
-	INLFUNC LPItemType  Begin(){ return &_p[0]; }
-	INLFUNC LPCItemType End()const { return &_p[GetSize()]; }
-	INLFUNC LPItemType  End(){ return &_p[GetSize()]; }
+	LPCItemType Begin()const { return &_p[0]; }
+	LPItemType  Begin(){ return &_p[0]; }
+	LPCItemType End()const { return &_p[GetSize()]; }
+	LPItemType  End(){ return &_p[GetSize()]; }
 
-	INLFUNC t_Val&			First(){ return _p[0]; }
-	INLFUNC const t_Val&	First() const { return _p[0]; }
-	INLFUNC t_Val&			Last(){ return _p[_len-1]; }
-	INLFUNC const t_Val&	Last() const { return _p[_len-1]; }
+	t_Val&			First(){ return _p[0]; }
+	const t_Val&	First() const { return _p[0]; }
+	t_Val&			Last(){ return _p[_len-1]; }
+	const t_Val&	Last() const { return _p[_len-1]; }
 
-	INLFUNC operator LPItemType(){ return &_p[0]; }
-	INLFUNC operator LPCItemType()const { return &_p[0]; }
-	INLFUNC operator LPVOID(){ return &_p[0]; }
-	INLFUNC operator LPCVOID()const { return &_p[0]; }
+	operator LPItemType(){ return &_p[0]; }
+	operator LPCItemType()const { return &_p[0]; }
+	operator LPVOID(){ return &_p[0]; }
+	operator LPCVOID()const { return &_p[0]; }
 
 	t_Index GetSize() const { return _len; }
 
 public:
 	// allow for(iterator : Buffer) syntax (C++ 11)
-	INLFUNC t_Val*			begin(){ return _p; }
-	INLFUNC const t_Val*	begin() const { return _p; }
-	INLFUNC t_Val*			end(){ return _p + _len; }
-	INLFUNC const t_Val*	end() const { return _p + _len; }
+	t_Val*			begin(){ return _p; }
+	const t_Val*	begin() const { return _p; }
+	t_Val*			end(){ return _p + _len; }
+	const t_Val*	end() const { return _p + _len; }
 
-	INLFUNC Buffer_Ref(){ _p=nullptr; _len=0; }
-	INLFUNC Buffer_Ref(const Buffer_Ref<t_Val>& x){ _p = x._p; _len = x._len; }
-	INLFUNC Buffer_Ref(const t_Val*	p, t_Index len){ _p = (t_Val*)p; _len = len; }
-	INLFUNC Buffer_Ref GetSub(t_Index start, t_Index size){ return Buffer_Ref(_p+start, size); }
-	template<typename T> INLFUNC void Set(const T& x)
+	Buffer_Ref(){ _p=nullptr; _len=0; }
+	Buffer_Ref(const Buffer_Ref<t_Val>& x){ _p = x._p; _len = x._len; }
+	Buffer_Ref(const t_Val*	p, t_Index len){ _p = (t_Val*)p; _len = len; }
+	Buffer_Ref GetSub(t_Index start, t_Index size){ return Buffer_Ref(_p+start, size); }
+	template<typename T> void Set(const T& x)
 	{	t_Val*	end = _p + _len;	
 		for(t_Val* p = _p; p < end; p++)*p = x;
 	}
@@ -108,7 +111,7 @@ public:
 	t_Val& operator [](T i){ ASSERT(((SIZE_T)i)<=_len); return _p[i]; }
 	template<typename T>
 	const t_Val& operator [](T i) const { ASSERT(((SIZE_T)i)<=_len); return _p[i]; }
-	template<typename T> INLFUNC bool operator ==(const Buffer_Ref<T>& x) const
+	template<typename T> bool operator ==(const Buffer_Ref<T>& x) const
 	{	if(x.GetSize() != GetSize())return false;
 		for(t_Index i=0;i<GetSize();i++)
 		{	if(_p[i] == x[i]){}
@@ -116,68 +119,70 @@ public:
 		}
 		return true;
 	}
-	template<typename T> INLFUNC bool operator !=(const Buffer_Ref<T>& x) const
+	template<typename T> bool operator !=(const Buffer_Ref<T>& x) const
 	{	if(x.GetSize() != GetSize())return true;
 		for(t_Index i=0;i<GetSize();i++)
 			if(_p[i] != x[i])return true;
 		return false;
 	}
-	template<typename T> INLFUNC t_SignedIndex SearchItem(const T& x) const
+	template<typename T> t_SignedIndex SearchItem(const T& x) const
 	{	for(t_Index i=0;i<GetSize();i++)
 			if(_p[i] == x)return i;
 		return -1;
 	}
-	INLFUNC t_Val& MaxValue()
+	t_Val& MaxValue()
 	{	ASSERT(GetSize());		auto* mp = &_p[0];
 		for(t_Index i=1;i<GetSize();i++)if(*mp < _p[i]){ mp = &_p[i]; }
 		return *mp;
 	}
-	INLFUNC const t_Val& MaxValue() const { return rt::_CastToNonconst(this)->MaxValue(); }
-	INLFUNC t_SignedIndex Max() const
+	const t_Val& MaxValue() const { return rt::_CastToNonconst(this)->MaxValue(); }
+	t_SignedIndex Max() const
 	{	if(GetSize())
 		{	auto* mp = &_p[0];	t_SignedIndex m = 0;
 			for(t_Index i=1;i<GetSize();i++)if(*mp < _p[i]){ mp = &_p[i]; m = i; }
 			return m;
 		}else return -1;
 	}
-	INLFUNC t_Val& MinValue()
+	t_Val& MinValue()
 	{	ASSERT(GetSize());		auto* mp = &_p[0];
 		for(t_Index i=1;i<GetSize();i++)if(_p[i] < *mp){ mp = &_p[i]; }
 		return *mp;
 	}
-	INLFUNC const t_Val& MinValue() const { return rt::_CastToNonconst(this)->MinValue(); }
-	INLFUNC t_SignedIndex Min() const
+	const t_Val& MinValue() const { return rt::_CastToNonconst(this)->MinValue(); }
+	t_SignedIndex Min() const
 	{	if(GetSize())
 		{	auto* mp = &_p[0];	t_SignedIndex m = 0;
 			for(t_Index i=1;i<GetSize();i++)if(_p[i] < *mp){ mp = &_p[i]; m = i; }
 			return m;
 		}else return -1;
 	}
-	INLFUNC t_SignedIndex SearchSortedItem(const t_Val& x) const // binary search
+	t_SignedIndex SearchSortedItem(const t_Val& x) const // binary search
 	{	return std::find(Begin(), End(), x) - Begin();
 	}
-	INLFUNC t_SignedIndex SearchLowerbound(const t_Val& x) const // binary search
+	t_SignedIndex SearchLowerbound(const t_Val& x) const // binary search
 	{	return std::lower_bound(Begin(), End(), x) - Begin();
 	}
-	INLFUNC void Zero(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Zero() applies only to POD elements"); memset((LPVOID)_p, 0, _len*sizeof(t_Val)); }
-	INLFUNC void Void(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Void() applies only to POD elements"); memset((LPVOID)_p, 0xff, _len*sizeof(t_Val)); }
+	void Zero(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Zero() applies only to POD elements"); memset((LPVOID)_p, 0, _len*sizeof(t_Val)); }
+	void Void(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Void() applies only to POD elements"); memset((LPVOID)_p, 0xff, _len*sizeof(t_Val)); }
 	template<typename T>
-	INLFUNC void CopyFrom(const Buffer_Ref<T>& x)
+	void CopyFrom(const Buffer_Ref<T>& x)
 	{	ASSERT(GetSize() == x.GetSize());
 		for(t_Index i=0;i<GetSize();i++)
 			_p[i] = x[i];
 	}
 	template<typename T>
-	INLFUNC void CopyFrom(const T* x)
+	void CopyFrom(const T* x)
 	{	for(t_Index i=0;i<GetSize();i++)
 			_p[i] = x[i];
 	}
 	template<typename T>
-	INLFUNC void CopyTo(T* x) const
+	void CopyTo(T* x) const
 	{	for(t_Index i=0;i<GetSize();i++)
 			x[i] = _p[i];
 	}
-	INLFUNC void Sort()
+	void CopyFrom(const t_Val* x){ _details::_xtor<IsElementNotPOD, t_Val>::copy(_p, end(), x); }
+	void CopyTo(t_Val* x) const { _details::_xtor<IsElementNotPOD, t_Val>::copy(x, x + _len, _p); }
+	void Sort()
 	{	struct _comp
 		{	static int compare(const t_Val * a, const t_Val * b)
 			{	if(*a < *b)return -1;
@@ -186,7 +191,7 @@ public:
 		}	};
 		Sort<_comp>();
 	}
-	INLFUNC void SortDesc()
+	void SortDesc()
 	{	struct _comp
 		{	static int compare(const t_Val * a, const t_Val * b)
 			{	if(*a < *b)return 1;
@@ -196,23 +201,23 @@ public:
 		Sort<_comp>();
 	}
 	template<class T>
-	INLFUNC void Sort()
+	void Sort()
 	{
 		qsort(Begin(), GetSize(), sizeof(t_Val), (_PtFuncCompare)T::compare);
 	}
 	template<class TFUNC>
-	INLFUNC void Sort(TFUNC&& comp)
+	void Sort(TFUNC&& comp)
 	{
 		std::sort(Begin(), End(), comp);
 	}
-	INLFUNC void Shuffle(DWORD seed)
+	void Shuffle(DWORD seed)
 	{	if(GetSize())
 		{	Randomizer rng(seed);	
 			for(t_Index i=0;i<GetSize()-1;i++)
 				rt::Swap((*this)[i], (*this)[i+ rng%(GetSize()-i)]);
 		}
 	}
-	INLFUNC SSIZE_T SortedPush(const t_Val& x) // last item will be dropped
+	SSIZE_T SortedPush(const t_Val& x) // last item will be dropped
 	{
 		if(GetSize() == 0 || Last() < x)return -1;
 		_xt::dtor(Last());
@@ -225,7 +230,7 @@ public:
 		_xt::ctor(p, x);
 		return p - Begin();
 	}
-	INLFUNC t_Val& FindTopKth(SIZE_T k)	// Find Top-k Smallest value over unordered array (original values will be moved around)
+	t_Val& FindTopKth(SIZE_T k)	// Find Top-k Smallest value over unordered array (original values will be moved around)
 	{	struct _Find	// https://www.geeksforgeeks.org/kth-smallestlargest-element-unsorted-array/  [ Method 4 (QuickSelect) ]
 		{	static SIZE_T partition(t_Val* arr, SIZE_T l, SIZE_T r) 
 			{	t_Val x(arr[r]);
@@ -255,7 +260,7 @@ public:
 		ASSERT(GetSize() >= k);
 		return _Find::kth(_p, 0, GetSize()-1, k);
 	}
-	INLFUNC void RandomBits(DWORD seed = rand())
+	void RandomBits(DWORD seed = rand())
 	{	static_assert(rt::TypeTraits<t_Val>::IsPOD, "RandomBits() applies only to POD elements");
 		Randomizer rng(seed);
 		t_Index int_size = GetSize()*sizeof(t_Val)/4;
@@ -272,7 +277,7 @@ public:
 		}
 	}
 	template<typename visitor>
-	INLFUNC SIZE_T ForEach(const visitor& v)  // v(obj, idx, tot)
+	SIZE_T ForEach(const visitor& v)  // v(obj, idx, tot)
 	{	SIZE_T i=0;
 		while(i<GetSize())
 		{	if(!rt::_details::_CallLambda<bool, decltype(v(_p[i],i,GetSize()))>(true, v, _p[i],i,GetSize()).retval)
@@ -282,7 +287,7 @@ public:
 		return i;
 	}
 	template<typename visitor>
-	INLFUNC SIZE_T ForEach(const visitor& v) const  // v(const obj, idx, tot)
+	SIZE_T ForEach(const visitor& v) const  // v(const obj, idx, tot)
 	{	SIZE_T i=0;
 		while(i<GetSize())
 		{	if(!rt::_details::_CallLambda<bool, decltype(v(_p[i],i,GetSize()))>(true, v, _p[i],i,GetSize()).retval)
@@ -292,7 +297,7 @@ public:
 		return i;
 	}
 	template<typename T>
-	INLFUNC SSIZE_T Find(const T& v) const
+	SSIZE_T Find(const T& v) const
 	{	for(SIZE_T i=0; i<GetSize(); i++)
 			if(_p[i] == v)return i;
 		return -1;
@@ -305,18 +310,18 @@ class Buffer:public Buffer_Ref<t_Val>
 {	typedef Buffer_Ref<t_Val> _SC;
 protected:
 	static const bool IsElementNotPOD = !rt::TypeTraits<t_Val>::IsPOD;
-	INLFUNC void __SafeFree()
+	void __SafeFree()
 	{	if(!_SC::_p)return;
 		_SC::_xt::dtor(_SC::_p, _SC::_p+_SC::_len);
 		_SafeFree32AL((LPCVOID&)_SC::_p);
 	}
 public:
-	INLFUNC Buffer(){}
-	INLFUNC Buffer(const t_Val* p, SIZE_T len){ *this = Buffer_Ref<t_Val>(p,len); }
-	INLFUNC explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
-	INLFUNC explicit Buffer(const Buffer<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
-	INLFUNC const Buffer_Ref<t_Val>& operator = (const Buffer<t_Val> &x){ *this = (Buffer_Ref<t_Val>&)x; return *this; }
-	INLFUNC const Buffer_Ref<t_Val>& operator = (const Buffer_Ref<t_Val> &x)
+	Buffer(){}
+	Buffer(const t_Val* p, SIZE_T len){ *this = Buffer_Ref<t_Val>(p,len); }
+	explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
+	explicit Buffer(const Buffer<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
+	const Buffer_Ref<t_Val>& operator = (const Buffer<t_Val> &x){ *this = (Buffer_Ref<t_Val>&)x; return *this; }
+	const Buffer_Ref<t_Val>& operator = (const Buffer_Ref<t_Val> &x)
     {	for(SIZE_T i=0;i<_SC::_len;i++)
 			_SC::_xt::dtor(_SC::_p[i]);
         if(_SC::_len >= x.GetSize()){ _SC::_len = x.GetSize(); }
@@ -329,8 +334,8 @@ public:
 			_SC::_xt::ctor(&_SC::_p[i], x[i]);
 		return x;
 	}
-	INLFUNC ~Buffer(){ __SafeFree(); }
-	INLFUNC bool SetSize(SIZE_T co=0) //zero for clear
+	~Buffer(){ __SafeFree(); }
+	bool SetSize(SIZE_T co=0) //zero for clear
 	{	
 		if(co == _SC::_len)
 		{	if(co == 0)__SafeFree();
@@ -351,7 +356,7 @@ public:
 		}
 		return true;
 	}
-	INLFUNC bool ChangeSize(SIZE_T new_size) //Original data at front is preserved
+	bool ChangeSize(SIZE_T new_size) //Original data at front is preserved
 	{	
 		if(new_size<=_SC::_len){ ShrinkSize(new_size); return true; }
 		else	//expand buffer
@@ -368,7 +373,7 @@ public:
 		}
 		return false;
 	}
-	INLFUNC void ShrinkSize(SIZE_T new_size) // skip calling ctor
+	void ShrinkSize(SIZE_T new_size) // skip calling ctor
 	{	if(new_size >= _SC::_len)return;
 		if(new_size<_SC::_len)
 		{	
@@ -376,8 +381,8 @@ public:
 			_SC::_len = new_size;
 		}
 	}
-	INLFUNC t_Val* Detach(){ auto* p = _SC::_p; _SC::_p = nullptr; _SC::_len = 0; return p; }
-	INLFUNC auto Remove(const t_Val& v)
+	t_Val* Detach(){ auto* p = _SC::_p; _SC::_p = nullptr; _SC::_len = 0; return p; }
+	auto Remove(const t_Val& v)
 	{	UINT open = 0;
 		for(UINT i=0; i<_SC::_len; i++)
 			if(!(_SC::_p[i] == v))
@@ -397,7 +402,7 @@ template<typename t_Val>
 class BufferEx: public Buffer<t_Val>
 {
 	typedef Buffer<t_Val> _SC;
-	INLFUNC bool _add_entry(SIZE_T co = 1) // the added entry's ctor is not called !!
+	bool _add_entry(SIZE_T co = 1) // the added entry's ctor is not called !!
 	{	if(_SC::_len+co <= _len_reserved){} // expand elements only
 		else // expand buffer
 		{	SIZE_T new_buf_resv = rt::max(rt::max((SIZE_T)4, _SC::_len+co),_len_reserved*2);
@@ -419,8 +424,8 @@ class BufferEx: public Buffer<t_Val>
 protected:
 	SIZE_T	_len_reserved;
 public:
-	INLFUNC BufferEx(const BufferEx &x){ _len_reserved = 0; *this = x; }
-	INLFUNC const BufferEx& operator = (const BufferEx &x)
+	BufferEx(const BufferEx &x){ _len_reserved = 0; *this = x; }
+	const BufferEx& operator = (const BufferEx &x)
 	{	_SC::ShrinkSize(0);
 		_SC::_len = x.GetSize();
 		if(_SC::_len <= _len_reserved){}
@@ -434,21 +439,21 @@ public:
 			_SC::_xt::ctor(&_SC::_p[i], x[i]);
 		return x;
 	}
-	INLFUNC BufferEx(){ _len_reserved=0; }
-	INLFUNC bool SetSize(SIZE_T co=0) //zero for clear
+	BufferEx(){ _len_reserved=0; }
+	bool SetSize(SIZE_T co=0) //zero for clear
 	{	if(_SC::SetSize(co)){ _len_reserved=_SC::_len; return true; }
 		else{ _len_reserved=0; return false; }
 	}
-	INLFUNC t_Val* Detach(bool maintain_reserve_size = false)
+	t_Val* Detach(bool maintain_reserve_size = false)
 	{	if(_SC::_len == 0)return nullptr;
 		auto* p = _SC::Detach();	ASSERT(p);
 		if(maintain_reserve_size){ VERIFY(_SC::_p = _Malloc32AL(t_Val,_len_reserved)); }
 		else _len_reserved = 0;
 		return p;
 	}
-	INLFUNC SIZE_T GetSize() const { return _SC::GetSize(); } // make Visual Studio happy
-	INLFUNC bool Clear(){ return SetSize(0); }
-	INLFUNC bool ChangeSize(SIZE_T new_size, bool keep_old_data = true) // Original data at front is preserved
+	SIZE_T GetSize() const { return _SC::GetSize(); } // make Visual Studio happy
+	bool Clear(){ return SetSize(0); }
+	bool ChangeSize(SIZE_T new_size, bool keep_old_data = true) // Original data at front is preserved
 	{	if( new_size == _SC::_len )return true;
 		if( new_size < _SC::_len ){ _SC::ShrinkSize(new_size); return true; }
 		else 
@@ -472,22 +477,22 @@ public:
 			return true;
 		}
 	}
-	INLFUNC SIZE_T GetReservedSize() const { return _len_reserved; }
-	INLFUNC t_Val& push_front()
+	SIZE_T GetReservedSize() const { return _len_reserved; }
+	t_Val& push_front()
 	{	VERIFY(_add_entry());
 		memmove(&_SC::_p[1],&_SC::_p[0],sizeof(t_Val)*(_SC::_len-1));
 		_SC::_xt::ctor(&_SC::_p[0]);
 		return _SC::_p[0];
 	}
 	template<typename T>
-	INLFUNC t_Val& push_front(const T& x)
+	t_Val& push_front(const T& x)
 	{	VERIFY(_add_entry());
 		memmove(&_SC::_p[1],&_SC::_p[0],sizeof(t_Val)*(_SC::_len-1));
 		_SC::_xt::ctor(&_SC::_p[0],x);
 		return _SC::_p[0];
 	}
 	template<typename T>
-	INLFUNC void push_front(const T* x, SIZE_T count)
+	void push_front(const T* x, SIZE_T count)
 	{	if(count == 0)return;
 		SIZE_T sz = _SC::GetSize();
 		VERIFY(_add_entry(count));
@@ -495,7 +500,7 @@ public:
 		for(SIZE_T sz = 0;sz<count;sz++){ _SC::_xt::ctor(&_SC::_p[sz], *x++); }
 	}
 	template<typename T>
-	INLFUNC void push_front(const T& x, SIZE_T count)
+	void push_front(const T& x, SIZE_T count)
 	{	if(count == 0)return;
 		SIZE_T sz = _SC::GetSize();
 		VERIFY(_add_entry(count));
@@ -503,7 +508,7 @@ public:
 		for(SIZE_T i = 0;i<count;i++){ _SC::_xt::ctor(&_SC::_p[i], x); }
 	}
 	template<typename T>
-	INLFUNC void push_both(const T& x, SIZE_T front_count, SIZE_T back_count)
+	void push_both(const T& x, SIZE_T front_count, SIZE_T back_count)
 	{	if(front_count + back_count == 0)return;
 		SIZE_T sz = _SC::GetSize();
 		VERIFY(ChangeSize(sz + front_count + back_count));
@@ -511,50 +516,50 @@ public:
 		for(SIZE_T i = 0;i<front_count;i++){ _SC::_xt::ctor(&_SC::_p[i], x); }
 		for(SIZE_T i = sz+front_count;i<_SC::_len;i++){ _SC::_xt::ctor(&_SC::_p[i], x); }
 	}
-	INLFUNC t_Val& push_back()
+	t_Val& push_back()
 	{	VERIFY(_add_entry());
 		_SC::_xt::ctor(&_SC::_p[_SC::_len-1]);
 		return _SC::_p[_SC::_len-1];
 	}
-	INLFUNC t_Val& push_back(const t_Val& x)
+	t_Val& push_back(const t_Val& x)
 	{	VERIFY(_add_entry());
 		_SC::_xt::ctor(&_SC::_p[_SC::_len-1],x);
 		return _SC::_p[_SC::_len-1];
 	}
 	template<typename T>
-	INLFUNC void push_back(const T* x, SIZE_T count)
+	void push_back(const T* x, SIZE_T count)
 	{	
 		SIZE_T sz = _SC::GetSize();
 		VERIFY(_add_entry(count));
 		for(;sz<_SC::_len;sz++){ _SC::_xt::ctor(&_SC::_p[sz], *x++); }
 	}
-	INLFUNC t_Val* push_back_n(SIZE_T count)
+	t_Val* push_back_n(SIZE_T count)
 	{
 		SIZE_T sz = _SC::GetSize();
 		return ChangeSize(sz + count)?&_SC::_p[sz]:nullptr;
 	}
-	INLFUNC bool push_back_n(SIZE_T count, const t_Val& v)
+	bool push_back_n(SIZE_T count, const t_Val& v)
 	{
 		SIZE_T sz = _SC::GetSize();
 		if(ChangeSize(sz + count)){ for(SIZE_T i=0; i<count; i++) _SC::_p[i+sz] = v; return true; }
 		return false;
 	}
-	INLFUNC void erase(const t_Val* p)
+	void erase(const t_Val* p)
 	{	ASSERT(p < _SC::End());
 		ASSERT(p >= _SC::Begin());
 		erase(p - _SC::Begin());
 	}
-	INLFUNC void erase(SIZE_T index)
+	void erase(SIZE_T index)
 	{	ASSERT(index<_SC::_len);
 		// call dtor for removed items
 		_SC::_xt::dtor(_SC::_p[index]);
 		_SC::_len--;
 		memmove(&_SC::_p[index],&_SC::_p[index+1],sizeof(t_Val)*(_SC::_len-index));
 	}
-	INLFUNC void erase(const t_Val* begin, const t_Val* end) // *end will not be erased
+	void erase(const t_Val* begin, const t_Val* end) // *end will not be erased
 	{	erase(begin - _SC::Begin(), end - _SC::Begin());
 	}
-	INLFUNC void erase(SIZE_T index_begin, SIZE_T index_end) // [index_end] will not be erased
+	void erase(SIZE_T index_begin, SIZE_T index_end) // [index_end] will not be erased
 	{	ASSERT(index_begin<=index_end);
 		ASSERT(index_end<=_SC::_len);
 		// call dtor for removed items
@@ -562,16 +567,16 @@ public:
 		memmove(&_SC::_p[index_begin],&_SC::_p[index_end],sizeof(t_Val)*(_SC::_len-index_end));
 		_SC::_len-=(index_end-index_begin);
 	}
-	INLFUNC void pop_back()
+	void pop_back()
 	{	ASSERT(_SC::_len); 	_SC::_len--;
 		_SC::_xt::dtor(_SC::_p[_SC::_len]);
 	}
-	INLFUNC void pop_front()
+	void pop_front()
 	{	ASSERT(_SC::_len); 	_SC::_len--;
 		_SC::_xt::dtor(_SC::_p[0]);
 		memmove(&_SC::_p[0],&_SC::_p[1],sizeof(t_Val)*_SC::_len);
 	}
-	INLFUNC void compact_memory()
+	void compact_memory()
 	{	if(_SC::_len < _len_reserved)
 		{	LPBYTE pNew = (LPBYTE)_Malloc32AL(t_Val,_SC::_len);
 			if(pNew)
@@ -582,7 +587,7 @@ public:
 			}
 		}
 	};
-	INLFUNC bool reserve(SIZE_T co)
+	bool reserve(SIZE_T co)
 	{	if(co>_len_reserved)
 		{	LPBYTE pNew = (LPBYTE)_Malloc32AL(t_Val,co);
 			if(pNew)
@@ -596,19 +601,19 @@ public:
 		return true;
 	}
 	template<typename T>
-	INLFUNC T& push_back_pod() // sizeof T should be multiple of size of t_Val
+	T& push_back_pod() // sizeof T should be multiple of size of t_Val
 	{	ASSERT(sizeof(T)%sizeof(t_Val) == 0);
 		static_assert(rt::TypeTraits<T>::IsPOD && rt::TypeTraits<t_Val>::IsPOD, "push_back_pod takes only POD types");
 		return *(T*)push_back_n(sizeof(T)/sizeof(t_Val));
 	}
 	template<typename T>
-	INLFUNC void push_back_pod(const T& obj){ rt::Copy(push_back_pod<T>(), obj); }
-	INLFUNC t_Val& first(){ ASSERT(_SC::_len); return _SC::_p[0]; }
-	INLFUNC const t_Val& first()const{  ASSERT(_SC::_len); return _SC::_p[0]; }
-	INLFUNC t_Val& last(){  ASSERT(_SC::_len); return _SC::_p[_SC::_len-1]; }
-	INLFUNC const t_Val& last()const{  ASSERT(_SC::_len); return _SC::_p[_SC::_len-1]; }
+	void push_back_pod(const T& obj){ rt::Copy(push_back_pod<T>(), obj); }
+	t_Val& first(){ ASSERT(_SC::_len); return _SC::_p[0]; }
+	const t_Val& first()const{  ASSERT(_SC::_len); return _SC::_p[0]; }
+	t_Val& last(){  ASSERT(_SC::_len); return _SC::_p[_SC::_len-1]; }
+	const t_Val& last()const{  ASSERT(_SC::_len); return _SC::_p[_SC::_len-1]; }
 
-	INLFUNC t_Val& insert(SIZE_T index)
+	t_Val& insert(SIZE_T index)
 	{	VERIFY(_add_entry());
 		if(index<_SC::_len-1)	
 		{	memmove(&_SC::_p[index+1],&_SC::_p[index],(_SC::_len-index-1)*sizeof(t_Val));
@@ -616,7 +621,7 @@ public:
 		}
 		return _SC::_p[index];
 	}
-	INLFUNC void insert(SIZE_T index, const t_Val& x)
+	void insert(SIZE_T index, const t_Val& x)
 	{	VERIFY(_add_entry());
 		if(index<_SC::_len-1)	
 		{	memmove(&_SC::_p[index+1],&_SC::_p[index],(_SC::_len-index-1)*sizeof(t_Val));
@@ -624,7 +629,7 @@ public:
 		}
 		_SC::_p[index] = x;
 	}
-	INLFUNC t_Val* insert_n(SIZE_T index, SIZE_T count)
+	t_Val* insert_n(SIZE_T index, SIZE_T count)
 	{
 		if(reserve(_SC::GetSize() + count))
 		{	memmove(&_SC::_p[index+count], &_SC::_p[index], (_SC::GetSize() - index)*sizeof(t_Val));
@@ -634,14 +639,14 @@ public:
 		}	
 		return nullptr;
 	}
-	INLFUNC void insert_n(SIZE_T index, SIZE_T count, const t_Val& x)
+	void insert_n(SIZE_T index, SIZE_T count, const t_Val& x)
 	{
 		VERIFY(reserve(_SC::GetSize() + count));
 		memmove(&_SC::_p[index+count], &_SC::_p[index], (_SC::GetSize() - index)*sizeof(t_Val));
 		for(SIZE_T i = index;i<index+count;i++)_SC::_xt::ctor(&_SC::_p[i], x);
 		_SC::_len += count;
 	}
-	INLFUNC SSIZE_T SortedPush(const t_Val& x)
+	SSIZE_T PushSorted(const t_Val& x)
 	{
 		if(GetSize() == 0 || x<first()){ push_front(x); return 0; }
 		if(	_len_reserved == _SC::GetSize() &&
@@ -660,7 +665,7 @@ public:
 		return p - _SC::Begin();
 	}
 	template<typename compr_less>
-	INLFUNC SSIZE_T SortedPush(const t_Val& x, compr_less& compr)
+	SSIZE_T PushSorted(const t_Val& x, compr_less& compr)
 	{
 		if(GetSize() == 0 || compr(x, first())){ push_front(x); return 0; }
 		if(	_len_reserved == _SC::GetSize() &&
@@ -678,9 +683,11 @@ public:
 		_SC::_xt::ctor(p, x);
 		return p - _SC::Begin();
 	}
-	INLFUNC bool Include(const t_Val& x) // newly included item is at the end
-	{	if(_SC::Find(x) == -1){	push_back(x); return true; }
-		return false;
+	SIZE_T PushUnique(const t_Val& x)
+	{	auto idx = _SC::Find(x);
+		if(idx>=0)return (SIZE_T)idx;
+		push_back(x);
+		return _SC::GetSize() - 1;
 	}
 };
 
@@ -997,13 +1004,13 @@ protected:
 	UINT	m_Pos;
 	UINT	m_Used;
 public:
-	INLFUNC StreamT(){ m_Pos = 0; m_Used = 0; }
-	INLFUNC StreamT(LPCBYTE p, UINT len, UINT used_len):t_Storage(p,len){ m_Pos = 0; m_Used = used_len; }
-	INLFUNC SIZE_T GetLength() const { return m_Used; }
-	INLFUNC LPBYTE GetInternalBuffer(){ return (LPBYTE)_SC::_p; }
-	INLFUNC LPCBYTE GetInternalBuffer() const { return (LPCBYTE)_SC::_p; }
-	INLFUNC void Rewind(){ m_Pos = 0; }
-	INLFUNC LONGLONG Seek(SSIZE_T offset, int nFrom = rt::_File::Seek_Begin)
+	StreamT(){ m_Pos = 0; m_Used = 0; }
+	StreamT(LPCBYTE p, UINT len, UINT used_len):t_Storage(p,len){ m_Pos = 0; m_Used = used_len; }
+	SIZE_T GetLength() const { return m_Used; }
+	LPBYTE GetInternalBuffer(){ return (LPBYTE)_SC::_p; }
+	LPCBYTE GetInternalBuffer() const { return (LPCBYTE)_SC::_p; }
+	void Rewind(){ m_Pos = 0; }
+	LONGLONG Seek(SSIZE_T offset, int nFrom = rt::_File::Seek_Begin)
 	{	SSIZE_T newp = 0;
 		switch(nFrom)
 		{	case rt::_File::Seek_Begin:	newp = offset; break;
@@ -1020,9 +1027,9 @@ template<class t_Storage>
 class OStreamT: public StreamT<t_Storage>
 {	typedef StreamT<t_Storage> _SC;
 public:
-	INLFUNC OStreamT(){}
-	INLFUNC OStreamT(LPCBYTE p, UINT len):StreamT<t_Storage>(p,len,0){}
-	INLFUNC UINT Write(LPCVOID pBuf, UINT co)
+	OStreamT(){}
+	OStreamT(LPCBYTE p, UINT len):StreamT<t_Storage>(p,len,0){}
+	UINT Write(LPCVOID pBuf, UINT co)
 	{	co = rt::min((UINT)(_SC::_len - _SC::m_Pos), co);
 		if(co)
 		{	memcpy(_SC::_p + _SC::m_Pos,pBuf,co);
@@ -1037,8 +1044,8 @@ template<class t_Storage>
 class IStreamT: public StreamT<t_Storage>
 {	typedef StreamT<t_Storage> _SC;
 public:
-	INLFUNC IStreamT(LPCBYTE p, UINT len):StreamT<t_Storage>(p,len,len){}
-	INLFUNC UINT Read(LPVOID pBuf, UINT co)
+	IStreamT(LPCBYTE p, UINT len):StreamT<t_Storage>(p,len,len){}
+	UINT Read(LPVOID pBuf, UINT co)
 	{	ASSERT(_SC::m_Pos <= _SC::_len);
 		co = rt::min(co, (UINT)(_SC::_len - _SC::m_Pos));
 		memcpy(pBuf,_SC::_p + _SC::m_Pos,co);
@@ -1052,7 +1059,7 @@ public:
 class OStream: public _details::OStreamT<Buffer<BYTE>>
 {	typedef _details::OStreamT<Buffer<BYTE>> _SC;
 public:
-	INLFUNC UINT Write(LPCVOID pBuf, UINT co)
+	UINT Write(LPCVOID pBuf, UINT co)
 	{	if(ChangeSize(rt::max(_len,(SIZE_T)(m_Pos+co))))
 		{	memcpy(_p + m_Pos,pBuf,co);
 			m_Pos += co;
@@ -1060,7 +1067,7 @@ public:
 		}
 		else return 0;
 	}
-	INLFUNC LONGLONG Seek(SSIZE_T offset, int nFrom = rt::_File::Seek_Begin)
+	LONGLONG Seek(SSIZE_T offset, int nFrom = rt::_File::Seek_Begin)
 	{	SSIZE_T newp = 0;
 		switch(nFrom)
 		{	case rt::_File::Seek_Begin:	newp = offset; break;
@@ -1072,7 +1079,7 @@ public:
 			m_Pos = (UINT)newp;
 		return m_Pos;
 	}
-	INLFUNC bool SetLength(UINT sz){ m_Pos = rt::min(m_Pos,sz); m_Used = sz; return ChangeSize((UINT)sz); }
+	bool SetLength(UINT sz){ m_Pos = rt::min(m_Pos,sz); m_Used = sz; return ChangeSize((UINT)sz); }
 };
 
 typedef _details::OStreamT<Buffer_Ref<BYTE> > OStream_Ref;
@@ -1084,7 +1091,7 @@ class OStreamFixed: public OStream_Ref
 	BYTE	_Buffer[LEN];
 public:
 	OStreamFixed():OStream_Ref(_Buffer,LEN){}
-	INLFUNC bool SetLength(UINT sz){ if(sz <= LEN){ m_Pos = rt::min(m_Pos,sz); m_Used = sz; return true; } return false; }
+	bool SetLength(UINT sz){ if(sz <= LEN){ m_Pos = rt::min(m_Pos,sz); m_Used = sz; return true; } return false; }
 };
 
 class CircularBuffer // not thread-safe
