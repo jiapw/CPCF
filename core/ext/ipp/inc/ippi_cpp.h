@@ -3948,6 +3948,12 @@ IPPI_WRAP ippiExp_C3R( const Ipp8u* pSrc, int srcStep, Ipp8u* pDst, int
                              dstStep, IppiSize roiSize, int scaleFactor) { 
      return IPPCALL(ippiExp_8u_C3RSfs)( pSrc, srcStep, pDst, dstStep, roiSize, scaleFactor ); 
      } 
+IPPI_WRAP ippiFilterColumn32f_C1R( const Ipp8u* pSrc, int srcStep, 
+                             Ipp8u* pDst, int dstStep, IppiSize dstRoiSize, const 
+                             Ipp32f* pKernel, int kernelSize, int yAnchor) { 
+     return IPPCALL(ippiFilterColumn32f_8u_C1R)( pSrc, srcStep, pDst, dstStep, dstRoiSize, 
+                             pKernel, kernelSize, yAnchor ); 
+     } 
 IPPI_WRAP ippiFilterColumn32f_C1R( const Ipp16s* pSrc, int srcStep, 
                              Ipp16s* pDst, int dstStep, IppiSize dstRoiSize, const 
                              Ipp32f* pKernel, int kernelSize, int yAnchor) { 

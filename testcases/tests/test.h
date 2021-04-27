@@ -60,11 +60,11 @@ struct UnitTests
 
 	static void image_to_text();
 
-	// #if defined(PLATFORM_INTEL_IPP_SUPPORT)
-	// static void ipp_matting();
-	// static void ipp_image_apps();
-	// static void ipp_imageproc();
-	// #endif
+	 #if defined(PLATFORM_INTEL_IPP_SUPPORT)
+	 static void ipp_matting();
+	 static void ipp_image_apps();
+	 static void ipp_imageproc();
+	 #endif
 
 	#if defined(PLATFORM_INTEL_MKL_SUPPORT)
 	static void mkl_vector();
