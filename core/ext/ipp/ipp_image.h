@@ -746,22 +746,24 @@ public:
 		if(size.height&1){}else{ size.height++; }
 		Point pt(size.width>>1,size.height>>1);
 		Ref win = GetSub_Inside(pt.x,pt.y);
-		switch(chan_num) {
-			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),win,size,pt); break;
-			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),win,size,pt); break;
-			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),win,size,pt); break;
-	}	}
+//		switch(chan_num) {
+//			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),win,size,pt); break;
+//			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),win,size,pt); break;
+//			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),win,size,pt); break;
+//	}
+	}
 	FORCEINL void BoxFilterTo(Image_Ref& dst, const Size& isize)
 	{	Size size = isize;
 		if(size.width&1){}else{ size.width++; }
 		if(size.height&1){}else{ size.height++; }
 		Point pt(size.width>>1,size.height>>1);
 		Ref win = GetSub_Inside(pt.x,pt.y);
-		switch(chan_num) {
-			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
-			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
-			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
-	}	}
+//		switch(chan_num) {
+//			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
+//			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
+//			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
+//	}
+}
 	FORCEINL void RightShift(Ipp32u count)
 	{	switch(chan_num) {
 			case 1: ipp_cpp::ippiRShift_C1R(IPPARG_IMG(*this),count,IPPARG_IMG(*this), *this); break;
