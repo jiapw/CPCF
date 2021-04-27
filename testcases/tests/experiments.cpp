@@ -138,30 +138,4 @@ void exp_tracking_proc_ip()
     }
 }
 
-void image_to_text()
-{
-	ipp::Image_1c8u img;
-	rt::String b = os::__UTF8(L"öc");
-	rt::String w = os::__UTF8(L"¡¡");
-
-	rt::String out;
-
-	if(img.Load("qrcode.png"))
-	{
-		for(UINT y=0; y<img.GetHeight(); y++)
-		{
-			for(UINT x=0; x<img.GetWidth(); x++)
-			{
-				if(img(x,y).x > 100)
-					out += w;
-				else
-					out += b;
-			}
-			out += "\r";
-		}
-	}
-
-	os::File::SaveText("qrcode.txt", out, true);
-}
-
 #endif

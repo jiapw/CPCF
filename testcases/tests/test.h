@@ -58,18 +58,16 @@ struct UnitTests
 
 	static void callback_to_member_function();
 
-	static void image_to_text();
-
-	 #if defined(PLATFORM_INTEL_IPP_SUPPORT)
+ #if defined(PLATFORM_INTEL_IPP_SUPPORT)
 	 static void ipp_matting();
 	 static void ipp_image_apps();
 	 static void ipp_imageproc();
-	 #endif
+ #endif
 
-	#if defined(PLATFORM_INTEL_MKL_SUPPORT)
+#if defined(PLATFORM_INTEL_MKL_SUPPORT)
 	static void mkl_vector();
 	static void mkl_linequ();
-	#endif
+#endif
 };
 
 } // namespace rt

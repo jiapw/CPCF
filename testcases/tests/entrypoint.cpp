@@ -25,7 +25,7 @@ void TestMain()
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
 		//TYPETRAITS_UNITTEST(big_num);
-		TYPETRAITS_UNITTEST(http_client);
+		TYPETRAITS_UNITTEST(ipp_imageproc);
 		//TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}

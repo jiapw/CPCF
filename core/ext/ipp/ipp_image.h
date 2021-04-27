@@ -2217,46 +2217,16 @@ public:
 	FORCEINL bool	SetSize(const Image_Ref<t_Value2, Channel2>& x){ return SetSize(x.GetWidth(), x.GetHeight()); }
 	FORCEINL bool	SetSize(const IppiSize& x){ return SetSize(x.width, x.height); }
 	INLFUNC  bool	SetSize(UINT w, UINT h)
-	{	if(w==Ref::Width && h==Ref::Height){ return true; }
+	{	if(w == Ref::Width && h == Ref::Height){ return true; }
 		else
 		{	__SafeFree();
-			int step_size = 0;
+			Ref::Width=w; Ref::Height=h;
 			if(w&&h)
-			{	
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-				switch(sizeof(t_Value)*8*Channel)
-				{
-				case 8:  // 1c8u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_8u_C1)(w,h,&step_size); break;
-				case 16: // 2c8u,1c16u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_16u_C1)(w,h,&step_size); break;
-				case 24: // 3c8u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_8u_C3)(w,h,&step_size); break;
-				case 32: // 4c8u,2c16u,1c32f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_8u_C4)(w,h,&step_size); break;
-				case 48: // 3c16u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_16u_C3)(w,h,&step_size); break;
-				case 64: // 4c16u,2c32f,1c64f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_16u_C4)(w,h,&step_size); break;
-				case 96: // 3c32f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_32s_C3)(w,h,&step_size); break;
-				case 128:// 4c32f,2c64f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_32s_C4)(w,h,&step_size); break;
-				default:
-					ASSERT(0); //unsupported pixel format
-				}
-#else	// PLATFORM_INTEL_IPP_SUPPORT
-				step_size = (int)_EnlargeTo32AL(sizeof(t_Value)*Channel*w);
-				Ref::lpData = (typename Ref::t_Val*)_Malloc32AL(BYTE, step_size*h);
-#endif  // PLATFORM_INTEL_IPP_SUPPORT
-				if(Ref::lpData == nullptr)
-				{	Ref::Width=Ref::Height=0;
-					return false;
-				}
+			{	Ref::Step_Bytes = (UINT)_EnlargeTo32AL(sizeof(t_Value)*Channel*w);
+				Ref::lpData = (typename Ref::t_Val*)_Malloc32AL(BYTE, Ref::Step_Bytes*h);
+				if(Ref::lpData == nullptr){ rt::Zero(*this); return false; }
 			}
-			
-			Ref::Width=w; Ref::Height=h; 
-			Ref::Step_Bytes = (UINT)step_size;
+			else Ref::Step_Bytes = 0;
 			return true;
 		}
 	}
