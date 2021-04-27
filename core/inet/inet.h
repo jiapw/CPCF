@@ -150,16 +150,16 @@ public:
 	{	OP::Init(*this);
 		SetAddress(pHostname, ushPort);
 	}
-	INLFUNC bool IsLoopback() const { return _details::InetAddrT_Op<t_ADDR>::IsAddressLoopback(*this); }
-	INLFUNC bool SetAsLocal(bool no_loopback = false){ OP::Init(*this); return GetLocalAddresses(this,1,no_loopback); }
-	INLFUNC void SetAsLoopback(){ OP::Init(*this); return _details::InetAddrT_Op<t_ADDR>::AssignLoopbackAddress(*this); }
-	INLFUNC void SetAsAny(){ OP::Init(*this); return _details::InetAddrT_Op<t_ADDR>::SetAny(*this); }
-	INLFUNC bool SetAsPeer(SOCKET peer)
+	INLFUNC bool	IsLoopback() const { return _details::InetAddrT_Op<t_ADDR>::IsAddressLoopback(*this); }
+	INLFUNC bool	SetAsLocal(bool no_loopback = false){ OP::Init(*this); return GetLocalAddresses(this,1,no_loopback); }
+	INLFUNC auto&	SetAsLoopback(){ OP::Init(*this); _details::InetAddrT_Op<t_ADDR>::AssignLoopbackAddress(*this); return *this; }
+	INLFUNC auto&	SetAsAny(){ OP::Init(*this); _details::InetAddrT_Op<t_ADDR>::SetAny(*this); return *this; }
+	INLFUNC bool	SetAsPeer(SOCKET peer)
 	{	OP::Init(*this);
 		SOCKET_SIZE_T len = sizeof(t_ADDR);
 		return 0 == getpeername(peer,(sockaddr*)this,&len) && len == sizeof(t_ADDR);
 	}
-	bool SetAddress(LPCSTR pHostname, WORD port = 0)  // www.xxx.com:pp (port is optional)
+	bool			SetAddress(LPCSTR pHostname, WORD port = 0)  // www.xxx.com:pp (port is optional)
 	{	OP::Init(*this);
 		rt::String_Ref ap[2];
 		if(2 == rt::String_Ref(pHostname).Split(ap, 2, ':'))
@@ -207,13 +207,13 @@ public:
 		{	return GetLocalAddresses(this, 1, true)>0;
 		}
 	}
-	INLFUNC void CopyAddress(LPVOID p) const { OP::CopyAddress(p, *this); }
+	INLFUNC void	CopyAddress(LPVOID p) const { OP::CopyAddress(p, *this); }
 	INLFUNC LPCBYTE GetBinaryAddress() const { return OP::GetAddressPtr(*this); }
 	INLFUNC LPCWORD GetBinaryPort() const { return OP::GetPortPtr(*this); }
-	INLFUNC void SetBinaryAddress(LPCVOID addr_bin){ OP::Init(*this); OP::SetBinaryAddress(*this, addr_bin); }
-	INLFUNC void SetPort(const WORD ushPort = 0){ *OP::GetPortPtr(*this) = htons(ushPort); }
-	INLFUNC void SetBinaryPort(LPCWORD pPort){ *OP::GetPortPtr(*this) = *pPort; }
-	INLFUNC LPCSTR GetDottedDecimalAddress(LPSTR text_out) const	// buf size = 16/46 for ipv4/ipv6
+	INLFUNC auto&	SetBinaryAddress(LPCVOID addr_bin){ OP::Init(*this); OP::SetBinaryAddress(*this, addr_bin); return *this; }
+	INLFUNC auto&	SetPort(const WORD ushPort = 0){ *OP::GetPortPtr(*this) = htons(ushPort); return *this; }
+	INLFUNC auto&	SetBinaryPort(LPCWORD pPort){ *OP::GetPortPtr(*this) = *pPort; return *this; }
+	INLFUNC LPCSTR	GetDottedDecimalAddress(LPSTR text_out) const	// buf size = 16/46 for ipv4/ipv6
 	{	return inet_ntop(OP::SIN_FAMILY, OP::GetAddressPtr(*this), text_out, 47);
 	}
 	INLFUNC WORD	GetPort() const	{ return ntohs(*OP::GetPortPtr(*this)); } // Get port and address (even though they're public)
@@ -261,7 +261,7 @@ class Socket
 	typedef const struct sockaddr CSA;
 	typedef struct sockaddr SA;
 protected:
-	SOCKET m_hSocket;
+	SOCKET _hSocket;
 	bool __Create(const struct sockaddr &BindTo, int addr_len, int nSocketType, bool reuse_addr, int AF);
 	bool __GetPeerName(struct sockaddr &ConnectedTo, int addr_len) const;	// address of the peer
 	bool __GetBindName(struct sockaddr &BindTo, int addr_len) const;		// address of this socket
@@ -294,12 +294,12 @@ public:
 	Socket(SOCKET s);
 	~Socket(){ Close(); }
 	
-	operator		SOCKET() const { return m_hSocket; }
-	bool			IsEmpty() const { return m_hSocket == INVALID_SOCKET; }
+	operator		SOCKET() const { return _hSocket; }
+	bool			IsEmpty() const { return _hSocket == INVALID_SOCKET; }
 
 public: //helpers
 	static	int		GetLastError();
-	static  bool	IsLastErrorUnrecoverableForDatagram();
+	static  bool	IsErrorUnrecoverable(int err);
 	static	bool	IsLastOpPending();
 
 public:

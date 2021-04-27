@@ -343,6 +343,9 @@ HttpSession::HttpSession()
 	m_pDataCallback = nullptr;
 	SetCommonHeaders(nullptr);
 	m_LastResponseStage = HTTPCLIENT_EVENT_NONE;
+
+	m_BindingAddress.SetAsAny().SetPort(0);
+	m_ProxyServer.SetAsAny().SetPort(0);
 }
 
 HttpSession::~HttpSession()
@@ -1362,28 +1365,28 @@ void HttpNavigator::SetRedirected(const rt::String_Ref& url)
 {
 	int i = (int)url.FindCharacter(':');
 
-	if(m_NavigatedDestination.IsEmpty() || (i>0 && url[i+1] == '/' && url[i+2] == '/'))
+	if(_NavigatedDestination.IsEmpty() || (i>0 && url[i+1] == '/' && url[i+2] == '/'))
 	{
-		m_NavigatedDestination = url;
+		_NavigatedDestination = url;
 	}
 	else
 	{	
-		LPSTR begin = m_NavigatedDestination.Begin() + m_NavigatedDestination.FindString("://") + 3;
+		LPSTR begin = _NavigatedDestination.Begin() + _NavigatedDestination.FindString("://") + 3;
 
 		if(url[0] == '/')
 		{
 			LPSTR p = strchr(begin,'/');
 			if(p)
-				m_NavigatedDestination = rt::String_Ref(m_NavigatedDestination, p) + url;
+				_NavigatedDestination = rt::String_Ref(_NavigatedDestination, p) + url;
 			else
-				m_NavigatedDestination += url;
+				_NavigatedDestination += url;
 		}
 		else
 		{
 			LPSTR pdir = strrchr(begin,'/');
 			if(!pdir)
-			{	m_NavigatedDestination += '/';
-				pdir = m_NavigatedDestination.Begin() + (m_NavigatedDestination.GetLength()-1);
+			{	_NavigatedDestination += '/';
+				pdir = _NavigatedDestination.Begin() + (_NavigatedDestination.GetLength()-1);
 			}
 
 			LPCSTR path = url.Begin();
@@ -1404,19 +1407,19 @@ void HttpNavigator::SetRedirected(const rt::String_Ref& url)
 				else break;
 			}
 
-			m_NavigatedDestination = rt::String_Ref(m_NavigatedDestination, pdir + 1) + rt::String_Ref(path,url.End());
+			_NavigatedDestination = rt::String_Ref(_NavigatedDestination, pdir + 1) + rt::String_Ref(path,url.End());
 		}
 	}
 }
 
 bool HttpNavigator::SetBindingAddress(LPCSTR dotted_ip)
 {
-    return m_HttpSession.SetBindingAddress(dotted_ip);
+    return _HttpSession.SetBindingAddress(dotted_ip);
 }
 
 bool HttpNavigator::SetBindingAddress(const inet::InetAddr& addr)
 {
-    return m_HttpSession.SetBindingAddress(addr);
+    return _HttpSession.SetBindingAddress(addr);
 }
 
 
@@ -1425,9 +1428,9 @@ bool HttpNavigator::NavigateTo(LPCSTR pURL, int max_redirection_times, const cha
 	static const rt::String_Ref content_type_html("text/html",9);
 
 	if(strstr(pURL,"://"))
-		m_NavigatedDestination = pURL;
+		_NavigatedDestination = pURL;
 	else
-		m_NavigatedDestination = rt::String_Ref("http://",7) + pURL;
+		_NavigatedDestination = rt::String_Ref("http://",7) + pURL;
 
 	bool bIsPost = pPostData != nullptr;
 
@@ -1438,33 +1441,33 @@ bool HttpNavigator::NavigateTo(LPCSTR pURL, int max_redirection_times, const cha
 
 	while(	max_redirection_times >= 0 &&
 			(bIsPost ?
-			m_HttpSession.SendRequest(m_NavigatedDestination, customVerb, addtionalHeaderString, (UINT)addtionalHeaderString.GetLength(), pPostData, postDataLen)
+			_HttpSession.SendRequest(_NavigatedDestination, customVerb, addtionalHeaderString, (UINT)addtionalHeaderString.GetLength(), pPostData, postDataLen)
 			:
-			m_HttpSession.Request_Get(m_NavigatedDestination, addtionalHeaderString, (UINT)addtionalHeaderString.GetLength())
+			_HttpSession.Request_Get(_NavigatedDestination, addtionalHeaderString, (UINT)addtionalHeaderString.GetLength())
 			))
 	{
 		if (bWaitResponse)
 		{
-			if (!m_HttpSession.WaitResponse())
+			if (!_HttpSession.WaitResponse())
 				break;
 		}
 		else
 			return true;
 		max_redirection_times--;
-		if(	m_HttpSession.GetResponseParsedHeader().m_StateCode/100 == 3 && 
-			!m_HttpSession.GetResponseParsedHeader().m_Redirected.IsEmpty()
+		if(	_HttpSession.GetResponseParsedHeader().m_StateCode/100 == 3 && 
+			!_HttpSession.GetResponseParsedHeader().m_Redirected.IsEmpty()
 		)
-		{	SetRedirected(m_HttpSession.GetResponseParsedHeader().m_Redirected);
-			if(m_HttpSession.m_pEventCallback)
-				m_HttpSession.m_pEventCallback(m_NavigatedDestination.Begin(),HTTPCLIENT_EVENT_REDIRECT,m_HttpSession.m_pEventCallbackCookie);
+		{	SetRedirected(_HttpSession.GetResponseParsedHeader().m_Redirected);
+			if(_HttpSession.m_pEventCallback)
+				_HttpSession.m_pEventCallback(_NavigatedDestination.Begin(),HTTPCLIENT_EVENT_REDIRECT,_HttpSession.m_pEventCallbackCookie);
 		}
-		else if(m_HttpSession.GetResponseParsedHeader().m_StateCode/100 == 2 && 
-				m_HttpSession.GetResponseLength()
+		else if(_HttpSession.GetResponseParsedHeader().m_StateCode/100 == 2 && 
+				_HttpSession.GetResponseLength()
 		)
-		{	if(m_HttpSession.GetResponseParsedHeader().m_ContentType == content_type_html)
+		{	if(_HttpSession.GetResponseParsedHeader().m_ContentType == content_type_html)
 			{
 				// analysis HTML content
-				rt::String doc = (LPSTR)m_HttpSession.GetResponse();
+				rt::String doc = (LPSTR)_HttpSession.GetResponse();
 				doc.MakeLower();
 				LPSTR pdoc = doc;
 
@@ -1491,7 +1494,7 @@ bool HttpNavigator::NavigateTo(LPCSTR pURL, int max_redirection_times, const cha
 						)
 					)
 					{	SIZE_T len = pEndUrl - (pUrl+1);
-						SetRedirected(rt::String_Ref(((LPSTR)m_HttpSession.GetResponse()) + (pUrl+1-pdoc),len));
+						SetRedirected(rt::String_Ref(((LPSTR)_HttpSession.GetResponse()) + (pUrl+1-pdoc),len));
 						*pclose = '>';
 						redirected = true;
 						break;
@@ -1503,8 +1506,8 @@ bool HttpNavigator::NavigateTo(LPCSTR pURL, int max_redirection_times, const cha
 
 				if(!redirected)
 				{
-					LPSTR p = (LPSTR)m_HttpSession.GetResponse();
-					p[m_HttpSession.GetResponseLength()] = '\0';
+					LPSTR p = (LPSTR)_HttpSession.GetResponse();
+					p[_HttpSession.GetResponseLength()] = '\0';
 
 					return true;
 				}

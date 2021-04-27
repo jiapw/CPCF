@@ -1180,7 +1180,7 @@ namespace tos
 		FORCEINL static int __toS(LPSTR p, unsigned int x){ return _details::string_ops::itoa(x,p);; } //sprintf(p,"%u",x); }
 		FORCEINL static int __toS(LPSTR p, LONGLONG x){ return _details::string_ops::itoa(x,p); } //sprintf(p,"%lld",x); }
 		FORCEINL static int __toS(LPSTR p, ULONGLONG x){ return _details::string_ops::itoa(x,p); } //sprintf(p,"%llu",x); }
-#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
+#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 		FORCEINL static int __toS(LPSTR p, long x){ return _details::string_ops::itoa((int)x,p); }// sprintf(p,"%d",x); }
 		FORCEINL static int __toS(LPSTR p, unsigned long x){ return _details::string_ops::itoa((UINT)x,p);; } //sprintf(p,"%u",x); }
 #endif
@@ -1206,7 +1206,7 @@ namespace tos
 		FORCEINL S_(unsigned int x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 		FORCEINL S_(LONGLONG x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 		FORCEINL S_(ULONGLONG x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
-#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
+#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 		FORCEINL S_(long x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 		FORCEINL S_(unsigned long x){ _len = __toS(_string,x); ASSERT(_len < LEN); _string[_len] = 0; _p = _string; }
 #endif
@@ -1310,7 +1310,7 @@ CPF_STRING_CONNECT_OP(String_Ref, tos::S_<>,	String_Ref&, char			)
 CPF_STRING_CONNECT_OP(String_Ref, tos::S_<>,	String_Ref&, bool			)
 CPF_STRING_CONNECT_OP(String_Ref, tos::S_<>,	String_Ref&, int			)
 CPF_STRING_CONNECT_OP(String_Ref, tos::S_<>,	String_Ref&, unsigned int	)
-#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC)
+#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 CPF_STRING_CONNECT_OP(String_Ref, tos::S_<>,	String_Ref&, long			)
 CPF_STRING_CONNECT_OP(String_Ref, tos::S_<>,	String_Ref&, unsigned long	)
 #endif

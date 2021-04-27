@@ -502,12 +502,11 @@ void os::GetLogonUserName(rt::String& name)
 	DWORD len = sizeofArray(buf);
 	::GetUserNameW(buf, &len);
 	name = __UTF8(buf);
-#elif defined(PLATFORM_ANDROID)
-	ASSERT(0);
 #else
-	char buf[1024] = {'\x0'};
-	getlogin_r(buf, sizeof(buf));
-	name = buf;
+	name = getlogin();
+	//char buf[1024] = {'\x0'};
+	//getlogin_r(buf, sizeof(buf));
+	//name = buf;
 #endif
 }
 

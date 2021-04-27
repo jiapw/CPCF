@@ -1262,15 +1262,16 @@ public:
 };
 
 template<typename T>
-struct Singleton
-{
-	static T& Get(){ static T ret; return ret; }
-#if defined(PLATFORM_DEBUG_BUILD)
+class Singleton
+{   typedef T* LPT;
+    static LPT& _Ptr(){ static T* ptr = nullptr; return ptr; }
+    static T&   _Def(){ static T ret; return ret; }
+public:
+    static T&   Get(){ T* p = _Ptr(); if(p){ return *p; }else{ return _Def(); } }
+    static bool HasInstance(){ return _Ptr(); }
 protected:
-	static bool& __inited(){ static bool _ = false; return _; };
-	Singleton(){ ASSERT(__inited() == false); __inited() = true; }
-	~Singleton(){ ASSERT(__inited() == true); __inited() = false; }
-#endif
+    Singleton(){ ASSERT(_Ptr() == nullptr); _Ptr() = static_cast<T*>(this); }
+    ~Singleton(){ ASSERT(_Ptr()); _Ptr() = nullptr; }
 };
 
 struct FrequencyDivision

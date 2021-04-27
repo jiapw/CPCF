@@ -479,7 +479,7 @@ void rt::UnitTests::ipp_image_apps()
 
 		while(src.GetWidth()/scale >= size_min && src.GetHeight()/scale >= size_min)
 		{
-			work.SetSize((UINT)src.GetWidth()/scale, (UINT)src.GetHeight()/scale);
+			work.SetSize((UINT)(src.GetWidth()/scale), (UINT)(src.GetHeight()/scale));
 			src.ResizeTo_SuperSampling(work);
 
 			int spcount = 0;
@@ -569,8 +569,8 @@ void rt::UnitTests::ipp_image_apps()
 				//)
 				if(sqrt((double)la.L2NormSqr()) > threshold*sqrt((double)sum.L2NormSqr()))
 				{
-					int sx = x*scale + rng.GetNext()%(int)(scale + 0.5f);
-					int sy = y*scale + rng.GetNext()%(int)(scale + 0.5f);
+					int sx = (int)(x*scale + rng.GetNext()%(int)(scale + 0.5f));
+					int sy = (int)(y*scale + rng.GetNext()%(int)(scale + 0.5f));
 					sample(sx, sy) = 255;
 					spcount++;
 				}
@@ -582,12 +582,12 @@ void rt::UnitTests::ipp_image_apps()
 			scale*=1.4f;
 		}
 
-		work.SetSize(src.GetWidth()/scale, src.GetHeight()/scale);
+		work.SetSize((UINT)(src.GetWidth()/scale), (UINT)(src.GetHeight()/scale));
 		for(UINT y=0;y<work.GetHeight();y++)
 		for(UINT x=0;x<work.GetWidth();x++)
 		{
-			int sx = x*scale + rng.GetNext()%(int)(scale + 0.5f);
-			int sy = y*scale + rng.GetNext()%(int)(scale + 0.5f);
+			int sx = (int)(x*scale + rng.GetNext()%(int)(scale + 0.5f));
+			int sy = (int)(y*scale + rng.GetNext()%(int)(scale + 0.5f));
 			sample(sx, sy) = 255;
 		}
 
