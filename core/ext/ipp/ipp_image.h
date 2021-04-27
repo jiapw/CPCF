@@ -1375,8 +1375,8 @@ public:
 	FORCEINL void Set(const t_Val& value)
 	{	switch(chan_num) {
 			case 1: ipp_cpp::ippiSet_C1R(value[0],IPPARG_IMG(*this),*this); break;
-//			case 3: ipp_cpp::ippiSet_C3R(value,IPPARG_IMG(*this),*this); break;
-//			case 4: ipp_cpp::ippiSet_C4R(value,IPPARG_IMG(*this),*this); break;
+			case 3: ipp_cpp::ippiSet_C3R(value.ptr(),IPPARG_IMG(*this),*this); break;
+			case 4: ipp_cpp::ippiSet_C4R(value.ptr(),IPPARG_IMG(*this),*this); break;
 	}	}
 	FORCEINL void Ln()
 	{	switch(chan_num) {	
