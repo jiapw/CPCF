@@ -1,10 +1,12 @@
 #include "big_num.h"
 #include "../../os/kernel.h"
+#include "ttmath/ttmathuint.h"
 
 
 #ifdef PLATFORM_MAC
 #include <immintrin.h>
 #endif
+
 
 namespace ext
 {
@@ -838,7 +840,258 @@ NativeFloat::NativeFloat(double x_in)
 	Exponent = ((x&0x7ff0000000000000ULL)>>52) - 1023 - 52;
 	Sign = x&0x8000000000000000ULL;
 }
+namespace _details{
+/*
+ original code from ttmathuint.h:2306
+ */
+namespace ttmath{
+class big_ttmath: public ::ttmath::UInt<4>{
+public:
+	uint64_t Div_Calculate(::ttmath::uint u2, ::ttmath::uint u1, ::ttmath::uint u0, ::ttmath::uint v1, ::ttmath::uint v0){
+		::ttmath::UInt<2> u_temp;
+		::ttmath::uint rp;
+		bool next_test;
+		
+		ASSERT( v1 != 0 );
+		
+		u_temp.table[1] = u2;
+		u_temp.table[0] = u1;
+		u_temp.DivInt(v1, &rp);
+		
+		ASSERT( u_temp.table[1]==0 || u_temp.table[1]==1 );
+		
+		do
+		{
+			bool decrease = false;
+			
+			if( u_temp.table[1] == 1 )
+				decrease = true;
+			else
+			{
+				UInt<2> temp1, temp2;
+				
+				UInt<2>::MulTwoWords(u_temp.table[0], v0, temp1.table+1, temp1.table);
+				temp2.table[1] = rp;
+				temp2.table[0] = u0;
+				
+				if( temp1 > temp2 )
+					decrease = true;
+			}
+			
+			next_test = false;
+			
+			if( decrease )
+			{
+				u_temp.SubOne();
+				rp += v1;
+				
+				if( rp >= v1 ) // it means that there wasn't a carry (r<b from the book)
+					next_test = true;
+			}
+		}
+		while( next_test );
+		TTMATH_LOG("UInt::Div3_Calculate")
+		return u_temp.table[0];
+	}
+};
+}
+/*
+ Return Value:
+ 0: |a| > b or |a| = |b|, proceed to perform division
+ 1: |a| < |b|, a = 0 or b = 0, edge case, could early out
+ 
+ */
+int Div_Standard_test(const BigNumMutable& a_temp, const BigNumMutable& b_temp){
+	if((!a_temp.IsZero() && !b_temp.IsZero()) && (a_temp.Abs() > b_temp || a_temp.Abs() == b_temp.Abs())){
+		return 0;
+	}
+	return 1;
+}
 
+void Div_DivInt(BigNumMutable& a_temp, uint64_t divisor, uint64_t& remainder){
+	a_temp.TrimLeadingZero();
+	BigNumMutable dividend = a_temp;
+	uint64_t r = 0;
+	int i = a_temp.GetLength() - 1;
+	for(; i >= 0; i--){
+		LPC_BN_BLK current = a_temp._Data + i;
+		::ttmath::UInt<2>::DivTwoWords((uint64_t)r, (uint64_t) *(dividend._Data+i), (uint64_t)divisor, (::ttmath::uint*) current , (::ttmath::uint*) &r);
+	}
+	remainder = r;
+	return;
+}
+
+BN_BLK Div_Calculate(BN_BLK u2, BN_BLK u1, BN_BLK u0, BN_BLK v1, BN_BLK v0){
+	ttmath::big_ttmath bt;
+	return bt.Div_Calculate((uint64_t)u2,(uint64_t)u1,(uint64_t)u0,(uint64_t)v1,(uint64_t)v0);
+}
+
+uint32_t Div_Find_highest_bit (BigNumMutable& block){
+	int bitposition = 0;
+	BN_BLK data = block.Last();
+	while(data!=0){
+		bitposition++;
+		data = data >> 1;
+	}
+	return bitposition - 1;
+}
+BN_BLK Div_Normalize(BigNumMutable& a, BigNumMutable& b, int& bits_moved){
+	uint32_t highest_bits = 0;
+	highest_bits = Div_Find_highest_bit(b);
+	const int block_size = 64;
+	bits_moved = block_size - highest_bits - 1;
+	BN_BLK u2 = a.Last();
+	if(bits_moved){
+		b <<= bits_moved;
+		a <<= bits_moved;
+		u2 >>= (highest_bits + 1);
+	}
+	else{
+		u2 = 0;
+	}
+	return u2;
+}
+
+void Div_Make_new_U(BigNumMutable& uu, BigNumMutable& u, uint32_t j, uint32_t n, uint64_t u_max){
+	if(uu.IsZero()){
+		return;
+	}
+	uint32_t uu_len = uu.GetLength();
+	if(uu_len <= n){
+		uu.ExtendLength(n - uu_len + 1);
+	}
+	uu.FillZero();
+	uint32_t i;
+	for(i = 0; i < n; ++i,++j){
+		*(uu._Data+i) = *(u._Data+j);
+	}
+	uu._Data[i] = u_max;
+}
+
+int Div_trimZeros(BigNumMutable& uu){
+	uint32_t i = uu.GetLength()-1;
+	for(; i >= 0; i--){
+		if(*(uu._Data+i) != 0){
+			break;
+		}
+	}
+	uint32_t zero_trimmed = uu.GetLength() - i - 1;
+	uu.TrimLeadingZero();
+	return zero_trimmed;
+}
+
+void Div_Multiply_subtract(BigNumMutable& uu, BigNumMutable& vv, BN_BLK& qp){
+	BigNumMutable vvv = vv;
+	BN_AbsMul(vvv, qp, vvv);
+	uint32_t trimmed_u = Div_trimZeros(uu);
+	uint32_t trimmed_v = Div_trimZeros(vv);
+	uu -= vvv;
+	if(uu.IsNegative())
+	{
+		--qp;
+		uu+=vvv;
+	}
+	uu.ExtendLength(trimmed_u);
+	vv.ExtendLength(trimmed_v);
+}
+
+void Div_Copy_new_U(BigNumMutable& uu, BigNumMutable& u, uint32_t j, uint32_t n){
+	uint32_t i = 0;
+	for(;i < n;i++){
+		*(u._Data + i + j) = *(uu._Data + i);
+	}
+	if( i+j < u.GetLength()){
+		*(u._Data + i + j) = *(uu._Data + i);;
+	}
+}
+
+void Div_Unnormalize(ext::BigNumMutable& Remainder, BigNumMutable& a_temp, uint32_t n, int d){
+	for(uint32_t i = n; i < a_temp.GetLength();i++){
+		a_temp._Data[i] = 0;
+	}
+	a_temp.TrimLeadingZero();
+	a_temp >>= d;
+	Remainder = a_temp;
+}
+/*
+ Sign Rules:
+ for example: (result means 'this')
+ -       20 /  3 --> result:  6   remainder:  2
+ -      -20 /  3 --> result: -6   remainder: -2
+ -       20 / -3 --> result: -6   remainder:  2
+ -      -20 / -3 --> result:  6   remainder: -2
+ */
+void Div_Set_sign(const BN_Ref& a, const BN_Ref& b,ext::BigNumMutable& quotient, ext::BigNumMutable& Remainder){
+	quotient.SetSign(a.GetSign() != b.GetSign());
+	Remainder.SetSign(a.GetSign());
+}
+} //namespace _details
+
+void BN_Div(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable *remainder, ext::BigNumMutable& quotient)	//quotient = (a/b) + remainder, a is dividend, b is divisor
+{
+	static_assert(sizeof(BN_BLK)==sizeof(uint64_t),"BN_Div2 only supports 64 bits blocks");
+
+	ext::BigNumMutable tmpRemainder;
+	if (!remainder)
+		remainder = &tmpRemainder;
+
+	quotient.SetZero();
+	remainder->SetZero();
+	BN_BLK a_value_size, u0 = 0, u1 = 0, v1 = 0, v0 = 0, u2 = 0;
+	BigNumMutable a_temp = 0;
+	a_temp += a;
+	BigNumMutable b_temp = 0;
+	b_temp += b;
+	a_temp._Sign = false;
+	b_temp._Sign = false;
+	uint32_t m = a_temp.GetLength();
+	uint32_t n = b_temp.GetLength();
+	uint32_t j = a_temp.GetLength() - b_temp.GetLength();
+	if(_details::Div_Standard_test(a_temp, b_temp)){
+		*remainder = a_temp;
+		_details::Div_Set_sign(a, b, quotient, *remainder);
+		return;
+	}
+	if(n == 1){
+		uint64_t r = 0;
+		_details::Div_DivInt(a_temp, (uint64_t) *(b_temp._Data), r);
+		*remainder = r;
+		quotient = a_temp;
+		_details::Div_Set_sign(a, b, quotient, *remainder);
+		return;
+	}
+	int d;
+	a_value_size = _details::Div_Normalize(a_temp, b_temp, d);
+	if(j+n == a_temp.GetLength()){
+		u2 = a_value_size;
+	}
+	else{
+		u2 = a_temp.Data()[j+n];
+	}
+	BigNumMutable uu = a_temp;
+	BigNumMutable vv = b_temp;
+	quotient.SetLength(j+1);
+	quotient.FillZero();
+	while(true){
+		u1 = a_temp.Data()[j+n-1];
+		u0 = a_temp.Data()[j+n-2];
+		v1 = b_temp.Data()[n-1];
+		v0 = b_temp.Data()[n-2];
+		BN_BLK qp = _details::Div_Calculate(u2, u1, u0, v1, v0);
+		_details::Div_Make_new_U(uu, a_temp, j, n , u2);
+		_details::Div_Multiply_subtract(uu,vv,qp);
+		_details::Div_Copy_new_U(uu, a_temp, j, n);
+		*(quotient._Data+j) = qp;
+		if(j--==0){
+			break;
+		}
+		u2 = a_temp.Data()[j+n];
+		
+	}
+	_details::Div_Unnormalize(*remainder, a_temp, n, d);
+	_details::Div_Set_sign(a, b, quotient, *remainder);
+	return;
+}
 } // namespace _details
 
 
