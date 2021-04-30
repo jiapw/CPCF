@@ -134,61 +134,69 @@ public:
     static const UINT DataBlockSize = _details::_AES_Traits<_METHOD>::BlockSize;
     static const UINT NativeKeySize = _details::_HashSize<_details::_AES_Traits<_METHOD>::KEY_HASHER>::size;
 protected:
-    int             _CCRef_Op;   // kCCEncrypt or kCCDecrypt
     int             _CCRef_Opt;  // 0 or kCCOptionECBMode   // its default is CBC
-    CCCryptorRef    _CCRef;
+    CCCryptorRef    _CCRef_Encryption;
+    CCCryptorRef    _CCRef_Decryption;
     BYTE            _Hash[NativeKeySize];
-    void            _EnsureInit(int op, int opt, LPCVOID vi = nullptr)
-                    {   if(_CCRef && op == _CCRef_Op && opt == _CCRef_Opt)
-                        {   if(vi){ ASSERT(_CCRef_Opt == 0); CCCryptorReset(_CCRef, vi); }
+    void            _EnsureInit(CCCryptorRef& ccref, int op, int opt, LPCVOID vi = nullptr)
+                    {   if(ccref && opt == _CCRef_Opt)
+                        {   if(vi){ ASSERT(_CCRef_Opt == 0); CCCryptorReset(ccref, vi); }
                             return;
                         }
-                        _CCRef_Op = op;     _CCRef_Opt = opt;
-                        if(_CCRef)CCCryptorRelease(_CCRef);
-                        CCCryptorCreate(_CCRef_Op, kCCAlgorithmAES, _CCRef_Opt, _Hash, NativeKeySize, vi, &_CCRef);
+                        _CCRef_Opt = opt;
+                        if(ccref)CCCryptorRelease(ccref);
+                        CCCryptorCreate(op, kCCAlgorithmAES, _CCRef_Opt, _Hash, NativeKeySize, vi, &ccref);
                     }
 public:
-    Cipher(){ _CCRef = nullptr; }
+    Cipher(){ _CCRef_Encryption = _CCRef_Decryption = nullptr; }
     ~Cipher(){ Empty(); }
-    void            Empty(){ if(_CCRef){ CCCryptorRelease(_CCRef); _CCRef = nullptr; } rt::Zero(_Hash); }
+    void            Empty()
+                    {   if(_CCRef_Encryption){ CCCryptorRelease(_CCRef_Encryption); _CCRef_Encryption = nullptr; }
+                        if(_CCRef_Encryption){ CCCryptorRelease(_CCRef_Encryption); _CCRef_Encryption = nullptr; }
+                        rt::Zero(_Hash);
+                    }
     static void     ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key); }
     void            SetKey(LPCVOID key, UINT len)
-                    {   if(len != NativeKeySize){ ComputeKey(_Hash, key, len); }
+                    {   Empty();
+                        if(len != NativeKeySize){ ComputeKey(_Hash, key, len); }
                         else { memcpy(_Hash, key, len); }
-                        _CCRef_Op = -1;  // force _EnsureInit re-create the _CCRef
                     }
     void            Encrypt(LPCVOID pPlain, LPVOID pCrypt, UINT Len)
-                    {   _EnsureInit(kCCEncrypt, kCCOptionECBMode);
-                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
-                        CCCryptorUpdate(_CCRef, pPlain, Len, pCrypt, Len, &out);
+                    {   ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        _EnsureInit(_CCRef_Encryption, kCCEncrypt, kCCOptionECBMode);
+                        size_t out = 0;
+                        CCCryptorUpdate(_CCRef_Encryption, pPlain, Len, pCrypt, Len, &out);
                         ASSERT(out == Len);
                     }
     void            Decrypt(LPCVOID pCrypt, LPVOID pPlain, UINT Len)
-                    {   _EnsureInit(kCCDecrypt, kCCOptionECBMode);
-                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
-                        CCCryptorUpdate(_CCRef, pCrypt, Len, pPlain, Len, &out);
+                    {   ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        _EnsureInit(_CCRef_Decryption, kCCDecrypt, kCCOptionECBMode);
+                        size_t out = 0;
+                        CCCryptorUpdate(_CCRef_Decryption, pCrypt, Len, pPlain, Len, &out);
                         ASSERT(out == Len);
                     }
     void            EncryptBlockChained(LPCVOID pPlain, LPVOID pCrypt, UINT Len, UINT nonce)
-                    {   _details::CipherInitVec<DataBlockSize> IV(nonce);
-                        _EnsureInit(kCCEncrypt, 0, &IV);
-                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
-                        CCCryptorUpdate(_CCRef, pPlain, Len, pCrypt, Len, &out);
+                    {   ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        _details::CipherInitVec<DataBlockSize> IV(nonce);
+                        _EnsureInit(_CCRef_Encryption, kCCEncrypt, 0, &IV);
+                        size_t out = 0;
+                        CCCryptorUpdate(_CCRef_Encryption, pPlain, Len, pCrypt, Len, &out);
                         if(out<Len)
                         {   size_t fin = 0;
-                            CCCryptorFinal(_CCRef, ((LPBYTE)pCrypt) + out, Len - out, &fin);
+                            CCCryptorFinal(_CCRef_Encryption, ((LPBYTE)pCrypt) + out, Len - out, &fin);
                             out += fin;
                         }
                         ASSERT(out == Len);
                     }
     void            DecryptBlockChained(LPCVOID pCrypt, LPVOID pPlain, UINT Len, UINT nonce)
-                    {   _details::CipherInitVec<DataBlockSize> IV(nonce);
-                        _EnsureInit(kCCDecrypt, 0, &IV);
-                        size_t out = 0;         ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
-                        CCCryptorUpdate(_CCRef, pCrypt, Len, pPlain, Len, &out);
+                    {   ASSERT((Len&_details::_AES_Traits<_METHOD>::DataAlign) == 0);
+                        _details::CipherInitVec<DataBlockSize> IV(nonce);
+                        _EnsureInit(_CCRef_Decryption, kCCDecrypt, 0, &IV);
+                        size_t out = 0;
+                        CCCryptorUpdate(_CCRef_Decryption, pCrypt, Len, pPlain, Len, &out);
                         if(out<Len)
                         {   size_t fin = 0;
-                            CCCryptorFinal(_CCRef, ((LPBYTE)pCrypt) + out, Len - out, &fin);
+                            CCCryptorFinal(_CCRef_Decryption, ((LPBYTE)pCrypt) + out, Len - out, &fin);
                             out += fin;
                         }
                         ASSERT(out == Len);
