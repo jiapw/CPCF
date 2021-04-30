@@ -901,16 +901,16 @@ public:
  1: |a| < |b|, a = 0 or b = 0, edge case, could early out
  
  */
-int Div_Standard_test(const BigNumMutable& a_temp, const BigNumMutable& b_temp){
+int Div_Standard_test(const ext::BigNumMutable& a_temp, const ext::BigNumMutable& b_temp){
 	if((!a_temp.IsZero() && !b_temp.IsZero()) && (a_temp.Abs() > b_temp || a_temp.Abs() == b_temp.Abs())){
 		return 0;
 	}
 	return 1;
 }
 
-void Div_DivInt(BigNumMutable& a_temp, uint64_t divisor, uint64_t& remainder){
+void Div_DivInt(ext::BigNumMutable& a_temp, uint64_t divisor, uint64_t& remainder){
 	a_temp.TrimLeadingZero();
-	BigNumMutable dividend = a_temp;
+	ext::BigNumMutable dividend = a_temp;
 	uint64_t r = 0;
 	int i = a_temp.GetLength() - 1;
 	for(; i >= 0; i--){
@@ -926,7 +926,7 @@ BN_BLK Div_Calculate(BN_BLK u2, BN_BLK u1, BN_BLK u0, BN_BLK v1, BN_BLK v0){
 	return bt.Div_Calculate((uint64_t)u2,(uint64_t)u1,(uint64_t)u0,(uint64_t)v1,(uint64_t)v0);
 }
 
-uint32_t Div_Find_highest_bit (BigNumMutable& block){
+uint32_t Div_Find_highest_bit (ext::BigNumMutable& block){
 	int bitposition = 0;
 	BN_BLK data = block.Last();
 	while(data!=0){
@@ -935,7 +935,7 @@ uint32_t Div_Find_highest_bit (BigNumMutable& block){
 	}
 	return bitposition - 1;
 }
-BN_BLK Div_Normalize(BigNumMutable& a, BigNumMutable& b, int& bits_moved){
+BN_BLK Div_Normalize(ext::BigNumMutable& a, ext::BigNumMutable& b, int& bits_moved){
 	uint32_t highest_bits = 0;
 	highest_bits = Div_Find_highest_bit(b);
 	const int block_size = 64;
@@ -952,7 +952,7 @@ BN_BLK Div_Normalize(BigNumMutable& a, BigNumMutable& b, int& bits_moved){
 	return u2;
 }
 
-void Div_Make_new_U(BigNumMutable& uu, BigNumMutable& u, uint32_t j, uint32_t n, uint64_t u_max){
+void Div_Make_new_U(ext::BigNumMutable& uu, ext::BigNumMutable& u, uint32_t j, uint32_t n, uint64_t u_max){
 	if(uu.IsZero()){
 		return;
 	}
@@ -968,7 +968,7 @@ void Div_Make_new_U(BigNumMutable& uu, BigNumMutable& u, uint32_t j, uint32_t n,
 	uu._Data[i] = u_max;
 }
 
-int Div_trimZeros(BigNumMutable& uu){
+int Div_trimZeros(ext::BigNumMutable& uu){
 	uint32_t i = uu.GetLength()-1;
 	for(; i >= 0; i--){
 		if(*(uu._Data+i) != 0){
@@ -980,8 +980,8 @@ int Div_trimZeros(BigNumMutable& uu){
 	return zero_trimmed;
 }
 
-void Div_Multiply_subtract(BigNumMutable& uu, BigNumMutable& vv, BN_BLK& qp){
-	BigNumMutable vvv = vv;
+void Div_Multiply_subtract(ext::BigNumMutable& uu, ext::BigNumMutable& vv, BN_BLK& qp){
+	ext::BigNumMutable vvv = vv;
 	BN_AbsMul(vvv, qp, vvv);
 	uint32_t trimmed_u = Div_trimZeros(uu);
 	uint32_t trimmed_v = Div_trimZeros(vv);
@@ -995,7 +995,7 @@ void Div_Multiply_subtract(BigNumMutable& uu, BigNumMutable& vv, BN_BLK& qp){
 	vv.ExtendLength(trimmed_v);
 }
 
-void Div_Copy_new_U(BigNumMutable& uu, BigNumMutable& u, uint32_t j, uint32_t n){
+void Div_Copy_new_U(ext::BigNumMutable& uu, ext::BigNumMutable& u, uint32_t j, uint32_t n){
 	uint32_t i = 0;
 	for(;i < n;i++){
 		*(u._Data + i + j) = *(uu._Data + i);
@@ -1005,7 +1005,7 @@ void Div_Copy_new_U(BigNumMutable& uu, BigNumMutable& u, uint32_t j, uint32_t n)
 	}
 }
 
-void Div_Unnormalize(ext::BigNumMutable& Remainder, BigNumMutable& a_temp, uint32_t n, int d){
+void Div_Unnormalize(ext::BigNumMutable& Remainder, ext::BigNumMutable& a_temp, uint32_t n, int d){
 	for(uint32_t i = n; i < a_temp.GetLength();i++){
 		a_temp._Data[i] = 0;
 	}
@@ -1038,9 +1038,9 @@ void BN_Div(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable *remainder, ext
 	quotient.SetZero();
 	remainder->SetZero();
 	BN_BLK a_value_size, u0 = 0, u1 = 0, v1 = 0, v0 = 0, u2 = 0;
-	BigNumMutable a_temp = 0;
+	ext::BigNumMutable a_temp = 0;
 	a_temp += a;
-	BigNumMutable b_temp = 0;
+	ext::BigNumMutable b_temp = 0;
 	b_temp += b;
 	a_temp._Sign = false;
 	b_temp._Sign = false;
@@ -1068,8 +1068,8 @@ void BN_Div(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable *remainder, ext
 	else{
 		u2 = a_temp.Data()[j+n];
 	}
-	BigNumMutable uu = a_temp;
-	BigNumMutable vv = b_temp;
+	ext::BigNumMutable uu = a_temp;
+	ext::BigNumMutable vv = b_temp;
 	quotient.SetLength(j+1);
 	quotient.FillZero();
 	while(true){
