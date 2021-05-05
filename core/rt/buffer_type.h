@@ -373,7 +373,11 @@ public:
 		}
 		return false;
 	}
-	void ShrinkSize(SIZE_T new_size) // skip calling ctor
+	bool ExpandSize(SIZE_T new_size)	// no shrink
+	{	if(new_size <= _SC::_len)return true;
+		return ChangeSize(new_size);
+	}
+	void ShrinkSize(SIZE_T new_size)	// no expand
 	{	if(new_size >= _SC::_len)return;
 		if(new_size<_SC::_len)
 		{	
@@ -475,6 +479,18 @@ public:
 			for(SIZE_T i=_SC::_len;i<new_size;i++)_SC::_xt::ctor(&_SC::_p[i]); // call ctor for additional instances at back
 			_SC::_len = new_size;
 			return true;
+		}
+	}
+	bool ExpandSize(SIZE_T new_size, bool keep_old_data = true)	// no shrink
+	{	if(new_size <= _SC::_len)return true;
+		return ChangeSize(new_size, keep_old_data);
+	}
+	void ShrinkSize(SIZE_T new_size)	// no expand
+	{	if(new_size >= _SC::_len)return;
+		if(new_size<_SC::_len)
+		{	
+			for(SIZE_T i=new_size;i<_SC::_len;i++)_SC::_xt::dtor(_SC::_p[i]);	//call dtor for unwanted instances at back
+			_SC::_len = new_size;
 		}
 	}
 	SIZE_T GetReservedSize() const { return _len_reserved; }
