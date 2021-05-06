@@ -969,7 +969,7 @@ void Div_Make_new_U(ext::BigNumMutable& uu, ext::BigNumMutable& u, uint32_t j, u
 }
 
 int Div_trimZeros(ext::BigNumMutable& uu){
-	uint32_t i = uu.GetLength()-1;
+	int i = uu.GetLength()-1;
 	for(; i >= 0; i--){
 		if(*(uu._Data+i) != 0){
 			break;
@@ -981,8 +981,8 @@ int Div_trimZeros(ext::BigNumMutable& uu){
 }
 
 void Div_Multiply_subtract(ext::BigNumMutable& uu, ext::BigNumMutable& vv, BN_BLK& qp){
-	ext::BigNumMutable vvv = vv;
-	BN_AbsMul(vvv, qp, vvv);
+	ext::BigNumMutable vvv;
+	BN_AbsMul(vv, qp, vvv);
 	uint32_t trimmed_u = Div_trimZeros(uu);
 	uint32_t trimmed_v = Div_trimZeros(vv);
 	uu -= vvv;
