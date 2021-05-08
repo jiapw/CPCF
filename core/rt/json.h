@@ -1,34 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file json.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 #include "string_type_ops.h"
 
@@ -175,7 +184,14 @@ struct _JVar
 					{	VERIFY(out.SetLength(GetLength()));
 						out.SetLength(CopyTo(out.Begin()));
 					}
-	// override operator , for connecting key-value pairs in declaring json object
+	/**
+	 * @brief  override operator , for connecting key-value pairs in declaring json object
+	 * 
+	 * @tparam t_right 
+	 * @tparam t_right_vt 
+	 * @param right 
+	 * @return FORCEINL 
+	 */
 	template<typename t_right, int t_right_vt>
 	FORCEINL auto operator , (const _JVar<LPVOID, t_right, t_right_vt>& right) const
 	{	
@@ -318,7 +334,7 @@ namespace _details
 
 #define J(x)					rt::_JTag(#x)
 #define J_IF(cond, definition)	((cond) ? (definition) : decltype(definition)())
-#define JB(x)					(rt::_JVal((x), true))		// Json Binary
+#define JB(x)					(rt::_JVal((x), true))		///< Json Binary
 
 template<typename T>
 FORCEINL void _JA(rt::_JArray<>& a, T&& t) {
@@ -520,7 +536,10 @@ public:
 	}
 };
 
-// increamental json composing
+/**
+ * @brief increamental json composing
+ * 
+ */
 class Json
 {
 	rt::String		_String;
@@ -668,7 +687,9 @@ public:
 	template<typename T>
 	void	Object(const T& json_str){ _details::_AppendJsonValueToString(json_str, _String); }
 
-	// Object Operation
+	/**
+	 * @brief Object Operation
+	 */
 	auto	ScopeMergingObject(){ return _MergingObject(*this); }
 	template<typename P, typename V, int VT>
 	auto&	MergeObject(const _JVar<P,V,VT>& json){ _MergingObject(*this)._pJson->_String += json; return *this; }
@@ -681,8 +702,9 @@ public:
 				_details::_AppendJsonValueToString(json_value, _AppendingKeyedValue(*this, key)._pJson->_String);
 				return *this;
 			}
-
-	// Array Operation
+	/**
+	 * @brief Array Operation
+	 */
 	auto	ScopeAppendingElement(){ return _AppendingElement(*this); }
 	template<typename T>
 	auto&	AppendElement(const T& json_value)
@@ -694,9 +716,17 @@ public:
 	auto	ScopeMergingArray(){ return _AppendingArray(*this); }
 	template<typename T>
 	auto&	MergeArray(const T& json_array){ _AppendingArray(*this)._pJson->_String += json_array; return *this; }
-
+	/**
+	 * @brief merge object or append array element
+	 * 
+	 * @tparam P 
+	 * @tparam V 
+	 * @tparam VT 
+	 * @param json 
+	 * @return auto& 
+	 */
 	template<typename P, typename V, int VT>
-	auto&	operator << (const _JVar<P,V,VT>& json)	// merge object or append array element
+	auto&	operator << (const _JVar<P,V,VT>& json)	
 			{	return IsEndsWith('}')?MergeObject(json):AppendElement(json);	}
 
 	template<typename T>
@@ -736,4 +766,4 @@ public:
 };
 
 } // namespace rt
-
+/** @}*/

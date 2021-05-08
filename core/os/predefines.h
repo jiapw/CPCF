@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file predefines.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "platform.h"
 
 #if defined(PLATFORM_ANDROID)
@@ -40,7 +48,7 @@
 #ifdef PLATFORM_WIN
 
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN             ///< Exclude rarely-used stuff from Windows headers
 #endif
 
 // Define PLATFORM_MAX_COMPATIBILITY to eliminate some APIs only available on later version of OS
@@ -59,21 +67,23 @@
 
 ///////////////////////////////////////////////////////
 // Warning style
-#pragma warning(disable: 4996) //warning C4996: 'xxx' was declared deprecated
-#pragma warning(disable: 4819) //warning C4819: The file contains a character that cannot be represented in the current code page (936)
-#pragma warning(disable: 4996) //warning C4996: 'xxx' was declared deprecated
-#pragma warning(disable: 4616) //warning C4996: 'xxx' was declared deprecated
-#pragma warning(disable: 4311) //warning C4311: 'type cast' : pointer truncation
-#pragma warning(disable: 4311) //warning C4311: 'type cast' : pointer truncation
-#pragma warning(disable: 4355) //warning C4355: 'this' used in ctor of base class
-#pragma warning(disable: 4197) //warning C4197: 'volatile int' : top-level volatile in cast is ignored
-#pragma warning(disable: 4800) // warning C4800: 'bool' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable: 4624) // warning C4624: 'xxx': destructor was implicitly defined as deleted
-#pragma warning(error : 4715 4700) //not all control paths return a value
+#pragma warning(disable: 4996) ///< warning C4996: 'xxx' was declared deprecated
+#pragma warning(disable: 4819) ///< warning C4819: The file contains a character that cannot be represented in the current code page (936)
+#pragma warning(disable: 4996) ///< warning C4996: 'xxx' was declared deprecated
+#pragma warning(disable: 4616) ///< warning C4996: 'xxx' was declared deprecated
+#pragma warning(disable: 4311) ///< warning C4311: 'type cast' : pointer truncation
+#pragma warning(disable: 4311) ///< warning C4311: 'type cast' : pointer truncation
+#pragma warning(disable: 4355) ///< warning C4355: 'this' used in ctor of base class
+#pragma warning(disable: 4197) ///< warning C4197: 'volatile int' : top-level volatile in cast is ignored
+#pragma warning(disable: 4800) ///< warning C4800: 'bool' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning(disable: 4624) ///< warning C4624: 'xxx': destructor was implicitly defined as deleted
+#pragma warning(error : 4715 4700) ///< not all control paths return a value
 
 
-///////////////////////////////////////////////////////
-// Enable frequently used intrinsic function
+/**
+ * @brief Enable frequently used intrinsic function
+ * 
+ */
 #pragma intrinsic(strcmp,strcpy,strcat,strlen)
 #pragma intrinsic(memcmp,memcpy,memset)
 
@@ -210,3 +220,4 @@ typedef struct _GUID {
 #endif
 
 #endif
+/** @}*/

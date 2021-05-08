@@ -1,34 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file type_traits.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 #include "../os/predefines.h"
 #include "runtime_base.h"
@@ -39,16 +48,22 @@
 namespace rt
 {
 
-////////////////////////////////////////////////////
-// true if T1 T2 is the same type
+/**
+ * @brief True if T1 T2 is the same type
+ * 
+ * @tparam T1 
+ * @tparam T2 
+ */
 template<typename T1, typename T2>
 struct IsTypeSame{ static const bool Result = false; };
 	template<typename T>
 	struct IsTypeSame<T,T>{ static const bool Result = true; };
 
-
-//////////////////////////////////////////////////
-// Remove reference
+/**
+ * @brief Remove reference
+ * 
+ * @tparam T 
+ */
 template<class T>
 struct Remove_Reference{ typedef T t_Result; };
 	template<class T>
@@ -56,8 +71,11 @@ struct Remove_Reference{ typedef T t_Result; };
 	template<class T>
 	struct Remove_Reference<T&&>{ typedef T t_Result; };
 
-//////////////////////////////////////////////////
-// Remove qualifiers
+/**
+ * @brief Remove qualifiers
+ * 
+ * @tparam T 
+ */
 template<class T>
 struct Remove_Qualifer{ typedef T t_Result; };
 	template<class T>
@@ -65,8 +83,11 @@ struct Remove_Qualifer{ typedef T t_Result; };
 	template<class T>
 	struct Remove_Qualifer<volatile T>{ typedef T t_Result; };
 
-//////////////////////////////////////////////////
-// Remove qualifiers and reference
+/**
+ * @brief Remove qualifiers and reference
+ * 
+ * @tparam T 
+ */
 template<class T>
 class Remove_QualiferAndRef
 {protected:	typedef typename Remove_Reference<T>::t_Result		_NoRef;
@@ -125,15 +146,18 @@ namespace rt
 } //namespace rt
 #endif
 
-///////////////////////////////////////////////////
-// UnitTests Class in Global Scope
-// Allows access to protected/private members in Unit Test
+
 namespace rt
 {
 namespace _details
 {	extern LPCSTR _UnitTestOutputFilePrefix;
 } // namespace _details
 
+/**
+ * @brief UnitTests Class in Global Scope
+ *
+ *  Allows access to protected/private members in Unit Test
+ */
 #define TYPETRAITS_UNITTEST_OPEN_ACCESS	friend struct rt::UnitTests;
 #define TYPETRAITS_UNITTEST_OUTPUT(x)	rt::_details::_UnitTestOutputFilePrefix = x;
 #define TYPETRAITS_UNITTEST(x)			{	os::SetLogFile(rt::String_Ref(rt::_details::_UnitTestOutputFilePrefix) + #x ".log", false);	\
@@ -150,8 +174,8 @@ namespace rt
 
 //////////////////////////////////////////////////////////////
 // Qualifiers that can not be nest specified (const/volatile/&)
-static const int _typeid_expression		=-5;	// classes for expressions in expr_templ.h
-static const int _typeid_virtual_array	=-4;	// class for simulate array from scalar in expr_templ.h
+static const int _typeid_expression		=-5;	///< classes for expressions in expr_templ.h
+static const int _typeid_virtual_array	=-4;	///< class for simulate array from scalar in expr_templ.h
 static const int _typeid_volatile		=-3;
 static const int _typeid_const			=-2;	
 static const int _typeid_ref			=-1;	
@@ -159,7 +183,7 @@ static const int _typeid_ref			=-1;
 static const int _typeid_class			=0;
 static const int _typeid_void			=1;
 
-static const int _typeid_bool			=2;		//like unsigned char
+static const int _typeid_bool			=2;		///<like unsigned char
 static const int _typeid_8s				=3;
 static const int _typeid_8u				=4;
 static const int _typeid_16s			=5;
@@ -175,11 +199,11 @@ static const int _typeid_64f			=12;
 static const int _typeid_unknown		=0xff;
 
 // composited types
-static const int _typeid_pointer		=0x100;	// C pointer
-static const int _typeid_array			=0x200;	// C array
-static const int _typeid_vec			=0x300;	// small vec, fixed size
-static const int _typeid_buffer			=0x400;	// rt::Buffer/BufferEx
-static const int _typeid_string			=0x500;	// rt::String/String_Ref
+static const int _typeid_pointer		=0x100;	///< C pointer
+static const int _typeid_array			=0x200;	///< C array
+static const int _typeid_vec			=0x300;	///< small vec, fixed size
+static const int _typeid_buffer			=0x400;	///< rt::Buffer/BufferEx
+static const int _typeid_string			=0x500;	///< rt::String/String_Ref
 
 namespace _details
 {
@@ -222,8 +246,11 @@ namespace _details
 #define TYPETRAITS_DECLARE_NON_POD		public: static const bool __IsPOD = false;
 #define TYPETRAITS_DECLARE_POD			public: static const bool __IsPOD = true;
 
-////////////////////////////////////////////////////////////////////////////
-// TypeTraits
+/**
+ * @brief TypeTraits
+ * 
+ * @tparam T 
+ */
 template<typename T>
 class TypeTraits
 {
@@ -254,7 +281,11 @@ public:
 	};														\
 
 
-// void type
+/**
+ * @brief void type
+ * 
+ * @tparam  
+ */
 template<>
 class TypeTraits<void>
 {
@@ -269,7 +300,11 @@ public:
 };
     
 
-// const qualifier
+/**
+ * @brief const qualifier
+ * 
+ * @tparam t_RawType 
+ */
 template<typename t_RawType>
 class TypeTraits< const t_RawType >
 {
@@ -283,7 +318,11 @@ public:
 	static const bool IsPOD = TypeTraits<t_Nested>::IsPOD;
 	static const bool IsNumeric = TypeTraits<t_Nested>::IsNumeric;
 };
-// volatile qualifier
+/**
+ * @brief volatile qualifier
+ * 
+ * @tparam t_RawType 
+ */
 template<typename t_RawType>
 class TypeTraits< volatile t_RawType >
 {	
@@ -299,7 +338,11 @@ public:
 };
 
     
-// reference
+/**
+ * @brief reference
+ * 
+ * @tparam t_RawType 
+ */
 template<typename t_RawType>
 class TypeTraits< t_RawType& >
 {	typedef t_RawType T;
@@ -314,8 +357,12 @@ public:
 	static const bool IsNumeric = TypeTraits<t_Nested>::IsNumeric;
 };
 
-    
-// C array
+/**
+ * @brief C array
+ * 
+ * @tparam t_Ele 
+ * @tparam t_Size 
+ */
 template<typename t_Ele, size_t t_Size>
 class TypeTraits< t_Ele[t_Size] >
 {	typedef t_Ele T[t_Size];
@@ -328,7 +375,13 @@ public:
 	static const bool IsPOD = TypeTraits<t_Ele>::IsPOD;
 	static const bool IsNumeric = false ;	
 };
-// C array
+
+/**
+ * @brief C array
+ * 
+ * @tparam t_Ele 
+ * @tparam t_Size 
+ */
 template<typename t_Ele, size_t t_Size>
 class TypeTraits< const t_Ele[t_Size] >
 {	typedef t_Ele T[t_Size];
@@ -341,7 +394,12 @@ public:
 	static const bool IsPOD = TypeTraits<t_Ele>::IsPOD;
 	static const bool IsNumeric = false ;	
 };
-// C pointer
+
+/**
+ * @brief  C pointer
+ * 
+ * @tparam t_Ele 
+ */
 template<typename t_Ele>
 class TypeTraits< t_Ele* >	//All pointers
 {	typedef t_Ele *T;
@@ -360,8 +418,10 @@ public:
 
 
 
-/////////////////////////////////////////////////////////////////
-//all built-in num types
+/**
+ * @brief all built-in num types
+ * 
+ */
 #define __NumT(T_,Val_,Accum_,Signed_,Unsigned_,TypeId_,Eps_,Min_,Max_,Unit_,tos_tw,tos_wap)	\
 		template<>																\
 		class TypeTraits<T_>													\
@@ -424,8 +484,11 @@ __NumFloat(long double	,long double,_typeid_64f	,LDBL_EPSILON*100			,-LDBL_MAX	,
 /////////////////////////////////////////////////////////////////
 
 
-//////////////////////////////////////////////////
-// Trait num type properties
+/**
+ * @brief Trait num type properties
+ * 
+ * @tparam T_in 
+ */
 template<typename T_in>
 struct NumericTraits
 {	typedef typename rt::Remove_QualiferAndRef<T_in>::t_Result T;
@@ -480,8 +543,14 @@ FORCEINL bool IsZero(T v)
 	return _details::_IsZero<T>::Is(v);
 }
 
+/**
+ * @brief put temp variable on heap to avoid being collected by crash report
+ * 
+ * 
+ * @tparam T_POD 
+ */
 template<typename T_POD>
-class PodOnHeap        // put temp variable on heap to avoid being collected by crash report
+class PodOnHeap        // 
 {    T_POD* _p;
     static_assert(TypeTraits<T_POD>::IsPOD, "T_POD should be a POD type");
 public:
@@ -499,12 +568,16 @@ public:
     static size_t size(){ return sizeof(T_POD); }
 };
 
-///////////////////////////////////////////////////////////
-// Call bool/void Lambda function
+
 namespace _details
 {
+/**
+ * @brief Call bool/void Lambda function
+ * 
+ * example: return rt::_details::_CallLambda<bool, decltype(func(arg))>(true, func, arg).retval;
+ */
 template<typename default_type, typename return_type>
-struct _CallLambda  // example: return rt::_details::_CallLambda<bool, decltype(func(arg))>(true, func, arg).retval;
+struct _CallLambda   
 {	return_type retval;
 	template<typename function_type, typename... arg_types>
 	_CallLambda(default_type,function_type&& func, arg_types&&... args)
@@ -527,8 +600,7 @@ INLFUNC auto CallLambda(return_type _def_ret_val, func_type&& func, arg_types&&.
 	return rt::_details::_CallLambda<return_type, decltype(func(std::forward<arg_types>(args)...))>(_def_ret_val, func, std::forward<arg_types>(args)...).retval;
 }
 
-////////////////////////////////////////////////////////
-// Data traits
+
 namespace _details
 {
 struct __PodRequired {};
@@ -595,11 +667,14 @@ INLFUNC SIZE_T GetDataSize(T& x)
 {	return _details::_GetDataSize<T>::_Size(x);
 }
 
-////////////////////////////////////////////////////////
-// Function traits
+
+
 namespace _details
 {
-
+/**
+ * @brief Function traits
+ * 
+ */
 template <typename _ReturnType, typename... _Args>
 struct FunctionTraitsDefs
 {
@@ -646,8 +721,11 @@ template <typename T>
 struct FunctionTraits : _details::FunctionTraitsImpl<T> {};
 
 
-/////////////////////////////////////////////////////
-// class-neutral member function invocation
+
+/**
+ * @brief class-neutral member function invocation
+ * 
+ */
 class __ThisCallMemberFunctionPointer
 {
 	typedef void (__thiscall __ThisCallMemberFunctionPointer::* __foo)();
@@ -707,5 +785,5 @@ struct _InvokeThisCall
 #define THISCALL_POLYMORPHISM_INVOKE(name, This, Func, ...)	(__ThisCallPolymorphism_ ## name::Invoke(This, Func, ##__VA_ARGS__))
 
 } // namespace rt
-
+/** @}*/
 

@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Copyright 2012 the Cicada Project Dev Team. All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of Cicada.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file gl_texture.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "gl_basic.h"
 #include "../rt/small_math.h"
 #include "../rt/buffer_type.h"
@@ -81,12 +89,12 @@ protected:
 
 public:
 	enum _TextureFilter {      
-		FilterNearest			= GL_NEAREST,  //  GL_NEAREST 
-		FilterLinear			= GL_LINEAR,  //  GL_LINEAR  
-		FilterNearestMipmap		= GL_NEAREST_MIPMAP_NEAREST,  //GL_NEAREST_MIPMAP_NEAREST
-		FilterLinearMipmap		= GL_NEAREST_MIPMAP_LINEAR,   //GL_NEAREST_MIPMAP_LINEAR
-		FilterBilinearMipmap	= GL_LINEAR_MIPMAP_NEAREST, //  GL_LINEAR_MIPMAP_NEAREST
-		FilterTrilinearMipmap	= GL_LINEAR_MIPMAP_LINEAR //  GL_LINEAR_MIPMAP_LINEAR
+		FilterNearest			= GL_NEAREST,  ///< GL_NEAREST 
+		FilterLinear			= GL_LINEAR,  ///< GL_LINEAR  
+		FilterNearestMipmap		= GL_NEAREST_MIPMAP_NEAREST,  ///< GL_NEAREST_MIPMAP_NEAREST
+		FilterLinearMipmap		= GL_NEAREST_MIPMAP_LINEAR,   ///< GL_NEAREST_MIPMAP_LINEAR
+		FilterBilinearMipmap	= GL_LINEAR_MIPMAP_NEAREST, ///< GL_LINEAR_MIPMAP_NEAREST
+		FilterTrilinearMipmap	= GL_LINEAR_MIPMAP_LINEAR ///< GL_LINEAR_MIPMAP_LINEAR
 	};
 
 	enum _TextureWrapMode {
@@ -151,7 +159,7 @@ public:
 		glTexImage2D(TexTarget,0,TexInternalFormat,cx,cy,0,TexFormat,TexType,pData);
 		_LogGLError;
 	}
-	void DefineTextureMipmapped(UINT cx,UINT cy,LPCVOID pData, UINT image_step_byte = 0) // Must use default format
+	void DefineTextureMipmapped(UINT cx,UINT cy,LPCVOID pData, UINT image_step_byte = 0) ///< Must use default format
 	{	
 		ASSERT(pData);
 		Use();
@@ -200,12 +208,18 @@ public:
 	}
 };
 
-// Conventional Textures
+/** @name Conventional Textures
+*/
+///@{
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RGB8		,GL_RGB,GL_UNSIGNED_BYTE>				Texture3c8u;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RGBA8	,GL_RGBA,GL_UNSIGNED_BYTE>				Texture4c8u;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_R8		,GL_RED,GL_UNSIGNED_BYTE>				Texture1c8u;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RG8		,GL_RG,GL_UNSIGNED_BYTE>				Texture2c8u;
-// HDR Textures
+///@}
+
+/** @name HDR Textures
+*/
+///@{
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RGB16F	,GL_RGB,GL_FLOAT>						Texture3c16f;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RGBA16F	,GL_RGBA,GL_FLOAT>						Texture4c16f;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RGB32F	,GL_RGB,GL_FLOAT>						Texture3c32f;
@@ -214,10 +228,14 @@ typedef Texture2DBase<GL_TEXTURE_2D,GL_R16F		,GL_RED,GL_FLOAT>						Texture1c16f
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RG16F	,GL_RG,GL_FLOAT>						Texture2c16f;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_R32F		,GL_RED,GL_FLOAT>						Texture1c32f;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_RG32F	,GL_RG,GL_FLOAT>						Texture2c32f;
-// Shadow Textures
+///@}
+
+/** @name Shadow Textures
+*/
+///@{
 typedef Texture2DBase<GL_TEXTURE_2D,GL_DEPTH_COMPONENT16,GL_DEPTH_COMPONENT,GL_FLOAT>	DepthTexture16f;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_DEPTH_COMPONENT32,GL_DEPTH_COMPONENT,GL_FLOAT>	DepthTexture32f;
-
+///@}
 class Texture2D:public TextureBase
 {
 public:
@@ -270,5 +288,5 @@ template<> struct _GLTextureFormat<float, 4>{ static const int Internal = GL_RGB
 }
 
 } // namespace gl
-
+/** @}*/
 

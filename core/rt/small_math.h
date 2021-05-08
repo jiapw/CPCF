@@ -1,34 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file small_math.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 #include "../../core/rt/runtime_base.h"
 #include "../../core/rt/type_traits.h"
@@ -41,6 +50,7 @@
 namespace rt
 {
 //pre-declaration
+
 template<typename t_Val, int chan>
 struct Vec
 {	static const int LEN=chan;
@@ -221,7 +231,7 @@ struct Vec<t_Val, 2>
 	{	struct{ t_Val _p[2];	};
 		struct{ t_Val x, y;		};
 		struct{ t_Val width, height;	};
-		struct{ t_Val real,imag;};	//complex number
+		struct{ t_Val real,imag;};	///< complex number
 	};
 	INLFUNC Vec(t_Val x_theta,t_Val y_phi){ x = x_theta; y = y_phi; }
 
@@ -256,7 +266,7 @@ struct Vec<t_Val, 3>
 	union
 	{	struct{ t_Val _p[3]; };
 		struct{ t_Val x,y,z; };
-		struct{ t_Val r,g,b; };	//triple color
+		struct{ t_Val r,g,b; };	///< triple color
 		struct{ t_Val h,l,s; };
 	};
 	INLFUNC Vec(t_Val x_r,t_Val y_g,t_Val z_b){ x = x_r; y = y_g; z = z_b; }
@@ -284,32 +294,63 @@ struct Vec<t_Val, 3>
 		else
 		{ return (t_Val)(0.299f*r+0.587f*g+0.114f*b); }
 	}
-
-	template<typename t_Val2,typename t_Val3>   // a x b -> This
+	/**
+	 * @brief  a x b -> This
+	 * 
+	 * @tparam t_Val2 
+	 * @tparam t_Val3 
+	 * @param in1 
+	 * @param in2 
+	 * @return INLFUNC 
+	 */
+	template<typename t_Val2,typename t_Val3>   
 	INLFUNC void CrossProduct(const Vec<t_Val2,3>& in1,const Vec<t_Val3,3>& in2)
 	{
 		x =  in1.y*in2.z - in1.z*in2.y;
 		y = -in1.x*in2.z + in1.z*in2.x;
 		z =  in1.x*in2.y - in1.y*in2.x;
 	}
-
-	template<typename t_Val2,typename t_Val3,typename t_Val4>	// (a-org) x (b-org) -> This
+	/**
+	 * @brief (a-org) x (b-org) -> This
+	 * 
+	 * @tparam t_Val2 
+	 * @tparam t_Val3 
+	 * @tparam t_Val4 
+	 * @param a 
+	 * @param b 
+	 * @param c 
+	 * @return INLFUNC 
+	 */
+	template<typename t_Val2,typename t_Val3,typename t_Val4>	
 	INLFUNC void CrossProduct(const Vec<t_Val2,3>& a,const Vec<t_Val3,3>& b,const Vec<t_Val4,3>& c)
 	{
 		x =  (a.y-c.y)*(b.z-c.z) - (a.z-c.z)*(b.y-c.y);
 		y = -(a.x-c.x)*(b.z-c.z) + (a.z-c.z)*(b.x-c.x);
 		z =  (a.x-c.x)*(b.y-c.y) - (a.y-c.y)*(b.x-c.x);
 	}
-
-	template<typename t_Val2>	// (a-org) x (b-org) -> This
-	INLFUNC void SphericalToEuclidean(const Vec<t_Val2, 2>& s) // s = <theta, phi>
+	/**
+	 * @brief (a-org) x (b-org) -> This
+	 * s = <theta, phi>
+	 * @tparam t_Val2 
+	 * @param s 
+	 * @return INLFUNC 
+	 */
+	template<typename t_Val2>	
+	INLFUNC void SphericalToEuclidean(const Vec<t_Val2, 2>& s) 
 	{	x = sin(s.x);
 		y = sin(s.y)*x;
 		x = cos(s.y)*x;
 		z = cos(s.x);
 	}
-	template<typename t_Val2>	// (a-org) x (b-org) -> This
-	INLFUNC void SphericalToEuclidean(const Vec<t_Val2, 3>& s) // s = <theta, phi, r>
+	/**
+	 * @brief  (a-org) x (b-org) -> This
+	 * s = <theta, phi, r>
+	 * @tparam t_Val2 
+	 * @param s 
+	 * @return INLFUNC 
+	 */
+	template<typename t_Val2>	//
+	INLFUNC void SphericalToEuclidean(const Vec<t_Val2, 3>& s) 
 	{	x = sin(s.x)*s.z;
 		y = sin(s.y)*x;
 		x = cos(s.y)*x;
@@ -329,7 +370,7 @@ struct Vec<t_Val, 4>
 	union
 	{	struct{ t_Val _p[4]; };
 		struct{ t_Val x,y,z,w; };
-		struct{ t_Val r,g,b,a; }; //quadruple color
+		struct{ t_Val r,g,b,a; }; ///< quadruple color
 	};
 public:
 	INLFUNC Vec(t_Val x_r,t_Val y_g,t_Val z_b,t_Val w_a){ r = x_r; g = y_g; b = z_b; a = w_a;}
@@ -363,11 +404,14 @@ public:
 
 #undef DEF_VEC_FUNC
 
-////////////////////////////////////////////////////////////
-// small vec expression
-// it is not implemented as template expression as string dose because
-// small vec is a POD. template expression don't produce better preformance neither
-// small memory footprint and sometime even worst when small vec is sized less than 128 bits
+
+/**
+ * @brief small vec expression
+ * 
+ * it is not implemented as template expression as string dose because
+ * small vec is a POD. template expression don't produce better preformance neither
+ * small memory footprint and sometime even worst when small vec is sized less than 128 bits
+ */
 #define DEF_VEC_OPS		DEF_VEC_OP(add,+)	\
 						DEF_VEC_OP(sub,-)	\
 						DEF_VEC_OP(mul,*)	\
@@ -494,16 +538,21 @@ ostream& operator << (ostream& s, const Vec<t_Val, LEN>& v)
 } // rt
 
 
-//////////////////////////////////////////////////////////////////
-// Small matrix
 namespace rt
 {
 
-/////////////////////////////////////////////////////////////
-// small matrix
+/**
+ * @brief small matrix
+ * 
+ * @tparam t_Val 
+ */
 template<typename t_Val>
 struct Mat4x4;
-
+/**
+ * @brief small matrix
+ * 
+ * @tparam t_Val 
+ */
 template<typename t_Val>
 struct Mat3x3
 {
@@ -667,7 +716,10 @@ struct Mat3x3
         m20 *= x; m21 *= x; m22 *= x;
 	};
 
-	//Add by Yanxiang, 2010,10
+
+	/**
+	 * @brief Add by Yanxiang, 2010,10
+	 */
 	INLFUNC t_Val Determinant()
 	{
 		t_Val ret = 0;
@@ -988,7 +1040,12 @@ struct Mat4x4
         m30 *= x; m31 *= x; m32 *= x; m33 *= x;
 	};
 
-	//algorithm from http://www.geometrictools.com//LibFoundation/Mathematics/Wm4Matrix4.inl
+	/**
+	 * @brief algorithm from http://www.geometrictools.com//LibFoundation/Mathematics/Wm4Matrix4.inl
+	 * 
+	 * @param kInv 
+	 * @return INLFUNC 
+	 */
 	INLFUNC void Inverse(Mat4x4<t_Val>& kInv) const
 	{
 		t_Val fA0 = m00*m11 - m01*m10;
@@ -1185,7 +1242,13 @@ public:
         SC::z = (t_Val)z0;
     }
 
-    // The matrix m is assumed to be already normalized.
+	/**
+	 * @brief The matrix m is assumed to be already normalized.
+	 * 
+	 * @tparam t_Mat 
+	 * @param m 
+	 * @return INLFUNC 
+	 */
     template <class t_Mat>
     INLFUNC void ImportRotationMatrix(const t_Mat &m)
     {
@@ -1280,9 +1343,16 @@ public:
 
         SC::Normalize();
     }
-
+	/**
+	 * @brief seperate scaling and import the normalized rotation matrix
+	 * 
+	 * @tparam t_Mat 
+	 * @param m 
+	 * @param scale 
+	 * @return INLFUNC 
+	 */
     template <class t_Mat>
-    INLFUNC void ImportRotationMatrix(const t_Mat &m, rt::Vec<t_Val,3> &scale) // seperate scaling and import the normalized rotation matrix
+    INLFUNC void ImportRotationMatrix(const t_Mat &m, rt::Vec<t_Val,3> &scale) 
     {
         rt::Mat3x3<t_Comp> mat(m);
 
@@ -1417,3 +1487,4 @@ typedef Quaternion<double> Quaterniond;
 } // namespace rt
 
 #pragma pack()
+/** @}*/

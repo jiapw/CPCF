@@ -1,34 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file tinyhttpd.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 #include "../rt/string_type_ops.h"
 #include "../rt/buffer_type.h"
@@ -65,8 +74,8 @@ public:
 
 enum _tagHttpVerb
 {
-	HTTP_GET = 0x20544547,  // 'GET '
-	HTTP_POST = 0x54534f50	// 'POST'
+	HTTP_GET = 0x20544547,  ///< 'GET '
+	HTTP_POST = 0x54534f50	///< 'POST'
 };
 
 class HttpResponse
@@ -100,7 +109,9 @@ public:
 						}
 	rt::String_Ref		GetLnPath(LPCHTTPENDPOINT ep);
 	bool				ParseRequestRange(ULONGLONG total_size, ULONGLONG* offset, UINT* length) const;
-
+/** @name Send
+*/
+///@{
 	void				Send(LPCVOID p, int len, LPCSTR mime, UINT maxage_sec = 0);
 	void				Send(LPCVOID p, int len, LPCSTR mime, ULONGLONG partial_from, ULONGLONG partial_to, ULONGLONG total_size);
 	void				SendChuncked_Begin(LPCSTR mime, UINT maxage_sec = 0);
@@ -155,8 +166,8 @@ public:
 		VERIFY(x.CopyTo(buf) == len);
 		SendJSON(rt::String_Ref(buf, len));
 	}
-
-	SOCKET				TakeOver();		// socket will not be closed after request handling, httpd will leave it leave
+///@}
+	SOCKET				TakeOver();		///< socket will not be closed after request handling, httpd will leave it leave
 	LPBYTE				GetWorkSpace(UINT sz, bool preserve_existing_content = false);
 };
 
@@ -253,7 +264,7 @@ public:
 	};
 	class _Response:public HttpResponse
 	{
-		static UINT			_ConvertToUTF8(LPSTR pInOut, UINT len); // return converted length
+		static UINT			_ConvertToUTF8(LPSTR pInOut, UINT len); ///< return converted length
 	public:
 		_Response();
 		~_Response();
@@ -274,18 +285,18 @@ protected:
 public:
 	TinyHttpd(void);
 	~TinyHttpd(void);
-	bool			Start(int port, int concurrency = 0);	// bind to all local addresses
+	bool			Start(int port, int concurrency = 0);	///< bind to all local addresses
 	bool			Start(const InetAddr& bind, int concurrency = 0){ return Start(&bind, 1, concurrency); }
 	bool			Start(const InetAddr* pBindAddress, int address_count, int concurrency = 0);
 	void			ReplaceEndpoint(LPHTTPENDPOINT ep);
-	bool			AddEndpoint(LPHTTPENDPOINT ep);			// httpd will NOT manage the lifecycle of eps
-	bool			SetEndpoints(LPHTTPENDPOINT* ep, UINT count); // httpd will NOT manage the lifecycle of eps
+	bool			AddEndpoint(LPHTTPENDPOINT ep);			///< httpd will NOT manage the lifecycle of eps
+	bool			SetEndpoints(LPHTTPENDPOINT* ep, UINT count); ///< httpd will NOT manage the lifecycle of eps
 	void			SetConcurrencyRestricted(bool restricted = true);
 	bool			IsRunning() const { return m_Listeners.GetSize(); }
 	void			Stop();
 	void			SetHangingTimeout(UINT msec = 10000){ m_IOHangTimeout = msec; }
 
-	UINT			GetBindedAddresses(inet::InetAddr* pOut, UINT OutLen);	// return # of InetAddr copied
+	UINT			GetBindedAddresses(inet::InetAddr* pOut, UINT OutLen);	///< return # of InetAddr copied
 	inet::InetAddr	GetBindedAddress() const;
 	DWORD			GetBindedPort() const;
 };
@@ -308,3 +319,4 @@ public:
 };
 
 } // inet
+/** @}*/

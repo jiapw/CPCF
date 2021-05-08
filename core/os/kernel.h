@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file kernel.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "predefines.h"
 #include "../rt/string_type.h"
 #include "../rt/buffer_type.h"
@@ -57,7 +65,11 @@ namespace os
 {
 
 #pragma pack(1)
-struct TickCount		// in msec, 10^-3
+/**
+ * @brief in msec, 10^-3 
+ * 
+ */
+struct TickCount		
 {
 #if defined (PLATFORM_IOS) || defined (PLATFORM_MAC)
 	static struct mach_timebase_info __mach_tick_unit;
@@ -101,8 +113,11 @@ struct TickCount		// in msec, 10^-3
 };
 #pragma pack()
 
-
-class HighPerformanceCounter // in nanosecond 10^-9 (default), time elapsed excludes system sleep/standby/hibernation
+/**
+ * @brief in nanosecond 10^-9 (default), time elapsed excludes system sleep/standby/hibernation 
+ * 
+ */
+class HighPerformanceCounter 
 {
 	LONGLONG		_Div;
 #if defined(PLATFORM_WIN) || defined (PLATFORM_IOS) || defined (PLATFORM_MAC)
@@ -146,11 +161,11 @@ namespace os
 #ifndef PLATFORM_DISABLE_LOG
 enum LogPrefixItemCode
 {
-    _LOG_TIME = 10001, // in "yyyy/MM/dd hh:mm:ss", e.g. 2013/01/11 16:39:45
-    _LOG_FILE, // e.g. Main.cpp
-    _LOG_LINE, // e.g. 201
-    _LOG_FUNC, // e.g. main
-    _LOG_MEM, // in MB, e.g. 5217MB
+    _LOG_TIME = 10001, ///< in "yyyy/MM/dd hh:mm:ss", e.g. 2013/01/11 16:39:45
+    _LOG_FILE, ///< e.g. Main.cpp
+    _LOG_LINE, ///< e.g. 201
+    _LOG_FUNC, ///< e.g. main
+    _LOG_MEM, ///< in MB, e.g. 5217MB
     _LOG_CPU,
 };
 
@@ -195,7 +210,7 @@ extern void SetLogConsoleTitle(LPCSTR title);
 class CommandLine;
 struct ConsoleInputHandler { virtual bool OnCommand(const os::CommandLine& cmd) = 0; };
 extern void EnableConsoleInput(ConsoleInputHandler* input_handler = nullptr, LPCSTR prompt = "=>");
-extern bool SetLogFile(LPCSTR filename, bool append = true); // filename = nullptr to disable Log File
+extern bool SetLogFile(LPCSTR filename, bool append = true); ///< filename = nullptr to disable Log File
 extern void SetLogConsolePrompt(LPCSTR prompt);
 extern rt::String_Ref GetLogFilename();
 
@@ -218,18 +233,18 @@ extern UINT GetNumberOfProcessors();
 extern UINT GetNumberOfPhysicalProcessors();
 extern void CPUID(unsigned i, unsigned regs[4]);
 extern void GetOSVersion(rt::String& name, bool friendly_info = true);
-extern int  GetDimensionOfScreens(rt::Vec2i* pDim, UINT dim_size = 1); // return # of screens
-extern bool GetSystemMemoryInfo(ULONGLONG* free, ULONGLONG* total = nullptr);	// in bytes
+extern int  GetDimensionOfScreens(rt::Vec2i* pDim, UINT dim_size = 1); ///< return # of screens
+extern bool GetSystemMemoryInfo(ULONGLONG* free, ULONGLONG* total = nullptr);	///< in bytes
 extern bool GetProcessMemoryLoad(SIZE_T* vmem, SIZE_T* phy_mem);
-extern bool GetProcessorTimes(ULONGLONG* busy, ULONGLONG* total = nullptr);	// msec, {idle, total}
-extern UINT GetPowerState(bool * pHasBattery = nullptr, bool* pPlugged = nullptr);		// precentage of battery remaining
+extern bool GetProcessorTimes(ULONGLONG* busy, ULONGLONG* total = nullptr);	///< msec, {idle, total}
+extern UINT GetPowerState(bool * pHasBattery = nullptr, bool* pPlugged = nullptr);		///< precentage of battery remaining
 extern void GetDeviceModel(rt::String& model);
 extern void Sleep(DWORD msec = INFINITE, const bool* interrupt_flag = nullptr);
 extern void Halt();
 
 extern LPVOID VMAlloc(SIZE_T length);
 extern void	  VMFree(LPVOID ptr, SIZE_T size);
-extern bool	  VMLock(LPVOID ptr, SIZE_T size);		// ensure not page fault
+extern bool	  VMLock(LPVOID ptr, SIZE_T size);		///< ensure not page fault
 extern bool	  VMUnlock(LPVOID ptr, SIZE_T size);
 
 extern bool	  CreateGUID(BYTE id[16]);
@@ -275,21 +290,25 @@ enum _tagProcessPriority
 };
 
 extern void		SetProcessPriority(int prio = PROCPRIO_HIGH);
-extern int		SearchProcess(LPCSTR base_name, bool substr_match = true);	// -1 for not found
-extern int		SearchProcess(LPCSTR base_name, int* pProcessIds, UINT ProcessIdSize, bool substr_match = true);	// 0 for not found
+extern int		SearchProcess(LPCSTR base_name, bool substr_match = true);	///< -1 for not found
+extern int		SearchProcess(LPCSTR base_name, int* pProcessIds, UINT ProcessIdSize, bool substr_match = true);	///< 0 for not found
 extern int		GetProcessId();
 extern bool		TerminateProcess(int process_id);
 extern void		SetAppTitle(LPCSTR title);
 
 #pragma pack(1)
-struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (new Date(x))
+/**
+ * @brief UNIX time (UTC) in millisecond, compatible to javascript's (new Date(x))
+ * 
+ */
+struct Timestamp	
 {
 	struct Fields
 	{
 		int Year;
 		int Month;
-		int Day;			// Day of Month
-		int DayOfWeek;		// Sunday is 0
+		int Day;			///< Day of Month
+		int DayOfWeek;		///< Sunday is 0
 		int Hour;
 		int Minute;
 		int Second;
@@ -307,9 +326,9 @@ struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (
 		INLFUNC rt::String_Ref	GetMonthName() const { return Timestamp::GetMonthName(Month); }
 		INLFUNC rt::String_Ref	GetDayOfWeekName() const { return Timestamp::GetDayOfWeekName(DayOfWeek); }
 
-		int						FromString(const rt::String_Ref& s, bool low_bound = true); // >0 # of fields parsed ok, <0 error. -1: only 1 field found, others not a number in parsed fields
-		bool					FromInternetTimeFormat(const rt::String_Ref& s); // RFC 1123 format, //Tue, 15 Nov 1994 12:45:26 GMT
-		UINT					ToInternetTimeFormat(LPSTR buf) const;	// RFC 1123 format, buf size > 30, zero-terminated , //Tue, 15 Nov 1994 12:45:26 GMT
+		int						FromString(const rt::String_Ref& s, bool low_bound = true); ///< >0 # of fields parsed ok, <0 error. -1: only 1 field found, others not a number in parsed fields
+		bool					FromInternetTimeFormat(const rt::String_Ref& s); ///< RFC 1123 format, //Tue, 15 Nov 1994 12:45:26 GMT
+		UINT					ToInternetTimeFormat(LPSTR buf) const;	///< RFC 1123 format, buf size > 30, zero-terminated , //Tue, 15 Nov 1994 12:45:26 GMT
 	};
 
 	LONGLONG	_Timestamp;
@@ -324,13 +343,13 @@ struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (
 	FORCEINL LONGLONG	TimeLapse() const { return TimeLapse(Get()); }
 	FORCEINL LONGLONG	TimeLapse(const Timestamp& t) const { return t._Timestamp - _Timestamp; }
 
-	bool				GetDateTime(Fields& f) const;	// GMT time
-	bool				GetLocalDateTime(Fields& f) const;	// Local Time
-	bool				GetDateTime(Fields& f, int Timezone) const;	// GMT time plus a timezone
+	bool				GetDateTime(Fields& f) const;	///< GMT time
+	bool				GetLocalDateTime(Fields& f) const;	///< Local Time
+	bool				GetDateTime(Fields& f, int Timezone) const;	///< GMT time plus a timezone
 
-	FORCEINL Fields		GetDateTime() const { Fields f; GetDateTime(f); return f; }	// GMT time
-	FORCEINL Fields		GetLocalDateTime() const { Fields f; GetLocalDateTime(f); return f; }	// Local Time
-	FORCEINL Fields		GetDateTime(int Timezone) const { Fields f; GetDateTime(f,Timezone); return f; }	// Local Time
+	FORCEINL Fields		GetDateTime() const { Fields f; GetDateTime(f); return f; }	///< GMT time
+	FORCEINL Fields		GetLocalDateTime() const { Fields f; GetLocalDateTime(f); return f; }	///< Local Time
+	FORCEINL Fields		GetDateTime(int Timezone) const { Fields f; GetDateTime(f,Timezone); return f; }	///< Local Time
 	
 	bool				SetDateTime(const Fields& f);
 	bool				SetLocalDateTime(const Fields& f);
@@ -364,13 +383,13 @@ struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (
 	FORCEINL void		ShiftForward(const rt::String_Ref& timespan){ _Timestamp += ParseTimeSpan(timespan); }
 	FORCEINL void		ShiftBackward(const rt::String_Ref& timespan){ _Timestamp -= ParseTimeSpan(timespan); }
 
-	FORCEINL LONGLONG	Difference(const Timestamp& x) const { return _Timestamp - x._Timestamp; } // this - x in millsecond
-	FORCEINL LONGLONG	DifferenceDays(const Timestamp& x) const { return (_Timestamp - x._Timestamp) / (24 * 3600000LL); } // this - x in days
+	FORCEINL LONGLONG	Difference(const Timestamp& x) const { return _Timestamp - x._Timestamp; } ///< this - x in millsecond
+	FORCEINL LONGLONG	DifferenceDays(const Timestamp& x) const { return (_Timestamp - x._Timestamp) / (24 * 3600000LL); } ///< this - x in days
 
 	static int			GetMonthFromDays(int DaysSinceYear, int year);
 	static bool			IsLeapYear(int year){ return (((year&0x3)==0) && (year%100)) || ((year%400)==0); }
 	static LONGLONG 	DaysSince1970(int year){ year--; return 365LL * year + (year / 400) - (year/100) + (year / 4) - 719162; }
-	static int			DaysSinceYear(int year,int month,int day)  // # of days since the begining of year
+	static int			DaysSinceYear(int year,int month,int day)  ///< # of days since the begining of year
 						{	static const int days[2][12] = {{ 0,31,59,90,120,151,181,212,243,273,304,334},{ 0,31,60,91,121,152,182,213,244,274,305,335}};
 							return days[IsLeapYear(year)][month-1] + day - 1;
 						}
@@ -380,11 +399,11 @@ struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (
 							ASSERT(month>=1 && month<=12);
 							return dm[month-1] + (int)((month==2)&&IsLeapYear(year));
 						}
-	static auto			GetMonthName(int month) -> rt::String_Ref;	// base 1
-	static int			ParseMonthName(LPCSTR b);	// base 1
+	static auto			GetMonthName(int month) -> rt::String_Ref;	///< base 1
+	static int			ParseMonthName(LPCSTR b);	///< base 1
 	static int			ParseWeekdayName(LPCSTR b);
 
-	static auto			GetDayOfWeekName(int day_of_week) -> rt::String_Ref; // base 0, Sunday is 0
+	static auto			GetDayOfWeekName(int day_of_week) -> rt::String_Ref; ///< base 0, Sunday is 0
 	static LONGLONG		ParseTimeSpan(const rt::String_Ref& x);
 
 	static FORCEINL 	Timestamp Get()
@@ -471,8 +490,11 @@ struct TimestampDate:public ::rt::tos::S_<1, 70>
 
 namespace os
 {
-/////////////////////////////////////
-// Console Progress Indicator
+
+/**
+ * @brief Console Progress Indicator 
+ * 
+ */
 class ConsoleProgressIndicator
 {
 	rt::String	_Hint;
@@ -489,8 +511,10 @@ public:
 };
 
 
-/////////////////////////////////////
-// Date32, representing only days 
+/**
+ * @brief Date32, representing only days  
+ * 
+ */
 enum tagDATEFMT
 {	DATEFMT_MMDDYYYY = 0x010002,
 	DATEFMT_YYYYMMDD = 0x020100
@@ -499,7 +523,7 @@ enum tagDATEFMT
 #pragma pack(1)
 struct Date32
 {
-	UINT	_Date; // year in 0xffff0000, month in 0xff00, day in 0xff
+	UINT	_Date; ///< year in 0xffff0000, month in 0xff00, day in 0xff
 
 	INLFUNC Date32(){}
 	INLFUNC Date32(const Date32& x){ _Date = x._Date; }
@@ -566,11 +590,11 @@ struct Date32
 		{	ret._Date = (GetMonth() !=1)?(_Date&0xffffff00) - 0x100 + os::Timestamp::GetDayOfMonthMax(GetYear(), GetMonth()-1):(_Date&0xffff0000) - 0x10000 + 31 + (12<<8);	}
 		return ret;
 	}
-	INLFUNC Date32 NextMonth() const // day will be 1
+	INLFUNC Date32 NextMonth() const ///< day will be 1
 	{	int m = GetMonth();
 		return Date32(GetYear() + m/12, 1 + m%12, 1);
 	}
-	INLFUNC Date32 LastMonth() const // day will be 1
+	INLFUNC Date32 LastMonth() const ///< day will be 1
 	{	int m = GetMonth();
 		return Date32(GetYear() - (13-m)/12, 1 + (10+m)%12, 1);
 	}
@@ -624,14 +648,62 @@ typedef WCHAR           U16CHAR;
 typedef const WCHAR*	LPCU16CHAR;
 typedef WCHAR*          LPU16CHAR;
 
-// UTF16 to UTF8
-extern SIZE_T	UTF8EncodeLength(LPCU16CHAR pIn, SIZE_T len);			// return number of char
-extern SIZE_T	UTF8Encode(LPCU16CHAR pIn, SIZE_T len, LPSTR pOut);		// return number of char
-// UTF8 to UTF16
-extern SIZE_T	UTF8DecodeLength(LPCSTR pIn, SIZE_T len);				// return number of wchar
-extern SIZE_T	UTF8Decode(LPCSTR pIn, SIZE_T len, LPU16CHAR pOut);		// return number of wchar
+/**
+ * @brief UTF16 to UTF8 
+ * 
+ * return number of char
+ * @param pIn 
+ * @param len 
+ * @return SIZE_T 
+ */
+extern SIZE_T	UTF8EncodeLength(LPCU16CHAR pIn, SIZE_T len);			
+/**
+ * @brief UTF16 to UTF8  
+ * 
+ * return number of char
+ * @param pIn 
+ * @param len 
+ * @param pOut 
+ * @return SIZE_T 
+ */
+extern SIZE_T	UTF8Encode(LPCU16CHAR pIn, SIZE_T len, LPSTR pOut);		
+/**
+ * @brief UTF8 to UTF16
+ * 
+ * return number of wchar
+ * @param pIn 
+ * @param len 
+ * @return SIZE_T 
+ */
+extern SIZE_T	UTF8DecodeLength(LPCSTR pIn, SIZE_T len);				
+/**
+ * @brief UTF8 to UTF16
+ * 
+ * return number of wchar
+ * @param pIn 
+ * @param len 
+ * @param pOut 
+ * @return SIZE_T 
+ */
+extern SIZE_T	UTF8Decode(LPCSTR pIn, SIZE_T len, LPU16CHAR pOut);	
+/**
+ * @brief UTF8 to UTF16
+ * 
+ * return number of wchar
+ * @param pIn 
+ * @return U16CHAR 
+ */
 extern U16CHAR	UTF8Decode(LPCSTR& pIn);
-extern SIZE_T	UTF8ByteOffset(LPCSTR pIn, SIZE_T len, SIZE_T num_of_utf8_char); // counting number of utf8 chatactors
+/**
+ * @brief UTF8 to UTF16
+ * 
+ * counting number of utf8 chatactors
+ * @param pIn 
+ * @param len 
+ * @param num_of_utf8_char 
+ * @return SIZE_T 
+ */
+extern SIZE_T	UTF8ByteOffset(LPCSTR pIn, SIZE_T len, SIZE_T num_of_utf8_char); 
 
 // Charset to UTF8
 // charset_name follows http standard: http://www.iana.org/assignments/character-sets/character-sets.xhtml
@@ -661,9 +733,27 @@ extern SIZE_T	UTF8ByteOffset(LPCSTR pIn, SIZE_T len, SIZE_T num_of_utf8_char); /
 	static const DWORD CHARSET_KOI8_U		= 0;
 	static const DWORD CHARSET_KOI8_R		= 0;
 #endif
-// return max possible number of char, -1 for unknown charset, len is in byte, *pCharsetIndex is platform dependent
+
+/**
+ * @brief return max possible number of char, -1 for unknown charset, len is in byte, *pCharsetIndex is platform dependent
+ * 
+ * @param pIn 
+ * @param size_in_byte 
+ * @param charset_name 
+ * @param pCharsetIndex_out 
+ * @return SSIZE_T 
+ */
 extern SSIZE_T		UTF8EncodeLengthMax(LPCVOID pIn, SIZE_T size_in_byte, const rt::String_Ref& charset_name, DWORD* pCharsetIndex_out);	
-extern SIZE_T		UTF8Encode(LPCVOID pIn, SIZE_T len, LPSTR pOut, DWORD charset_index);					// return actual number of char encoded
+/**
+ * @brief return actual number of char encoded
+ * 
+ * @param pIn 
+ * @param len 
+ * @param pOut 
+ * @param charset_index 
+ * @return SIZE_T 
+ */
+extern SIZE_T		UTF8Encode(LPCVOID pIn, SIZE_T len, LPSTR pOut, DWORD charset_index);					
 
 
 struct __UTF16
@@ -796,8 +886,8 @@ private:
 
 extern SIZE_T	Base64EncodeLength(SIZE_T len);
 extern SIZE_T	Base64DecodeLength(LPCSTR pBase64, SIZE_T len);
-extern void		Base64Encode(LPSTR pBase64Out,LPCVOID pData, SIZE_T data_len); // assuming the data is well formated
-extern bool		Base64Decode(LPVOID pDataOut,SIZE_T* pDataOutLen,LPCSTR pBase64, SIZE_T str_len); // false if partial data decoded due to illegal data (*pDataOutLen) might be smaller than Base64DecodeLength returned
+extern void		Base64Encode(LPSTR pBase64Out,LPCVOID pData, SIZE_T data_len); ///< assuming the data is well formated
+extern bool		Base64Decode(LPVOID pDataOut,SIZE_T* pDataOutLen,LPCSTR pBase64, SIZE_T str_len); ///< false if partial data decoded due to illegal data (*pDataOutLen) might be smaller than Base64DecodeLength returned
 
 extern bool		Base64Encode(const rt::String_Ref&in, rt::String& out);
 extern bool		Base64Decode(const rt::String_Ref&in, rt::String& out);
@@ -810,21 +900,21 @@ extern bool		Base16Decode(LPVOID pDataOut,SIZE_T data_len,LPCSTR pBase16, SIZE_T
 extern bool		Base16Encode(const rt::String_Ref&in, rt::String& out);
 extern bool		Base16Decode(const rt::String_Ref&in, rt::String& out);
 
-extern UINT		UrlEncode(LPCSTR url, UINT url_len, LPSTR encoded_url);  // return encoded length
+extern UINT		UrlEncode(LPCSTR url, UINT url_len, LPSTR encoded_url);  ///< return encoded length
 extern void		UrlEncode(const rt::String_Ref& url, rt::String& encoded_url);
 
-extern UINT		UrlDecode(LPCSTR encoded_url, UINT encoded_url_len, LPSTR url);  // return encoded length
+extern UINT		UrlDecode(LPCSTR encoded_url, UINT encoded_url_len, LPSTR url);  ///< return encoded length
 extern void		UrlDecode(const rt::String_Ref& encoded_url, rt::String& url);
 
 // Base32 Encoding
 extern SIZE_T	Base32EncodeLength(SIZE_T len);
 extern SIZE_T	Base32DecodeLength(SIZE_T len);
 // Base32 Extended HEX (0-9A-V)
-extern bool		Base32Decode(LPVOID pDataOut,SIZE_T data_len,LPCSTR pBase32, SIZE_T str_len);  // for both upper/lowercase
+extern bool		Base32Decode(LPVOID pDataOut,SIZE_T data_len,LPCSTR pBase32, SIZE_T str_len);  ///< for both upper/lowercase
 extern void		Base32Encode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 extern void		Base32EncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 // Base32 Modified Crockford (also avoids s and z, which confuse with 2 and 5)
-extern bool		Base32CrockfordDecode(LPVOID pDataOut, SIZE_T data_len, LPCSTR pBase32, SIZE_T str_len);  // for both upper/lowercase
+extern bool		Base32CrockfordDecode(LPVOID pDataOut, SIZE_T data_len, LPCSTR pBase32, SIZE_T str_len);  ///< for both upper/lowercase
 extern void		Base32CrockfordEncode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 extern void		Base32CrockfordEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 
@@ -970,3 +1060,4 @@ struct Base16: public String
 
 } // rt
 
+/** @}*/

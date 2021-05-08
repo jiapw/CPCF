@@ -1,34 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file inet.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 #include "../os/predefines.h"
 #include "../rt/string_type.h"
@@ -137,19 +146,20 @@ class InetAddrT : public t_ADDR
 {	typedef _details::InetAddrT_Op<t_ADDR>	OP;	
 public:
 	typedef t_ADDR	ADDRESS_TYPE;
-	// constructors
+
 	INLFUNC InetAddrT() = default;
 	INLFUNC explicit InetAddrT(const t_ADDR& sin) { memcpy(this, &sin, sizeof(t_ADDR)); }
 	INLFUNC explicit InetAddrT(SOCKET sock_peer){ OP::Init(*this); SetAsPeer(sock_peer); }
-	INLFUNC InetAddrT(WORD ushPort, LPCVOID pAddressBin) // dotted IP addr string or domain
+	INLFUNC InetAddrT(WORD ushPort, LPCVOID pAddressBin) ///< dotted IP addr string or domain
 	{	OP::Init(*this);
 		SetBinaryAddress(pAddressBin);
 		SetPort(ushPort);
 	}
-	INLFUNC InetAddrT(LPCSTR pHostname, WORD ushPort = 0) // dotted IP addr string or domain
+	INLFUNC InetAddrT(LPCSTR pHostname, WORD ushPort = 0) ///< dotted IP addr string or domain
 	{	OP::Init(*this);
 		SetAddress(pHostname, ushPort);
 	}
+	
 	INLFUNC bool	IsLoopback() const { return _details::InetAddrT_Op<t_ADDR>::IsAddressLoopback(*this); }
 	INLFUNC bool	SetAsLocal(bool no_loopback = false){ OP::Init(*this); return GetLocalAddresses(this,1,no_loopback); }
 	INLFUNC auto&	SetAsLoopback(){ OP::Init(*this); _details::InetAddrT_Op<t_ADDR>::AssignLoopbackAddress(*this); return *this; }
@@ -159,7 +169,7 @@ public:
 		SOCKET_SIZE_T len = sizeof(t_ADDR);
 		return 0 == getpeername(peer,(sockaddr*)this,&len) && len == sizeof(t_ADDR);
 	}
-	bool			SetAddress(LPCSTR pHostname, WORD port = 0)  // www.xxx.com:pp (port is optional)
+	bool			SetAddress(LPCSTR pHostname, WORD port = 0)  ///< www.xxx.com:pp (port is optional)
 	{	OP::Init(*this);
 		rt::String_Ref ap[2];
 		if(2 == rt::String_Ref(pHostname).Split(ap, 2, ':'))
@@ -213,15 +223,17 @@ public:
 	INLFUNC auto&	SetBinaryAddress(LPCVOID addr_bin){ OP::Init(*this); OP::SetBinaryAddress(*this, addr_bin); return *this; }
 	INLFUNC auto&	SetPort(const WORD ushPort = 0){ *OP::GetPortPtr(*this) = htons(ushPort); return *this; }
 	INLFUNC auto&	SetBinaryPort(LPCWORD pPort){ *OP::GetPortPtr(*this) = *pPort; return *this; }
-	INLFUNC LPCSTR	GetDottedDecimalAddress(LPSTR text_out) const	// buf size = 16/46 for ipv4/ipv6
+	INLFUNC LPCSTR	GetDottedDecimalAddress(LPSTR text_out) const	///< buf size = 16/46 for ipv4/ipv6
 	{	return inet_ntop(OP::SIN_FAMILY, OP::GetAddressPtr(*this), text_out, 47);
 	}
-	INLFUNC WORD	GetPort() const	{ return ntohs(*OP::GetPortPtr(*this)); } // Get port and address (even though they're public)
+	INLFUNC WORD	GetPort() const	{ return ntohs(*OP::GetPortPtr(*this)); } ///< Get port and address (even though they're public)
 	INLFUNC bool	IsValidDestination() const
 	{	return !OP::IsAddressAny(*this) && !OP::IsAddressLoopback(*this) && !OP::IsAddressNone(*this) && !OP::IsAddressGhost(*this) && GetPort()!=0;
 	}
-
-	// operators added for efficiency
+	/** @name operators
+	 * operators added for efficiency
+	 */
+	///@{
 	INLFUNC const InetAddrT& operator = (const t_ADDR& sin){ memcpy(this, &sin, sizeof(t_ADDR)); return *this; }
 
 	INLFUNC operator const sockaddr& ()const{ return *((sockaddr*) this); }
@@ -234,13 +246,19 @@ public:
 
 	INLFUNC bool operator == (const t_ADDR& x) const { return OP::IsEqual(*this, x); }
 	INLFUNC bool operator != (const t_ADDR& x) const { return !OP::IsEqual(*this, x); }
+	///@}
 };
+
+/** @name operators
+*/
+///@{
 template<class t_Ostream, typename t_ADDR>
 t_Ostream& operator<<(t_Ostream& Ostream, const InetAddrT<t_ADDR>& x)
 {	char buf[64];
 	Ostream<<x.GetDottedDecimalAddress(buf)<<':'<<x.GetPort();
 	return Ostream; 
 }
+///@}
     
 struct InetAddr: public InetAddrT<sockaddr_in>
 {
@@ -263,8 +281,8 @@ class Socket
 protected:
 	SOCKET _hSocket;
 	bool __Create(const struct sockaddr &BindTo, int addr_len, int nSocketType, bool reuse_addr, int AF);
-	bool __GetPeerName(struct sockaddr &ConnectedTo, int addr_len) const;	// address of the peer
-	bool __GetBindName(struct sockaddr &BindTo, int addr_len) const;		// address of this socket
+	bool __GetPeerName(struct sockaddr &ConnectedTo, int addr_len) const;	///< address of the peer
+	bool __GetBindName(struct sockaddr &BindTo, int addr_len) const;		///< address of this socket
 	bool __ConnectTo(const struct sockaddr &target, int addr_len);
 	bool __Accept(Socket& connected_out, struct sockaddr& peer_addr, int addr_len);
 	bool __SendTo(LPCVOID pData, UINT len,const struct sockaddr &target, int addr_len);
@@ -305,7 +323,7 @@ public: //helpers
 public:
 	bool			IsValid() const;
 	bool			IsConnected() const;
-	bool			SetBufferSize(int reserved_size, bool receiving_sending = true); // true for receiving buffer
+	bool			SetBufferSize(int reserved_size, bool receiving_sending = true); ///< true for receiving buffer
 	bool			Listen(UINT pending_size);
 
 	bool			Send(LPCVOID pData, UINT len);
@@ -366,13 +384,13 @@ enum NetworkInterfaceType
 {
 	NITYPE_UNKNOWN = 0,
 	NITYPE_LOOPBACK,
-	NITYPE_ADHOC,		// p2p direct link
-	NITYPE_HOTSPOT,		// personal hotspot
-	NITYPE_LAN,			// wifi or ethernet
+	NITYPE_ADHOC,		///< p2p direct link 
+	NITYPE_HOTSPOT,		///< personal hotspot
+	NITYPE_LAN,			///< wifi or ethernet
 	NITYPE_CELLULAR,
 	NITYPE_USB,
 	NITYPE_VPN,
-	NITYPE_TUNNEL,		// virtual interface
+	NITYPE_TUNNEL,		///< virtual interface
 	NITYPE_MASK = 0xff,
 
 	NITYPE_ONLINE		= 0x1000,
@@ -390,10 +408,10 @@ struct NetworkInterface
 #else
 	char		Name[32];
 #endif
-	DWORD		Type;			// NetworkInterfaceType
+	DWORD		Type;			///< p2p direct link 
 	struct {
 		DWORD	Local;
-		DWORD	Boardcast;		// or p2p destination NICTYPE_ADHOC
+		DWORD	Boardcast;		///< or p2p destination NICTYPE_ADHOC
 		DWORD	SubnetMask;
 	}			v4[2];
 	UINT		v4Count;
@@ -479,7 +497,7 @@ class SocketEvent
 #endif
 public:
 	SocketEvent(DWORD signal_type = SEVT_ReadIsReady);
-	INT					WaitForEvents(UINT timeout = INFINITE);		// num of sockets ready: 0 for timeout and SOCKET_ERROR for error
+	INT					WaitForEvents(UINT timeout = INFINITE);		///< num of sockets ready: 0 for timeout and SOCKET_ERROR for error
 	void				Add(SOCKET s);
 	void				Remove(SOCKET s);
 	void				RemoveAll();
@@ -563,4 +581,4 @@ struct ip:public ::rt::tos::S_<100>
 
 }
 }
-
+/** @}*/

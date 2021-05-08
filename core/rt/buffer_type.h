@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file buffer_type.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "../os/thread_primitive.h"
 #include "string_type_ops.h"
 #include <algorithm>
@@ -93,11 +101,11 @@ public:
 	t_Index GetSize() const { return _len; }
 
 public:
-	// allow for(iterator : Buffer) syntax (C++ 11)
-	t_Val*			begin(){ return _p; }
-	const t_Val*	begin() const { return _p; }
-	t_Val*			end(){ return _p + _len; }
-	const t_Val*	end() const { return _p + _len; }
+	
+	t_Val*			begin(){ return _p; } ///< allow for(iterator : Buffer) syntax (C++ 11)
+	const t_Val*	begin() const { return _p; }///< allow for(iterator : Buffer) syntax (C++ 11)
+	t_Val*			end(){ return _p + _len; }///< allow for(iterator : Buffer) syntax (C++ 11)
+	const t_Val*	end() const { return _p + _len; }///< allow for(iterator : Buffer) syntax (C++ 11)
 
 	Buffer_Ref(){ _p=nullptr; _len=0; }
 	Buffer_Ref(const Buffer_Ref<t_Val>& x){ _p = x._p; _len = x._len; }
@@ -156,10 +164,10 @@ public:
 			return m;
 		}else return -1;
 	}
-	t_SignedIndex SearchSortedItem(const t_Val& x) const // binary search
+	t_SignedIndex SearchSortedItem(const t_Val& x) const ///< binary search
 	{	return std::find(Begin(), End(), x) - Begin();
 	}
-	t_SignedIndex SearchLowerbound(const t_Val& x) const // binary search
+	t_SignedIndex SearchLowerbound(const t_Val& x) const ///< binary search
 	{	return std::lower_bound(Begin(), End(), x) - Begin();
 	}
 	void Zero(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Zero() applies only to POD elements"); memset((LPVOID)_p, 0, _len*sizeof(t_Val)); }
@@ -217,7 +225,7 @@ public:
 				rt::Swap((*this)[i], (*this)[i+ rng%(GetSize()-i)]);
 		}
 	}
-	SSIZE_T PushSorted(const t_Val& x) // last item will be dropped
+	SSIZE_T PushSorted(const t_Val& x) ///< last item will be dropped
 	{
 		if(GetSize() == 0 || Last() < x)return -1;
 		_xt::dtor(Last());
@@ -230,8 +238,15 @@ public:
 		_xt::ctor(p, x);
 		return p - Begin();
 	}
-	t_Val& FindTopKth(SIZE_T k)	// Find Top-k Smallest value over unordered array (original values will be moved around)
-	{	struct _Find	// https://www.geeksforgeeks.org/kth-smallestlargest-element-unsorted-array/  [ Method 4 (QuickSelect) ]
+	/**
+	 * @brief Find Top-k Smallest value over unordered array (original values will be moved around)
+	 * 
+	 * https://www.geeksforgeeks.org/kth-smallestlargest-element-unsorted-array/  [ Method 4 (QuickSelect) ]
+	 * @param k 
+	 * @return t_Val& 
+	 */
+	t_Val& FindTopKth(SIZE_T k)	
+	{	struct _Find	
 		{	static SIZE_T partition(t_Val* arr, SIZE_T l, SIZE_T r) 
 			{	t_Val x(arr[r]);
 				SIZE_T i = l;
@@ -276,8 +291,15 @@ public:
 				((BYTE*)_p)[i] = ((BYTE*)&last)[b];
 		}
 	}
+	/**
+	 * @brief v(obj, idx, tot)
+	 * 
+	 * @tparam visitor 
+	 * @param v 
+	 * @return SIZE_T 
+	 */
 	template<typename visitor>
-	SIZE_T ForEach(const visitor& v)  // v(obj, idx, tot)
+	SIZE_T ForEach(const visitor& v)  
 	{	SIZE_T i=0;
 		while(i<GetSize())
 		{	if(!rt::_details::_CallLambda<bool, decltype(v(_p[i],i,GetSize()))>(true, v, _p[i],i,GetSize()).retval)
@@ -286,8 +308,15 @@ public:
 		}
 		return i;
 	}
+	/**
+	 * @brief v(const obj, idx, tot)
+	 * 
+	 * @tparam visitor 
+	 * @param v 
+	 * @return SIZE_T 
+	 */
 	template<typename visitor>
-	SIZE_T ForEach(const visitor& v) const  // v(const obj, idx, tot)
+	SIZE_T ForEach(const visitor& v) const  
 	{	SIZE_T i=0;
 		while(i<GetSize())
 		{	if(!rt::_details::_CallLambda<bool, decltype(v(_p[i],i,GetSize()))>(true, v, _p[i],i,GetSize()).retval)
@@ -318,8 +347,8 @@ protected:
 public:
 	Buffer(){}
 	Buffer(const t_Val* p, SIZE_T len){ *this = Buffer_Ref<t_Val>(p,len); }
-	explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
-	explicit Buffer(const Buffer<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
+	explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	///< copy ctor should be avoided, use reference for function parameters
+	explicit Buffer(const Buffer<t_Val> &x){ *this=x; }	///< copy ctor should be avoided, use reference for function parameters
 	const Buffer_Ref<t_Val>& operator = (const Buffer<t_Val> &x){ *this = (Buffer_Ref<t_Val>&)x; return *this; }
 	const Buffer_Ref<t_Val>& operator = (const Buffer_Ref<t_Val> &x)
     {	for(SIZE_T i=0;i<_SC::_len;i++)
@@ -335,7 +364,7 @@ public:
 		return x;
 	}
 	~Buffer(){ __SafeFree(); }
-	bool SetSize(SIZE_T co=0) //zero for clear
+	bool SetSize(SIZE_T co=0) ///< zero for clear
 	{	
 		if(co == _SC::_len)
 		{	if(co == 0)__SafeFree();
@@ -356,7 +385,7 @@ public:
 		}
 		return true;
 	}
-	bool ChangeSize(SIZE_T new_size) //Original data at front is preserved
+	bool ChangeSize(SIZE_T new_size) ///< Original data at front is preserved
 	{	
 		if(new_size<=_SC::_len){ ShrinkSize(new_size); return true; }
 		else	//expand buffer
@@ -373,7 +402,7 @@ public:
 		}
 		return false;
 	}
-	void ShrinkSize(SIZE_T new_size) // skip calling ctor
+	void ShrinkSize(SIZE_T new_size) ///< skip calling ctor
 	{	if(new_size >= _SC::_len)return;
 		if(new_size<_SC::_len)
 		{	
@@ -402,7 +431,7 @@ template<typename t_Val>
 class BufferEx: public Buffer<t_Val>
 {
 	typedef Buffer<t_Val> _SC;
-	bool _add_entry(SIZE_T co = 1) // the added entry's ctor is not called !!
+	bool _add_entry(SIZE_T co = 1) ///< the added entry's ctor is not called !!
 	{	if(_SC::_len+co <= _len_reserved){} // expand elements only
 		else // expand buffer
 		{	SIZE_T new_buf_resv = rt::max(rt::max((SIZE_T)4, _SC::_len+co),_len_reserved*2);
@@ -440,7 +469,7 @@ public:
 		return x;
 	}
 	BufferEx(){ _len_reserved=0; }
-	bool SetSize(SIZE_T co=0) //zero for clear
+	bool SetSize(SIZE_T co=0) ///< zero for clear
 	{	if(_SC::SetSize(co)){ _len_reserved=_SC::_len; return true; }
 		else{ _len_reserved=0; return false; }
 	}
@@ -451,9 +480,9 @@ public:
 		else _len_reserved = 0;
 		return p;
 	}
-	SIZE_T GetSize() const { return _SC::GetSize(); } // make Visual Studio happy
+	SIZE_T GetSize() const { return _SC::GetSize(); } ///< make Visual Studio happy
 	bool Clear(){ return SetSize(0); }
-	bool ChangeSize(SIZE_T new_size, bool keep_old_data = true) // Original data at front is preserved
+	bool ChangeSize(SIZE_T new_size, bool keep_old_data = true) ///< Original data at front is preserved
 	{	if( new_size == _SC::_len )return true;
 		if( new_size < _SC::_len ){ _SC::ShrinkSize(new_size); return true; }
 		else 
@@ -556,10 +585,10 @@ public:
 		_SC::_len--;
 		memmove(&_SC::_p[index],&_SC::_p[index+1],sizeof(t_Val)*(_SC::_len-index));
 	}
-	void erase(const t_Val* begin, const t_Val* end) // *end will not be erased
+	void erase(const t_Val* begin, const t_Val* end) ///< *end will not be erased
 	{	erase(begin - _SC::Begin(), end - _SC::Begin());
 	}
-	void erase(SIZE_T index_begin, SIZE_T index_end) // [index_end] will not be erased
+	void erase(SIZE_T index_begin, SIZE_T index_end) ///< [index_end] will not be erased
 	{	ASSERT(index_begin<=index_end);
 		ASSERT(index_end<=_SC::_len);
 		// call dtor for removed items
@@ -600,8 +629,14 @@ public:
 		}
 		return true;
 	}
+	/**
+	 * @brief sizeof T should be multiple of size of t_Val
+	 * 
+	 * @tparam T 
+	 * @return T& 
+	 */
 	template<typename T>
-	T& push_back_pod() // sizeof T should be multiple of size of t_Val
+	T& push_back_pod() 
 	{	ASSERT(sizeof(T)%sizeof(t_Val) == 0);
 		static_assert(rt::TypeTraits<T>::IsPOD && rt::TypeTraits<t_Val>::IsPOD, "push_back_pod takes only POD types");
 		return *(T*)push_back_n(sizeof(T)/sizeof(t_Val));
@@ -835,7 +870,7 @@ protected:
 	void					_ClearTrailingBits(){ if(RT_BLOCK_COUNT)_Bits[RT_BLOCK_COUNT - 1] &= (~(RT_BLOCK_TYPE)0)>>(RT_BLOCK_SIZE - (BIT_SIZE%RT_BLOCK_SIZE)); }
 public:
 	BooleanArrayStg(){ _Bits = nullptr; BIT_SIZE = RT_BLOCK_COUNT = 0; }
-	void	Init(LPCVOID p, UINT bit_size) // bit_size must be multiple of 32
+	void	Init(LPCVOID p, UINT bit_size) ///< bit_size must be multiple of 32
 			{	ASSERT(bit_size%32 == 0);
 				_Bits = (RT_BLOCK_TYPE*)p;
 				BIT_SIZE = bit_size;
@@ -874,7 +909,7 @@ public:
 	};
 	LPCVOID	GetBits() const { return _SC::_Bits; }
 	bool	Get(const Index& idx) const { return _SC::_Bits[idx.BlockOffset]&idx.Bitmask; }
-	DWORD	Get(UINT idx, UINT bit_count) // bit_count <= 32
+	DWORD	Get(UINT idx, UINT bit_count) ///< bit_count <= 32
 			{	ASSERT(bit_count <= 32);
 				if(idx + bit_count > _SC::BIT_SIZE)bit_count = _SC::BIT_SIZE - idx;
 				if(bit_count == 0)return 0;
@@ -888,7 +923,7 @@ public:
 					_SC::_Bits[idx.BlockOffset] &= ~idx.Bitmask;
 				return org;
 			}
-	void	Set(UINT idx, DWORD bits, UINT bit_count) // bit_count <= 32
+	void	Set(UINT idx, DWORD bits, UINT bit_count) ///< bit_count <= 32
 			{	if(bit_count)
 				{	ASSERT(idx + bit_count < _SC::BIT_SIZE);
 					ASSERT(bit_count <= 32);
@@ -897,11 +932,11 @@ public:
 					ull = (ull&~(((1ULL<<bit_count)-1)<<shift)) | (((ULONGLONG)bits) << shift);
 				}
 			}
-	bool	AtomicSet(const Index& idx) // return the bit value before atomic set
+	bool	AtomicSet(const Index& idx) ///< return the bit value before atomic set
 			{
 				return idx.Bitmask & os::AtomicOr(idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
-	bool	AtomicReset(const Index& idx) // return the bit value before atomic set
+	bool	AtomicReset(const Index& idx) ///< return the bit value before atomic set
 			{
 				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
@@ -912,8 +947,15 @@ public:
 	UINT	PopCount() const { UINT pc = 0; for(UINT i=0; i<_SC::RT_BLOCK_COUNT; i++)pc += rt::PopCount(_SC::_Bits[i]); return pc; }
 	void	operator ^= (const BooleanArray& x){ for(UINT i=0;i<_SC::RT_BLOCK_COUNT; i++)_SC::_Bits[i] ^= x._Bits[i]; }
 	void	operator |= (const BooleanArray& x){ for(UINT i=0;i<_SC::RT_BLOCK_COUNT; i++)_SC::_Bits[i] |= x._Bits[i]; }
+	/**
+	 * @brief visit all ones
+	 * 
+	 * @tparam CB 
+	 * @param cb 
+	 * @return UINT 
+	 */
 	template<typename CB>
-	UINT	VisitOnes(CB&& cb) const	// visit all ones
+	UINT	VisitOnes(CB&& cb) const	
 			{	UINT hit = 0;	UINT i=0;
 				for(; i<_SC::RT_BLOCK_COUNT-1; i++)
 				{	RT_BLOCK_TYPE bits = _SC::_Bits[i];
@@ -937,8 +979,14 @@ public:
 				}
 				return hit;
 			}
+	/**
+	 * @brief visit all ones
+	 * 
+	 * @tparam CB 
+	 * @param cb 
+	 */
 	template<typename CB>
-	void	ForEach(CB&& cb) const	// visit all ones
+	void	ForEach(CB&& cb) const	
 			{	UINT i=0;
 				for(; i<sizeofArray(_SC::_Bits)-1; i++)
 				{	RT_BLOCK_TYPE bits = _SC::_Bits[i];
@@ -1093,8 +1141,11 @@ public:
 	OStreamFixed():OStream_Ref(_Buffer,LEN){}
 	bool SetLength(UINT sz){ if(sz <= LEN){ m_Pos = rt::min(m_Pos,sz); m_Used = sz; return true; } return false; }
 };
-
-class CircularBuffer // not thread-safe
+/**
+ * @brief not thread-safe
+ * 
+ */
+class CircularBuffer 
 {
 protected:
 #pragma pack(1)
@@ -1178,7 +1229,7 @@ public:
 			}
 		}
 	}
-	void SetBlockSize(LPCVOID pushed, SIZE_T finalized)	// call after Push()
+	void SetBlockSize(LPCVOID pushed, SIZE_T finalized)	///< call after Push()
 	{
 		ASSERT(finalized);
 		_Block* block = (_Block*)(((LPBYTE)pushed) - sizeof(_BlockHeader));
@@ -1207,13 +1258,13 @@ class TopWeightedValues
 		T_WEIGHT	Wei;
 	};
 public:
-	static const int TOP_COUNT_CLAMP = rt::TypeTraits<UINT>::MaxVal()/8*7; // all weight will be halfed if top exceeds TOP_WEIGHT_CLAMP
+	static const int TOP_COUNT_CLAMP = rt::TypeTraits<UINT>::MaxVal()/8*7; ///< all weight will be halfed if top exceeds TOP_WEIGHT_CLAMP
 	static const int UNMATCHED = 0;
 	static const int MATCHED = 1;
 	static const int MATCHED_WITH_TOP = 2;
 protected:
 	_val	_TopValues[TOP_K];
-	int		_Match(const T& val, T_WEIGHT wei)	// 0: not match, 1: matched and no promote, 2: matched
+	int		_Match(const T& val, T_WEIGHT wei)	///< 0: not match, 1: matched and no promote, 2: matched
 			{
 				if(_TopValues[0].Val == val)
 				{	_TopValues[0].Wei += wei;
@@ -1248,7 +1299,7 @@ public:
 					_TopValues[i].Count = 0;
 				}
 			}
-	int		Sample(const T& val, T_WEIGHT wei = 1)		// UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
+	int		Sample(const T& val, T_WEIGHT wei = 1)		///< UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
 			{	int ret = _Match(val, wei);
 				if(ret == MATCHED_WITH_TOP)
 				{	if(	_TopValues[0].Count > TOP_COUNT_CLAMP || 
@@ -1331,5 +1382,5 @@ t_Ostream& operator<<(t_Ostream& Ostream, const TopWeightedValues<t_Ele, TOP, t_
 }
 
 } // namespace rt
-
+/** @}*/
 

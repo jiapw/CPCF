@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file file_dir.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "../rt/string_type_ops.h"
 #include "../rt/buffer_type.h"
 #include "kernel.h"
@@ -57,14 +65,14 @@ public:
 
 	virtual SIZE_T Read(LPVOID lpBuf,SIZE_T nCount);
 	virtual SIZE_T Write(LPCVOID lpBuf,SIZE_T nCount);
-	virtual SIZE_T Seek(SSIZE_T offset, UINT nFrom = rt::_File::Seek_Begin); // return ULLONG_MAX for failure.
+	virtual SIZE_T Seek(SSIZE_T offset, UINT nFrom = rt::_File::Seek_Begin); ///< return ULLONG_MAX for failure.
 	virtual SIZE_T GetLength() const;
 };
 
 
 class MemoryFile: public MemoryFileRef
 {
-	inline void SetMemoryBuffer(LPVOID, UINT);  // this function is disabled
+	inline void SetMemoryBuffer(LPVOID, UINT);  ///< this function is disabled
 public:
 	MemoryFile(SIZE_T Len=0);
 	~MemoryFile();
@@ -72,7 +80,7 @@ public:
 
 	SIZE_T	Read(LPVOID pBuf, SIZE_T sz){ return MemoryFileRef::Read(pBuf,sz); }
 	SIZE_T	Write(LPCVOID pBuf, SIZE_T sz){ return MemoryFileRef::Write(pBuf,sz); }
-	SIZE_T	Seek(SSIZE_T offset=0, UINT where = SEEK_SET){ return MemoryFileRef::Seek(offset,where); } //return INFINITE if not seekable
+	SIZE_T	Seek(SSIZE_T offset=0, UINT where = SEEK_SET){ return MemoryFileRef::Seek(offset,where); } ///< return INFINITE if not seekable
 	LPBYTE	GetBuffer(){ return _pData; }
 	LPCBYTE GetBuffer() const { return  _pData; }
 };
@@ -97,9 +105,9 @@ public:
 	static const LPCSTR		Normal_AppendText;
 
 	enum _tagCopyPathOption
-	{	CPOPT_MIRROR		= 0x0001,	// remove destination items if source don't have them
-		CPOPT_OVERWRITE		= 0x0002,	// overwrite all files, otherwise only modified files will be overwritten
-		CPOPT_HIDDEN_FILE	= 0x0004,	// don't ignore hidden files
+	{	CPOPT_MIRROR		= 0x0001,	///< remove destination items if source don't have them
+		CPOPT_OVERWRITE		= 0x0002,	///< overwrite all files, otherwise only modified files will be overwritten
+		CPOPT_HIDDEN_FILE	= 0x0004,	///< don't ignore hidden files
 	};
 
 public:
@@ -146,21 +154,30 @@ public:
 	//void	SetTime_LastModify(__time64_t x);
 
 	static bool CreateDirectory(LPCSTR path);
-	static bool CreateDirectories(LPCSTR path, bool path_is_file = true);	// create intermediate subdirectories if necessary, 
-																		// if file_mode is true, last segment will be treated as file name. e.g. a/b/c/d/e, the folder a/b/c/d will be created, e is regard as the filename
+	/**
+	 * @brief Create a Directories object
+	 * 
+	 * create intermediate subdirectories if necessary,
+	 * if file_mode is true, last segment will be treated as file name. e.g. a/b/c/d/e, the folder a/b/c/d will be created, e is regard as the filename
+	 * @param path 
+	 * @param path_is_file 
+	 * @return true 
+	 * @return false 
+	 */
+	static bool CreateDirectories(LPCSTR path, bool path_is_file = true);																			
 	static bool IsDirectory(LPCSTR path);
 	static bool IsFile(LPCSTR path);
 	static bool IsExist(LPCSTR fn);
-	static bool ProbeAvailableFilename(LPCSTR fn, rt::String& fn_out);	// true, confliction found, false no confliction, fn_out will not be set in this case
+	static bool ProbeAvailableFilename(LPCSTR fn, rt::String& fn_out);	///< true, confliction found, false no confliction, fn_out will not be set in this case
 	static bool Remove(LPCSTR fn, bool secure = false);
 	static bool RemoveDirectory(LPCSTR path);
 	static bool Rename(LPCSTR fn,LPCSTR new_fn);
 	static void GetCurrentDirectory(rt::String& out);
 	static bool SetCurrentDirectory(LPCSTR path);
 	static void ResolveRelativePath(LPCSTR path, rt::String& fn_out);
-	static bool	GetPathTime(LPCSTR pathname, __time64_t* creation,__time64_t* last_access,__time64_t* last_modify);	// handles file and directory, feed nullptr if not interested
-	static bool	SetPathTime(LPCSTR pathname, __time64_t last_access, __time64_t last_modify);	// zero for not set
-	static bool	MoveFile(LPCSTR from, LPCSTR to, bool overwrite = true);	// will try move if fail, try copy & delete
+	static bool	GetPathTime(LPCSTR pathname, __time64_t* creation,__time64_t* last_access,__time64_t* last_modify);	///< handles file and directory, feed nullptr if not interested
+	static bool	SetPathTime(LPCSTR pathname, __time64_t last_access, __time64_t last_modify);	///< zero for not set
+	static bool	MoveFile(LPCSTR from, LPCSTR to, bool overwrite = true);	///< will try move if fail, try copy & delete
 
 	static bool LoadText(LPCSTR fn, rt::String& out, UINT expire_sec = rt::TypeTraits<UINT>::MaxVal());
 	static bool SaveText(LPCSTR fn, const rt::String_Ref& in, bool add_utf8_signature = true, bool append = false);
@@ -181,15 +198,15 @@ public:
 	__time64_t	GetTime_LastAccess() const { __time64_t x=0; return GetFileTime(NULL, &x, NULL)?x:0; }
 	__time64_t	GetTime_LastModify() const { __time64_t x=0; return GetFileTime(NULL, NULL, &x)?x:0; }
 	bool		GetFileTime(__time64_t* creation,__time64_t* last_access,__time64_t* last_modify) const;
-	bool		SetFileTime(__time64_t last_access, __time64_t last_modify) const; // zero for not set
+	bool		SetFileTime(__time64_t last_access, __time64_t last_modify) const; ///< zero for not set
 
 	static ULONGLONG	GetFileSize(LPCSTR pathname);
 	ULONGLONG			GetFileSize() const;
 	const rt::String&	GetFilename() const { return _Filename; }
 };
 
-extern ULONGLONG GetFreeDiskSpace(LPCSTR path, ULONGLONG* pTotal = nullptr); // in MB
-extern void		 GetAppSandbox(rt::String& out_path, LPCSTR app_name);	// app_name not necessarily appears in the path
+extern ULONGLONG GetFreeDiskSpace(LPCSTR path, ULONGLONG* pTotal = nullptr); ///< in MB
+extern void		 GetAppSandbox(rt::String& out_path, LPCSTR app_name);	///< app_name not necessarily appears in the path
 extern void		 SetAppSandboxAsCurrentDirectory(LPCSTR app_name);
 
 class CurrentDirectoryStack
@@ -202,8 +219,7 @@ public:
 	void		Pop();
 };
 
-///////////////////////////////////////////
-// FileRead
+
 template<typename T = BYTE>
 class FileRead
 {
@@ -227,7 +243,7 @@ public:
 
 class FileReadLine
 {
-	static const int FRL_BUFSIZE = 256*1024;	// each line should smaller than half of this
+	static const int FRL_BUFSIZE = 256*1024;	///< each line should smaller than half of this
 protected:
 	rt::BufferEx<char>	_buf;
 	UINT				_bufused;
@@ -255,7 +271,7 @@ public:
 
 class FileWrite
 {
-	static const UINT FRL_BUFSIZE = 256U*1024U;	// each line should smaller than half of this
+	static const UINT FRL_BUFSIZE = 256U*1024U;	///< each line should smaller than half of this
 
 	UINT				_HeaderSize;
 	rt::BufferEx<char>	_WriteBuf;
@@ -275,9 +291,9 @@ class FileWrite
 	void		_Commit(SIZE_T size){ ASSERT(_WriteBuf.GetSize() + size <= FRL_BUFSIZE); _WriteBuf.ChangeSize(_WriteBuf.GetSize() + size); }
 public:
 	enum FileWriteFlag
-	{	FW_TRUNCATE = 0x01, // don't append
-		FW_ASYNC	= 0x02,	// write buffer async
-		FW_UTF8SIGN	= 0x04	// write UTF8 header
+	{	FW_TRUNCATE = 0x01, ///< don't append
+		FW_ASYNC	= 0x02,	///< write buffer async
+		FW_UTF8SIGN	= 0x04	///< write UTF8 header
 	};
 
 	FileWrite();
@@ -362,7 +378,7 @@ namespace _details
 {	
 #pragma pack(1)
 struct FilePackedEntry
-{	ULONGLONG		FileName;	// named by a ULONGLONG
+{	ULONGLONG		FileName;	///< named by a ULONGLONG
 	UINT			Offset;
 	UINT			Size;
 };
@@ -384,8 +400,8 @@ protected:
 public:
 	bool		Open(LPCSTR fn);
 	void		Close();
-	UINT		FindFirstFile(ULONGLONG name, ULONGLONG mask = 0xffffffffffffffffLL);	// return idx, INFINITE if not found
-	UINT		FindNextFile(); // return idx, INFINITE if not found
+	UINT		FindFirstFile(ULONGLONG name, ULONGLONG mask = 0xffffffffffffffffLL);	///< return idx, INFINITE if not found
+	UINT		FindNextFile(); ///< return idx, INFINITE if not found
 	UINT		GetFileSize(UINT idx);
 	ULONGLONG	GetFileName(UINT idx);
 	UINT		GetFileCount() const;
@@ -413,7 +429,7 @@ class FilePacked_Writer
 	os::File	_File;
 public:
 	void Close(){ _File.Close(); }
-	bool Open(LPCSTR fn); // Read only, or write only
+	bool Open(LPCSTR fn); ///< Read only, or write only
 	bool Write(ULONGLONG name, LPCVOID data, UINT size);
 	bool Copy(FilePacked_Reader& reader, ULONGLONG filename_desired, ULONGLONG filename_mask);
 	void Flush(){ _File.Flush(); }
@@ -436,16 +452,16 @@ public:
 	{	FLAG_ONLYFIRSTFILE	= 0x1,
 		FLAG_NODIRECTORY	= 0x2,
 		FLAG_DIRECTORYONLY	= 0x4,
-		FLAG_SKIPHIDDEN		= 0x8,	// File with name begin with '.', or file with hidden attribute
+		FLAG_SKIPHIDDEN		= 0x8,	///< File with name begin with '.', or file with hidden attribute
 		FLAG_RECURSIVE		= 0x10,
 	};
 
 protected:
-	UINT	_Populate(const rt::String_Ref& directory, LPCSTR suffix_filter, DWORD flag);	// suffix_filter = ".bmp|.jpg|.png", up to 64 suffixies, each individul filter should short than 16 characters
+	UINT	_Populate(const rt::String_Ref& directory, LPCSTR suffix_filter, DWORD flag);	///< suffix_filter = ".bmp|.jpg|.png", up to 64 suffixies, each individul filter should short than 16 characters
 
 public:
 	void	AddFile(const rt::String_Ref& fn, bool IsDir = false);
-	UINT	Populate(LPCSTR directory, LPCSTR suffix_filter = nullptr, DWORD flag = FLAG_SKIPHIDDEN|FLAG_NODIRECTORY);	// suffix_filter = ".bmp|.jpg|.png", up to 64 suffixies, each individul filter should short than 16 characters
+	UINT	Populate(LPCSTR directory, LPCSTR suffix_filter = nullptr, DWORD flag = FLAG_SKIPHIDDEN|FLAG_NODIRECTORY);	///< suffix_filter = ".bmp|.jpg|.png", up to 64 suffixies, each individul filter should short than 16 characters
 
 #ifdef PLATFORM_WIN
 	UINT	PopulateDropList(HDROP hfile, LPCSTR suffix_filter = nullptr, DWORD flag = FLAG_SKIPHIDDEN|FLAG_NODIRECTORY);
@@ -456,7 +472,7 @@ public:
 	bool	IsDirectory(UINT idx) const;
 	void	GetFullpath(UINT idx, rt::String& fn) const;
 
-	const rt::String& GetFilename(UINT idx) const;	// return the relative path including the filenname
+	const rt::String& GetFilename(UINT idx) const;	///< return the relative path including the filenname
 	const rt::String& GetFullpath(UINT idx){ GetFullpath(idx,_TempString); return _TempString; }
 };
 
@@ -480,7 +496,7 @@ enum _tagFolderChangedEvent
 };
 protected:
 	virtual void OnFolderChanged() = 0;
-	int			_CoalescingInterval;	 // msec
+	int			_CoalescingInterval;	 ///< msec
 
 #if defined(PLATFORM_WIN)
 	static DWORD WINAPI _WorkingThreadFunc(LPVOID p);
@@ -500,9 +516,10 @@ public:
 };
 #endif // #if defined(PLATFORM_WIN) ||  defined(PLATFORM_MAC)
 
-
-///////////////////////////////////////////////////
-// Cmdline parser ( option indicator is '/' '-' )
+/**
+ * @brief Cmdline parser ( option indicator is '/' '-' )
+ * 
+ */
 class CommandLine
 {
 	struct _opt
@@ -512,9 +529,9 @@ class CommandLine
 protected:
 	rt::CharacterSet			_OptionInitial;
 	rt::String					_CommandLine;
-	rt::BufferEx<rt::String>	_Arguments; // Text
+	rt::BufferEx<rt::String>	_Arguments; ///< Text
 	rt::BufferEx<_opt>			_Options;
-	void						_Parse(int argc, char* argv[]);	// for _tmain
+	void						_Parse(int argc, char* argv[]);	///< for _tmain
 	void						_ParseCompleteLine();
 
 public:
@@ -524,8 +541,8 @@ public:
 	static CommandLine& GetMutable();
 
 #if defined(PLATFORM_WIN)
-	void			Parse(int argc, WCHAR* argv[]);	// for _tmain
-	void			Parse(LPCWSTR pCmdLine);		// for _twmain
+	void			Parse(int argc, WCHAR* argv[]);	///< for _tmain
+	void			Parse(LPCWSTR pCmdLine);		///< for _twmain
 	explicit		CommandLine(int argc, WCHAR* argv[]){ SetOptionInitial(); Parse(argc, argv); }
 	explicit		CommandLine(LPCWSTR pCmdLine){ SetOptionInitial(); Parse(pCmdLine); }
 #endif
@@ -538,8 +555,8 @@ public:
 
 	void			Empty();
 	void			ParseURI(const rt::String_Ref& path, const rt::String_Ref& query);
-	void			Parse(int argc, char* argv[]);	// for _tmain
-	void			Parse(LPCSTR pCmdLine);			// for _twmain
+	void			Parse(int argc, char* argv[]);	///< for _tmain
+	void			Parse(LPCSTR pCmdLine);			///< for _twmain
 	explicit		CommandLine(int argc, char* argv[]){ SetOptionInitial(); Parse(argc, argv); }
 	explicit		CommandLine(LPCSTR pCmdLine){ SetOptionInitial(); Parse(pCmdLine); }
 
@@ -571,7 +588,7 @@ public:
 						}
 						return default_val;
 					}
-	LPCSTR			SearchOptionEx(const rt::String_Ref& option_substring) const;	//search an option contains this name (in lower-case), if found return the remaining text of the option
+	LPCSTR			SearchOptionEx(const rt::String_Ref& option_substring) const;	///< search an option contains this name (in lower-case), if found return the remaining text of the option
 	rt::String_Ref	GetOption(const rt::String_Ref& option_name, const rt::String_Ref& def_val = nullptr) const;
 	bool			HasOption(const rt::String_Ref& option_name) const;
 	void			RemoveOption(const rt::String_Ref& option_name);
@@ -592,8 +609,10 @@ public:
 	void			SetOption(const rt::String_Ref& opt_name, const rt::String_Ref& value);
 };
 
-//////////////////////////////////////////////
-// Process Management
+/**
+ * @brief Process Management
+ * 
+ */
 class Process
 {
 protected:
@@ -603,21 +622,21 @@ protected:
 	DWORD			_PID;
 #endif
 	int				_ExitCode;
-	UINT			_ExecutionTime;		// in msec
-	os::Timestamp	_ExitTime;			// available after call IsRunning and it returns false
+	UINT			_ExecutionTime;		///< in msec
+	os::Timestamp	_ExitTime;			///< available after call IsRunning and it returns false
 
 public:
 	Process();
 
 	bool		Launch(LPCSTR cmdline, LPCSTR pWorkDirectory = nullptr, LPVOID pEnvVariable = nullptr);
-	bool		WaitForEnding(DWORD timeout = INFINITE); // return false when timeout
+	bool		WaitForEnding(DWORD timeout = INFINITE); ///< return false when timeout
 	void		Terminate();
 	bool		IsRunning();
 
-	UINT		GetExecutionTime() const { return _ExecutionTime; }		// available after IsRunning() returns false!	
-	int			GetExitCode() const { return _ExitCode; }				// available after IsRunning() returns false!	
+	UINT		GetExecutionTime() const { return _ExecutionTime; }		///< available after IsRunning() returns false!	
+	int			GetExitCode() const { return _ExitCode; }				///< available after IsRunning() returns false!	
 	void		SetExitCode(int c){ _ExitCode = c; }
-	LONGLONG	GetExitTime() const { return _ExitTime; }	// available after IsRunning() returns false!
+	LONGLONG	GetExitTime() const { return _ExitTime; }	///< available after IsRunning() returns false!
     
 public:
     struct Info
@@ -646,4 +665,4 @@ extern void EnableCrashDump(LPCSTR dump_filename, bool full_memory);
 #endif
 
 }
-
+/** @}*/

@@ -1,35 +1,43 @@
 ﻿#pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
+/**
+ * @file ipp_core.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "../../rt/small_math.h"
 #include "../../os/kernel.h"
 #include "ipp_config.h"
@@ -37,8 +45,10 @@
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
 #include "inc/ipp.h"
 
-///////////////////////////////////////////////////
-//Helper macro 
+/**
+ * @brief Helper macro 
+ * 
+ */
 #define IPPVERIFY(x) { auto ret = (x); if(ippStsNoErr==x){}else{ _LOG_ERROR(#x " returns "<<ret); ASSERT(0); }}
 #define IPPI_INTER_DEFAULT IPPI_INTER_LINEAR
 
@@ -75,8 +85,10 @@ typedef double			Ipp64f;
 namespace ipp
 {
 
-/////////////////////////////////////////////////////////////////
-// IppEnv
+/**
+ * @brief IppEnv
+ * 
+ */
 enum _tagIppEnvOption
 {
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
@@ -86,12 +98,12 @@ enum _tagIppEnvOption
 	DitherMode_Stucki = ippDitherStucki,
 	DitherMode_Bayer = ippDitherBayer,
 
-	BlendMethod_AlphaOver = ippAlphaOver,		//OVER	α(A)*A+[1-α(A)]*α(B)*B 
-	BlendMethod_AlphaIn   = ippAlphaIn,			//IN	α(A)*A*α(B)
-	BlendMethod_AlphaOut  = ippAlphaOut,		//OUT	α(A)*A*[1-α(B)]
-	BlendMethod_AlphaATop = ippAlphaATop,		//ATOP	α(A)*A*α(B)+[1-α(A)]*α(B)*B 
-	BlendMethod_AlphaXor  = ippAlphaXor,		//XOR	α(A)*A*[1-α(B)]+[1-α(A)]*α(B)*B 
-	BlendMethod_AlphaPlus = ippAlphaPlus,		//PLUS	α(A)*A + α(B)*B
+	BlendMethod_AlphaOver = ippAlphaOver,		///< OVER	α(A)*A+[1-α(A)]*α(B)*B 
+	BlendMethod_AlphaIn   = ippAlphaIn,			///< IN	α(A)*A*α(B)
+	BlendMethod_AlphaOut  = ippAlphaOut,		///< OUT	α(A)*A*[1-α(B)]
+	BlendMethod_AlphaATop = ippAlphaATop,		///< ATOP	α(A)*A*α(B)+[1-α(A)]*α(B)*B 
+	BlendMethod_AlphaXor  = ippAlphaXor,		///< XOR	α(A)*A*[1-α(B)]+[1-α(A)]*α(B)*B 
+	BlendMethod_AlphaPlus = ippAlphaPlus,		///< PLUS	α(A)*A + α(B)*B
 #endif
 
 	RoundMode_Zero = ippRndZero,
@@ -122,7 +134,7 @@ struct IppiEnvParamItems
 	DWORD				InterpolationMode;
 	float				FloatMin;
 	float				FloatMax;
-	int					ResultBitShift;  // return result*2^(-ResultBitShift)
+	int					ResultBitShift;  ///< return result*2^(-ResultBitShift)
 	int					IntegerScaleFactor;
 
 	int					JpegEncodeQuality;
@@ -159,11 +171,11 @@ struct Size:public IppiSize
 	FORCEINL Size(int s){ width = s; height = s; }
 	FORCEINL Size	AddBorder(int border_x,int border_y) const { return Size(width+border_x*2,height+border_y*2); }
 	FORCEINL Size	AddBorder(int border) const {	return AddBorder(border,border); }
-	FORCEINL Size	ScaleTo(int min_sz) const	// making the short dimension to min_sz
+	FORCEINL Size	ScaleTo(int min_sz) const	///< making the short dimension to min_sz
 					{	if(width > height)return Size((int)(width*min_sz/height + 0.5f), min_sz);
 						else{ return Size(min_sz, (int)(height*min_sz/width + 0.5f)); }
 					}
-	FORCEINL Size	ScaleTo(int max_width, int max_height) const	// making both w <= max_width and h <= max_height
+	FORCEINL Size	ScaleTo(int max_width, int max_height) const	///< making both w <= max_width and h <= max_height
 					{	int neww = width*max_height/height;
 						if(neww <= max_width){ return Size(neww, max_height); }
 						else{ return Size(max_width, height*max_width/width); }
@@ -206,7 +218,10 @@ struct Rect:public IppiRect
 							}
 };
 
-// Type definitions
+/**
+ * @brief Type definitions
+ * 
+ */
 #define IPP_TYPE_EXT(x) typedef x * LP##x; typedef const x * LPC##x;
 	IPP_TYPE_EXT(Ipp8u);
 	IPP_TYPE_EXT(Ipp8s);
@@ -232,4 +247,4 @@ INLFUNC DWORD crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0)
 #endif
 
 } // namespace ipp
-
+/** @}*/

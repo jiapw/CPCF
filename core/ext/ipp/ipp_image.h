@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
+/**
+ * @file ipp_image.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "ipp_core.h"
 // OpenEXR
 #include "openexr/IlmImf/ImfOutputFile.h"
@@ -63,9 +71,9 @@ enum _tagImageCodec
 	ImageCodec_GIF_ANI,
 	ImageCodec_PFM,
 	ImageCodec_EXR,			
-	ImageCodec_EXR_PIZ = ImageCodec_EXR,		// exr with wavelet, lossy
-	ImageCodec_EXR_ZIP,		// exr with zlib, lossless
-	ImageCodec_EXR_PXR24,	// exr with lossy 24-bit float compression
+	ImageCodec_EXR_PIZ = ImageCodec_EXR,		///< exr with wavelet, lossy
+	ImageCodec_EXR_ZIP,		///< exr with zlib, lossless
+	ImageCodec_EXR_PXR24,	///< exr with lossy 24-bit float compression
 	ImageCodec_EXR_END,
 	//ImageCodec_BMP,
 	ImageCodec_Unk = -1,
@@ -73,10 +81,9 @@ enum _tagImageCodec
 
 enum _tagCodecFlag
 {
-	JPEG_ColorSampleNONE    = 0,    /* Corresponds to "No Subsampling". */
-									/* Valid on a JPEG w/ any number of channels. */
-	JPEG_ColorSample411     = 1,    /* Valid on a JPEG w/ 3 channels. */
-	JPEG_ColorSample422     = 2,    /* Valid on a JPEG w/ 3 channels. */
+	JPEG_ColorSampleNONE    = 0,    ///< Corresponds to "No Subsampling". Valid on a JPEG w/ any number of channels. 
+	JPEG_ColorSample411     = 1,    ///< Valid on a JPEG w/ 3 channels. 
+	JPEG_ColorSample422     = 2,    ///< Valid on a JPEG w/ 3 channels. 
 };
 
 namespace _details
@@ -129,18 +136,18 @@ public:
 	void	SetQualityRatio(int quality){ ASSERT(quality<=100 && quality>=0); m_Quality = quality; }
 	void	SetSubSamplingType(int	mode = 0){ m_Flag = mode; }
 
-	bool	Encode(LPCBYTE pData,int Channel,int Width,int Height,int Step, DWORD codec = ImageCodec_JPG);	// codec:=_tagImageCodec
+	bool	Encode(LPCBYTE pData,int Channel,int Width,int Height,int Step, DWORD codec = ImageCodec_JPG);	///< codec:=_tagImageCodec
 	static _tagImageCodec CodecFromExtName(const rt::String_Ref& filename);
 };
 
 
 namespace ipp_cpp
 {
-// Haar wavelet transform
-IppStatus ippiHaarWTInv_C1R(LPCIpp8u pSrc,int srcStep, LPIpp8u pDst,int dstStep, IppiSize roi);
-IppStatus ippiHaarWTFwd_C1R(LPCIpp8u pSrc,int srcStep, LPIpp8u pDst,int dstStep, IppiSize roi);
-IppStatus ippiHaarWTInv_C1R(LPCIpp32f pSrc,int srcStep, LPIpp32f pDst,int dstStep, IppiSize roi);
-IppStatus ippiHaarWTFwd_C1R(LPCIpp32f pSrc,int srcStep, LPIpp32f pDst,int dstStep, IppiSize roi);
+
+IppStatus ippiHaarWTInv_C1R(LPCIpp8u pSrc,int srcStep, LPIpp8u pDst,int dstStep, IppiSize roi); ///< Haar wavelet transform
+IppStatus ippiHaarWTFwd_C1R(LPCIpp8u pSrc,int srcStep, LPIpp8u pDst,int dstStep, IppiSize roi); ///< Haar wavelet transform
+IppStatus ippiHaarWTInv_C1R(LPCIpp32f pSrc,int srcStep, LPIpp32f pDst,int dstStep, IppiSize roi); ///< Haar wavelet transform
+IppStatus ippiHaarWTFwd_C1R(LPCIpp32f pSrc,int srcStep, LPIpp32f pDst,int dstStep, IppiSize roi); ///< Haar wavelet transform
 }
 
 
@@ -391,7 +398,7 @@ public:
 protected:
 	UINT	Width;
 	UINT	Height;
-	UINT	Step_Bytes; //Step = Width*sizeof(t_Val) + Pad_Bytes
+	UINT	Step_Bytes; ///< Step = Width*sizeof(t_Val) + Pad_Bytes
 	t_Val*	lpData;
 
 	FORCEINL t_Value*		GetValueAddress(UINT x, UINT y){ return (t_Value*)GetPixelAddress(x,y); }
@@ -412,7 +419,7 @@ public:
 	FORCEINL static UINT	GetBPP(){ return Channel*sizeof(t_Value)<<3;}
 	FORCEINL UINT			GetWidth() const { return Width; }
 	FORCEINL UINT			GetHeight() const { return Height; }
-	FORCEINL UINT			GetStep() const { return Step_Bytes; }	// in Bytes
+	FORCEINL UINT			GetStep() const { return Step_Bytes; }	///< in Bytes
 	FORCEINL LPVOID			GetBits(){ return lpData; }
 	FORCEINL LPCVOID		GetBits() const { return lpData; }
 	FORCEINL bool			IsEmpty() const { return lpData == nullptr || Width == 0 || Height == 0; }
@@ -512,7 +519,14 @@ public:
 	FORCEINL LPValueType		GetImageData() const { return (LPValueType)GetBits(); }
 
 public:
-	INLFUNC  bool Save(LPCSTR fn, _tagImageCodec ic = ImageCodec_Auto) const	// ipp::GetEnv()->JpegEncodeQuality for controling of the quality of the jpeg file
+/**
+ * @brief ipp::GetEnv()->JpegEncodeQuality for controling of the quality of the jpeg file
+ * 
+ * @param fn 
+ * @param ic 
+ * @return INLFUNC 
+ */
+	INLFUNC  bool Save(LPCSTR fn, _tagImageCodec ic = ImageCodec_Auto) const	
 	{	if(IsEmpty())return false;
 		if(ic == ImageCodec_Auto)ic = ImageEncoder::CodecFromExtName(fn);
 		if(ic == ImageCodec_PFM)
@@ -735,8 +749,14 @@ public:
         default: ASSERT(0);
 		}
 	}
-	
-	template<typename t_Val2,int ch>	//conversion images if possible
+	/**
+	 * @brief conversion images if possible
+	 * 
+	 * @tparam t_Val2 
+	 * @tparam ch 
+	 * @param in 
+	 */
+	template<typename t_Val2,int ch>	
 	void CopyTo( Image_Ref<t_Val2,ch>& in ) const { in.CopyFrom(*this); }
 
 public:
@@ -810,7 +830,13 @@ public:
 			case 3: ipp_cpp::ippiGammaInv_C3R(IPPARG_IMG(*this),IPPARG_IMG(dst),*this); break;
 			case 4: ipp_cpp::ippiGammaInv_AC4R(IPPARG_IMG(*this),IPPARG_IMG(dst),*this); break;
 	}	}
-	FORCEINL void HaarWaveletFwd(int level) // dimension much be power of two
+	/**
+	 * @brief dimension much be power of two
+	 * 
+	 * @param level 
+	 * @return FORCEINL 
+	 */
+	FORCEINL void HaarWaveletFwd(int level) 
 	{	{	int mask = (1<<level)-1;
 			ASSERT((GetWidth()&mask)==0);
 			ASSERT((GetHeight()&mask)==0);
@@ -825,7 +851,13 @@ public:
 			roi.width>>=1;
 			roi.height>>=1;
 	}	}
-	FORCEINL void HaarWaveletInv(int level) // dimension much be power of two
+	/**
+	 * @brief dimension much be power of two
+	 * 
+	 * @param level 
+	 * @return FORCEINL 
+	 */
+	FORCEINL void HaarWaveletInv(int level)  
 	{	{	int mask = (1<<level)-1;
 			ASSERT((GetWidth()&mask)==0);
 			ASSERT((GetHeight()&mask)==0);
@@ -1311,7 +1343,7 @@ public:
 			case 3: ipp_cpp::ippiAdd_C3R(IPPARG_IMG(x),IPPARG_IMG(*this),*this); break;
 			case 4: ipp_cpp::ippiAdd_C4R(IPPARG_IMG(x),IPPARG_IMG(*this),*this); break;
 	}	}
-	FORCEINL void Accumulate(const Image_Ref<Ipp8u,1>& x)	// this = 32f, x = 8u
+	FORCEINL void Accumulate(const Image_Ref<Ipp8u,1>& x)	///< this = 32f, x = 8u
 	{	ASSERT_SIZE(*this,x);
 		IppiSize sz = *this;
 		sz.width *= chan_num;
@@ -2333,6 +2365,6 @@ typedef Image<BYTE,4>	Image_4c8u;
 
 
 } // namespace ipp
-
+/** @}*/
 
 

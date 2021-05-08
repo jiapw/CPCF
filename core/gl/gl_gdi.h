@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Copyright 2012 the Cicada Project Dev Team. All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of Cicada.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file gl_gdi.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "gl_basic.h"
 #include "gl_texture.h"
 #include "gl_shader.h"
@@ -41,13 +49,15 @@ namespace gl
 
 typedef os::U16CHAR		GDICHAR;
 
-////////////////////////////////////////////////////
-// Reading Unicode Glyph Bitmap File Format (*.ufg)
+/**
+ * @brief Reading Unicode Glyph Bitmap File Format (*.ufg)
+ * 
+ */
 class gdiFont
 {
 	friend class gdiCanvas;
 
-	rt::Buffer<BYTE>				_glyph_internal_buffer; // holding loaded glyph raw alpha map
+	rt::Buffer<BYTE>				_glyph_internal_buffer; ///< holding loaded glyph raw alpha map
 	UINT							_glyph_internal_pixelstep;
 	UINT							_glyph_internal_bytestep;
 	GDICHAR							_glyph_current_code;
@@ -76,22 +86,22 @@ protected:
 	};
 	struct _CodeBlock_Info
 	{	DWORD Flag;
-		UINT GlyphIndexTable_Width;		// if(_CodeBlock_Flag_FixWidth) it is width, otherwise it is offset on GlyphIndexTable
+		UINT GlyphIndexTable_Width;		///< if(_CodeBlock_Flag_FixWidth) it is width, otherwise it is offset on GlyphIndexTable
 		UINT GlyphBitmap_StartPixel;	//
-		UINT Code_perline;				// fixed-width only
-		UINT Padding_perline;			// fixed-width only
+		UINT Code_perline;				///< fixed-width only
+		UINT Padding_perline;			///< fixed-width only
 		int	 Margin; 
 		int  Baseline;
 	};
 	struct _FontGlyphIndex
 	{	
 		WORD	GlyphWidth;
-		UINT	OffsetToGlyphBitmap; //offset relative to GlyphBitmap_Offset
+		UINT	OffsetToGlyphBitmap; ///< offset relative to GlyphBitmap_Offset
 	};
 #pragma pack()
 
-	rt::Buffer<_CodeBlock>			m_CodeBlock_Region; // use for search
-	rt::Buffer<_CodeBlock_Info>		m_CodeBlock_Info;	// |- Same length
+	rt::Buffer<_CodeBlock>			m_CodeBlock_Region; ///< use for search
+	rt::Buffer<_CodeBlock_Info>		m_CodeBlock_Info;	///< |- Same length
 	rt::Buffer<_FontGlyphIndex>		m_GlyphIndexTable;
 	os::File						m_GlyphFile;
 	UINT							m_BPP;
@@ -120,30 +130,36 @@ public:
 
 	gdiFont();
 	~gdiFont();
-
+/** @name BasicOperation
+*/
+///@{
 	void	SetFontSpacing(int h, int v = -1);
-	bool	Open(LPCBYTE ufg_file, int len);	// always FLAG_KEEP_IN_MEMORY
+	bool	Open(LPCBYTE ufg_file, int len);	///< always FLAG_KEEP_IN_MEMORY
 	bool	Open(LPCSTR filename, DWORD flag = FLAG_KEEP_IN_MEMORY);
 	void	Close();
-
+///@}
+/** @name GlyphMap
+*/
+///@{
 	UINT	GetGlyphMapWidth() const;
 	UINT	GetGlyphMapHeight() const;
 	LPCVOID	GetGlyphMap() const;
 	bool	HasGlyphMap() const { return _glyph_map.GetSize()!=0; }
+///@}
 
 	UINT	GetMaxCode() const;
 	UINT	GetMinCode() const;
-	UINT	GetStep() const;		// in byte
-	INT 	GetPixelStep() const;	// in pixel
+	UINT	GetStep() const;		///< in byte
+	INT 	GetPixelStep() const;	///< in pixel
 	bool	IsGlyphExisted(GDICHAR code) const;
 	bool	IsNonleading(GDICHAR code) const;
 	bool	IsNondiscrete(GDICHAR code, BYTE& blockid) const;
-	INT 	GetGlyphWidth(GDICHAR code, BYTE& region_id) const;  // return width and region_id
-	INT		GetGlyphWidth(GDICHAR code) const; // zero indicate non-existed
-	INT		GetGlyphHeight(GDICHAR code) const;// zero indicate non-existed
+	INT 	GetGlyphWidth(GDICHAR code, BYTE& region_id) const;  ///< return width and region_id
+	INT		GetGlyphWidth(GDICHAR code) const; ///< zero indicate non-existed
+	INT		GetGlyphHeight(GDICHAR code) const;///< zero indicate non-existed
 
 	INT		MeasureStringWidth(os::LPCU16CHAR text, UINT length) const;	 // utf16
-	void	CopyGlyphs(os::LPCU16CHAR text, UINT length, ipp::Image_1c8u& img, int padding = -1, bool vertical = false); // len should <= 1024
+	void	CopyGlyphs(os::LPCU16CHAR text, UINT length, ipp::Image_1c8u& img, int padding = -1, bool vertical = false); ///< len should <= 1024
 
 	INLFUNC INT		MeasureStringWidth(const os::__UTF16& utf16) const { return MeasureStringWidth(utf16, (UINT)utf16.GetLength()); }
 	INLFUNC void	CopyGlyphs(os::__UTF16& utf16, ipp::Image_1c8u& img, int padding = -1, bool vertical = false){ CopyGlyphs(utf16, (UINT)utf16.GetLength(), img, padding, vertical); }
@@ -156,16 +172,16 @@ public:
 	INLFUNC UINT	GetGlyphMaxHeight() const{ return m_Height; }
 	INLFUNC bool	IsGlyphVolatile() const{ return _glyph_map.GetSize()!=0; }
 	INLFUNC UINT	GetRegionCount() const{ return (UINT)m_CodeBlock_Region.GetSize(); }
-	INLFUNC LPCBYTE	GetGlyph(GDICHAR code,INT& x, INT& w, INT& h) const // the buffer is overwritten if IsGlyphVolatile()==true
+	INLFUNC LPCBYTE	GetGlyph(GDICHAR code,INT& x, INT& w, INT& h) const ///< the buffer is overwritten if IsGlyphVolatile()==true
 	{	return rt::_CastToNonconst(this)->_GetGlyph(code,x,w,h); }
-	INLFUNC LPCBYTE	GetGlyph(GDICHAR code, UINT region_id,INT& x, INT& w, INT& h) const // the buffer is overwritten if IsGlyphVolatile()==true
+	INLFUNC LPCBYTE	GetGlyph(GDICHAR code, UINT region_id,INT& x, INT& w, INT& h) const ///< the buffer is overwritten if IsGlyphVolatile()==true
 	{	return rt::_CastToNonconst(this)->_GetGlyph(code,region_id,x,w,h); }
 
 };
 
 enum _tagDrawingParam
 {	
-	PNAME_FORCE_NEAREST_SAMPLING = 0,	// affect DrawImage only
+	PNAME_FORCE_NEAREST_SAMPLING = 0,	///< affect DrawImage only
 	PNAME_TEXT_ALIGNMENT,
 	PNAME_TEXT_VALIGNMENT,
 	PNAME_MAX,
@@ -309,3 +325,4 @@ public:
 };
 
 } // namespace gl
+/** @}*/

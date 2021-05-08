@@ -1,43 +1,54 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file datagram_pump.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 #include "inet.h"
 
 namespace inet
 {
 
-////////////////////////////////////////////////////////////////////////////////////
-// IOCP has recv buffer per-socket, it is paralellizing multiple RecvFrom calls
-// epoll/kqueue has recv buffer pre-thread, it is waiting for event from multiple socket before making RecvFrom calls
+
+/**
+ * @brief IOCP has recv buffer per-socket, it is paralellizing multiple RecvFrom calls epoll/kqueue has recv buffer pre-thread, 
+ * it is waiting for event from multiple socket before making RecvFrom calls 
+ */
 class AsyncDatagramCoreBase
 {
 public:
@@ -85,11 +96,11 @@ public:
 struct Datagram
 {
     LPBYTE		RecvBuf;
-	DWORD		RecvBufSize;	// MTU
-    DWORD		RecvSize;		// Last recv
+	DWORD		RecvBufSize;	///< MTU
+    DWORD		RecvSize;		///< Last recv
     socklen_t	PeerAddressSize;
     union {
-        WORD        PeerAddressFamily; // AF_INET, AF_INET6
+        WORD        PeerAddressFamily; ///< AF_INET, AF_INET6
         InetAddr    PeerAddressV4;
         InetAddrV6  PeerAddressV6;
     };
@@ -99,8 +110,10 @@ struct Datagram
 };
 #pragma pack(pop)
 
-////////////////////////////////////////////////////
-// Non-blocking I/O is used, the # of UDP packet is not equal to # of events by epoll/kevent.
+/**
+ * @brief Non-blocking I/O is used, the # of UDP packet is not equal to # of events by epoll/kevent.
+ * 
+ */
 class DatagramSocket: public Socket
 {
     template<typename SocketObject>
@@ -120,14 +133,14 @@ protected:
 	{
 		TYPETRAITS_DECLARE_NON_POD;
 		int				Index;
-		SOCKET			hSocket;		// just a copy of DatagramSocket
+		SOCKET			hSocket;		///< just a copy of DatagramSocket
 		Datagram		Packet;
 		WSAOVERLAPPED	Overlapped;
-		BYTE			DataBuf[1];	// MTU
+		BYTE			DataBuf[1];	///< MTU
 		UINT			GetSize() const { return offsetof(RecvBlock, DataBuf) + Packet.RecvBufSize; }
 		bool			PumpNext();
 	};
-    rt::BufferEx<BYTE>	_ConcurrentRecvBuf; // MTU + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)
+    rt::BufferEx<BYTE>	_ConcurrentRecvBuf; ///< MTU + sizeof(inet::Datagram) + sizeof(WSAOVERLAPPED)
 	UINT				_Concurrency = 0;
 	UINT				_RecvBlockSize = 0;
 	void				_InitBuf(UINT mtu, UINT concurrency);
@@ -150,14 +163,14 @@ public:
     bool    Create(const InetAddr &bind_to, bool reuse_addr = false);
 
 public:   
-    static void     OnRecv(Datagram* g){ ASSERT(0); } // should be overrided
+    static void     OnRecv(Datagram* g){ ASSERT(0); } ///< should be overrided
 
 	// blocking call
 	bool	        SendTo(LPCVOID pData, UINT len,const InetAddr &target, bool drop_if_busy = false){ return __SendTo(pData, len, &target, sizeof(InetAddr), drop_if_busy); }
 	bool	        SendTo(LPCVOID pData, UINT len,const InetAddrV6 &target, bool drop_if_busy = false){ return __SendTo(pData, len, &target, sizeof(InetAddrV6), drop_if_busy); }
 };
 
-template<typename t_IOObject> // IOObjectDatagram or IOObjectStream
+template<typename t_IOObject> ///< IOObjectDatagram or IOObjectStream
 class RecvPump;
 
 #if !defined(PLATFORM_WIN)
@@ -191,8 +204,13 @@ struct OnRecvAll
     };
 } // namespace _details
 #endif
-
-template<typename SocketObject> // IOObjectDatagram or IOObjectStream
+/**
+ * @brief Datagram Pump
+ * 
+ * @tparam SocketObject 
+ * IOObjectDatagram or IOObjectStream
+ */
+template<typename SocketObject> 
 class DatagramPump: public AsyncDatagramCoreBase
 {
 #if defined(PLATFORM_WIN)
@@ -219,7 +237,7 @@ protected:
 				if(!rb.PumpNext())
 				{	os::AtomicDecrement(&_PendingRecvCall);
 					if(rb.Index == 0)
-					{	((SocketObject*)evt.cookie)->OnRecv(nullptr);  // indicate error
+					{	((SocketObject*)evt.cookie)->OnRecv(nullptr);  ///< indicate error
 						_LOGC_WARNING("[NET]: DatagramPump: IOCP Concurrency Dropped");
 					}
 				}
@@ -242,8 +260,14 @@ public:
 		};
 		return _Init(_call::_func, concurrency, stack_size);
 	}
-
-	bool AddObject(SocketObject* obj) // // lifecycle is **not** maintained by RecvPump
+	/**
+	 * @brief lifecycle is **not** maintained by RecvPump
+	 * 
+	 * @param obj 
+	 * @return true 
+	 * @return false 
+	 */
+	bool AddObject(SocketObject* obj) 
 	{	
 		if(!IsRunning())return false;
 
@@ -274,3 +298,4 @@ public:
 
 
 } // namespace inet
+/** @}*/

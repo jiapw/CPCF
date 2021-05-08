@@ -109,3 +109,18 @@ testcases/proj.mac/Index/
 core/ext/botan/amalgamation_build/
 
 /testcases/proj.andriod/tests/app/src/main/cpp/out/build/x64-Debug (default)
+
+core/DoxygenTest/
+core/DoxygenTest.7z
+libs/win/ippccmt.lib
+libs/win/ippchmt.lib
+libs/win/ippcoremt.lib
+libs/win/ippcpmt.lib
+libs/win/ippcvmt.lib
+libs/win/ippdcmt.lib
+libs/win/ippi90lgcmt.lib
+libs/win/ippimt.lib
+libs/win/ippsmt.lib
+libs/win/ippvmmt.lib
+.vscode
+html

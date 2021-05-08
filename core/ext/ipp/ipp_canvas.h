@@ -1,5 +1,43 @@
 #pragma once
-
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
+/**
+ * @file ipp_canvas.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-05-08
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "ipp_image.h"
 
 namespace ipp
@@ -233,16 +271,29 @@ protected:
 	INLFUNC void	_SetPixel(int x, int y, const RGB& c){  _details::_Pixel<t_Value,Channel,3>::Set((*this)(x, y), c); }
 	INLFUNC void	_SetPixel(int x, int y, const RGB& c, float additional_src_alpha){  _details::_Pixel<t_Value,Channel,3>::Set((*this)(x, y), c, additional_src_alpha); }
 	
-	//Drawing State
+/** @name Drawing State
+*/
+///@{
 	float	_dsPointRadius;
 	float	_dsLineHalfWidth;
-	float	_dsPointAreaSinglePixel;	// used when PointSize < 1
+	float	_dsPointAreaSinglePixel;	///< used when PointSize < 1
 	void	_resetDrawingState()
 	{	SetPointSize(3);
 		SetLineWidth(3);
 	}
-
-	//Drawing Tools
+///@}
+	/**
+	 * @brief Drawing Tools
+	 * 
+	 * @tparam t_Transposed 
+	 * @tparam t_Color 
+	 * @param cnvs 
+	 * @param x0 
+	 * @param y0 
+	 * @param x1 
+	 * @param y1 
+	 * @param clr 
+	 */
 	template<bool t_Transposed, typename t_Color>
 	static void _DrawLine(Canvas& cnvs, float x0, float y0, float x1, float y1, const t_Color& clr)
 	{
@@ -432,13 +483,18 @@ public:
 
 	INLFUNC void Clear(const t_Val& c){ _SC::Set(c); }
 
-	// Drawing State
+
+/** @name Drawing State
+*/
+///@{
 	INLFUNC void  SetPointSize(float sz){ _dsPointRadius = sz/2.0f - 0.5f; _dsPointAreaSinglePixel = 3.1415926f/4.0f*sz*sz; }
 	INLFUNC float GetPointSize(float sz) const { return _dsPointRadius*2.0f + 0.5f; }
 	INLFUNC void  SetLineWidth(float sz){ _dsLineHalfWidth = sz/2.0f - 0.5f; }
 	INLFUNC float GetLineWidth(float sz) const { return _dsLineHalfWidth*2.0f + 0.5f; }
-
-	// Drawing Tools
+///@}
+/** @name Drawing Tools
+*/
+///@{
 	template<int ch>
 	void DrawPoint(float cx, float cy, const rt::Vec<t_Value, ch>& c)
 	{
@@ -559,6 +615,7 @@ public:
 	INLFUNC bool DrawImage(const rt::Mat3x3f& transform, const Image_Ref<t_Value, ch>& img) // transform is treated as forward transform
 	{	return DrawImage(transform, img, ipp::Rect(0,0,img.GetWidth(), img.GetHeight()));
 	};
+///@}
 };
 
 
@@ -572,4 +629,4 @@ typedef Canvas<BYTE,4>	Canvas_4c8u;
 
 
 } // namespace ipp
-
+/** @}*/

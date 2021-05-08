@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Copyright 2012 the Cicada Project Dev Team. All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of Cicada.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file gl_shader.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "gl_basic.h"
 #include "gl_texture.h"
 #include "../rt/string_type.h"
@@ -50,7 +58,7 @@ namespace _details
 class ShaderVarible
 {
 public:
-	int			Index;	//available for attrib varibles
+	int			Index;	///<available for attrib varibles
 	int			Size;
 	rt::String	Name;
 	GLenum		Type;
@@ -84,7 +92,7 @@ public:
 	void Create(GLenum ShaderType);
 	void Compile();
 	bool SetSourceCode(LPCSTR pStr, LPCSTR predefines = NULL);
-	bool LoadSourceCode(const rt::String_Ref& name, LPCSTR predefines, _details::t_Dependency* pUpdateDependency = NULL); // load from shadersourcecodelibrary
+	bool LoadSourceCode(const rt::String_Ref& name, LPCSTR predefines, _details::t_Dependency* pUpdateDependency = NULL); ///< load from shadersourcecodelibrary
 	bool IsCompiled();
 
 	bool IsCreated() const { return 0 != _Handle; }
@@ -241,7 +249,7 @@ public:
 		_NextTextureUnit++;
 		_LogGLError;
 	}
-	INLFUNC void UnsetAllTextures(){ _NextTextureUnit = 0; }	// will also be called in Use();
+	INLFUNC void UnsetAllTextures(){ _NextTextureUnit = 0; }	///< will also be called in Use();
 };
 
 
@@ -267,8 +275,8 @@ public:
 		GEOMETRY_SHADER_INVALIDATED	= 0x0004,
 		ALL_SHADER_INVALIDATED		= 0x00FF,
 	};
-	ShaderProgram();	// for unmanaged progam
-	ShaderProgram(const rt::String_Ref& vertex_sh, const rt::String_Ref& fragment_sh){ _ctor_init(vertex_sh, NULL, fragment_sh); } // for managed program
+	ShaderProgram();	///< for unmanaged progam
+	ShaderProgram(const rt::String_Ref& vertex_sh, const rt::String_Ref& fragment_sh){ _ctor_init(vertex_sh, NULL, fragment_sh); } ///< for managed program
 	ShaderProgram(const rt::String_Ref& vertex_sh, const rt::String_Ref& geometry_sh, const rt::String_Ref& fragment_sh){ _ctor_init(vertex_sh, geometry_sh, fragment_sh); } // for managed program
 
 	bool		Rebuild(DWORD invalidated = ALL_SHADER_INVALIDATED);
@@ -277,8 +285,8 @@ public:
 	LPCSTR		GetGeometryShaderName() const { return _GeometryShaderName; }
 
 	void		SetPredefines(LPCSTR);
-	void		BuildWithSourceCodes(LPCSTR vsh, LPCSTR fsh){ BuildWithSourceCodes(vsh,NULL,fsh); }; // vertex/fragment
-	void		BuildWithSourceCodes(LPCSTR vertex_sh, LPCSTR geometry_sh, LPCSTR fragment_sh);	// vertex/geometry/fragment
+	void		BuildWithSourceCodes(LPCSTR vsh, LPCSTR fsh){ BuildWithSourceCodes(vsh,NULL,fsh); }; ///< vertex/fragment
+	void		BuildWithSourceCodes(LPCSTR vertex_sh, LPCSTR geometry_sh, LPCSTR fragment_sh);	///< vertex/geometry/fragment
 	void		Destroy();
 };
 
@@ -345,7 +353,7 @@ public:
 
 
 } // namespace gl
-
+/** @}*/
 
 
 

@@ -1,5 +1,43 @@
 #pragma once
-
+/** \addtogroup rocksdb
+ * @ingroup ext
+ *  @{
+ */
+/**
+ * @file rocksdb.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-05-08
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "../../rt/type_traits.h"
 #include "../../os/multi_thread.h"
 #include "../../os/file_dir.h"
@@ -93,7 +131,13 @@ class RocksCursor
 	RocksCursor(const RocksCursor& x) = delete; // RocksCursor can only be constructed by RocksDB
 
 public:
-	INLFUNC RocksCursor(RocksCursor&& x){ iter = x.iter; x.iter = nullptr; }	// move constructor, enable return by RocksDB::First/Last
+/**
+ * @brief move constructor, enable return by RocksDB::First/Last
+ * 
+ * @param x 
+ * @return INLFUNC 
+ */
+	INLFUNC RocksCursor(RocksCursor&& x){ iter = x.iter; x.iter = nullptr; }	
 	INLFUNC	~RocksCursor(){ Empty(); }
 	INLFUNC void				operator = (RocksCursor&& x){ _SafeDel_Untracked(iter); iter = x.iter; x.iter = nullptr; }
 	INLFUNC void				operator ++ (){ Next(); }
@@ -138,9 +182,9 @@ public:
 
 	enum DBOpenType
 	{
-		DBOT_SMALL_DB = 0,	// optimized for small db
+		DBOT_SMALL_DB = 0,	///< optimized for small db
 		DBOT_DEFAULT,
-		DBOT_LOOKUP,		// optimized point lookup, no range scan
+		DBOT_LOOKUP,		///< optimized point lookup, no range scan
 	};
 
 	RocksDB(::rocksdb::DB* db, ::rocksdb::ColumnFamilyHandle* cf):_pDB(db),_pCF(cf){}
@@ -174,7 +218,7 @@ public:
 			   *((t_NUM*)temp.data()):default_val;
 	}
 	template<typename t_Type>
-	const t_Type* Fetch(const SliceValue& k, SIZE_T* len_out = nullptr, const ReadOptions* opt = ReadOptionsDefault) const // Get a inplace referred buffer, will be invalid after next Fetch
+	const t_Type* Fetch(const SliceValue& k, SIZE_T* len_out = nullptr, const ReadOptions* opt = ReadOptionsDefault) const ///< Get a inplace referred buffer, will be invalid after next Fetch
 	{	ASSERT_NONRECURSIVE;
 		thread_local std::string temp;
 		ASSERT(_pDB);
@@ -412,11 +456,16 @@ public:
 	bool		Open(LPCSTR db_path, const Options* opt);
 	bool		IsOpen() const { return _pDB!=nullptr; }
 	void		Close(bool clear_alldbs = true);
-	RocksDB		Get(const rt::String_Ref& name, bool create_auto = true);	// get db
-	void		Drop(const rt::String_Ref& name); // delete db
+	RocksDB		Get(const rt::String_Ref& name, bool create_auto = true);	///< get db
+	void		Drop(const rt::String_Ref& name); ///< delete db
 
-	// first ':' in the name will be treated as wild prefix
-	// so you can set db_name to "abc:" and all column famlity with db_name starts with "abc:" will be applied the specified options
+
+	/**
+	 * @brief first ':' in the name will be treated as wild prefix
+	 * so you can set db_name to "abc:" and all column famlity with db_name starts with "abc:" will be applied the specified options
+	 * @param db_name 
+	 * @param opt 
+	 */
 	void		SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt); 
 	void		SetDBDefaultOpenOption(const RocksDBOpenOption& opt){ _DefaultOpenOpt = opt; }
 
@@ -496,7 +545,15 @@ public:
 				}
 			}
 protected:
-	auto	GetPaged(const T_KEYVAL& b, T_PAGE page_no, std::string& ws) const -> const ValueInStg* // first page will have FIRSTPAGE_PREFIX_SIZE bytes in `ws` before actual data
+/**
+ * @brief Get the Paged object
+ * first page will have FIRSTPAGE_PREFIX_SIZE bytes in `ws` before actual data
+ * @param b 
+ * @param page_no 
+ * @param ws 
+ * @return const ValueInStg* 
+ */
+	auto	GetPaged(const T_KEYVAL& b, T_PAGE page_no, std::string& ws) const -> const ValueInStg* 
 			{
 				if(page_no == 0){ if(!_SC::Get(b, ws))return nullptr; }
 				else{ if(!_SC::Get(HashKeyPaged(b, page_no), ws))return nullptr; }
@@ -533,7 +590,17 @@ protected:
 
 				return true;
 			}
-	bool	SetPagedWithInputTouched(const T_KEYVAL& b, LPBYTE data_with_prefixspace, T_VALUESIZE size, LPCBYTE meta) // WARNING: input data will be touch (change and revert back to original value), [data-DATA_PREFIX_SIZE] will be written
+	/**
+	 * @brief Set the Paged With Input Touched object
+	 * WARNING: input data will be touch (change and revert back to original value), [data-DATA_PREFIX_SIZE] will be written
+	 * @param b 
+	 * @param data_with_prefixspace 
+	 * @param size 
+	 * @param meta 
+	 * @return true 
+	 * @return false 
+	 */
+	bool	SetPagedWithInputTouched(const T_KEYVAL& b, LPBYTE data_with_prefixspace, T_VALUESIZE size, LPCBYTE meta) 
 			{
 				ValueInStg touch_orig;
 
@@ -738,4 +805,4 @@ public:
 
 
 } // namespace ext
-
+/** @}*/

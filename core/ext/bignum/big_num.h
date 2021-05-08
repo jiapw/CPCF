@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup bigNum
+ * @ingroup ext
+ *  @{
+ */
+/**
+ * @file big_num.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "../../rt/type_traits.h"
 #include "../../rt/string_type.h"
 #include "../../rt/buffer_type.h"
@@ -55,38 +63,38 @@ static const UINT		BN_BLK_BITSIZE = sizeof(BN_BLK)*8;
 class BN_Unsigned;
 class BN_Ref;
 
-extern bool		BN_Less(const BN_Ref& a, const BN_Ref& b); // a < b
-extern bool		BN_Equal(const BN_Ref& a, const BN_Ref& b); // a == b
-extern bool		BN_LessOrEqual(const BN_Ref& a, const BN_Ref& b); // a <= b
-extern int		BN_Compare(const BN_Ref& a, const BN_Ref& b); // a < b: -1, a == b:0, a > b:1
+extern bool		BN_Less(const BN_Ref& a, const BN_Ref& b); ///< a < b
+extern bool		BN_Equal(const BN_Ref& a, const BN_Ref& b); ///< a == b
+extern bool		BN_LessOrEqual(const BN_Ref& a, const BN_Ref& b); ///< a <= b
+extern int		BN_Compare(const BN_Ref& a, const BN_Ref& b); ///< a < b: -1, a == b:0, a > b:1
 
-extern bool		BN_AbsLess(const BN_Unsigned& a, const BN_Unsigned& b); // a < b
-extern bool		BN_AbsEqual(const BN_Unsigned& a, const BN_Unsigned& b); // a == b
-extern bool		BN_AbsLessOrEqual(const BN_Unsigned& a, const BN_Unsigned& b); // a <= b
-extern int		BN_AbsCompare(const BN_Unsigned& a, const BN_Unsigned& b); // a < b: -1, a == b:0, a > b:1
+extern bool		BN_AbsLess(const BN_Unsigned& a, const BN_Unsigned& b); ///< a < b
+extern bool		BN_AbsEqual(const BN_Unsigned& a, const BN_Unsigned& b); ///< a == b
+extern bool		BN_AbsLessOrEqual(const BN_Unsigned& a, const BN_Unsigned& b); ///< a <= b
+extern int		BN_AbsCompare(const BN_Unsigned& a, const BN_Unsigned& b); ///< a < b: -1, a == b:0, a > b:1
 
 extern void		BN_ToString(const BN_Ref& a, rt::String& out, int base);
 
-extern void		BN_Add(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable& ret); // ret = a + b
-extern void		BN_Sub(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable& ret); // ret = a - b
-extern void		BN_Add(const BN_Ref& b, ext::BigNumMutable& ret); // ret += b
-extern void		BN_Sub(const BN_Ref& b, ext::BigNumMutable& ret); // ret -= b
-extern void		BN_AbsAdd(const BN_Unsigned& a, const BN_Unsigned& b, ext::BigNumMutable& ret); // ret = a + b
-extern void		BN_AbsSub(const BN_Unsigned& a, const BN_Unsigned& b, ext::BigNumMutable& ret); // ret = a - b
-extern void		BN_AbsAdd(const BN_Unsigned& b, ext::BigNumMutable& ret); // ret += b
-extern void		BN_AbsSub(const BN_Unsigned& b, ext::BigNumMutable& ret); // ret -= b
+extern void		BN_Add(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable& ret); ///< ret = a + b
+extern void		BN_Sub(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable& ret); ///< ret = a - b
+extern void		BN_Add(const BN_Ref& b, ext::BigNumMutable& ret); ///< ret += b
+extern void		BN_Sub(const BN_Ref& b, ext::BigNumMutable& ret); ///< ret -= b
+extern void		BN_AbsAdd(const BN_Unsigned& a, const BN_Unsigned& b, ext::BigNumMutable& ret); ///< ret = a + b
+extern void		BN_AbsSub(const BN_Unsigned& a, const BN_Unsigned& b, ext::BigNumMutable& ret); ///< ret = a - b
+extern void		BN_AbsAdd(const BN_Unsigned& b, ext::BigNumMutable& ret); ///< ret += b
+extern void		BN_AbsSub(const BN_Unsigned& b, ext::BigNumMutable& ret); ///< ret -= b
 extern UINT		BN_Mantissa32(const BN_Unsigned& b, int* exp);
 extern auto		BN_Mantissa64(const BN_Unsigned& b, int* exp) -> ULONGLONG;
 
-extern void		BN_Mul(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable& ret); // ret = a*b
-extern void		BN_Mul(const BN_Ref& a, const NativeFloat& b, ext::BigNumMutable& ret); // ret = a*b
+extern void		BN_Mul(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable& ret); ///< ret = a*b
+extern void		BN_Mul(const BN_Ref& a, const NativeFloat& b, ext::BigNumMutable& ret); ///< ret = a*b
 extern void		BN_Mul(const NativeFloat& b, ext::BigNumMutable& ret);
 
-extern void		BN_AbsMul(const BN_Unsigned& a, UINT b, ext::BigNumMutable& ret); // ret = a*b
-extern void		BN_AbsMul(const BN_Unsigned& a, ULONGLONG b, ext::BigNumMutable& ret); // ret = a*b
-extern void		BN_AbsMul(UINT b, ext::BigNumMutable& ret); // ret *= b
+extern void		BN_AbsMul(const BN_Unsigned& a, UINT b, ext::BigNumMutable& ret); ///< ret = a*b
+extern void		BN_AbsMul(const BN_Unsigned& a, ULONGLONG b, ext::BigNumMutable& ret); ///< ret = a*b
+extern void		BN_AbsMul(UINT b, ext::BigNumMutable& ret); ///< ret *= b
 
-extern bool		BN_Div(const BN_Unsigned& a, UINT b, UINT* reminder, ext::BigNumMutable& ret); // ret = (a - *reminder)/b
+extern bool		BN_Div(const BN_Unsigned& a, UINT b, UINT* reminder, ext::BigNumMutable& ret); ///< ret = (a - *reminder)/b
 extern void     BN_Div(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable *remainder, ext::BigNumMutable& ret);
 
 extern double	BN_2_double(const BN_Ref& x);
@@ -169,8 +177,8 @@ struct BN_Fix
 {
 	friend class BigNumMutable;
 
-	BYTE		_Sign_Len; // base 2^32
-	BN_BLK		_Data[BLK_LEN]; // size = _Len
+	BYTE		_Sign_Len; ///< base 2^32
+	BN_BLK		_Data[BLK_LEN]; ///< size = _Len
 
 	bool		GetSign() const { return _Sign_Len&0x80; }
 	UINT		GetLength() const { return _Sign_Len&0x7f; }
@@ -178,7 +186,7 @@ struct BN_Fix
 
 	BN_Fix(){ _Sign_Len = 0; }
 
-	UINT		GetEmbeddedSize() const { return 1 + GetLength()*BN_BLK_SIZE; } // POD Size
+	UINT		GetEmbeddedSize() const { return 1 + GetLength()*BN_BLK_SIZE; } ///< POD Size
 	bool		IsNonnegative() const { return (_Sign_Len&0x80) == 0; }
 	void		SetSign(bool x) { _Sign_Len = (_Sign_Len&0x7f)|(x?0x80:0); }
 
@@ -256,7 +264,7 @@ struct BigNumImmutable: public STORE_CLS
 
 namespace _details
 {
-class NativeInt: public BigNumImmutable<_details::BN_Fix<>> // All native integers
+class NativeInt: public BigNumImmutable<_details::BN_Fix<>> ///< All native integers
 {
 public:
 	NativeInt(unsigned int   x){ *this = x; }
@@ -302,7 +310,7 @@ class NativeFloat
 public:
 	bool		Sign;
 	ULONGLONG	Mantissa;
-	int			Exponent; // base2, can be negative
+	int			Exponent; ///< base2, can be negative
 
 	NativeFloat(float x);
 	NativeFloat(double x);
@@ -367,10 +375,10 @@ public:
 	bool FromString(const rt::String_Ref& s);
 	void FlipSign();
 
-	void Add(const BigNumRef& a, const BigNumRef& b){ _details::BN_Add(a, b, *this); } // this = a + b
-	void Sub(const BigNumRef& a, const BigNumRef& b){ _details::BN_Sub(a, b, *this); } // this = a - b
-	void Add(const BigNumRef& a, const _details::NativeInt& b){ Add(a, (const BigNumImmutable<_details::BN_Fix<>>&)b); } // this = a + b
-	void Sub(const BigNumRef& a, const _details::NativeInt& b){ Sub(a, (const BigNumImmutable<_details::BN_Fix<>>&)b); } // this = a + b
+	void Add(const BigNumRef& a, const BigNumRef& b){ _details::BN_Add(a, b, *this); } ///< this = a + b
+	void Sub(const BigNumRef& a, const BigNumRef& b){ _details::BN_Sub(a, b, *this); } ///< this = a - b
+	void Add(const BigNumRef& a, const _details::NativeInt& b){ Add(a, (const BigNumImmutable<_details::BN_Fix<>>&)b); } ///< this = a + b
+	void Sub(const BigNumRef& a, const _details::NativeInt& b){ Sub(a, (const BigNumImmutable<_details::BN_Fix<>>&)b); } ///< this = a + b
 	void Mul(const BigNumRef& a, const BigNumRef& b){ _details::BN_Mul(a, b, *this); } 
 	void Mul(const BigNumRef& a, int b){ _details::BN_AbsMul(a, (UINT)abs(b), *this); SetSign(a.GetSign() != (b<0)); }
 	void Mul(const BigNumRef& a, UINT b){ _details::BN_AbsMul(a, b, *this); SetSign(a.GetSign()); }
@@ -381,8 +389,8 @@ public:
 	void Div(const BigNumRef& a, UINT b, UINT* reminder = nullptr){ _details::BN_Div(a, b, reminder, *this); }
 	void Div(const BigNumRef& a, const BigNumRef& b, BigNumMutable* reminder = nullptr){ _details::BN_Div(a, b, reminder, *this); }
 
-	void DivFast(const BigNumRef& a, const BigNumRef& b); // this ~= a/b (9 digits precision)
-	void DivRough(const BigNumRef& a, const BigNumRef& b); // this ~= a/b (19 digits precision)
+	void DivFast(const BigNumRef& a, const BigNumRef& b); ///< this ~= a/b (9 digits precision)
+	void DivRough(const BigNumRef& a, const BigNumRef& b); ///< this ~= a/b (19 digits precision)
 
 	void operator <<= (int shift){ shift>0?LeftShift(shift):RightShift(-shift); }
 	void operator >>= (int shift){ shift>0?RightShift(shift):LeftShift(-shift); }
@@ -414,3 +422,4 @@ public:
 typedef BigNumMutable	_BN;
 
 } // namespace oxd
+/** @}*/

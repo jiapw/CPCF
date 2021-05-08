@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file multi_thread.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "thread_primitive.h"
 #include "kernel.h"
 
@@ -41,20 +49,20 @@ class Json;
 namespace os
 {
 
-// Multi-threading
-typedef DWORD	(*FUNC_THREAD_ROUTE)(LPVOID x);
+
+typedef DWORD	(*FUNC_THREAD_ROUTE)(LPVOID x); ///< Multi-threading
 
 class Thread
 {
 	LPVOID			__CB_Param;
 
-	// callback by THISCALL_MFPTR
-	THISCALL_POLYMORPHISM_DECLARE(DWORD, 0, OnRun, LPVOID param);
+	
+	THISCALL_POLYMORPHISM_DECLARE(DWORD, 0, OnRun, LPVOID param); ///< callback by THISCALL_MFPTR
 	LPVOID			__MFPTR_Obj;
 	THISCALL_MFPTR	__MFPTR_Func;
 
-	// callback by FUNC_THREAD_ROUTE
-	FUNC_THREAD_ROUTE	__CB_Func;
+	
+	FUNC_THREAD_ROUTE	__CB_Func; ///< callback by FUNC_THREAD_ROUTE
 	
 public:
 #if defined(PLATFORM_WIN)
@@ -87,7 +95,7 @@ protected:
 	static void		__release_handle(HANDLE hThread);
 
 public:
-	static const int THREAD_OBJECT_DELETED_ON_RETURN = 0xfeed9038;	// the thread route return to skip clean up
+	static const int THREAD_OBJECT_DELETED_ON_RETURN = 0xfeed9038;	///< the thread route return to skip clean up
 
 	Thread();
 	~Thread();
@@ -110,7 +118,7 @@ public:
 	bool	Create(FUNC_THREAD_ROUTE x, LPVOID thread_cookie = nullptr, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0);
 
 	template<typename T>
-	bool	Create(T threadroute, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0) // Caller should ensure the lifetime of variables captured by the lambda function
+	bool	Create(T threadroute, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0) ///< Caller should ensure the lifetime of variables captured by the lambda function
 			{	__MFPTR_Obj = nullptr;
 				ASSERT(_hThread == NULL);
 				struct _call { 
@@ -149,8 +157,10 @@ extern void	TrackedMemoryAllocationStatistic(rt::Json& json_out);
 } // os::_details
 #endif
 
-/////////////////////////////////////
-// Daemon/Service/Agent Control
+/**
+ * @brief Daemon/Service/Agent Control
+ * 
+ */
 enum _tagDaemonState
 {
 	DAEMON_STOPPED           = 0x1,
@@ -167,9 +177,13 @@ enum _tagDaemonState
 	
 };
 
-//////////////////////////////////////////////
-// DelayedGarbageCollection
-class DelayedGarbageCollection	// singleton
+
+/**
+ * @brief DelayedGarbageCollection 
+ * 
+ * singleton
+ */
+class DelayedGarbageCollection	
 {
 public:
 	typedef void (*LPFUNC_DELETION)(LPVOID x);
@@ -281,8 +295,8 @@ public:
 	void		Clear(){ _cs.Lock(); _SafeDel_Delayed(_p, old_TTL); _cs.Unlock(); }
 	bool		IsEmpty() const { return _p == nullptr; }
 	
-	//unsafe in multi-thread
-	T&			GetObject(){ ASSERT(_cs.IsOwnedByCurrentThread()); return (T&)Get(); }
+	
+	T&			GetObject(){ ASSERT(_cs.IsOwnedByCurrentThread()); return (T&)Get(); } ///<unsafe in multi-thread
 };
 
 #define THREADSAFEMUTABLE_LOCK(org_obj)				EnterCSBlock(*(os::CriticalSection*)&org_obj)
@@ -314,7 +328,7 @@ protected:
 	HANDLE				_hProcess;
 	rt::String			_Output;
 	int					_ExitCode;
-	os::Timestamp		_ExecutionTime;		// in msec
+	os::Timestamp		_ExecutionTime;		///< in msec
 	os::Timestamp		_ExitTime;
 
 	static void			_RemoveCarriageReturn(rt::String& output, const rt::String_Ref& add);
@@ -325,14 +339,14 @@ protected:
 public:
 	enum
 	{	FLAG_ROUTE_OUTPUT	= 0x1,
-		FLAG_SAVE_OUTPUT	= 0x2,	// retrieve by GetOutput/GetOutputLen
+		FLAG_SAVE_OUTPUT	= 0x2,	///< retrieve by GetOutput/GetOutputLen
 		FLAG_HIDE_WINDOW	= 0x4,
 	};
 	LaunchProcess();
 	~LaunchProcess();
 	void		SetOutputCallback(FUNC_HOOKEDOUTPUT func, LPVOID cookie);
-	bool		Launch(LPCSTR cmdline, DWORD flag = FLAG_ROUTE_OUTPUT, LPCSTR pWorkDirectory = nullptr, LPCSTR pEnvVariableAddon = nullptr);  // pEnvVariableAddon is \0 seperated multiple strings (UTF8), ends with \0\0
-	bool		WaitForEnding(DWORD timeout = INFINITE); // return false when timeout
+	bool		Launch(LPCSTR cmdline, DWORD flag = FLAG_ROUTE_OUTPUT, LPCSTR pWorkDirectory = nullptr, LPCSTR pEnvVariableAddon = nullptr);  ///< pEnvVariableAddon is \0 seperated multiple strings (UTF8), ends with \0\0
+	bool		WaitForEnding(DWORD timeout = INFINITE); ///< return false when timeout
 	void		Terminate();
 	bool		IsRunning();
 	LPCSTR		GetOutput();
@@ -340,13 +354,13 @@ public:
 	void		CopyOutput(rt::String& out);
 	bool		SendInput(const rt::String_Ref& str){ return str.IsEmpty()?true:SendInput(str.Begin(), (UINT)str.GetLength()); }
 	bool		SendInput(LPCSTR p, UINT len);
-	auto		GetExecutionTime() const { return _ExecutionTime; }	// available after IsRunning() returns false!	
-	auto		GetExitTime() const { return _ExitTime; }			// available after IsRunning() returns false!	
-	int			GetExitCode() const { return _ExitCode; }			// available after IsRunning() returns false!
+	auto		GetExecutionTime() const { return _ExecutionTime; }	///< available after IsRunning() returns false!	
+	auto		GetExitTime() const { return _ExitTime; }			///< available after IsRunning() returns false!	
+	int			GetExitCode() const { return _ExitCode; }			///< available after IsRunning() returns false!
 	bool		SendToStdin(LPCVOID str, UINT len);
 };
 
 #endif
 
 } // namespace os
-
+/** @}*/

@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file thread_primitive.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "predefines.h"
 #include "../rt/runtime_base.h"
 #include "../rt/type_traits.h"
@@ -66,7 +74,10 @@
 namespace os
 {
 
-// All Atomic operation return the value after operation, EXCEPT AtomicOr and AtomicAnd
+/**
+ * @brief All Atomic operation return the value after operation, EXCEPT AtomicOr and AtomicAnd 
+ * 
+ */
 #if defined(PLATFORM_WIN)
 	FORCEINL int		AtomicIncrement(volatile int *theValue){ return _InterlockedIncrement((long volatile *)theValue); }
 	FORCEINL int		AtomicDecrement(volatile int *theValue){ return _InterlockedDecrement((long volatile *)theValue); }
@@ -124,13 +135,13 @@ INLFUNC SIZE_T GetCurrentThreadId()
 #endif
 }
 
-class AtomicLock  //  a non-waiting CriticalSection, no thread-recursive
+class AtomicLock  ///< a non-waiting CriticalSection, no thread-recursive
 {
 	volatile int	_iAtom;
 public:
 	FORCEINL AtomicLock(){ _iAtom = 0; }
 	FORCEINL void Reset(){ _iAtom = 0; }
-	FORCEINL bool TryLock()	// must call Unlock ONCE, or Reset, if return true
+	FORCEINL bool TryLock()	///< must call Unlock ONCE, or Reset, if return true
 	{	int ret = AtomicIncrement(&_iAtom);
 		if(ret == 1)return true;
 		AtomicDecrement(&_iAtom);
@@ -158,7 +169,7 @@ public:
 	};
 
 #if defined(PLATFORM_WIN)
-#pragma warning(disable:4512) // assignment operator could not be generated
+#pragma warning(disable:4512) ///< assignment operator could not be generated
 protected:
 	CRITICAL_SECTION hCS;
 public:
@@ -181,7 +192,7 @@ public:
 		}	
 		return false;
 	}
-#pragma warning(default:4512) // assignment operator could not be generated
+#pragma warning(default:4512) ///< assignment operator could not be generated
 	CriticalSection(){ InitializeCriticalSection(&hCS); _OwnerTID = 0; }
 	~CriticalSection(){ ASSERT(_OwnerTID == 0); DeleteCriticalSection(&hCS); }
 #else
@@ -302,7 +313,7 @@ public:
 		_fences[_toggle]._num_reached = 0;
 	}
 	INLFUNC  int GetThreadCount() const { return _num_thread; }
-	FORCEINL bool WaitOthers(bool auto_release_others)	// return true on all others thread are reached, you are the latest one
+	FORCEINL bool WaitOthers(bool auto_release_others)	///< return true on all others thread are reached, you are the latest one
 	{	int reached = os::AtomicIncrement(&_fences[_toggle]._num_reached);
 		if(reached < _num_thread)
 		{	_fences[_toggle]._release_sign.WaitSignal();
@@ -316,7 +327,7 @@ public:
 		ASSERT(0);
 		return false;
 	}
-	FORCEINL void ReleaseOthers()	// release all other threads, supposed to be called by the latest reached thread
+	FORCEINL void ReleaseOthers()	///< release all other threads, supposed to be called by the latest reached thread
 	{
 		_toggle = (_toggle+1)&1;
 		_fences[_toggle]._release_sign.Reset();
@@ -326,3 +337,4 @@ public:
 };
 
 } // namespace os
+/** @}*/

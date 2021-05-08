@@ -1,4 +1,43 @@
 #pragma once
+/** \addtogroup ConCurrentQueue
+ * @ingroup ext
+ *  @{
+ */
+/**
+ * @file async_queue.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-05-08
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "../../../../CPCF/essentials.h"
 #include "blockingconcurrentqueue.h"
 #include "readerwriterqueue.h"
@@ -39,7 +78,14 @@ public:
 		_Dedup.clear();
 #endif
 	}
-	bool Insert(SEQNO s) // return true if consolidation updated
+	/**
+	 * @brief return true if consolidation updated
+	 * 
+	 * @param s 
+	 * @return true 
+	 * @return false 
+	 */
+	bool Insert(SEQNO s) 
 	{	ASSERT(s > _Min && s != _Max);
 		ASSERT(_Dedup.find(s) == _Dedup.end());
 		if(s > _Max)
@@ -84,7 +130,7 @@ template<UINT PL_MAX>
 struct AsyncData
 {
 	union
-	{	UINT	Size24;	// 16M max
+	{	UINT	Size24;	///< 16M max
 	struct{
 		BYTE	__padding[3];
 		BYTE	Type;
@@ -185,9 +231,15 @@ public:
 	bool	Pop(T& t, UINT timeout = 0){ return _SC::_PostPop(_Q.Pop(t,timeout)); }
 	void	Empty(){ _Q.~QueueType(); new (&_Q) QueueType(_SC::_InitReservedSize); }
 };
-
+/**
+ * @brief the reserved size in the ctor will be round to multiple of BLOCK_SIZE
+ * 
+ * @tparam T 
+ * @tparam BLOCKING 
+ * @tparam BLOCK_SIZE 
+ * @tparam SINGLE_READER_WRITER 
+ */
 template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
-// the reserved size in the ctor will be round to multiple of BLOCK_SIZE
 class AsyncDataQueue: public AsyncDataQueueInfinite<T, BLOCKING, BLOCK_SIZE, true, SINGLE_READER_WRITER>
 {
 	typedef AsyncDataQueueInfinite<T, BLOCKING, BLOCK_SIZE, true, SINGLE_READER_WRITER> _SC;
@@ -206,9 +258,14 @@ public:
 		else return false;
 	}
 };
-
+/**
+ * @brief only for single reader
+ * 
+ * @tparam T_QUEUE 
+ * @tparam JITTER_BUFSIZE_MAX 
+ */
 template<class T_QUEUE, UINT JITTER_BUFSIZE_MAX = 1024U>
-class DeJitteredQueue // only for single reader
+class DeJitteredQueue 
 {
 	static_assert((JITTER_BUFSIZE_MAX >= 4) && !(JITTER_BUFSIZE_MAX & (JITTER_BUFSIZE_MAX - 1)), "JITTER_BUFSIZE_MAX must be a power of 2 (and at least 4)");
 	typedef typename T_QUEUE::TYPE	TYPE;
@@ -218,7 +275,7 @@ protected:
 	static const UINT FLAG_NOTNULL			= 0x80000000U;
 	
 	struct SeqT
-	{	UINT		SeqFlag; // [Seq:31b][Null:1b]
+	{	UINT		SeqFlag; ///< [Seq:31b][Null:1b]
 		TYPE		Obj;
 		SeqT(){ SeqFlag = 0; }
 		SeqT(UINT seqflag, const TYPE& obj):Obj(obj){ SeqFlag = seqflag; ASSERT(IsNotNull()); }
@@ -227,10 +284,10 @@ protected:
 	};
 
 	typename T_QUEUE::template WithType<SeqT>	_Queue;
-	// writer state
-	volatile UINT		_NextSeq;
-	// reader state (single thread)
-	UINT				_LastReadSeq;
+	
+	volatile UINT		_NextSeq; ///< writer state
+	
+	UINT				_LastReadSeq;///< reader state (single thread)
 	rt::BufferEx<SeqT>	_JitterBuf;
 	UINT				_JitterBufBaseSeq;
 	static UINT			_SeqMinus(UINT large, UINT small)
@@ -298,3 +355,4 @@ public:
 };
 
 } // ext
+/** @}*/

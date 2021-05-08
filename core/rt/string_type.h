@@ -1,34 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file string_type.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 #include "runtime_base.h"
 #include "type_traits.h"
@@ -42,8 +51,12 @@ namespace rt
 namespace _details
 {
 #pragma warning(disable:4146)
+/**
+ * @brief code adapted based on modp_numtoa.h/.c (http://code.google.com/p/stringencoders/)
+ * 
+ */
 struct string_ops
-{	// code adapted based on modp_numtoa.h/.c (http://code.google.com/p/stringencoders/)
+{	
 	static void strreverse(char* begin, char* end){ char aux; while(end > begin)aux = *end, *end-- = *begin, *begin++ = aux; }
 	static int	itoa(INT value, char* str)
 				{	char* wstr=str;
@@ -183,19 +196,31 @@ public:
 		else
 			return false;
 	}
-	int Mapped(int c) const // return 0 for out of the set
+	/**
+	 * @brief return 0 for out of the set
+	 * 
+	 * @param c 
+	 * @return int 
+	 */
+	int Mapped(int c) const 
 	{	if(c>=1 && _Set[c-1])
 			return _Set[c-1]; 
 		else
 			return c;
 	}
 };
-
-struct CharacterSet_Escape: public CharacterSet	// Escape for C/Json string
+/**
+ * @brief Escape for C/Json string
+ * 
+ */
+struct CharacterSet_Escape: public CharacterSet	// 
 {	CharacterSet_Escape():CharacterSet("\b\f\r\n\t\v\"\\","bfrntv\"\\"){}
 };
-
-struct CharacterSet_Unescape: public CharacterSet	// Unescape for C/Json string
+/**
+ * @brief Unescape for C/Json string
+ * 
+ */
+struct CharacterSet_Unescape: public CharacterSet	
 {	CharacterSet_Unescape():CharacterSet("bfrntv\"\\","\b\f\r\n\t\v\"\\"){}
 };
 
@@ -254,8 +279,11 @@ struct CharacterSet_AlphabetDigits: public CharacterSet
 		if(sep_additional)while(*sep_additional)_Set[((int)*sep_additional++)-1] = true;
 	}
 };
-
-struct CharacterSet_Symbol: public CharacterSet_AlphabetDigits		// C/C++ Symbol
+/**
+ * @brief C/C++ Symbol
+ * 
+ */
+struct CharacterSet_Symbol: public CharacterSet_AlphabetDigits		
 {	CharacterSet_Symbol(LPCSTR sep_additional = nullptr):CharacterSet_AlphabetDigits(sep_additional)
 	{	_Set[((int)'_')-1] = true;
 	}
@@ -299,9 +327,18 @@ public:
 		p[GetLength()] = '\0';
 		return GetLength(); 
 	} // terminate-zero is copied
-
-	const char*	Begin() const			{ return _SC::_p; }	// may NOT terminated by ZERO !!
-	char*		Begin()					{ return _SC::_p; }	// may NOT terminated by ZERO !!
+	/**
+ 	* @brief may NOT terminated by ZERO !!
+ 	* 
+ 	* @return const char* 
+ 	*/
+	const char*	Begin() const			{ return _SC::_p; }	
+	/**
+	 * @brief may NOT terminated by ZERO !!
+	 * 
+	 * @return char* 
+	 */
+	char*		Begin()					{ return _SC::_p; }	
 	const char*	GetString() const		{ if(_SC::IsEmpty())return ""; ASSERT(IsZeroTerminated()); return _SC::_p; }
 	const char*	End() const				{ return _SC::_p+GetLength(); }
 	char&		Last()					{ ASSERT(GetLength()); return _SC::_p[GetLength()-1]; }
@@ -337,15 +374,31 @@ public:
 	{	int ret = memcmp(_SC::_p,x.Begin(),min(GetLength(),x.GetLength())*sizeof(char));
 		return (ret > 0) || (ret==0 && (GetLength() >= x.GetLength()));
 	}
+	/**
+	 * @brief editing distance <= 1
+	 * 
+	 * @tparam StrT 
+	 * @param x 
+	 * @return true 
+	 * @return false 
+	 */
 	template< class StrT >
-	bool		IsSimilarTo(const StrT& x) const  // editing distance <= 1
+	bool		IsSimilarTo(const StrT& x) const  
 	{	if(abs((SSIZE_T)_SC::_len - (SSIZE_T)x._len) > 1)return false;
 		auto len_max = rt::max(_SC::_len, x._len);
 		auto match_len = CommonPrefixLength(x) + CommonSuffixLength(x);
 		return match_len >= len_max - 1;
 	}
+	/**
+	 * @brief (*this) is a part of x
+	 * 
+	 * @tparam StrT 
+	 * @param x 
+	 * @return true 
+	 * @return false 
+	 */
 	template< class StrT >
-	bool		IsReferring(const StrT& x)  // (*this) is a part of x
+	bool		IsReferring(const StrT& x)  
 	{	return Begin() >= x.Begin() && (End() <= x.End());
 	}
 public:
@@ -426,12 +479,26 @@ public:
 			if(_SC::_p[i] == ch)return i;
 		return -1;
 	}
-	t_StrRef Replace(char a, char b) // replace all a with b in the current string
+	/**
+	 * @brief replace all a with b in the current string
+	 * 
+	 * @param a 
+	 * @param b 
+	 * @return t_StrRef 
+	 */
+	t_StrRef Replace(char a, char b) 
 	{	for(SIZE_T i=0; i<GetLength(); ++i)
 			if(_SC::_p[i] == a)_SC::_p[i] = b;
 		return *this;
 	}
-	t_StrRef Replace(const CharacterSet& seps, char b) // replace all a with b in the current string
+	/**
+	 * @brief replace all a with b in the current string
+	 * 
+	 * @param seps 
+	 * @param b 
+	 * @return t_StrRef 
+	 */
+	t_StrRef Replace(const CharacterSet& seps, char b) 
 	{	for(SIZE_T i=0; i<GetLength(); ++i)
 			if(seps.Has(_SC::_p[i]))_SC::_p[i] = b;
 		return *this;
@@ -451,20 +518,40 @@ public:
 			if(!set.Has(_SC::_p[i]))return false;
 		return true;
 	}
-	void ReplaceIllegalFilenameCharacters(CHAR with = '_') // illegal character for Windows Filename
+	/**
+	 * @brief illegal character for Windows Filename
+	 * 
+	 * @param with 
+	 */
+	void ReplaceIllegalFilenameCharacters(CHAR with = '_') 
 	{	static const CharacterSet illegal(t_StrRef("\\/:*?\"><|", 9));
 		for(SIZE_T i=0;i<GetLength();i++)
 			if(illegal.Has(_SC::_p[i]))_SC::_p[i] = with;
 	}
-	void ReplaceControlCharacters(CHAR with = '_') // control character like '\r' '\n' '\t'
+	/**
+	 * @brief control character like '\r' '\n' '\t'
+	 * 
+	 * @param with 
+	 */
+	void ReplaceControlCharacters(CHAR with = '_') 
 	{	for(SIZE_T i=0;i<GetLength();i++)
 			if((_SC::_p[i] > 0 && _SC::_p[i] < ' ') || _SC::_p[i] == '\xff')_SC::_p[i] = with;
 	}
-	void NormalizePathSeparator(CHAR with = '_') // replace '\\' with '/'
+	/**
+	 * @brief replace '\\' with '/'
+	 * 
+	 * @param with 
+	 */
+	void NormalizePathSeparator(CHAR with = '_') 
 	{	for(SIZE_T i=0;i<GetLength();i++)
 			if(_SC::_p[i] == '\\' || _SC::_p[i] == '/')_SC::_p[i] = with;
 	}
-	t_StrRef TrimTrailingPathSeparator() const // remove if last character is '\\' or '/'
+	/**
+	 * @brief remove if last character is '\\' or '/'
+	 * 
+	 * @return t_StrRef 
+	 */
+	t_StrRef TrimTrailingPathSeparator() const 
 	{	if(!_SC::IsEmpty() && (Last() == '\\' || Last() == '/'))return t_StrRef(_SC::_p, GetLength()-1);
 		return *this;
 	}
@@ -486,7 +573,14 @@ public:
 		return GetLength() == in.GetLength() && (memcmp(_SC::_p,in.Begin(),GetLength()*sizeof(char))==0);
 	}
 	bool operator != (const t_StrRef& in) const { return !(*this == in); }
-	t_StrRef Replace(const t_StrRef& a, const t_StrRef& b) // replace all a with b in the current string. a and b should have the same length
+	/**
+	 * @brief  replace all a with b in the current string. a and b should have the same length
+	 * 
+	 * @param a 
+	 * @param b 
+	 * @return t_StrRef 
+	 */
+	t_StrRef Replace(const t_StrRef& a, const t_StrRef& b) 
 	{	SIZE_T len = a.GetLength();
 		ASSERT(len == b.GetLength());
         if (len == 0) return *this;
@@ -501,7 +595,13 @@ public:
                 }
                 i += len - 1;
 	}	}   return *this; }
-	int ToNumber(bool& x) const // handles 0,1,T,F,t,f,true,false,TRUE,FALSE
+	/**
+	 * @brief handles 0,1,T,F,t,f,true,false,TRUE,FALSE
+	 * 
+	 * @param x 
+	 * @return int 
+	 */
+	int ToNumber(bool& x) const 
     {	if(_SC::IsEmpty())return 0;
 		if(_SC::_p[0] == '1'){ x = true; return 1; }
 		if(_SC::_p[0] == '0'){ x = false; return 1; }
@@ -516,7 +616,13 @@ public:
 	template<typename T, int BASE>
 	int ToNumber(T& x) const {	return ToNumber<T,BASE,true,'.',','>(x); }
     template<typename T, int BASE, bool ALLOW_LEADING_NON_NUMERIC, char DECIMAL_POINT, char DIGIT_GROUP_SEPARATOR>
-	int ToNumber(T& x) const  // [...][+/-/ ]12.34, return the offset where parsing stopped, return -1 if no number found
+	/**
+	 * @brief [...][+/-/ ]12.34, return the offset where parsing stopped, return -1 if no number found
+	 * 
+	 * @param x 
+	 * @return int 
+	 */
+	int ToNumber(T& x) const  
 	{	x = (T)0;
 		char *s, *d, *end = _SC::_p + GetLength();
         bool neg = false;
@@ -614,7 +720,16 @@ public:
 		}
 		return false;
 	}
-	bool GetNextLine(t_StrRef& x, bool skip_empty_line = true) const // empty line will be skipped
+	/**
+	 * @brief Get the Next Line object
+	 * 
+	 * empty line will be skipped
+	 * @param x 
+	 * @param skip_empty_line 
+	 * @return true 
+	 * @return false 
+	 */
+	bool GetNextLine(t_StrRef& x, bool skip_empty_line = true) const 
 	{	LPCSTR start = _SC::_p;		const char* tail = End();
 		if(x.End() >= _SC::_p && x.End() <= tail)start = (char*)x.End();
 		LPCSTR end;
@@ -697,8 +812,21 @@ public:
 		token = t_StrRef(start, token_end);
 		return !token.IsEmpty();
 	}
+	/**
+	 * @brief return count of field actually parsed
+	 * 
+	 * @tparam merge_adjecent_sep 
+	 * @tparam quote1 
+	 * @tparam quote2 
+	 * @tparam T 
+	 * @param fields 
+	 * @param fields_count 
+	 * @param seps 
+	 * @param def_val 
+	 * @return UINT 
+	 */
 	template<bool merge_adjecent_sep, char quote1, char quote2, typename T>
-	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const // return count of field actually parsed
+	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const 
 	{	t_StrRef* seg = (t_StrRef*)_alloca(sizeof(t_StrRef)*fields_count);
 		UINT co = Split<merge_adjecent_sep, quote1, quote2>(seg, fields_count, seps);
 		for(UINT i=0; i<co; i++)
@@ -706,8 +834,20 @@ public:
 		for(UINT i=co; i<fields_count; i++)fields[i] = def_val;
 		return co;
 	}
+	/**
+	 * @brief return count of field actually parsed
+	 * 
+	 * @tparam merge_adjecent_sep 
+	 * @tparam quote1 
+	 * @tparam quote2 
+	 * @tparam T 
+	 * @param fields 
+	 * @param fields_count 
+	 * @param seps 
+	 * @return UINT 
+	 */
 	template<bool merge_adjecent_sep, char quote1, char quote2, typename T>
-	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const // return count of field actually parsed
+	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const 
 	{	if(_SC::IsEmpty())return 0;
 		UINT i=0;	const char* start = _SC::_p;	const char* tail = End();
 		const char* p = start;
@@ -752,20 +892,60 @@ public:
 			start = p;
 		}
 	}
+	/**
+	 * @brief return count of field actually parsed
+	 * 
+	 * @tparam merge_adjecent_sep 
+	 * @tparam T 
+	 * @param fields 
+	 * @param fields_count 
+	 * @param seps 
+	 * @return UINT 
+	 */
 	template<bool merge_adjecent_sep, typename T>
-	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const // return count of field actually parsed
+	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const
 	{	return Split<merge_adjecent_sep, '"', '\'', T>(fields, fields_count, seps);
 	}
+	/**
+	 * @brief return count of field actually parsed
+	 * 
+	 * @tparam merge_adjecent_sep 
+	 * @tparam T 
+	 * @param fields 
+	 * @param fields_count 
+	 * @param seps 
+	 * @param def_val 
+	 * @return UINT 
+	 */
 	template<bool merge_adjecent_sep, typename T>
-	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const // return count of field actually parsed
+	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const 
 	{	return SplitNumbers<merge_adjecent_sep, '"', '\'', T>(fields, fields_count, seps);
 	}
+	/**
+	 * @brief return count of field actually parsed
+	 * 
+	 * @tparam T 
+	 * @param fields 
+	 * @param fields_count 
+	 * @param seps 
+	 * @return UINT 
+	 */
 	template<typename T>
-	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const // return count of field actually parsed
+	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const 
 	{	return Split<false, '"', '\'', T>(fields, fields_count, seps);
 	}
+	/**
+	 * @brief return count of field actually parsed
+	 * 
+	 * @tparam T 
+	 * @param fields 
+	 * @param fields_count 
+	 * @param seps 
+	 * @param def_val 
+	 * @return UINT 
+	 */
 	template<typename T>
-	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const // return count of field actually parsed
+	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const 
 	{	return SplitNumbers<false, '"', '\'', T>(fields, fields_count, seps);
 	}
 	t_StrRef UnescapeCharacters(char escape_sign = '\\')
@@ -805,7 +985,12 @@ public:
 FIND_EXT:
 		return SubStr(0,i);
 	}
-	t_StrRef GetExtName() const // return ".xxx"
+	/**
+	 * @brief return ".xxx"
+	 * 
+	 * @return t_StrRef 
+	 */
+	t_StrRef GetExtName() const 
 	{	SSIZE_T i=GetLength()-1;
 		for(;i>=0;i--)
 		{	if(_SC::_p[i] == '.')return t_StrRef(_SC::_p+i, End());
@@ -813,7 +998,12 @@ FIND_EXT:
 		}
 		return t_StrRef();
 	}
-	t_StrRef GetFileName() const // return "aaa.bbb"
+	/**
+	 * @brief return "aaa.bbb"	 
+	 * 
+	 * @return t_StrRef 
+	 */
+	t_StrRef GetFileName() const 
 	{	SSIZE_T i=GetLength()-1;
 		for(;i>=0;i--)
 		{	if(_SC::_p[i] == '\\' || _SC::_p[i] == '/')return t_StrRef(_SC::_p+i+1,End());
@@ -827,7 +1017,12 @@ FIND_EXT:
 		}
 		return ".";
 	}
-	t_StrRef DecodedURL()	// inplace precent-decoding
+	/**
+	 * @brief inplace precent-decoding
+	 * 
+	 * @return t_StrRef 
+	 */
+	t_StrRef DecodedURL()	
 	{	SIZE_T c = 0;
 		for(SIZE_T i=0; i<GetLength(); i++)
         {	if(_SC::_p[i] != '%')
@@ -842,7 +1037,12 @@ FIND_EXT:
 		_SC::_len = c;
 		return *this;
 	}
-	t_StrRef GetFilenameURL() const // return "aaa.bbb"
+	/**
+	 * @brief return "aaa.bbb"
+	 * 
+	 * @return t_StrRef 
+	 */
+	t_StrRef GetFilenameURL() const 
 	{	t_StrRef fn = GetFileName();
 		for(SIZE_T i=0;i<fn.GetLength();i++)
 			if(fn[i] == '?' || fn[i] == '#')
@@ -925,31 +1125,61 @@ FIND_EXT:
 		_SC::_len = ((SIZE_T)(p-_SC::_p)) - 1;
 		return *this;
 	}
-	t_StrRef TrimBefore(const CharacterSet& seps) const // separator will also be trimmed
+	/**
+	 * @brief separator will also be trimmed
+	 * 
+	 * @param seps 
+	 * @return t_StrRef 
+	 */
+	t_StrRef TrimBefore(const CharacterSet& seps) const 
 	{	SIZE_T pos = 0;
 		for(;pos<_SC::_len;pos++)
 			if(seps.Has(_SC::_p[pos]))return t_StrRef(&_SC::_p[pos+1], End());
 		return *this;
 	}
-	t_StrRef TrimAfter(const CharacterSet& seps) const // separator will also be trimmed
+	/**
+	 * @brief separator will also be trimmed
+	 * 
+	 * @param seps 
+	 * @return t_StrRef 
+	 */
+	t_StrRef TrimAfter(const CharacterSet& seps) const 
 	{	SIZE_T pos = 0;
 		for(;pos<_SC::_len;pos++)
 			if(seps.Has(_SC::_p[pos]))return t_StrRef(Begin(), &_SC::_p[pos]);
 		return *this;
 	}
-	t_StrRef TrimBeforeReverse(const CharacterSet& seps) const // separator will also be trimmed
+	/**
+	 * @brief separator will also be trimmed
+	 * 
+	 * @param seps 
+	 * @return t_StrRef 
+	 */
+	t_StrRef TrimBeforeReverse(const CharacterSet& seps) const 
 	{	SSIZE_T pos = GetLength()-1;
 		for(;pos>=0;pos--)
 			if(seps.Has(_SC::_p[pos]))return t_StrRef(&_SC::_p[pos+1], End());
 		return *this;
 	}
-	t_StrRef TrimAfterReverse(const CharacterSet& seps) const // separator will also be trimmed
+	/**
+	 * @brief separator will also be trimmed
+	 * 
+	 * @param seps 
+	 * @return t_StrRef 
+	 */
+	t_StrRef TrimAfterReverse(const CharacterSet& seps) const 
 	{	SSIZE_T pos = GetLength()-1;
 		for(;pos>=0;pos--)
 			if(seps.Has(_SC::_p[pos]))return t_StrRef(Begin(), &_SC::_p[pos]);
 		return *this;
 	}
-	t_StrRef GetDirectoryName() const // include the terminate '/'
+	/**
+	 * @brief Get the Directory Name object
+	 * 
+	 * include the terminate '/'
+	 * @return t_StrRef 
+	 */
+	t_StrRef GetDirectoryName() const 
 	{	
 		SSIZE_T i=GetLength()-1;
 		for(;i>=0;i--)
@@ -988,27 +1218,42 @@ FIND_EXT:
 		_SC::_len = p - _SC::_p;
 		return *this;
 	}
-	SIZE_T		Occurrence(const rt::CharacterSet& set) const // count # of char included in the set
+	/**
+	 * @brief count # of char included in the set
+	 * 
+	 * @param set 
+	 * @return SIZE_T 
+	 */
+	SIZE_T		Occurrence(const rt::CharacterSet& set) const 
 	{	SIZE_T c = 0;
 		for(SIZE_T i=0;i<GetLength();i++)
 			if(set.Has(_SC::_p[i]))c++;
 		return c;
 	}
-	SIZE_T		OccurrenceExcluded(const rt::CharacterSet& set) const // count # of char excluded in the set
+	/**
+	 * @brief count # of char excluded in the set
+	 * 
+	 * @param set 
+	 * @return SIZE_T 
+	 */
+	SIZE_T		OccurrenceExcluded(const rt::CharacterSet& set) const
 	{	SIZE_T c = 0;
 		for(SIZE_T i=0;i<GetLength();i++)
 			if(!set.Has(_SC::_p[i]))c++;
 		return c;
 	}
 };
-
-class String_Ref: public String_Base<_details::_StringPtrStore, String_Ref> // String_Ref represent a string with length, the string is not necessary zero-terminated
+/**
+ * @brief String_Ref represent a string with length, the string is not necessary zero-terminated
+ * 
+ */
+class String_Ref: public String_Base<_details::_StringPtrStore, String_Ref> 
 {	
 	typedef String_Base<_details::_StringPtrStore, String_Ref> _SC;
 	template<typename t_Left, typename t_Right>
 	friend class _details::String_AddExpr;
 
-	SIZE_T _ExprFill(char* p) const	// return number of char filled
+	SIZE_T _ExprFill(char* p) const	///< return number of char filled
 	{	if(!IsEmpty())
 		{	memcpy(p,_p,GetLength()*sizeof(char));
 			return GetLength();
@@ -1051,7 +1296,7 @@ public:
 	String_Ref& Replace(char a, char b){ ((_SC*)this)->Replace(a,b); return *this; }
 	String_Ref& Replace(const CharacterSet& a, char b){ ((_SC*)this)->Replace(a,b); return *this; }
 	template<typename T1, typename TString>
-	UINT ReplaceTo(const T1& a, const String_Ref& b, TString& replaced) const // replace all a with b in the current string, low performance, return # of replacement
+	UINT ReplaceTo(const T1& a, const String_Ref& b, TString& replaced) const ///< replace all a with b in the current string, low performance, return # of replacement
 	{	SIZE_T a_len = rt::String_Ref(a).GetLength();
 		replaced = *this;
         SIZE_T s = 0;
@@ -1065,7 +1310,7 @@ public:
         }
 		return replaced_co;
 	}
-	bool ParseNextNumber(UINT& out)	// parsed text will be removed
+	bool ParseNextNumber(UINT& out)	///< parsed text will be removed
 	{	SIZE_T start = 0;
 		for(;start < GetLength();start++)
 			if(_SC::_p[start]>=(char)'0' && _SC::_p[start]<=(char)'9')goto PARSE_UINT;
@@ -1111,8 +1356,10 @@ FORCEINL t_Ostream& operator << (t_Ostream& Ostream, const String_Base<t_StringS
 
 namespace rt
 {
-//////////////////////////////////////////
-// to string
+/**
+ * @brief to string
+ * 
+ */
 namespace tos
 {
 	template<int DIMEN = 1, int LEN = (21*DIMEN + (DIMEN-1)*2) >
@@ -1170,13 +1417,13 @@ namespace tos
 			return *this;
 		}
 		static int __toS(LPSTR p, char x){ p[0] = x; return 1; }
-		static int __toS(LPSTR p, int x){ return _details::string_ops::itoa(x,p); }// sprintf(p,"%d",x); }
-		static int __toS(LPSTR p, unsigned int x){ return _details::string_ops::itoa(x,p);; } //sprintf(p,"%u",x); }
-		static int __toS(LPSTR p, LONGLONG x){ return _details::string_ops::itoa(x,p); } //sprintf(p,"%lld",x); }
-		static int __toS(LPSTR p, ULONGLONG x){ return _details::string_ops::itoa(x,p); } //sprintf(p,"%llu",x); }
+		static int __toS(LPSTR p, int x){ return _details::string_ops::itoa(x,p); }///< sprintf(p,"%d",x); }
+		static int __toS(LPSTR p, unsigned int x){ return _details::string_ops::itoa(x,p);; } ///< sprintf(p,"%u",x); }
+		static int __toS(LPSTR p, LONGLONG x){ return _details::string_ops::itoa(x,p); } ///< sprintf(p,"%lld",x); }
+		static int __toS(LPSTR p, ULONGLONG x){ return _details::string_ops::itoa(x,p); } ///< sprintf(p,"%llu",x); }
 #if defined(PLATFORM_WIN) || defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
-		static int __toS(LPSTR p, long x){ return _details::string_ops::itoa((int)x,p); }// sprintf(p,"%d",x); }
-		static int __toS(LPSTR p, unsigned long x){ return _details::string_ops::itoa((UINT)x,p);; } //sprintf(p,"%u",x); }
+		static int __toS(LPSTR p, long x){ return _details::string_ops::itoa((int)x,p); }///< sprintf(p,"%d",x); }
+		static int __toS(LPSTR p, unsigned long x){ return _details::string_ops::itoa((UINT)x,p);; } ///< sprintf(p,"%u",x); }
 #endif
 		static int __toS(LPSTR p, LPCVOID x)
 		{	p[0] = (char)'0';			p[1] = (char)'x';
@@ -1269,10 +1516,10 @@ public:
 	{	if(_len < 0)((String_AddExpr*)this)->_len = _left.GetLength() + _right.GetLength();
 		return _len;
 	}
-	SIZE_T CopyTo(char* p) const 
+	SIZE_T CopyTo(char* p) const ///< terminate-zero is not copied
 	{	SIZE_T len = _left.CopyTo(p);
 		return len + _right.CopyTo(p+len);
-	}  // terminate-zero is not copied
+	}  
 	template<typename t_Str>
 	void	ToString(t_Str& str) const { VERIFY(str.SetLength(GetLength())); VERIFY(str.GetLength() == CopyTo(str)); }
 };
@@ -1365,7 +1612,7 @@ public:
 	const StringFixed& operator = (char* x){ *this = String_Ref(x); return *this; }
 	const StringFixed& operator = (const String_Ref& x)
 	{	if(!x.IsEmpty())
-		{	if(SetLength(x.GetLength()))	// handle the case of x = substring of x
+		{	if(SetLength(x.GetLength()))	///< handle the case of x = substring of x
 				memcpy(_SC::_p,x.Begin(),_SC::GetLength());
 		}else{ _SC::Empty(); }
 		return *this;
@@ -1395,7 +1642,7 @@ class String: public String_Ref
 {
 protected:
 	SIZE_T		_leng_reserved;
-	bool _ChangeLength(SIZE_T new_size) //Orignal data at front is preserved
+	bool _ChangeLength(SIZE_T new_size) ///< Orignal data at front is preserved
 	{	if( new_size <= _leng_reserved){ _len = new_size; return true; }
 		_leng_reserved = rt::max(rt::max((SIZE_T)16,new_size),_leng_reserved*2);
 		LPBYTE pNewBuffer = _Malloc32AL(BYTE,_leng_reserved + 1);
@@ -1496,8 +1743,8 @@ public:
 	SSIZE_T	FindString(const char* pSub, SIZE_T skip_first = 0) const // return -1 if not found
 	{	return (skip_first<GetLength() && (pSub=strstr(Begin()+skip_first,pSub)))?(int)(pSub-Begin()):-1;
 	}
-	String& Replace(char a, char b){ ((String_Base<_details::_StringPtrStore, String_Ref>*)(this))->Replace(a,b); return *this; } // replace all a with b
-	String& Replace(char a, const String_Ref& b) // replace all a with b
+	String& Replace(char a, char b){ ((String_Base<_details::_StringPtrStore, String_Ref>*)(this))->Replace(a,b); return *this; } ///< replace all a with b
+	String& Replace(char a, const String_Ref& b) ///< replace all a with b
 	{	rt::String tmp;
         tmp.SetLength(this->GetLength() * b.GetLength());
         tmp.SetLength(0);
@@ -1509,7 +1756,7 @@ public:
 		return *this;
 	}
 	template<typename T1>
-	UINT Replace(const T1& a, const String_Ref& b) // replace all a with b in the current string, low performance, return # of replacement
+	UINT Replace(const T1& a, const String_Ref& b) ///< replace all a with b in the current string, low performance, return # of replacement
 	{	SIZE_T a_len = rt::String_Ref(a).GetLength();
 		if(a_len == 0)return 0;
 		rt::String tmp = *this;
@@ -1601,7 +1848,7 @@ public:
 		}
 		return *this;
 	}
-	const String& TrimCodeComments(const rt::String_Ref& code) // for C/C++/Java/Javascript/Json code
+	const String& TrimCodeComments(const rt::String_Ref& code) ///< for C/C++/Java/Javascript/Json code
 	{
 		if(code.IsEmpty()){	Empty(); return *this; }
 		rt::String output;
@@ -1670,7 +1917,7 @@ public:
 		if(_p)_p[_len] = 0;
 		return *this;
 	}
-	String& DecodedURL()	// inplace precent-decoding
+	String& DecodedURL()	///< inplace precent-decoding
 	{	rt::String_Ref::DecodedURL();
 		if(_p)_p[_len] = 0;
         return *this;
@@ -1679,7 +1926,7 @@ public:
 	{	SetLength(rt::max<SSIZE_T>(0, ((SSIZE_T)GetLength()) - n));
 		return *this;
 	}
-	bool EndClosure(char closure_symb = ']') // false indicate the closure is empty
+	bool EndClosure(char closure_symb = ']') ///< false indicate the closure is empty
 	{	ASSERT(!IsEmpty());
 		if(Last() == ',' || Last() == '.' || Last() == ';'){ Last() = closure_symb; return true; }
 		*this += closure_symb; return false;
@@ -1731,3 +1978,4 @@ template<>
 struct hash<::rt::String>: public ::rt::String::hash_compare {};
 
 } // namespace std
+/** @}*/

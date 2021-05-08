@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file precompiler.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "predefines.h"
 #include "../rt/string_type.h"
 #include "multi_thread.h"
@@ -39,14 +47,18 @@
 namespace os
 {
 
-
-// for C/C++/Java/Javascript code
-// handles: #ifdef/#ifndef/#elif/#else/#endif, #if with macro expression like defined(...)
-// support macro prefix and suffix
-// #include, #import, #pragma once
-// comment by // and /* */
-// #include "..." search order: same directory of the source file than directories by SetIncludeSearchDirectories
-// #include <...> search order: directories by SetIncludeSearchDirectories
+/**
+ * @brief for C/C++/Java/Javascript code
+ * 
+ * handles: #ifdef/#ifndef/#elif/#else/#endif, #if with macro expression like defined(...)
+ * 
+ * support macro prefix and suffix
+ *  
+ * #include, #import, #pragma once
+ * comment by // and /* *\/
+ * #include "..." search order: same directory of the source file than directories by SetIncludeSearchDirectories
+ * #include <...> search order: directories by SetIncludeSearchDirectories
+ */
 class PrecompilerPredefinedMacros
 {
 	rt::hash_map<rt::String, rt::String, rt::String::hash_compare> _PredefinedMacros;
@@ -150,7 +162,7 @@ public:
 
 	void	SetEnvVars(const PrecompilerPredefinedMacros* pv);
 	void	SetFileLoader(FileLoad* f, bool allow_fallback = true);
-	void	SetIncludeSearchDirectories(const rt::String_Ref& dirs); // will be converted to absolute directory based on current directory, dir is seperated by ';' or '|'
+	void	SetIncludeSearchDirectories(const rt::String_Ref& dirs); ///< will be converted to absolute directory based on current directory, dir is seperated by ';' or '|'
 	void	AddIncludeSearchDirectory(const rt::String_Ref& dir);
 
 	bool	DefineMacro(const rt::String_Ref& macro, const rt::String_Ref& value){ return _DefineMacro(macro, value); }
@@ -161,3 +173,4 @@ public:
 
 
 } // namespace os
+/** @}*/

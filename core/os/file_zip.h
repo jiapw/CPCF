@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file file_zip.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "file_dir.h"
 
 #ifndef PLATFORM_WIN
@@ -40,9 +48,10 @@
 namespace os
 {
 
-///////////////////////////////////////////
-// Zip File
-
+/**
+ * @brief Zip File
+ * 
+ */
 class FileZip
 {
 	struct z_stream_ptr;
@@ -53,7 +62,7 @@ public:
 	{
 		static const int header_magic = 0x04034b50;
 		enum	_tagFlag
-		{	LFH_DATA_DESCRIPTOR_EXISTS = 0x0004,	// DataDesc
+		{	LFH_DATA_DESCRIPTOR_EXISTS = 0x0004,	///< DataDesc
 		};
 
 		DWORD	Signature;		
@@ -63,17 +72,17 @@ public:
         WORD	FileTime;
         WORD	FileDate;
         DWORD	CRC32;
-		DWORD	Size;				//	after compression, sizeof [file data 1]
+		DWORD	Size;				///<	after compression, sizeof [file data 1]
 		DWORD	SizeOriginal;
-		WORD	FileNameLength;		// sizeof(FileName)
+		WORD	FileNameLength;		///< sizeof(FileName)
 		WORD	ExtraFieldLength;
-		CHAR	FileName[1];		//	FileNameLength
+		CHAR	FileName[1];		///<	FileNameLength
 		//CHAR	ExtraField[1];		//	after FileName
 	};
 
 	struct	DataDesc
 	{	DWORD	CRC32;
-		DWORD	Size;				//	after compression, sizeof [file data 1]
+		DWORD	Size;				///<	after compression, sizeof [file data 1]
 		DWORD	SizeOriginal;		
 	};
 
@@ -81,16 +90,16 @@ public:
 	{	
 		static const int header_magic = 0x02014b50;
 		DWORD	Signature;				// 
-		WORD	ZipVersion;				// version made by 
-		WORD	UnzipVersion;			// version needed to extract
+		WORD	ZipVersion;				///< version made by 
+		WORD	UnzipVersion;			///< version needed to extract
 		WORD	Flag;
 		WORD	Compression;
         WORD	FileTime;
         WORD	FileDate;
         DWORD	CRC32;
-		DWORD	Size;				//	after compression, sizeof [file data 1]
+		DWORD	Size;				///<	after compression, sizeof [file data 1]
 		DWORD	SizeOriginal;
-		WORD	FileNameLength;		// sizeof(FileName)
+		WORD	FileNameLength;		///< sizeof(FileName)
 		WORD	ExtraFieldLength;
 		WORD	FileCommentLength;
 		WORD	DiskNumber;
@@ -113,8 +122,8 @@ public:
 		WORD	m_uDiskWithCD;		
 		WORD	m_uDiskEntriesNo;	
 		WORD	m_uEntriesNumber;
-		DWORD	m_uSize;			// size of the central directory
-		DWORD	m_uOffset;			// offset of start of central directory with respect to the starting disk number
+		DWORD	m_uSize;			///< size of the central directory
+		DWORD	m_uOffset;			///< offset of start of central directory with respect to the starting disk number
 		WORD	m_ZipCommentLength;
 		CHAR	m_ZipComment[1];
 	};
@@ -155,20 +164,30 @@ private:
 	UINT						_CentralDirectoryStart_Old;
 	UINT						_ClaimedSize;
 	FileEntry*					_AddNonZeroFileEntry_Begin(const rt::String_Ref& pathname, UINT size, __time64_t ftime);
-	// Following member MUST be updated before call _AddNonZeroFileEntry_End(true);
-	//e.CRC32 = 0;
-	//e.Compression = 0;
-	//e.Size and e.SizeOriginal can be only updated to that smaller than claimed in _AddNonZeroFileEntry_Begin call
+	/**
+	 * @brief Following member MUST be updated before call _AddNonZeroFileEntry_End(true);
+	 * 
+	 * e.CRC32 = 0;
+	 * 
+	 * e.Compression = 0;
+	 * 
+	 * e.Size and e.SizeOriginal can be only updated to that smaller than claimed in _AddNonZeroFileEntry_Begin call
+	 * @param commit 
+	 * @return true 
+	 * @return false 
+	 */
 	bool						_AddNonZeroFileEntry_End(bool commit);
 	void						_crc_checksum(LPCVOID pSrc, UINT SrcLen, LPDWORD crc32);
 public:
 	//struct plugin
 	//{	virtual bool Process(LPCVOID pSrc, UINT SrcLen, LPVOID pDst, UINT& DstLen) = 0;	};
+
 	struct stream_readonly
-	{	virtual UINT Read(LPVOID p, UINT size) = 0; /* return number of byte read */ };
+	{	virtual UINT Read(LPVOID p, UINT size) = 0; ///< return number of byte read 
+	};
 	struct stream_writeonly
-	{	virtual UINT Write(LPCVOID p, UINT size) = 0; /* return number of byte written (INFINITE for compression failure, call for AddFile again in store mode */ 
-		virtual bool Finalize(bool commit) = 0; /* call to stop writing */
+	{	virtual UINT Write(LPCVOID p, UINT size) = 0; ///< return number of byte written (INFINITE for compression failure, call for AddFile again in store mode  
+		virtual bool Finalize(bool commit) = 0; ///< call to stop writing 
 	};
 
 protected:
@@ -239,24 +258,36 @@ public:
 public:
 	FileZip();
 	~FileZip(){ Close(); }
+/** @name Basic Operation
+*/
+///@{
 	bool	IsOpen() const { return _pZipFile!=nullptr; }
 	bool	Open(LPCSTR fn, LPCSTR openflag = File::Normal_Read, bool load_indexed = true);
 	bool	Open(rt::_File* pFile, LPCSTR mode, bool load_indexed = true);
-	void	Close();	// save and close
-	bool	Save();		// just save, no squeeze
-	bool	Squeeze();	// squeeze space after some deletion
+	void	Close();	///< save and close
+	bool	Save();		///< just save, no squeeze
+	bool	Squeeze();	///< squeeze space after some deletion
 	File*	GetBaseFile(){ return _BaseFile.IsOpen()?&_BaseFile:nullptr; }
-
-	int		FindFile(const rt::String_Ref& pathname);	// -1 if not found, returned index will be invalidate when File List is changed
-														// by AddFile and RemoveFile
+///@}
+/** @name FindFile
+*/
+///@{
+	int		FindFile(const rt::String_Ref& pathname);	///< -1 if not found, returned index will be invalidate when File List is changed
+														///< by AddFile and RemoveFile
 	int		FindFile(LPCSTR pathname){ return FindFile(rt::String_Ref(pathname)); }
-	int		FindFileRecursive(LPCSTR filename, int start_from_idx = 0);			// by filename, without path
-
-	bool	AddZeroSizedEntry(const rt::String_Ref& pathname, __time64_t ftime, DWORD attrib = FILE_ATTRIBUTE_DIRECTORY); // add a zero-sized file by attrib = FILE_ATTRIBUTE_ARCHIVE
+	int		FindFileRecursive(LPCSTR filename, int start_from_idx = 0);			///< by filename, without path
+///@}
+/** @name AddZeroSizedEntry
+*/
+///@{
+	bool	AddZeroSizedEntry(const rt::String_Ref& pathname, __time64_t ftime, DWORD attrib = FILE_ATTRIBUTE_DIRECTORY); ///< add a zero-sized file by attrib = FILE_ATTRIBUTE_ARCHIVE
 	bool	AddZeroSizedEntry(LPCSTR pathname, __time64_t ftime, DWORD attrib = FILE_ATTRIBUTE_DIRECTORY){ return AddZeroSizedEntry(rt::String_Ref(pathname),ftime, attrib); }
 	bool	AddZeroSizedEntry(const rt::String_Ref& pathname, DWORD attrib = FILE_ATTRIBUTE_DIRECTORY){ return AddZeroSizedEntry(rt::String_Ref(pathname), os::Timestamp::Get(), attrib); }
 	bool	AddZeroSizedEntry(LPCSTR pathname, DWORD attrib = FILE_ATTRIBUTE_DIRECTORY){ return AddZeroSizedEntry(rt::String_Ref(pathname), attrib); }
-
+///@}
+/** @name AddFile
+*/
+///@{
 	stream_writeonly* AddFile(const rt::String_Ref& pathname, UINT size, __time64_t ftime);
 	stream_writeonly* AddFile(const rt::String_Ref& pathname, UINT size){ return AddFile(rt::String_Ref(pathname),size, os::Timestamp::Get()); }
 	stream_writeonly* AddFile(LPCSTR pathname, UINT size, __time64_t ftime){ return AddFile(rt::String_Ref(pathname),size,ftime); }
@@ -266,9 +297,9 @@ public:
 	bool	AddFile(const rt::String_Ref& pathname, LPCVOID pData, UINT size){ return AddFile(rt::String_Ref(pathname), pData, size, os::Timestamp::Get()); }
 	bool	AddFile(LPCSTR pathname, LPCVOID pData, UINT size, __time64_t ftime){ return AddFile(rt::String_Ref(pathname),pData,size,ftime); }
 	bool	AddFile(LPCSTR pathname, LPCVOID pData, UINT size){ return AddFile(rt::String_Ref(pathname),pData,size); }
-	
-	bool				ExtractFile(UINT idx, LPVOID pData);	// pData pointing memory with size = GetFileSize
-	stream_readonly*	ExtractFile(UINT idx);			// returned object will be unavailable after next ExtractFile call
+///@}	
+	bool				ExtractFile(UINT idx, LPVOID pData);	///< pData pointing memory with size = GetFileSize
+	stream_readonly*	ExtractFile(UINT idx);			///< returned object will be unavailable after next ExtractFile call
 	DWORD				GetFileAttribute(UINT idx) const;
 	UINT				GetFileSize(UINT idx) const;
 	UINT				GetLocalFileHeaderOffset(UINT idx) const;
@@ -277,17 +308,22 @@ public:
 	bool				IsFileExtractable(UINT idx) const;
 	__time64_t			GetFileTime(UINT idx);
 	rt::String_Ref		GetFileName(UINT idx) const;
-	void				RemoveFile(UINT idx);	// will not invalidate index returned by FindFile, NOT tested yet
+	void				RemoveFile(UINT idx);	///< will not invalidate index returned by FindFile, NOT tested yet
 	UINT				GetEntryCount() const { return (UINT)m_FileEntries.GetSize(); }
-
-	// handle both files, zero-sized files and directories
-	void	ReindexAllEntries();	// call after adding something
+	 
+	
+/** @name Entries
+ * handle both files, zero-sized files and directories
+*/ 
+///@{
+	void	ReindexAllEntries();	///< call after adding something
 	bool	AddEntryFrom(LPCSTR pathname_sys, LPCSTR pathname_zip);
 	bool	ExtractEntryTo(UINT idx, LPCSTR to_pathname_sys);
-	bool	AddAllEntriesFrom(LPCSTR path_sys, LPCSTR path_zip, bool include_subfolders);			// add all files in path_sys, to directory path_zip in zip
-	bool	ExtractAllEntriesTo(LPCSTR path_zip, LPCSTR path_sys, bool include_subfolders);		// extract all files in directory path_zip in zip to path_sys
+	bool	AddAllEntriesFrom(LPCSTR path_sys, LPCSTR path_zip, bool include_subfolders);			///< add all files in path_sys, to directory path_zip in zip
+	bool	ExtractAllEntriesTo(LPCSTR path_zip, LPCSTR path_sys, bool include_subfolders);		///< extract all files in directory path_zip in zip to path_sys
 
 	__time64_t	GetZipFileTime() const { ASSERT(_BaseFile.IsOpen()); return _BaseFile.GetTime_LastModify(); }
+///@}	
 };
 
 
@@ -295,8 +331,11 @@ public:
 extern void EnableCrashDump(LPCSTR dump_filename, bool full_memory, bool zip_after_dump);
 #endif
 
-
-class FileGzip	// assumeing gzip with single file
+/**
+ * @brief assumeing gzip with single file
+ * 
+ */
+class FileGzip	
 {
 protected:
 	os::File		_BaseFile;
@@ -312,8 +351,8 @@ protected:
 #pragma pack(push, 1)
 	struct gz_header
 	{
-		WORD	magic;				// 0x8b1f
-		BYTE	compression;		// 0x8
+		WORD	magic;				///< 0x8b1f
+		BYTE	compression;		///< 0x8
 		BYTE	flag;
 		DWORD	mtime;
 		BYTE	extra_flag;
@@ -342,7 +381,7 @@ public:
 	void			Close();
 	UINT			GetFileSize() const;
 	rt::String_Ref	GetFileName() const;
-	bool			ExtractFile(LPVOID pData);	// pData pointing memory with size = GetFileSize
+	bool			ExtractFile(LPVOID pData);	///< pData pointing memory with size = GetFileSize
 	UINT			GetFileArchivedSize() const;
 };
 
@@ -382,9 +421,9 @@ public:
 	void	Close();
 	bool	Open(LPCSTR fn);
 
-	int		FindFile(const rt::String_Ref& pathname);	// -1 if not found, returned index will be invalidate when File List is changed													// by AddFile and RemoveFile
+	int		FindFile(const rt::String_Ref& pathname);	///< -1 if not found, returned index will be invalidate when File List is changed													// by AddFile and RemoveFile
 	int		FindFile(LPCSTR pathname){ return FindFile(rt::String_Ref(pathname)); }
-	int		FindFileRecursive(LPCSTR filename, int start_from_idx = 0);			// by filename, without path
+	int		FindFileRecursive(LPCSTR filename, int start_from_idx = 0);			///< by filename, without path
 
 	SIZE_T			GetFileCount() const;
 	rt::String_Ref	GetFilename(UINT idx) const;
@@ -395,9 +434,10 @@ public:
 	bool			IsFileExtractable(UINT idx) const;
 	__time64_t		GetFileTime(UINT idx) const;
 
-	bool			ExtractFile(UINT idx, LPVOID pData);	// pData pointing memory with size = GetFileSize
+	bool			ExtractFile(UINT idx, LPVOID pData);	///< pData pointing memory with size = GetFileSize
 
 };
 
 
 } // namespace os
+/** @}*/

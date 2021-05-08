@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file user_inputs.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #ifdef _MFC_
 #include <afxwin.h>
 #endif
@@ -51,7 +59,7 @@ enum _tagUserInputDevice
 	UIDEV_TOUCH				= 0x0004,
     UIDEV_COMMAND           = 0x0008,
 	UIDEV_MULTITOUCH		= 0x0010,
-	UIDEV_CONTROL_BUTTONS	= 0x0020,	// remote controler, button-like gesture or built-in buttons
+	UIDEV_CONTROL_BUTTONS	= 0x0020,	///< remote controler, button-like gesture or built-in buttons
 	UIDEV_ACCELEROMETER		= 0x0040,
 	UIDEV_MAGNETIC_FIELD	= 0x0100,
 	UIDEV_GYROSCOPE			= 0x0200,
@@ -62,7 +70,7 @@ enum _tagUserInputDevice
 	UIDEV_MASK_TOUCH		= 0x0030,
     UIDEV_MASK_ALL          = 0xffff,
 	
-	UIDEV_EVENTTYPE_MOUSEMOVE = 0x0001000, // specify this to receive Mouse move
+	UIDEV_EVENTTYPE_MOUSEMOVE = 0x0001000, ///< specify this to receive Mouse move
 };
 
 enum _tagPollButtonCode
@@ -176,20 +184,25 @@ enum _tagKeyCode
 	KC_PA1					= 0xFD,
 	KC_OEM_CLEAR			= 0xFE
 };
-
-class UserInputState	// Poll Mode
+/**
+ * @brief Poll Mode
+ * 
+ */
+class UserInputState	
 {
 public:
 	static bool		InitDevices(DWORD devices);
 	static DWORD	GetDevicePresence();
-	// Mouse State
-	static bool		GetMousePosition(int* xy);	// {x,y}[], screen space
+/** @name Mouse State
+*/
+///@{
+	static bool		GetMousePosition(int* xy);	///< {x,y}[], screen space
 	static DWORD	GetPollButtonState(DWORD button_interested);
 };
-
+///@}
 struct UserInputEvent
 {
-	ULONGLONG	Timestamp;	// in nanosec
+	ULONGLONG	Timestamp;	///< in nanosec
 	DWORD		Type;
 	DWORD		Device;
 	union
@@ -221,22 +234,22 @@ struct UserInputEvent
 
 enum _tagEventType
 {
-	UIEVT_SYS		= 0,	// SysCode
-    UIEVT_COMMAND,          // CmdId, Param
-	UIEVT_KEY_DOWN,			// KeyCode
-	UIEVT_KEY_UP,			// KeyCode
+	UIEVT_SYS		= 0,	///< SysCode
+    UIEVT_COMMAND,          ///< CmdId, Param
+	UIEVT_KEY_DOWN,			///< KeyCode
+	UIEVT_KEY_UP,			///< KeyCode
 
-	UIEVT_MOUSE_DOWN,		// Position, ButtonCode
-	UIEVT_MOUSE_UP,			// Position, ButtonCode
-	UIEVT_MOUSE_MOVE,		// Position
-	UIEVT_MOUSE_DRAGBEGIN,	// Position, ButtonCode
-	UIEVT_MOUSE_DRAG,		// Position, ButtonCode
-	UIEVT_MOUSE_DRAGEND,	// Position, ButtonCode
-	UIEVT_MOUSE_WHEEL,		// Position, Delta
+	UIEVT_MOUSE_DOWN,		///< Position, ButtonCode
+	UIEVT_MOUSE_UP,			///< Position, ButtonCode
+	UIEVT_MOUSE_MOVE,		///< Position
+	UIEVT_MOUSE_DRAGBEGIN,	///< Position, ButtonCode
+	UIEVT_MOUSE_DRAG,		///< Position, ButtonCode
+	UIEVT_MOUSE_DRAGEND,	///< Position, ButtonCode
+	UIEVT_MOUSE_WHEEL,		///< Position, Delta
 
-	UIEVT_VIEWPORT_RESIZE,	// Size
-	UIEVT_VIEWPORT_REDRAW,	// n/a
-	UIEVT_VIEWPORT_IDLE,	// Count
+	UIEVT_VIEWPORT_RESIZE,	///< Size
+	UIEVT_VIEWPORT_REDRAW,	///< n/a
+	UIEVT_VIEWPORT_IDLE,	///< Count
 
 	UIEVT_TOUCH_BEGIN = UIEVT_MOUSE_DRAGBEGIN,	
 	UIEVT_TOUCH_END = UIEVT_MOUSE_DRAGEND,		
@@ -401,4 +414,4 @@ PUMP._OnReceiveEventFromResponder(e);							\
 }
 
 #endif
-
+/** @}*/

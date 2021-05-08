@@ -1,42 +1,50 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Copyright 2012 the Cicada Project Dev Team. All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of Cicada.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file gl_pal.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "../rt/runtime_base.h"
 
 #if defined(PLATFORM_OPENGL_SUPPORT)
 	#if defined(PLATFORM_WIN)
 		#include <gl/GL.h>
 		#include <gl/GLu.h>
-		#include "glext_inc.h"	// http://www.opengl.org/registry/api/glext.h
+		#include "glext_inc.h"	///< http://www.opengl.org/registry/api/glext.h
 		#include "wglext_inc.h"
 	#elif defined(PLATFORM_MAC)
         //#define GL_GLEXT_LEGACY
@@ -64,18 +72,18 @@
 #define GL_MAX_GEOMETRY_OUTPUT_VERTICES_ARB 0x8DE0
 #define GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS_ARB 0x8DE1
 
-		extern "C" LPVOID	_objc_opengl_rendercontext_get(LPVOID pNSOpenGLView); // return NSOpenGLContext*
+		extern "C" LPVOID	_objc_opengl_rendercontext_get(LPVOID pNSOpenGLView); ///< return NSOpenGLContext*
 		extern "C" bool		_objc_opengl_rendercontext_makecurrent(LPVOID pNSOpenGLContext);
-		extern "C" LPVOID	_objc_opengl_rendercontext_current(); // return NSOpenGLContext*
+		extern "C" LPVOID	_objc_opengl_rendercontext_current(); ///< return NSOpenGLContext*
 	#endif
 #elif defined(PLATFORM_OPENGL_ES_SUPPORT)
 	#include <OpenGLES/ES2/gl.h>
 	#include <OpenGLES/ES2/glext.h>
 	#if defined(PLATFORM_IOS)
 	extern "C" bool		_objc_opengl_rendercontext_makecurrent(LPVOID pEAGLContext);
-	extern "C" LPVOID	_objc_opengl_rendercontext_current(); // return EAGLContext*
-	extern "C" LPVOID	_objc_opengl_rendercontext_create(LPVOID pUIView, GLuint* pRenderingBuffers);  // EAGLContext*
-	extern "C" void		_objc_opengl_rendercontext_destroy(LPVOID pEAGLContext);  // EAGLContext*
+	extern "C" LPVOID	_objc_opengl_rendercontext_current(); ///< return EAGLContext*
+	extern "C" LPVOID	_objc_opengl_rendercontext_create(LPVOID pUIView, GLuint* pRenderingBuffers);  ///< EAGLContext*
+	extern "C" void		_objc_opengl_rendercontext_destroy(LPVOID pEAGLContext);  ///< EAGLContext*
 	#endif
 #else
 	ASSERT_STATIC(0);
@@ -317,4 +325,4 @@ typedef GLint GLhandle;
 #define GL_SAMPLER_2D_RECT_SHADOW_ARB	0x8B64
 #endif
 */
-
+/** @}*/

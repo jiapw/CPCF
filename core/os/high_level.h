@@ -1,35 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
-
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
+/**
+ * @file high_level.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 #include "predefines.h"
 #include "../rt/string_type.h"
 #include "multi_thread.h"
@@ -37,8 +45,11 @@
 
 namespace os
 {
-
-class Daemon	// singleton
+/**
+ * @brief singleton
+ * 
+ */
+class Daemon	
 {
 #if defined(PLATFORM_WIN)
 	volatile LPVOID			_hServiceHandler;
@@ -52,9 +63,9 @@ protected:
 public:
 	Daemon();
 	~Daemon();
-	bool	InitializeDaemonController(LPCSTR name);	// NOT thread-safe
-	void	ReportDaemonStatus(DWORD state = DAEMON_PAUSED);	// SERVICE_PAUSED
-	virtual void OnDaemonControl(DWORD dwControl){};			// dwControl = SERVICE_CONTROL_STOP/SERVICE_CONTROL_SHUTDOWN/ ...
+	bool	InitializeDaemonController(LPCSTR name);	///< NOT thread-safe
+	void	ReportDaemonStatus(DWORD state = DAEMON_PAUSED);	///< SERVICE_PAUSED
+	virtual void OnDaemonControl(DWORD dwControl){};			///< dwControl = SERVICE_CONTROL_STOP/SERVICE_CONTROL_SHUTDOWN/ ...
 };
 
 
@@ -68,8 +79,8 @@ protected:
 protected:
 	struct _Chunk
 	{	UINT	size;		
-		UINT	length;		// INFINITE indicates the chunk is not finalized
-		BYTE	data[1];	// real size set is by SetLogEntrySize
+		UINT	length;		///< INFINITE indicates the chunk is not finalized
+		BYTE	data[1];	///< real size set is by SetLogEntrySize
 		_Chunk*	GetNext(){ return (_Chunk*)(data + size); }
 	};
 	static const SIZE_T _ChunkHeaderSize = sizeof(UINT)*2;
@@ -196,10 +207,10 @@ public: // statistic
 	int					stat_FileError;
 	int					stat_UnfinalizedChunk;
 	float				stat_ClaimPerSecond;
-	int					stat_BufferUsageAvg;			// percentage
-	int					stat_BufferUsagePeek;			// percentage
-	int					stat_FileIOUsageAvg;			// percentage
-	int					stat_FileIOUsagePeek;			// percentage
+	int					stat_BufferUsageAvg;			///< percentage
+	int					stat_BufferUsagePeek;			///< percentage
+	int					stat_FileIOUsageAvg;			///< percentage
+	int					stat_FileIOUsagePeek;			///< percentage
 	volatile int		stat_TotalClaimed;
 	volatile int		stat_ClaimFailure;
 	volatile int		stat_FinalizeFailure;
@@ -229,8 +240,8 @@ public:
 		stat_UnfinalizedChunk = 0;
 		stat_ClaimFailure = 0;
 		stat_FinalizeFailure = 0;
-		stat_FileIOUsageAvg = 0;			// percentage
-		stat_FileIOUsagePeek = 0;			// percentage
+		stat_FileIOUsageAvg = 0;			///< percentage
+		stat_FileIOUsagePeek = 0;			///< percentage
 		stat_TotalClaimed = 0;
 
 		_WriteBufferSize = (buffer_size + 3) & 0xffffffffc;
@@ -275,7 +286,7 @@ public:
 	UINT	GetWriteDownInterval() const { return _WriteDownInterval; }
 	void	SetWriteDownInterval(UINT write_interval_msec)
 	{	_WriteDownInterval = rt::max<UINT>(100,write_interval_msec);
-		_AvgAttenuation = pow(0.64, write_interval_msec/1000.0);		// Attenuate to 0.01 after 10 sec
+		_AvgAttenuation = pow(0.64, write_interval_msec/1000.0);		///< Attenuate to 0.01 after 10 sec
 		ASSERT_FLOAT(_AvgAttenuation);
 	}
 	UINT	GetBufferSize() const { return _WriteBufferSize; }
@@ -311,9 +322,15 @@ public:
 			// ClaimWriting/FinalizeWritten calling. e.g. longer than m_WriteDownInterval
 			// other possiblity is the caller ruined the buffer (run down)  
 	}
-
+	/**
+	 * @brief string expression or json definition
+	 * 
+	 * @tparam T 
+	 * @param x 
+	 * @return INLFUNC 
+	 */
 	template<class T>
-	INLFUNC bool WriteString(const T& x)	// string expression or json definition
+	INLFUNC bool WriteString(const T& x)	
 	{	
 		UINT len = (UINT)x.GetLength();
 		LPSTR p = ClaimWriting(len);
@@ -323,9 +340,15 @@ public:
 			return true;
 		}else return false;
 	}
-
+	/**
+	 * @brief string expression or json definition 
+	 * 
+	 * @tparam T 
+	 * @param x 
+	 * @return INLFUNC 
+	 */
 	template<class T>
-	INLFUNC bool WriteLine(const T& x)	// string expression or json definition
+	INLFUNC bool WriteLine(const T& x)	
 	{
 		UINT len = (UINT)x.GetLength();
 		LPSTR p = ClaimWriting(len + 2);
@@ -355,7 +378,7 @@ protected:
 	struct LogE
 	{	int  type;
 		int  line;
-		int  log_len;  // include terminate-zero
+		int  log_len;  ///< include terminate-zero
 		int  filename_len;
 		int  funcname_len;
 		char text[1];
@@ -428,8 +451,8 @@ protected:
 protected:
 	struct _Chunk
 	{	UINT	size;		
-		UINT	length;		// INFINITE indicates the chunk is not finalized
-		BYTE	data[1];	// real size set is by SetLogEntrySize
+		UINT	length;		///< INFINITE indicates the chunk is not finalized
+		BYTE	data[1];	///< real size set is by SetLogEntrySize
 		_Chunk*	GetNext(){ return (_Chunk*)(data + size); }
 	};
 	static const SIZE_T _ChunkHeaderSize = sizeof(UINT)*2;
@@ -454,10 +477,10 @@ public: // statistic
 	int					stat_FileError;
 	int					stat_UnfinalizedChunk;
 	float				stat_ClaimPerSecond;
-	int					stat_BufferUsageAvg;			// percentage
-	int					stat_BufferUsagePeek;			// percentage
-	int					stat_FileIOUsageAvg;			// percentage
-	int					stat_FileIOUsagePeek;			// percentage
+	int					stat_BufferUsageAvg;			///< percentage
+	int					stat_BufferUsagePeek;			///< percentage
+	int					stat_FileIOUsageAvg;			///< percentage
+	int					stat_FileIOUsagePeek;			///< percentage
 	volatile int		stat_TotalClaimed;
 	volatile int		stat_ClaimFailure;
 	volatile int		stat_FinalizeFailure;
@@ -467,9 +490,9 @@ public:
 	~ParallelFileWriter();
 	static void RealizeFilename(const rt::String& file_template, const os::Timestamp::Fields& time_f, rt::String& filename);
 	void	SetFileWritingCallback(FUNC_FileWriter cb, LPVOID cookie);
-	bool	Open(LPCSTR filename, bool append_existing = true, UINT buffer_size = 1024*1024, bool filetime_by_localtime = false);  // filename may contain macros as %YEAR% %MONTH% %DAY% %HOUR% %MINUTE% %HALFHOUR% %QUARTER%
+	bool	Open(LPCSTR filename, bool append_existing = true, UINT buffer_size = 1024*1024, bool filetime_by_localtime = false);  ///< filename may contain macros as %YEAR% %MONTH% %DAY% %HOUR% %MINUTE% %HALFHOUR% %QUARTER%
 	void	Close();
-	void	PreClose(); // call if you want ParallelFileWriter to close but will do something else before hanging on Close() or dtor
+	void	PreClose(); ///< call if you want ParallelFileWriter to close but will do something else before hanging on Close() or dtor
 	void	LogAlert();
 	bool	IsOpen() const { return _File.IsOpen(); }
 	void	SwitchTo(LPCSTR filename, bool no_wait);
@@ -509,9 +532,15 @@ public:
 			// ClaimWriting/FinalizeWritten calling. e.g. longer than m_WriteDownInterval
 			// other possiblity is the caller ruined the buffer (run down)  
 	}
-
+	/**
+	 * @brief string expression or json definition 
+	 * 
+	 * @tparam T 
+	 * @param x 
+	 * @return INLFUNC 
+	 */
 	template<class T>
-	INLFUNC bool WriteString(const T& x)	// string expression or json definition
+	INLFUNC bool WriteString(const T& x)	
 	{	
 		UINT len = (UINT)x.GetLength();
 		LPSTR p = ClaimWriting(len);
@@ -521,8 +550,15 @@ public:
 			return true;
 		}else return false;
 	}
+	/**
+	 * @brief string expression or json definition
+	 * 
+	 * @tparam T 
+	 * @param x 
+	 * @return INLFUNC 
+	 */
 	template<class T>
-	INLFUNC bool WriteLine(const T& x)	// string expression or json definition
+	INLFUNC bool WriteLine(const T& x)
 	{
 		UINT len = (UINT)x.GetLength();
 		LPSTR p = ClaimWriting(len + 2);
@@ -546,3 +582,4 @@ public:
 };
 
 } // namespace os
+/** @}*/

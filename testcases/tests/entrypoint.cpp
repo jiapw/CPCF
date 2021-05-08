@@ -27,6 +27,9 @@ void TestMain()
 		TYPETRAITS_UNITTEST(big_num);
 //		TYPETRAITS_UNITTEST(crypto_func);
 		//TYPETRAITS_UNITTEST(recv_pump);
+					TYPETRAITS_UNITTEST(ipp_imageproc);
+			TYPETRAITS_UNITTEST(ipp_image);
+			TYPETRAITS_UNITTEST(ipp_image_apps);
 		return;
 	}
 	else

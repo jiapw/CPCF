@@ -1,34 +1,43 @@
 #pragma once
-
-//////////////////////////////////////////////////////////////////////
-// Cross-Platform Core Foundation (CPCF)
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of CPCF.  nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//////////////////////////////////////////////////////////////////////
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
+/**
+ * @file ipp_config.h
+ * @author JP Wang (wangjiaping@idea.edu.cn)
+ * @brief 
+ * @version 1.0
+ * @date 2021-04-30
+ * 
+ * @copyright  
+ * Cross-Platform Core Foundation (CPCF)
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *      * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *      * Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials provided
+ *        with the distribution.
+ *      * Neither the name of CPCF.  nor the names of its
+ *        contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
 
 //////////////////////////////////////////////////////////////////////
 //  Macros to control linkage
@@ -95,47 +104,47 @@
 #pragma warning(disable:4819)
 
 
-#if defined(IPP_LINK_STATIC_LIB_N8)//NO, wont compile
+#if defined(IPP_LINK_STATIC_LIB_N8)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n8_##name arg;
 	#define IPPCALL(name) n8_##name
-#elif defined(IPP_LINK_STATIC_LIB_M7)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_M7)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL m7_##name arg;
 	#define IPPCALL(name) m7_##name
-#elif defined(IPP_LINK_STATIC_LIB_Y8) // work but very slow
+#elif defined(IPP_LINK_STATIC_LIB_Y8)///< work but very slow
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL y8_##name arg;
 	#define IPPCALL(name) y8_##name
-#elif defined(IPP_LINK_STATIC_LIB_E9) // work but very slow
+#elif defined(IPP_LINK_STATIC_LIB_E9)///< work but very slow
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL e9_##name arg;
 	#define IPPCALL(name) e9_##name
-#elif defined(IPP_LINK_STATIC_LIB_L9) // work but very slow	, will crash
+#elif defined(IPP_LINK_STATIC_LIB_L9)///< work but very slow	, will crash
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL l9_##name arg;
 	#define IPPCALL(name) l9_##name
-#elif defined(IPP_LINK_STATIC_LIB_K0) //crash
+#elif defined(IPP_LINK_STATIC_LIB_K0)///< crash
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL k0_##name arg;
 	#define IPPCALL(name) k0_##name
-#elif defined(IPP_LINK_STATIC_LIB_N0)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_N0)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n0_##name arg;
 	#define IPPCALL(name) n0_##name
-#elif defined(IPP_LINK_STATIC_LIB_MX)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_MX)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL mx_##name arg;
 	#define IPPCALL(name) mx_##name
-#elif defined(IPP_LINK_STATIC_LIB_U8)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_U8)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL u8_##name arg;
 	#define IPPCALL(name) u8_##name
-#elif defined(IPP_LINK_STATIC_LIB_M8)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_M8)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL m8_##name arg;
 	#define IPPCALL(name) m8_##name
-#elif defined(IPP_LINK_STATIC_LIB_W7)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_W7)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL w7_##name arg;
 	#define IPPCALL(name) w7_##name
-#elif defined(IPP_LINK_STATIC_LIB_V8)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_V8)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL v8_##name arg;
 	#define IPPCALL(name) v8_##name
-#elif defined(IPP_LINK_STATIC_LIB_P8)//NO, wont compile
+#elif defined(IPP_LINK_STATIC_LIB_P8)///< NO, wont compile
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL p8_##name arg;
 	#define IPPCALL(name) p8_##name
 #else
-	#define IPP_LINK_STATIC_LIB_PX //fastest
+	#define IPP_LINK_STATIC_LIB_PX ///< fastest
 	#define IPPAPI(type,name,arg) extern type IPP_STDCALL name arg;
 	#define IPPCALL(name) name
 #endif
@@ -169,3 +178,4 @@
 #endif // #if defined(PLATFORM_WIN)
 
 #endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT
+/** @}*/
