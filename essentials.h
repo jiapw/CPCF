@@ -5,7 +5,7 @@
 /**
  * @file essentials.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
- * @brief \emoji :smile:
+ * @brief 
  * @version 1.0
  * @date 2021-04-30
  * 
