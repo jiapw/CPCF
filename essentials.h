@@ -35,9 +35,7 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-/** \addtogroup CPCF 
- *  @{
- */
+
 #include "./core/rt/string_type.h"
 #include "./core/rt/string_type_ops.h"
 #include "./core/rt/buffer_type.h"
@@ -59,4 +57,3 @@
 // IOKit.framework, AppKit.framework
 // IPP Library: all files in /libs/mac/*.a
 
-/** @}*/

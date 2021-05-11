@@ -9,7 +9,7 @@ PROJECT_NUMBER         = Version 1.0
 PROJECT_BRIEF          = "Cross-Platform Core Foundation"
 PROJECT_LOGO           = MyIcon.png
 OUTPUT_DIRECTORY       =
-CREATE_SUBDIRS         = NO
+CREATE_SUBDIRS         = YES
 ALLOW_UNICODE_NAMES    = NO
 OUTPUT_LANGUAGE        = English
 OUTPUT_TEXT_DIRECTION  = None
@@ -102,7 +102,7 @@ SHOW_USED_FILES        = YES
 SHOW_FILES             = YES
 SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    =
-LAYOUT_FILE            = DoxygenLayout.xml
+LAYOUT_FILE            = doxygen\layout.xml
 CITE_BIB_FILES         =
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
@@ -123,7 +123,7 @@ INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h\
                          *.md
 RECURSIVE              = NO
-EXCLUDE                = testcases core\gl\glext_inc.h core\gl\wglext_inc.h
+EXCLUDE                = testcases core\gl\glext_inc.h core\gl\wglext_inc.h 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        =
@@ -155,7 +155,7 @@ CLANG_DATABASE_PATH    =
 #---------------------------------------------------------------------------
 # Configuration options related to the alphabetical class index
 #---------------------------------------------------------------------------
-ALPHABETICAL_INDEX     = YES
+ALPHABETICAL_INDEX     = NO
 IGNORE_PREFIX          =
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
@@ -163,15 +163,15 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            = header.html
-HTML_FOOTER            = footer.html
+HTML_HEADER            = 
+HTML_FOOTER            = 
 HTML_STYLESHEET        =
-HTML_EXTRA_STYLESHEET  = style.css
-HTML_EXTRA_FILES       =
-HTML_COLORSTYLE_HUE    = 203
-HTML_COLORSTYLE_SAT    = 34
-HTML_COLORSTYLE_GAMMA  = 70
-HTML_TIMESTAMP         = NO
+HTML_EXTRA_STYLESHEET  = doxygen/awesome/doxygen-awesome.css doxygen/awesome/doxygen-awesome-sidebar-only.css
+HTML_EXTRA_FILES       = 
+HTML_COLORSTYLE_HUE    = 
+HTML_COLORSTYLE_SAT    = 
+HTML_COLORSTYLE_GAMMA  = 
+HTML_TIMESTAMP         = YES
 HTML_DYNAMIC_MENUS     = YES
 HTML_DYNAMIC_SECTIONS  = NO
 HTML_INDEX_NUM_ENTRIES = 100
@@ -200,7 +200,7 @@ ECLIPSE_DOC_ID         = org.doxygen.Project
 DISABLE_INDEX          = NO
 GENERATE_TREEVIEW      = YES
 ENUM_VALUES_PER_LINE   = 4
-TREEVIEW_WIDTH         = 250
+TREEVIEW_WIDTH         = 300
 EXT_LINKS_IN_WINDOW    = NO
 HTML_FORMULA_FORMAT    = png
 FORMULA_FONTSIZE       = 10
