@@ -1,8 +1,4 @@
 #pragma once
-/** \addtogroup os 
- * @ingroup CPCF
- *  @{
- */
 /**
  * @file file_dir.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +34,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "../rt/string_type_ops.h"
 #include "../rt/buffer_type.h"
 #include "kernel.h"
@@ -50,7 +50,10 @@
 
 namespace os
 {
-
+/** \addtogroup file_dir
+ * @ingroup os
+ *  @{
+ */
 class MemoryFileRef: public rt::_File
 {
 protected:
@@ -663,6 +666,6 @@ namespace _details
 
 extern void EnableCrashDump(LPCSTR dump_filename, bool full_memory);
 #endif
-
+/** @}*/
 }
 /** @}*/

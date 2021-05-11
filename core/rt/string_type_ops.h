@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file string_type_ops.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
 
 #include "string_type.h"
 
@@ -59,7 +60,10 @@ namespace rt
 {
 namespace tos
 {
-
+/** \addtogroup string_type_ops
+ * @ingroup rt
+ *  @{
+ */
 typedef ::rt::tos::S_<> Number;
 
 struct WhiteSpace:public ::rt::tos::S_<>
@@ -547,5 +551,6 @@ INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 					}	}
 					return true;
 				}
+			/** @}*/
 } // namespace rt
 /** @}*/

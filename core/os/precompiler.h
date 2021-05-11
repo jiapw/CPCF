@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup os 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file precompiler.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "predefines.h"
 #include "../rt/string_type.h"
 #include "multi_thread.h"
@@ -46,7 +47,10 @@
 
 namespace os
 {
-
+/** \addtogroup precomplier
+ * @ingroup os
+ *  @{
+ */
 /**
  * @brief for C/C++/Java/Javascript code
  * 
@@ -170,7 +174,7 @@ public:
 };
 
 
-
+/** @}*/
 
 } // namespace os
 /** @}*/

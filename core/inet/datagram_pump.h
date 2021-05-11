@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup inet 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file datagram_pump.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,12 +35,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "inet.h"
 
 namespace inet
 {
-
+/** \addtogroup datagram_pump
+ * @ingroup inet
+ *  @{
+ */
 
 /**
  * @brief IOCP has recv buffer per-socket, it is paralellizing multiple RecvFrom calls epoll/kqueue has recv buffer pre-thread, 
@@ -295,7 +298,7 @@ public:
 		_RemoveObject(obj->GetHandle());
 	}
 };
-
+/** @}*/
 
 } // namespace inet
 /** @}*/

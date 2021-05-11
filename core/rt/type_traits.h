@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file type_traits.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,7 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "../os/predefines.h"
 #include "runtime_base.h"
 #include <float.h>
@@ -47,7 +47,10 @@
 
 namespace rt
 {
-
+/** \addtogroup type_traits
+ * @ingroup rt
+ *  @{
+ */
 /**
  * @brief True if T1 T2 is the same type
  * 
@@ -93,7 +96,7 @@ class Remove_QualiferAndRef
 {protected:	typedef typename Remove_Reference<T>::t_Result		_NoRef;
  public:	typedef typename Remove_Qualifer<_NoRef>::t_Result	t_Result;
 };
-    
+    /** @}*/
 } // namespace rt
 
 
@@ -149,6 +152,10 @@ namespace rt
 
 namespace rt
 {
+	/** \addtogroup type_traits
+ * @ingroup rt
+ *  @{
+ */
 namespace _details
 {	extern LPCSTR _UnitTestOutputFilePrefix;
 } // namespace _details
@@ -165,13 +172,16 @@ namespace _details
 											rt::UnitTests::x(); _LOG("=== UnitTest<"<<#x<<">: END =====\n");						\
 											_CheckHeap; }
 struct UnitTests;
-
+/** @}*/
 } // namespace rt
 
 
 namespace rt
 {
-
+/** \addtogroup type_traits
+ * @ingroup rt
+ *  @{
+ */
 //////////////////////////////////////////////////////////////
 // Qualifiers that can not be nest specified (const/volatile/&)
 static const int _typeid_expression		=-5;	///< classes for expressions in expr_templ.h
@@ -783,7 +793,7 @@ struct _InvokeThisCall
 				{ if(This)rt::_details::_InvokeThisCall<__ThisCallPolymorphism_ ## name>::Invoke(This, Func, args...); }}
 
 #define THISCALL_POLYMORPHISM_INVOKE(name, This, Func, ...)	(__ThisCallPolymorphism_ ## name::Invoke(This, Func, ##__VA_ARGS__))
-
+/** @}*/
 } // namespace rt
 /** @}*/
 

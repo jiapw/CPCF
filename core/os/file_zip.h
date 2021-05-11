@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup os 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file file_zip.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "file_dir.h"
 
 #ifndef PLATFORM_WIN
@@ -47,7 +48,10 @@
 
 namespace os
 {
-
+/** \addtogroup file_zip
+ * @ingroup os
+ *  @{
+ */
 /**
  * @brief Zip File
  * 
@@ -437,7 +441,7 @@ public:
 	bool			ExtractFile(UINT idx, LPVOID pData);	///< pData pointing memory with size = GetFileSize
 
 };
-
+/** @}*/
 
 } // namespace os
 /** @}*/

@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup gl 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_object.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -41,10 +38,16 @@
 #include "gl_basic.h"
 #include "gl_shader.h"
 #include "gl_math.h"
-
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
 namespace gl
 {
-
+/** \addtogroup gl_animator
+ * @ingroup gl
+ *  @{
+ */
 struct Surface
 {
 	enum _tagDataFlag
@@ -205,6 +208,6 @@ public:
 #endif
 };
 
-
+/** @}*/
 } // namespace gl
 /** @}*/

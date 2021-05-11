@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup snappy
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file snappy.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,15 +35,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+
 #include "../../shared_api/rt/runtime_base.h"
 
 namespace rt
 {
-
+/** \addtogroup snappy
+ * @ingroup ext
+ *  @{
+ */
 extern SSIZE_T	SnappyCompress(LPCVOID in, SIZE_T in_size, LPVOID out, SIZE_T out_size);	///< return compressed size, -1 for error
 extern bool		SnappyUncompress(LPCVOID in, SIZE_T in_size, LPVOID out);					///< out_size must be SnappyGetUncompressedLength
 extern SIZE_T	SnappyMaxCompressedLength(SIZE_T in_size);
 extern SSIZE_T	SnappyGetUncompressedLength(LPCVOID in, SIZE_T in_size);					///< return uncompressed size, -1 for error
-
-};
 /** @}*/
+};

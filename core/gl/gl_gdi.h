@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup gl 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_gdi.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "gl_basic.h"
 #include "gl_texture.h"
 #include "gl_shader.h"
@@ -46,7 +47,10 @@
 
 namespace gl
 {
-
+/** \addtogroup gl_gdi
+ * @ingroup gl
+ *  @{
+ */
 typedef os::U16CHAR		GDICHAR;
 
 /**
@@ -323,6 +327,6 @@ public:
 	void SetZoomSpeed(double szoom_x, double szoom_y);
 	void ApplyTo(ShaderProgramBase& shader, LPCSTR layout_name = "_gdiLayout", bool as_double_type = false);  // vec4 = { offset_x, offset_y, scale_x, scale_y }
 };
-
+/** @}*/
 } // namespace gl
 /** @}*/

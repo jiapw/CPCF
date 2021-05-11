@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rocksdb
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file rocksdb.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup rocksdb
+ * @ingroup ext
+ *  @{
+ */
 #include "../../rt/type_traits.h"
 #include "../../os/multi_thread.h"
 #include "../../os/file_dir.h"
@@ -50,7 +51,10 @@
 
 namespace ext
 {
-
+/** \addtogroup rocks_db
+ * @ingroup rocksdb
+ *  @{
+ */
 typedef ::rocksdb::WriteOptions	WriteOptions;
 typedef ::rocksdb::ReadOptions	ReadOptions;
 typedef ::rocksdb::Iterator		Iterator;
@@ -803,6 +807,6 @@ public:
 									UINT	varname##_strlen = (UINT)varname##_strexp.CopyTo(varname##_buf); \
 									SliceValue varname(varname##_buf, varname##_strlen); \
 
-
+/** @}*/
 } // namespace ext
 /** @}*/

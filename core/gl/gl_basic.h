@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup gl 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_basic.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "../os/user_inputs.h"
 #include "../rt/small_math.h"
 #include "../rt/string_type.h"
@@ -49,7 +50,10 @@ extern "C" void _objc_opengl_setup_disaply_link(LPVOID pUIView);
 
 namespace gl
 {
-
+/** \addtogroup gl_basic
+ * @ingroup gl
+ *  @{
+ */
 class ShaderProgramBase;
 
 #if		defined(PLATFORM_WIN)
@@ -161,7 +165,7 @@ extern void		SetLineWidth(float w);
 extern LPCSTR	GetLastError();
 extern void		DrawUnitBox(ShaderProgramBase* pShader);
 
-	
+/** @}*/	
 } // namespace gl
 
 #if defined(_DEBUG)
@@ -172,7 +176,10 @@ extern void		DrawUnitBox(ShaderProgramBase* pShader);
 
 namespace gl
 {
-
+/** \addtogroup gl_basic
+ * @ingroup gl
+ *  @{
+ */
 class Camera
 {
 protected:
@@ -341,14 +348,17 @@ INLFUNC void StopUsingVBO(){ VertexAttributeBuffer::UseNull(); VertexIndexBuffer
 
 extern UINT GetGLTypeSize(DWORD type);
 extern const rt::String_Ref& GetGLTypeName(DWORD type);
-
+/** @}*/
 } // namespace gl
 
 
 
 namespace gl
 {
-
+/** \addtogroup gl_basic
+ * @ingroup gl
+ *  @{
+ */
 namespace _details
 {
 	class _VersionedState
@@ -376,6 +386,6 @@ namespace _details
 	};
 } // namespace _details
 
-
+/** @}*/
 } // namespace gl
 /** @}*/

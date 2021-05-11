@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup sparsehash
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file snappy.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -47,7 +44,10 @@
 
 namespace ext
 {
-
+/** \addtogroup sparsehash
+ * @ingroup ext
+ *  @{
+ */
 namespace _details
 {
 
@@ -191,6 +191,6 @@ public:
 		return it == _SC::end()?0:it->second;
 	}
 };
-
+/** @}*/
 } // ext
 /** @}*/

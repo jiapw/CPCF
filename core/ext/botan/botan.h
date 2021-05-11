@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup botan
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file botan.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,7 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+
 #include "./inc/datablock.h"
 #include "./inc/big_int.h"
 #include "./inc/hash.h"
@@ -52,7 +50,10 @@
 
 namespace sec
 {
-
+/** \addtogroup botan
+ * @ingroup ext
+ *  @{
+ */
 class TLS: protected Botan::TLS::Callbacks
 {
 	rt::BufferEx<BYTE>		__RecvBuf;
@@ -107,6 +108,5 @@ INLFUNC void Randomize(LPVOID p, UINT len)
 
 template<typename T>
 INLFUNC void Randomize(T& d){ Randomize(&d, sizeof(T)); }
-
-} // namespace sec
 /** @}*/
+} // namespace sec

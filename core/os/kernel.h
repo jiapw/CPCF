@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup os 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file kernel.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "predefines.h"
 #include "../rt/string_type.h"
 #include "../rt/buffer_type.h"
@@ -63,7 +64,10 @@
 
 namespace os
 {
-
+/** \addtogroup kernel
+ * @ingroup os
+ *  @{
+ */
 #pragma pack(1)
 /**
  * @brief in msec, 10^-3 
@@ -917,7 +921,7 @@ extern void		Base32EncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_l
 extern bool		Base32CrockfordDecode(LPVOID pDataOut, SIZE_T data_len, LPCSTR pBase32, SIZE_T str_len);  ///< for both upper/lowercase
 extern void		Base32CrockfordEncode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 extern void		Base32CrockfordEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
-
+/** @}*/
 } // namespace os
 
 
@@ -925,7 +929,10 @@ namespace rt
 {
 namespace tos
 {
-
+/** \addtogroup kernel
+ * @ingroup os
+ *  @{
+ */
 template<UINT LEN = 256>
 struct Base64OnStack: public ::rt::tos::S_<1, LEN>
 {	typedef ::rt::tos::S_<1, LEN> _SC;
@@ -1055,7 +1062,7 @@ struct Base16: public String
 	}
 };
 
-
+/** @}*/
 } // tos
 
 } // rt

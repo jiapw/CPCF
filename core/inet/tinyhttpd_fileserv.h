@@ -1,8 +1,5 @@
 #include "tinyhttpd.h"
-/** \addtogroup inet 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file tinyhttpd_fileserv.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,10 +35,16 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
 namespace inet
 {
-
+/** \addtogroup tinyhttpd_fileserv
+ * @ingroup inet
+ *  @{
+ */
 
 class HttpServerFiles:public HttpHandler<HttpServerFiles>
 {
@@ -92,7 +95,7 @@ public:
 	void	SetDataConversion(FUNC_WebAssetsConvertion p){ _HttpDataConv = p; }
 };
 
-
+/** @}*/
 
 } // namespace inet
 /** @}*/

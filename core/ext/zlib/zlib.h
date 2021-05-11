@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup zlib
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file snappy.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -52,7 +49,10 @@
 
 namespace rt
 {
-
+/** \addtogroup zlib
+ * @ingroup ext
+ *  @{
+ */
 INLFUNC bool zlib_encode(LPCVOID pSrc, UINT SrcLen, LPVOID pDst, UINT& DstLen, int Compression_Level = -1)
 {
 	z_stream defstrm;
@@ -99,6 +99,5 @@ INLFUNC bool zlib_decode(LPCVOID pSrc, UINT SrcLen, LPVOID pDst, UINT& DstLen)
 	DstLen = (UINT)infstrm.total_out;
 	return true;
 }
-
-} // namespace rt
 /** @}*/
+} // namespace rt

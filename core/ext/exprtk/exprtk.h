@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup exprtk
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file exprtk.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -45,7 +42,10 @@
 
 namespace rt
 {
-
+/** \addtogroup exprtk
+ * @ingroup ext
+ *  @{
+ */
 namespace _details
 {	
 	void _translate_code(const rt::String_Ref& code, std::string& out);
@@ -113,6 +113,5 @@ public:
 };
 
 
-
-} // namespace rt
 /** @}*/
+} // namespace rt

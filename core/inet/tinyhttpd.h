@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup inet 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file tinyhttpd.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -46,10 +43,16 @@
 #include "inet.h"
 #include <map>
 
-
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
 namespace inet
 {
-
+/** \addtogroup tinyhttpd
+ * @ingroup inet
+ *  @{
+ */
 class TinyHttpd;
 class HttpResponse;
 struct HttpEndpoint;
@@ -317,6 +320,6 @@ class HttpRequestEcho:public HttpHandler<HttpRequestEcho>
 public:
 	bool	OnRequest(HttpResponse& resp);
 };
-
+/** @}*/
 } // inet
 /** @}*/

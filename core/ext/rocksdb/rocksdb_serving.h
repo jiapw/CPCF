@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rocksdb
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file rocksdb_serving.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,12 +35,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup rocksdb
+ * @ingroup ext
+ *  @{
+ */
 #include "rocksdb.h"
 #include "../../inet/tinyhttpd.h"
 
 
 namespace ext
 {
+	/** \addtogroup rocksdb_serving
+ * @ingroup rocksdb
+ *  @{
+ */
 class RocksDB;
 
 class RocksDBServe: public inet::TinyHttpd
@@ -78,6 +83,7 @@ public:
 	~RocksDBServe();
 	void RocksMap(RocksDB* pDB, const rt::String_Ref& L1_path, KeyFormat key_format = KF_STRING, LPCSTR mime = inet::TinyHttpd::MIME_STRING_JSON);
 };
+/** @}*/
 
 } // namespace ext
 /** @}*/

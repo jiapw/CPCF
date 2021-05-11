@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rocksdb
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file rocksdb_conf.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,14 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup rocksdb
+ * @ingroup ext
+ *  @{
+ */
+/** \addtogroup rocksdb_conf
+ * @ingroup rocksdb
+ *  @{
+ */
 #include "../../os/platform.h"
 #include <functional>
 
@@ -62,4 +67,5 @@
 #if defined(ROCKSDB_PLATFORM_POSIX)
     #define ROCKSDB_LIB_IO_POSIX 1
 #endif
+/** @}*/
 /** @}*/

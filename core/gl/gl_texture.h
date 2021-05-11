@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup gl 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_texture.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -42,10 +39,16 @@
 #include "../rt/small_math.h"
 #include "../rt/buffer_type.h"
 
-
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
 namespace gl
 {
-
+/** \addtogroup gl_texture
+ * @ingroup gl
+ *  @{
+ */
 namespace _details
 {
 
@@ -286,7 +289,7 @@ template<> struct _GLTextureFormat<float, 3>{ static const int Internal = GL_RGB
 template<> struct _GLTextureFormat<float, 4>{ static const int Internal = GL_RGBA32F; static const int TexFormat = GL_RGBA; static const int TexType = GL_FLOAT; };
 
 }
-
+/** @}*/
 } // namespace gl
 /** @}*/
 

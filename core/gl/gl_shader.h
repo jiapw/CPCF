@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup gl 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_shader.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "gl_basic.h"
 #include "gl_texture.h"
 #include "../rt/string_type.h"
@@ -46,7 +47,10 @@
 
 namespace gl
 {
-
+/** \addtogroup gl_shader
+ * @ingroup gl
+ *  @{
+ */
 namespace _details
 {
 	typedef rt::hash_set<rt::String_Ref, rt::String_Ref::hash_compare>	t_Dependency;
@@ -351,7 +355,7 @@ public:
 
 #undef	DEF_STATUS_QUERY
 
-
+/** @}*/
 } // namespace gl
 /** @}*/
 

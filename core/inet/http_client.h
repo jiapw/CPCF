@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup inet 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file http_client.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -42,9 +39,16 @@
 #include "inet.h"
 #include "../../core/ext/botan/botan.h"
 
-
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
 namespace inet
 {
+/** \addtogroup http_client
+ * @ingroup inet
+ *  @{
+ */
 class UrlEncoding
 {
     rt::String	_encoded;
@@ -381,6 +385,6 @@ public:
     bool	IsResponseSuccess() const { return _HttpSession.GetResponseParsedHeader().m_StateCode/100 == 2; }
     const HttpSession::ResponseHeader& GetResponseParsedHeader() const {return _HttpSession.GetResponseParsedHeader();}
 };
-
+/** @}*/
 } // namespace inet
 /** @}*/

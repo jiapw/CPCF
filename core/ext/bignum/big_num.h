@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup bigNum
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file big_num.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup bigNum
+ * @ingroup ext
+ *  @{
+ */
 #include "../../rt/type_traits.h"
 #include "../../rt/string_type.h"
 #include "../../rt/buffer_type.h"
@@ -45,7 +46,10 @@
 
 namespace ext
 {
-
+/** \addtogroup big_num
+ * @ingroup bigNum
+ *  @{
+ */
 class BigNumMutable;
 
 namespace _details
@@ -420,6 +424,6 @@ public:
 };
 
 typedef BigNumMutable	_BN;
-
+/** @}*/
 } // namespace oxd
 /** @}*/

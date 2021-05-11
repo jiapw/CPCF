@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file string_type.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,7 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "runtime_base.h"
 #include "type_traits.h"
 
@@ -48,6 +48,10 @@
 
 namespace rt
 {
+/** \addtogroup string_type
+ * @ingroup rt
+ *  @{
+ */
 namespace _details
 {
 #pragma warning(disable:4146)
@@ -1965,7 +1969,7 @@ public:
 	static const bool IsPOD = false;
 	static const bool IsNumeric = false;
 };
-
+/** @}*/
 } // namespace rt
 
 namespace std

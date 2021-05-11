@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file xml_xhtml.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,14 +35,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "string_type_ops.h"
 #include "buffer_type.h"
 
 
 namespace rt
 {
-
+/** \addtogroup xml_xhtml
+ * @ingroup rt
+ *  @{
+ */
 class XMLComposer
 {
 	struct _TagCache
@@ -393,6 +396,6 @@ public:
 
 	void			GetXPathAsCSSPath(rt::String& out);
 };
-
+/** @}*/
 } // namespace rt
 /** @}*/

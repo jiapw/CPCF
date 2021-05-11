@@ -1,8 +1,5 @@
 ﻿#pragma once
-/** \addtogroup ipp
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file ipp_core.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
 #include "../../rt/small_math.h"
 #include "../../os/kernel.h"
 #include "ipp_config.h"
@@ -54,14 +55,17 @@
 
 namespace ipp
 {
-
+/** \addtogroup ipp_core
+ * @ingroup ipp
+ *  @{
+ */
 enum _tagAxisOrientation
 {
 	AxisHorizontal = ippAxsHorizontal,
 	AxisVertical = ippAxsVertical,
 	AxisBoth = ippAxsBoth
 };
-
+/** @}*/
 } // namespace ipp
 
 #else // PLATFORM_INTEL_IPP_SUPPORT
@@ -84,7 +88,10 @@ typedef double			Ipp64f;
 
 namespace ipp
 {
-
+/** \addtogroup ipp_core
+ * @ingroup ipp
+ *  @{
+ */
 /**
  * @brief IppEnv
  * 
@@ -157,12 +164,15 @@ public:
 };
 INLFUNC IppiEnvParam * GetEnv(){ return &IppiEnvParam::g_IppEnv; }
 
-
+/** @}*/
 } // namespace ipp
 
 namespace ipp
 {
-
+/** \addtogroup ipp_core
+ * @ingroup ipp
+ *  @{
+ */
 struct Size:public IppiSize
 {
 	FORCEINL Size(){}
@@ -245,6 +255,6 @@ INLFUNC DWORD crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0)
 	return ~crc_init;
 }
 #endif
-
+/** @}*/
 } // namespace ipp
 /** @}*/

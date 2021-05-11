@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup sevenZip
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file 7zip.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,7 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+
 #include "../../rt/runtime_base.h"
 
 #ifdef __cplusplus
@@ -58,7 +56,10 @@ extern "C" {
 
 namespace rt
 {
-
+/** \addtogroup sevenZip
+ * @ingroup ext
+ *  @{
+ */
 namespace _details
 {
 	struct lamz_alloc:public ISzAlloc
@@ -116,6 +117,6 @@ INLFUNC bool lzma_decode(LPCVOID pSrc, size_t SrcLen, LPVOID pDst, size_t& DstLe
 //    const Byte *propData, unsigned propSize, ELzmaFinishMode finishMode,
 //    ELzmaStatus *status, ISzAlloc *alloc)
 }
-
-}
 /** @}*/
+}
+

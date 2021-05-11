@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup gl 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_math.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,13 +35,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "../rt/runtime_base.h"
 #include "../rt/small_math.h"
 
 
 namespace gl
 {
-
+/** \addtogroup gl_math
+ * @ingroup gl
+ *  @{
+ */
 template <typename t_Val>
 class ArcBall
 {
@@ -215,6 +219,6 @@ public:
 
 typedef ArcBall<float>	ArcBallf;
 typedef ArcBall<double> ArcBalld;
-
+/** @}*/    
 } // namespace gl
 /** @}*/    

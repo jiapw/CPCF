@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup ConCurrentQueue
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file async_queue.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,13 +35,17 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+
 #include "../../../../CPCF/essentials.h"
 #include "blockingconcurrentqueue.h"
 #include "readerwriterqueue.h"
 
 namespace ext
 {
-
+/** \addtogroup ConCurrentQueue
+ * @ingroup ext
+ *  @{
+ */
 /////////////////////////////////////////////////////////////////////////////////////
 // Lock-free queue based on moodycamel::ConcurrentQueue
 // http://moodycamel.com/blog/2014/a-fast-general-purpose-lock-free-queue-for-c++
@@ -353,6 +354,5 @@ public:
 		return false;
 	}
 };
-
-} // ext
 /** @}*/
+} // ext

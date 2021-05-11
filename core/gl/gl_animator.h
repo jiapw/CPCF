@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup gl 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_animator.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,12 +35,19 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup gl 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "gl_basic.h"
 #include "gl_math.h"
 
 namespace gl
 {
-
+/** \addtogroup gl_animator
+ * @ingroup gl
+ *  @{
+ */
 class aniArcball: public _details::_TransformationBase
 {
 	gl::ArcBallf	_arcball;
@@ -52,6 +56,6 @@ public:
 	virtual const rt::Mat4x4f& GetTransformation() const;
 	virtual DWORD InterestedUserInputDevices() const { return os::UIDEV_MOUSE|os::UIDEV_VIEWPORT; }
 };
-
+/** @}*/
 } // namespace gl
 /** @}*/

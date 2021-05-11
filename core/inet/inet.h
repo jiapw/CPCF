@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup inet 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file inet.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,7 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup inet 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "../os/predefines.h"
 #include "../rt/string_type.h"
 #include "../rt/buffer_type.h"
@@ -75,7 +75,10 @@ INLFUNC bool IN6_ADDR_EQUAL(LPCVOID x, LPCVOID y)
 
 namespace inet
 {
-
+/** \addtogroup inet_h
+ * @ingroup inet
+ *  @{
+ */
 #ifndef PLATFORM_WIN
 	typedef int SOCKET;
 #define INVALID_SOCKET  (-1)
@@ -553,14 +556,18 @@ enum _tagHttpStatus
 	// Internal Use
 	HTTP_DELAYED_HANDLING		= 600,
 };
-
+/** @}*/
 } // namespace inet
 
 namespace rt
 {
+
 namespace tos
 {
-
+/** \addtogroup inet_h
+ * @ingroup inet
+ *  @{
+ */
 struct ip:public ::rt::tos::S_<100>
 {
 	ip(const ::inet::InetAddr& x)
@@ -578,7 +585,8 @@ struct ip:public ::rt::tos::S_<100>
         _len += len + rt::_details::string_ops::itoa(x.GetPort(), _p + len);
     };
 };
-
+/** @}*/
 }
+
 }
 /** @}*/

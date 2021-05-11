@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file runtime_base.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,7 +35,14 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
+/** \addtogroup runtime_base
+ * @ingroup rt
+ *  @{
+ */
 #ifndef __cplusplus
 #error Not compiled as C++, use .mm instead of .m on Mac/iOS
 #endif
@@ -1195,7 +1199,10 @@ template<typename T> BYTE AddCarry(BYTE b_in, T a, T b, T* out){ return _details
 
 namespace rt
 {
-
+/** \addtogroup runtime_base
+ * @ingroup rt
+ *  @{
+ */
 template<typename T> class TypeTraits;
 template<typename T1, typename T2> struct IsTypeSame;
 
@@ -1496,7 +1503,8 @@ public:
 	}
 	FORCEINL operator UINT(){ return GetNext(); }
 };
-
+/** @}*/
 } // namespace rt
 ////////////////////////////////////////////////////////////////////////////
+/** @}*/
 /** @}*/

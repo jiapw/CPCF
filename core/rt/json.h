@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file json.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,14 +35,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "string_type_ops.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Composing Json Data
 namespace rt
 {
-	
+	/** \addtogroup json
+ * @ingroup rt
+ *  @{
+ */
 class Json;
 
 class _JVal
@@ -764,6 +767,6 @@ public:
 	JsonBeautified(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80){ Beautify(json_string, indent, line_remain); }
 	void Beautify(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80);
 };
-
+/** @}*/
 } // namespace rt
 /** @}*/

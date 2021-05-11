@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup ipp
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file ipp_canvas.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,11 +35,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
 #include "ipp_image.h"
 
 namespace ipp
 {
-
+/** \addtogroup ipp_canvas
+ * @ingroup ipp
+ *  @{
+ */
 namespace _details
 {
 	template<typename t_Value> struct _Value;
@@ -626,7 +630,7 @@ typedef Canvas<float,4>	Canvas_4c32f;
 typedef Canvas<BYTE,1>	Canvas_1c8u;
 typedef Canvas<BYTE,3>	Canvas_3c8u;
 typedef Canvas<BYTE,4>	Canvas_4c8u;
-
+/** @}*/
 
 } // namespace ipp
 /** @}*/

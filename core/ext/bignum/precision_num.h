@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup bigNum
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file precision_num.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,11 +35,19 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup bigNum
+ * @ingroup ext
+ *  @{
+ */
 #include "../../rt/type_traits.h"
 
 
 namespace ext
 {
+/** \addtogroup precision_num
+ * @ingroup bigNum
+ *  @{
+ */	
 #pragma pack(push, 4)
 namespace _details
 {
@@ -87,5 +92,6 @@ typedef _details::PrecisionFloat<512>	Float512;
 typedef _details::PrecisionFloat<256>	Float256;
 
 #pragma pack(pop)
+/** @}*/
 } // namespace ext
 /** @}*/

@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup os 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file thread_primitive.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -37,6 +34,10 @@
  *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
  */
 #include "predefines.h"
 #include "../rt/runtime_base.h"
@@ -73,7 +74,10 @@
 
 namespace os
 {
-
+/** \addtogroup thread_primitive
+ * @ingroup os
+ *  @{
+ */
 /**
  * @brief All Atomic operation return the value after operation, EXCEPT AtomicOr and AtomicAnd 
  * 
@@ -335,6 +339,6 @@ public:
 		_fences[(_toggle+1)&1]._release_sign.Set();
 	}
 };
-
+/** @}*/
 } // namespace os
 /** @}*/

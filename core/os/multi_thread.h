@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup os 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file multi_thread.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup os 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "thread_primitive.h"
 #include "kernel.h"
 
@@ -48,7 +49,10 @@ class Json;
 
 namespace os
 {
-
+/** \addtogroup multi_thread
+ * @ingroup os
+ *  @{
+ */
 
 typedef DWORD	(*FUNC_THREAD_ROUTE)(LPVOID x); ///< Multi-threading
 
@@ -361,6 +365,6 @@ public:
 };
 
 #endif
-
+/** @}*/
 } // namespace os
 /** @}*/

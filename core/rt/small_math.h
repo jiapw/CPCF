@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file small_math.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,7 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "../../core/rt/runtime_base.h"
 #include "../../core/rt/type_traits.h"
 #include "../../core/rt/string_type.h"
@@ -49,6 +49,10 @@
 // Small Vector 
 namespace rt
 {
+	/** \addtogroup small_math
+ * @ingroup rt
+ *  @{
+ */
 //pre-declaration
 
 template<typename t_Val, int chan>
@@ -1483,7 +1487,7 @@ public:
 
 typedef Quaternion<float> Quaternionf;
 typedef Quaternion<double> Quaterniond;
-
+/** @}*/
 } // namespace rt
 
 #pragma pack()

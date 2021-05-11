@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup ipp
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file ipp_image.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,6 +35,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
 #include "ipp_core.h"
 // OpenEXR
 #include "openexr/IlmImf/ImfOutputFile.h"
@@ -61,7 +62,10 @@
 
 namespace ipp
 {
-
+/** \addtogroup ipp_image
+ * @ingroup ipp
+ *  @{
+ */
 enum _tagImageCodec
 {
 	ImageCodec_Auto = 0,
@@ -2363,6 +2367,7 @@ typedef Image<BYTE,1>	Image_1c8u;
 typedef Image<BYTE,3>	Image_3c8u;
 typedef Image<BYTE,4>	Image_4c8u;
 
+/** @}*/
 
 } // namespace ipp
 /** @}*/

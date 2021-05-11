@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file buffer_type.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -38,13 +35,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
+/** \addtogroup rt 
+ * @ingroup CPCF
+ *  @{
+ */
 #include "../os/thread_primitive.h"
 #include "string_type_ops.h"
 #include <algorithm>
 
 namespace rt
 {
-
+/** \addtogroup buffer_type
+ * @ingroup rt
+ *  @{
+ */
 namespace _details
 {
 	template<bool is_not_pod, typename t_Val>
@@ -1380,6 +1384,7 @@ t_Ostream& operator<<(t_Ostream& Ostream, const TopWeightedValues<t_Ele, TOP, t_
 	Ostream<<'}';
 	return Ostream;
 }
+/** @}*/
 
 } // namespace rt
 /** @}*/

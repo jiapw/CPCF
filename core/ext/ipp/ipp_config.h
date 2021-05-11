@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup ipp
- * @ingroup ext
- *  @{
- */
+
 /**
  * @file ipp_config.h
  * @author JP Wang (wangjiaping@idea.edu.cn)
@@ -75,7 +72,14 @@
 //n8	Supplemental SSE3 (compiled for Atom)	Atom	new in 6.0
 //y8	SSE4.1, SSE4.2, AES-NI	Penryn, Nehalem, Westmere	see notes below
 //e9	AVX	Sandy Bridge Architecture	new in 6.1
-
+/** \addtogroup ipp
+ * @ingroup ext
+ *  @{
+ */
+/** \addtogroup ipp_config
+ * @ingroup ipp
+ *  @{
+ */
 #include "../../os/predefines.h"
 
 #define IPP_LINK_STATIC_LIB_PX
@@ -178,4 +182,5 @@
 #endif // #if defined(PLATFORM_WIN)
 
 #endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT
+/** @}*/
 /** @}*/

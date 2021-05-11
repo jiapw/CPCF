@@ -1,8 +1,5 @@
 #pragma once
-/** \addtogroup ext
- * @ingroup CPCF
- *  @{
- */
+
 /**
  * @file gl_animator.h
  * @author Lee Watson (lihuasheng@idea.edu.cn)
@@ -37,5 +34,9 @@
  *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
+ */
+/** \addtogroup ext
+ * @ingroup CPCF
+ *  @{
  */
 /** @}*/
