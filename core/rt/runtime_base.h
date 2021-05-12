@@ -517,20 +517,26 @@ struct _File
 namespace _details
 {
 
-template<int Size, SIZE_T set> struct _PodFill
-{	static FORCEINL void Fill(LPBYTE p)
-	{	*(SIZE_T*)p = set;
-		_PodFill<Size-sizeof(SIZE_T), set>::Fill(p+sizeof(SIZE_T));
+template<int size, SIZE_T set, bool size_exceeded = (size > 32)> struct _PodFill
+{	static FORCEINL void Fill(LPBYTE obj)
+	{	SIZE_T* p = (SIZE_T*)obj;
+		for(int i=sizeof(SIZE_T);i<=size;i+=sizeof(SIZE_T), p++)*p = set;
+		_PodFill<size%sizeof(SIZE_T), set>::Fill(obj + (size - size%sizeof(SIZE_T)));
 }	};
-	template<SIZE_T set> struct _PodFill<0, set>{ static FORCEINL void Fill(LPBYTE p){}};
-	template<SIZE_T set> struct _PodFill<1, set>{ static FORCEINL void Fill(LPBYTE p){ *p = (BYTE)set; }};
-	template<SIZE_T set> struct _PodFill<2, set>{ static FORCEINL void Fill(LPBYTE p){ *(WORD*)p = (WORD)set; }};
-	template<SIZE_T set> struct _PodFill<3, set>{ static FORCEINL void Fill(LPBYTE p){ *(WORD*)p = (WORD)set; p[2] = (BYTE)set; }};
+	template<int size, SIZE_T set> struct _PodFill<size, set, false>
+	{	static FORCEINL void Fill(LPBYTE p)
+		{	*(SIZE_T*)p = set;
+			_PodFill<size-sizeof(SIZE_T), set, false>::Fill(p+sizeof(SIZE_T));
+	}	};
+	template<SIZE_T set> struct _PodFill<0, set, false>{ static FORCEINL void Fill(LPBYTE p){}};
+	template<SIZE_T set> struct _PodFill<1, set, false>{ static FORCEINL void Fill(LPBYTE p){ *p = (BYTE)set; }};
+	template<SIZE_T set> struct _PodFill<2, set, false>{ static FORCEINL void Fill(LPBYTE p){ *(WORD*)p = (WORD)set; }};
+	template<SIZE_T set> struct _PodFill<3, set, false>{ static FORCEINL void Fill(LPBYTE p){ *(WORD*)p = (WORD)set; p[2] = (BYTE)set; }};
 #if defined(PLATFORM_64BIT)
-	template<SIZE_T set> struct _PodFill<4, set>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; }};
-	template<SIZE_T set> struct _PodFill<5, set>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; _PodFill<1, set>::Fill(p+4); }};
-	template<SIZE_T set> struct _PodFill<6, set>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; _PodFill<2, set>::Fill(p+4); }};
-	template<SIZE_T set> struct _PodFill<7, set>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; _PodFill<3, set>::Fill(p+4); }};
+	template<SIZE_T set> struct _PodFill<4, set, false>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; }};
+	template<SIZE_T set> struct _PodFill<5, set, false>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; _PodFill<1, set>::Fill(p+4); }};
+	template<SIZE_T set> struct _PodFill<6, set, false>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; _PodFill<2, set>::Fill(p+4); }};
+	template<SIZE_T set> struct _PodFill<7, set, false>{ static FORCEINL void Fill(LPBYTE p){ *(DWORD*)p = (DWORD)set; _PodFill<3, set>::Fill(p+4); }};
 #endif
 
 } // namespace _details
@@ -576,14 +582,20 @@ FORCEINL void Void(LPVOID obj, SIZE_T size)
 	}
 }
 
-
 namespace _details
 {
-template<int Size> struct _PodCopy
-{	static FORCEINL void Fill(LPBYTE p, LPCBYTE s)
-	{	*(SIZE_T*)p = *(SIZE_T*)s;
-		_PodCopy<Size-sizeof(SIZE_T)>::Fill(p+sizeof(SIZE_T), s+sizeof(SIZE_T));
+template<int size, bool size_exceeded = (size > 32)> struct _PodCopy
+{	static FORCEINL void Fill(LPBYTE p_in, LPCBYTE s)
+	{	SIZE_T* p = (SIZE_T*)p_in;
+		SIZE_T* s = (SIZE_T*)s_in;
+		for(int i=sizeof(SIZE_T);i<=size;size+=sizeof(SIZE_T), p++, s++)*p = *s;
+		_PodCopy<size%sizeof(SIZE_T)>::Fill(p_in + (size - size%sizeof(SIZE_T)));
 }	};
+	template<int size> struct _PodCopy<size, false>
+	{	static FORCEINL void Fill(LPBYTE p, LPCBYTE s)
+		{	*(SIZE_T*)p = *(SIZE_T*)s;
+			_PodCopy<size-sizeof(SIZE_T)>::Fill(p+sizeof(SIZE_T), s+sizeof(SIZE_T));
+	}	};
 	template<> struct _PodCopy<0>{ static FORCEINL void Fill(LPBYTE p, LPCBYTE s){}};
 	template<> struct _PodCopy<1>{ static FORCEINL void Fill(LPBYTE p, LPCBYTE s){ *p = *s; }};
 	template<> struct _PodCopy<2>{ static FORCEINL void Fill(LPBYTE p, LPCBYTE s){ *(WORD*)p = *(WORD*)s; }};
@@ -595,20 +607,27 @@ template<int Size> struct _PodCopy
 	template<> struct _PodCopy<7>{ static FORCEINL void Fill(LPBYTE p, LPCBYTE s){ *(DWORD*)p = *(DWORD*)s; _PodCopy<3>::Fill(p+4, s+4); }};
 #endif
 
-template<int Size> struct _PodEqual
-{	static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s)
-	{	return	*(SIZE_T*)p == *(SIZE_T*)s &&
-				_PodEqual<Size-sizeof(SIZE_T)>::IsEqual(p+sizeof(SIZE_T), s+sizeof(SIZE_T));
+template<int size, bool size_exceeded = (size > 32)> struct _PodEqual
+{	static FORCEINL bool IsEqual(LPCBYTE p_in, LPCBYTE s_in)
+	{	SIZE_T* p = (SIZE_T*)p_in;
+		SIZE_T* s = (SIZE_T*)s_in;
+		for(int i=sizeof(SIZE_T);i<=size;size+=sizeof(SIZE_T), p++, s++)if(*p != *s)return false;
+		return _PodEqual<size%sizeof(SIZE_T)>::Fill(p_in + (size - size%sizeof(SIZE_T)), s_in + (size - size%sizeof(SIZE_T)));
 }	};
-	template<> struct _PodEqual<0>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return true; }};
-	template<> struct _PodEqual<1>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *p == *s; }};
-	template<> struct _PodEqual<2>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(WORD*)p == *(WORD*)s; }};
-	template<> struct _PodEqual<3>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(WORD*)p == *(WORD*)s && p[2] == s[2]; }};
+	template<int size> struct _PodEqual<size, false>
+	{	static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s)
+		{	return	*(SIZE_T*)p == *(SIZE_T*)s &&
+					_PodEqual<Size-sizeof(SIZE_T)>::IsEqual(p+sizeof(SIZE_T), s+sizeof(SIZE_T));
+	}	};
+	template<> struct _PodEqual<0, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return true; }};
+	template<> struct _PodEqual<1, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *p == *s; }};
+	template<> struct _PodEqual<2, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(WORD*)p == *(WORD*)s; }};
+	template<> struct _PodEqual<3, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(WORD*)p == *(WORD*)s && p[2] == s[2]; }};
 #if defined(PLATFORM_64BIT)
-	template<> struct _PodEqual<4>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s; }};
-	template<> struct _PodEqual<5>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<1>::IsEqual(p+4, s+4); }};
-	template<> struct _PodEqual<6>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<2>::IsEqual(p+4, s+4); }};
-	template<> struct _PodEqual<7>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<3>::IsEqual(p+4, s+4); }};
+	template<> struct _PodEqual<4, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s; }};
+	template<> struct _PodEqual<5, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<1>::IsEqual(p+4, s+4); }};
+	template<> struct _PodEqual<6, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<2>::IsEqual(p+4, s+4); }};
+	template<> struct _PodEqual<7, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *(DWORD*)p == *(DWORD*)s && _PodEqual<3>::IsEqual(p+4, s+4); }};
 #endif
 
 } // namespace _details

@@ -257,7 +257,7 @@ void rt::UnitTests::recv_pump()
 		local.Create(local_addr, true);
 		core.AddObject(&local);
         
-        _LOG("Local: "<<rt::tos::ip(local_addr));
+        _LOGC("Local: "<<rt::tos::ip(local_addr));
 		
 		InetAddr local_send_addr;
 		local_send_addr.SetAsAny();

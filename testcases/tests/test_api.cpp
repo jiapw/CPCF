@@ -2144,7 +2144,7 @@ void rt::UnitTests::sortedpush()
 		for(UINT i=0; i<20; i++)
 		{
 			WORD new_v = (BYTE)a.GetNext();
-			SSIZE_T pos = sorted.SortedPush(new_v);
+			SSIZE_T pos = sorted.PushSorted(new_v);
 			_LOG(sorted << " Add:" <<new_v<<" at "<<pos);
 		}
 	}
@@ -2157,7 +2157,7 @@ void rt::UnitTests::sortedpush()
 		for(UINT i=0; i<20; i++)
 		{
 			WORD new_v = (BYTE)a.GetNext();
-			SSIZE_T pos = sorted.SortedPush(new_v);
+			SSIZE_T pos = sorted.PushSorted(new_v);
 			_LOG(sorted << " Add:" <<new_v<<" at "<<pos);
 		}
 	}

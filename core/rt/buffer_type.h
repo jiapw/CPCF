@@ -217,7 +217,7 @@ public:
 				rt::Swap((*this)[i], (*this)[i+ rng%(GetSize()-i)]);
 		}
 	}
-	SSIZE_T SortedPush(const t_Val& x) // last item will be dropped
+	SSIZE_T PushSorted(const t_Val& x) // last item will be dropped
 	{
 		if(GetSize() == 0 || Last() < x)return -1;
 		_xt::dtor(Last());

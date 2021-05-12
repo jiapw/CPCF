@@ -512,7 +512,7 @@ void Precompiler::AddIncludeSearchDirectory(const rt::String_Ref& dir)
 	out.NormalizePathSeparator('/');
 	if(out.Last() != '/')out += '/';
 
-	_LoadFileSearchDirs.Include(out);
+	_LoadFileSearchDirs.PushUnique(out);
 }
 
 void PrecompilerPredefinedMacros::ImportCmdLineOptions(const os::CommandLine& cmd)
