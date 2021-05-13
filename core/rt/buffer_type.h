@@ -811,11 +811,15 @@ t_Ostream& operator<<(t_Ostream& Ostream, const rt::Buffer_Ref<t_Ele> & vec)
 
 	return Ostream << rt::LOG_FULLDATA(vec);
 }
+/** @}*/
 } // namespace rt
 
 namespace rt
 {
-
+/** \addtogroup buffer_type
+ * @ingroup rt
+ *  @{
+ */
 namespace _details
 {
 template<bool has_trailing = true>
@@ -1042,11 +1046,16 @@ public:
 			}
 };
 typedef BooleanArray<0, true> BooleanArrayRef;
+/** @}*/
 } // namespace rt
 
 
 namespace rt
 {
+/** \addtogroup buffer_type
+ * @ingroup rt
+ *  @{
+ */
 namespace _details
 {
 template<class t_Storage>
@@ -1305,7 +1314,7 @@ public:
 			}
 	int		Sample(const T& val, T_WEIGHT wei = 1)		///< UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
 			{	int ret = _Match(val, wei);
-				if(ret == MATCHED_WITH_TOP)
+ 				if(ret == MATCHED_WITH_TOP)
 				{	if(	_TopValues[0].Count > TOP_COUNT_CLAMP || 
 						_TopValues[0].Wei > rt::TypeTraits<T_WEIGHT>::MaxVal()/8*7
 					)

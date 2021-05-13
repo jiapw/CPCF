@@ -118,6 +118,12 @@
     <ClCompile Include="..\..\core\inet\datagram_pump.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_rt_buffer.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\test_rt_json.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\ext\botan\botan.h" />

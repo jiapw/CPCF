@@ -24,12 +24,8 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(big_num);
-//		TYPETRAITS_UNITTEST(crypto_func);
-		//TYPETRAITS_UNITTEST(recv_pump);
-					TYPETRAITS_UNITTEST(ipp_imageproc);
-			TYPETRAITS_UNITTEST(ipp_image);
-			TYPETRAITS_UNITTEST(ipp_image_apps);
+		TYPETRAITS_UNITTEST(buffer);
+		
 		return;
 	}
 	else

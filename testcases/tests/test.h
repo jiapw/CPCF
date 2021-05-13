@@ -5,7 +5,7 @@ namespace rt
 {
 
 struct UnitTests
-{
+{	
 	static void encoding();
 	static void string();
 	static void string_conv();

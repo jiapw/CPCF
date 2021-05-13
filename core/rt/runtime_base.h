@@ -143,6 +143,7 @@ namespace rt
 
 namespace rt
 {
+
 namespace _details
 {
 template<typename T>
@@ -167,6 +168,7 @@ enum _tagLogType
 	LOGTYPE_IN_CONSOLE_PROMPT = 0x800,
 	LOGTYPE_MAX,
 };
+
 } // namespace rt
 
 ///////////////////////////////////////////////////////
@@ -190,8 +192,15 @@ namespace os
 	#define _LOGP
 #endif
 
-// Log to both console and file
-#define _LOG_VERBOSE(x)				__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
+
+
+/** \addtogroup logs
+ *  @{
+ */
+ /** \addtogroup both_consoleand_file
+  *  @{
+  */
+#define _LOG_VERBOSE(x)				__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE) 
 #define _LOG_UPDATING(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_UPDATING)
 #define _LOG(x)						__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOG_HIGHLIGHT(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_HIGHLIGHT)
@@ -200,9 +209,11 @@ namespace os
 
 #define _LOG_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOG_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_WARNING)
-
-// Only Log to console
-#define _LOGC_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE)
+ /** @}*/
+ /** \addtogroup Only_log_to_console
+  *  @{
+  */
+#define _LOGC_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE) 
 #define _LOGC(x)					__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGC_PROMPT()				__LOG_TYPE("", rt::LOGTYPE_IN_CONSOLE_PROMPT|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGC_HIGHLIGHT(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_HIGHLIGHT)
@@ -211,8 +222,10 @@ namespace os
 			
 #define _LOGC_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE)
 #define _LOGC_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_WARNING)
-
-// Only Log to file
+  /** @}*/
+ /** \addtogroup Only_Log_to_file
+  *  @{
+  */ 
 #define _LOGF_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOGF(x)					__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGF_HIGHLIGHT(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_HIGHLIGHT)
@@ -221,7 +234,8 @@ namespace os
 
 #define _LOGF_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOGF_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_WARNING)
-
+  /** @}*/
+/** @}*/
 
 
 /**
