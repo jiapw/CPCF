@@ -612,12 +612,12 @@ template<int size, bool size_exceeded = (size > 32)> struct _PodEqual
 	{	SIZE_T* p = (SIZE_T*)p_in;
 		SIZE_T* s = (SIZE_T*)s_in;
 		for(SIZE_T i=sizeof(SIZE_T);i<=size;i+=sizeof(SIZE_T), p++, s++)if(*p != *s)return false;
-		return _PodEqual<size%sizeof(SIZE_T)>::Fill(p_in + (size - size%sizeof(SIZE_T)), s_in + (size - size%sizeof(SIZE_T)));
+		return _PodEqual<size%sizeof(SIZE_T)>::IsEqual(p_in + (size - size%sizeof(SIZE_T)), s_in + (size - size%sizeof(SIZE_T)));
 }	};
 	template<int size> struct _PodEqual<size, false>
 	{	static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s)
 		{	return	*(SIZE_T*)p == *(SIZE_T*)s &&
-					_PodEqual<Size-sizeof(SIZE_T)>::IsEqual(p+sizeof(SIZE_T), s+sizeof(SIZE_T));
+					_PodEqual<size-sizeof(SIZE_T)>::IsEqual(p+sizeof(SIZE_T), s+sizeof(SIZE_T));
 	}	};
 	template<> struct _PodEqual<0, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return true; }};
 	template<> struct _PodEqual<1, false>{ static FORCEINL bool IsEqual(LPCBYTE p, LPCBYTE s){ return *p == *s; }};
