@@ -165,7 +165,7 @@ public:
     ~Cipher(){ Empty(); }
     void            Empty()
                     {   if(_CCRef_Encryption){ CCCryptorRelease(_CCRef_Encryption); _CCRef_Encryption = nullptr; }
-                        if(_CCRef_Encryption){ CCCryptorRelease(_CCRef_Encryption); _CCRef_Encryption = nullptr; }
+                        if(_CCRef_Decryption){ CCCryptorRelease(_CCRef_Decryption); _CCRef_Decryption = nullptr; }
                         rt::Zero(_Hash);
                     }
     static void     ComputeKey(LPVOID key, LPCVOID data, UINT size){ Hash<_details::_AES_Traits<_METHOD>::KEY_HASHER>().Calculate(data, size, key); }
