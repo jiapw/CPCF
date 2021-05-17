@@ -57,40 +57,54 @@ bool HttpSession::Request_GetPartial(LPCSTR pURL, int start, int length, LPCSTR 
 bool HttpSession::Request_Post(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR data_type, LPCSTR charset, bool keep_alive)
 {
 	DataBuf bufs = { data, sz };
-	return Request_Post(pURL, &bufs, 1, data_type, charset, keep_alive);
+	return Request_Post(pURL, &bufs, 1, data_type, charset, nullptr, 0 , keep_alive);
+}
+
+bool HttpSession::Request_Post(LPCSTR pURL, const HttpSession::DataBuf* pBufs, UINT BufCount, LPCSTR data_type, LPCSTR charset, bool keep_alive)
+{
+	return Request_Post(pURL, pBufs, BufCount, data_type, charset, nullptr, 0, keep_alive);
 }
 
 
 
-bool HttpSession::Request_Post(LPCSTR pURL, const HttpSession::DataBuf* pBufs, UINT BufCount, LPCSTR data_type, LPCSTR charset, bool keep_alive)
+bool HttpSession::Request_Post(LPCSTR pURL, const HttpSession::DataBuf* pBufs, UINT BufCount, LPCSTR data_type, LPCSTR charset,  LPCSTR additional_header, UINT additional_header_len, bool keep_alive)
 {
 	UINT tot_len = 0;
-	for(UINT i=0;i<BufCount;i++)
+	for (UINT i = 0; i < BufCount; i++)
 		tot_len += pBufs[i].Length;
-
-	auto x = 
-		rt::SS("Content-Type: ") + data_type + rt::SS("; charset=\"") + charset + rt::SS("\"\r\n") + 
-		rt::SS("Content-Length: ") + tot_len + rt::SS("\r\n");
-	
-	rt::String_Ref header = ALLOCA_C_STRING(x);
-
-	if( SendRequest(pURL, HTTP_VERB_POST, header.Begin(), (UINT)header.GetLength()))
+	rt::String_Ref header;
+	if (additional_header_len == 0)
 	{
-		for(UINT i=0;i<BufCount;i++)
+		auto x =
+			rt::SS("Content-Type: ") + data_type + rt::SS("; charset=\"") + charset + rt::SS("\"\r\n") +
+			rt::SS("Content-Length: ") + tot_len + rt::SS("\r\n");
+		header = ALLOCA_C_STRING(x);
+	}
+	else {
+		auto x =
+			rt::SS("Content-Type: ") + data_type + rt::SS("; charset=\"") + charset + rt::SS("\"\r\n") +
+			rt::SS("Content-Length: ") + tot_len + rt::SS("\r\n") + additional_header + rt::SS("\r\n");
+		header = ALLOCA_C_STRING(x);
+	}
+	
+	if (SendRequest(pURL, HTTP_VERB_POST, additional_header, additional_header_len))
+	{
+		for (UINT i = 0; i < BufCount; i++)
 		{
 			LPCBYTE data = (LPCBYTE)pBufs[i].Data;
 			UINT sz = pBufs[i].Length;
 
-			for(; sz>1024; sz-=1024, data+=1024)
-				if(!_Send(data, 1024))
+			for (; sz > 1024; sz -= 1024, data += 1024)
+				if (!_Send(data, 1024))
 					return false;
 
-			if(!_Send(data, sz))return false;
+			if (!_Send(data, sz))return false;
 		}
 		return true;
 	}
 
 	return false;
+
 }
 
 bool HttpSession::Request_PostFile(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR local_filename, bool keep_alive) // as multipart/form-data
