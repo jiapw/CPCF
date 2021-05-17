@@ -406,7 +406,11 @@ public:
 		}
 		return false;
 	}
-	void ShrinkSize(SIZE_T new_size) ///< skip calling ctor
+	bool ExpandSize(SIZE_T new_size)	// no shrink
+	{	if(new_size <= _SC::_len)return true;
+		return ChangeSize(new_size);
+	}
+	void ShrinkSize(SIZE_T new_size)	// no expand
 	{	if(new_size >= _SC::_len)return;
 		if(new_size<_SC::_len)
 		{	
@@ -508,6 +512,18 @@ public:
 			for(SIZE_T i=_SC::_len;i<new_size;i++)_SC::_xt::ctor(&_SC::_p[i]); // call ctor for additional instances at back
 			_SC::_len = new_size;
 			return true;
+		}
+	}
+	bool ExpandSize(SIZE_T new_size, bool keep_old_data = true)	// no shrink
+	{	if(new_size <= _SC::_len)return true;
+		return ChangeSize(new_size, keep_old_data);
+	}
+	void ShrinkSize(SIZE_T new_size)	// no expand
+	{	if(new_size >= _SC::_len)return;
+		if(new_size<_SC::_len)
+		{	
+			for(SIZE_T i=new_size;i<_SC::_len;i++)_SC::_xt::dtor(_SC::_p[i]);	//call dtor for unwanted instances at back
+			_SC::_len = new_size;
 		}
 	}
 	SIZE_T GetReservedSize() const { return _len_reserved; }
@@ -1358,6 +1374,7 @@ public:
 	void	Remove(UINT i)
 			{	if(((int)TOP_K) - (int)i - 1 > 0)memmove(&_TopValues[i], &_TopValues[i+1], sizeof(_val)*(TOP_K - i - 1));
 				_TopValues[TOP_K-1].Wei = 0;
+				_TopValues[TOP_K-1].Count = 0;
 			}
 	bool	IsSignificant(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei > min_weight && _TopValues[0].Wei > _WeightSum()/2; }
 	UINT	GetSignificantRatio(T_WEIGHT min_weight = 0) const { return _TopValues[0].Wei > min_weight?(UINT)(_TopValues[0].Wei*100/_WeightSum()):0; }

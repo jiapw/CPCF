@@ -490,8 +490,19 @@ void os::File::ResolveRelativePath(LPCSTR path, rt::String& fn_out)
     
     if(os::File::IsExist(path))
     {
-        fn_out.SetLength(PATH_MAX);
-        realpath(path, fn_out);
+        if (path == (LPCSTR)fn_out.Begin())
+        {
+            rt::String temp = rt::String_Ref((LPCSTR)fn_out.Begin(), fn_out.GetLength());
+            temp.SetLength(PATH_MAX);
+            realpath(path, temp);
+            path = (LPCSTR)temp.Begin();
+            fn_out = temp;
+        }
+        else
+        {
+            fn_out.SetLength(PATH_MAX);
+            realpath(path, fn_out);
+        }
         fn_out.RecalculateLength();
         return;
     }
