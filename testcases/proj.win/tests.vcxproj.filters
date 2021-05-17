@@ -124,6 +124,9 @@
     <ClCompile Include="..\tests\test_rt_json.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_rt_string.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\ext\botan\botan.h" />

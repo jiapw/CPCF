@@ -24,7 +24,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(buffer);
+		TYPETRAITS_UNITTEST(string);
 		
 		return;
 	}

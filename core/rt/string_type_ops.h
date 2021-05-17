@@ -58,12 +58,15 @@ String_Ref __alloca_string_ref(LPSTR p, const T& x)
 
 namespace rt
 {
-namespace tos
-{
 /** \addtogroup string_type_ops
  * @ingroup rt
  *  @{
  */
+namespace tos
+{
+/**
+ * @brief Number to String
+*/
 typedef ::rt::tos::S_<> Number;
 
 struct WhiteSpace:public ::rt::tos::S_<>
@@ -404,6 +407,7 @@ LPSTR __alloca_string(LPSTR p, const T& x)
 	return p;
 }
 } // namespace rt::_details
+/** @}*/
 } // namespace rt
 
 #define __SS(...)						(rt::SS(#__VA_ARGS__))
@@ -416,6 +420,8 @@ LPSTR __alloca_string(LPSTR p, const T& x)
 // Stringify Enum
 namespace rt
 {
+
+
 namespace _details
 {
 template<typename T>
@@ -446,6 +452,10 @@ struct _EnumString
 };
 } // namespace _details
 
+/** \addtogroup Macros_to_register_enum_for_log_conversion
+ * @ingroup string_type_ops
+ *  @{
+ */
 #define STRINGIFY_ENUM_BEGIN_(type)				namespace rt {								\
 												namespace _details {						\
 												template<>									\
@@ -500,7 +510,11 @@ struct _EnumString
 												INLFUNC type operator &= (type& a, type b){ return a = (type)((UINT)a&(UINT)b); } \
 												INLFUNC type operator ^= (type& a, type b){ return a = (type)((UINT)a^(UINT)b); } \
 												INLFUNC type operator ~ (type b){ return (type)(~((UINT)b)); } \
-
+/** @}*/
+  /** \addtogroup string_type_ops
+ * @ingroup rt
+ *  @{
+ */
 struct EnumStringify: public rt::String
 {
 	template<typename T_Enum>
@@ -524,6 +538,9 @@ struct EnumStringify: public rt::String
 	}
 };
 
+/**
+ * @brief Parse Enum to val(with Enum type)
+*/
 template<typename T_Enum>
 INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 				{	rt::String_Ref tags[sizeof(T_Enum)*8];
@@ -551,6 +568,6 @@ INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 					}	}
 					return true;
 				}
-			/** @}*/
+/** @}*/
 } // namespace rt
 /** @}*/

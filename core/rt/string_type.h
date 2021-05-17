@@ -39,6 +39,10 @@
  * @ingroup CPCF
  *  @{
  */
+ /** \addtogroup string_type
+  * @ingroup rt
+  *  @{
+  */
 #include "runtime_base.h"
 #include "type_traits.h"
 
@@ -48,10 +52,7 @@
 
 namespace rt
 {
-/** \addtogroup string_type
- * @ingroup rt
- *  @{
- */
+
 namespace _details
 {
 #pragma warning(disable:4146)
@@ -172,7 +173,10 @@ struct _to_num<BASE, false>
 
 namespace rt
 {
-
+	/** \addtogroup string_type
+ * @ingroup rt
+ *  @{
+ */
 class CharacterSet
 {
 protected:
@@ -316,21 +320,35 @@ namespace _details
 };
 
 class String;
-
+/**
+ * @brief Contains base methods of string.
+ * @tparam t_StringStore 
+ * @tparam t_StrRef 
+*/
 template<typename t_StringStore, class t_StrRef>
 class String_Base: public t_StringStore
 {	typedef t_StringStore _SC;
 public:
 	SIZE_T		GetLength() const { return _SC::_len; }
+	/**
+	 * @brief terminate-zero is not copied
+	 * @param p 
+	 * @return 
+	*/
 	SIZE_T		CopyTo(char* p) const 
 	{	memcpy(p,_SC::_p,GetLength()*sizeof(char));
 		return GetLength(); 
-	} // terminate-zero is not copied
+	} 
+	/**
+	 * @brief terminate-zero is copied
+	 * @param p 
+	 * @return 
+	*/
 	SIZE_T		CopyToZeroTerminated(char* p) const 
 	{	memcpy(p,_SC::_p,GetLength()*sizeof(char)); 
 		p[GetLength()] = '\0';
 		return GetLength(); 
-	} // terminate-zero is copied
+	} 
 	/**
  	* @brief may NOT terminated by ZERO !!
  	* 
@@ -1082,6 +1100,14 @@ FIND_EXT:
 		}
 		else cgi_param.Empty();
 	}
+	/**
+	 * @brief Get Url Parameters
+	 * 
+	 * Start with Character '?'
+	 * @param tag 
+	 * @param def_val 
+	 * @return 
+	*/
 	t_StrRef GetUrlParam(const t_StrRef& tag, const t_StrRef& def_val = nullptr) const
 	{	auto off = FindCharacter('?');
 		while(off<(SSIZE_T)_SC::_len-1)
@@ -1250,6 +1276,7 @@ FIND_EXT:
 /**
  * @brief String_Ref represent a string with length, the string is not necessary zero-terminated
  * 
+ * Contains member functions that do not change the length.
  */
 class String_Ref: public String_Base<_details::_StringPtrStore, String_Ref> 
 {	
@@ -1355,17 +1382,22 @@ FORCEINL t_Ostream& operator << (t_Ostream& Ostream, const String_Base<t_StringS
 	}
 	return Ostream;
 }
-
+/** @}*/
 } // namespace rt
 
 namespace rt
 {
+/** \addtogroup string_type
+ * @ingroup rt
+ *  @{
+ */
 /**
  * @brief to string
  * 
  */
 namespace tos
 {
+
 	template<int DIMEN = 1, int LEN = (21*DIMEN + (DIMEN-1)*2) >
 	class S_:public String_Ref
 	{	
@@ -1641,7 +1673,11 @@ public:
 	LPCSTR operator += (LPCSTR str){ (*this) += rt::String_Ref(str); return str; }
 	void operator += (char x){ SIZE_T pos = _SC::GetLength(); if(SetLength(pos+1))_SC::_p[pos] = x; }
 };
-
+/**
+ * @brief only contains address and length.
+ * 
+ * The functions that change the length are all placed in this class.
+*/
 class String: public String_Ref
 {
 protected:
@@ -1852,7 +1888,14 @@ public:
 		}
 		return *this;
 	}
-	const String& TrimCodeComments(const rt::String_Ref& code) ///< for C/C++/Java/Javascript/Json code
+	/**
+	 * @brief Trim Code Comments
+	 * 
+	 * for C/C++/Java/Javascript/Json code
+	 * @param code 
+	 * @return 
+	*/
+	const String& TrimCodeComments(const rt::String_Ref& code) 
 	{
 		if(code.IsEmpty()){	Empty(); return *this; }
 		rt::String output;
@@ -1916,6 +1959,11 @@ public:
 			*this += extname;
 		}
 	}
+	/**
+	 * @brief Skip bytes that cannot be converted.
+	 * 
+	 * @return 
+	*/
 	String& RegularizeUTF8()
 	{	String_Ref::RegularizeUTF8();
 		if(_p)_p[_len] = 0;
@@ -1982,4 +2030,5 @@ template<>
 struct hash<::rt::String>: public ::rt::String::hash_compare {};
 
 } // namespace std
+/** @}*/
 /** @}*/
