@@ -191,6 +191,7 @@ public:
     {	LPCVOID Data;
         UINT	Length;	
     };
+    bool			Request_Post(LPCSTR pURL, const DataBuf* pBufs, UINT BufCount, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
      bool			Request_Post(LPCSTR pURL, const DataBuf* pBufs, UINT BufCount, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8",  LPCSTR additional_header = nullptr, UINT additional_header_len = 0, bool keep_alive = true);
 
     void			SetDataCallback(FUNC_DATA_CALLBACK cb, LPVOID cookie){ m_pDataCallback = cb; m_pDataCallbackCookie = cookie; }

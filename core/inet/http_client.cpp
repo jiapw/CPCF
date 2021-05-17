@@ -60,7 +60,10 @@ bool HttpSession::Request_Post(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR data_t
 	return Request_Post(pURL, &bufs, 1, data_type, charset, nullptr, 0 , keep_alive);
 }
 
-
+bool HttpSession::Request_Post(LPCSTR pURL, const HttpSession::DataBuf* pBufs, UINT BufCount, LPCSTR data_type, LPCSTR charset, bool keep_alive)
+{
+	return Request_Post(pURL, pBufs, BufCount, data_type, charset, nullptr, 0, keep_alive);
+}
 
 
 
@@ -124,7 +127,7 @@ bool HttpSession::Request_PostFile(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR lo
 	bufs[2].Data = tail.Begin();
 	bufs[2].Length = (UINT)tail.GetLength();
 
-	return Request_Post(pURL, bufs, 3, "multipart/form-data; boundary=----WebFormBoundary", "utf-8",nullptr,0, keep_alive);
+	return Request_Post(pURL, bufs, 3, "multipart/form-data; boundary=----WebFormBoundary", "utf-8", keep_alive);
 }
 
 
