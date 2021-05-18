@@ -22,9 +22,7 @@ void buffer_TopWeightedValues()
 
 	ret = votes.Sample(2, 1.f);
 	_LOG(votes);
-			
-	// keep_latest_value may useless
-	// if sumweight bigger than now ,what happened
+	
 	_LOG("\n");
 	rt::TopWeightedValues<int, 5, float,true> votes2;
 
@@ -42,11 +40,10 @@ void buffer_TopWeightedValues()
 
 	ret = votes2.Sample(2, 1.f);
 	_LOG(votes2);
-	//UN_MATCHED
+	
 	ret = votes2.Sample(12, 1.0f);
 	_LOG(votes2);
-	// bigger than rt::TypeTraits<T_WEIGHT>::MaxVal()/8*7
-	// may div 2 too much times?
+	
 	_LOG("\n");
 	constexpr auto maxnum = rt::TypeTraits<float>::MaxVal();
 	_LOG("maxnum " << maxnum);
@@ -67,7 +64,7 @@ void buffer_TopWeightedValues()
 	ret = votes.Sample(2, 1.f);
 	_LOG("GetSignificantRatio " << votes.GetSignificantRatio());
 	_LOG("IsSignificant " << votes.IsSignificant())
-	// is this val right?
+
 	auto votes4 = votes;
 	_LOG(votes4);
 	votes4.Remove(0);
@@ -75,11 +72,12 @@ void buffer_TopWeightedValues()
 	votes4.Remove(1);
 	_LOG("Remove " << votes4);
 	
+	
 	votes.ClampWeight(0.02f);
 	_LOG("ClampWeight " << votes);
 	_LOG("GetCount " << votes.GetCount() << "\t" << votes.GetCount(1) << "\t" << votes.GetCount(2) << "\t" << votes.GetCount(3) << "\t" << votes.GetCount(4));
-	_LOG("IsEmpty " << votes.IsEmpty()); // not empty?
-	// too much get(i) (const)
+	_LOG("IsEmpty " << votes.IsEmpty()); 
+
 
 }
 void buffer_BufferEx()
@@ -98,8 +96,7 @@ void buffer_BufferEx()
 	buf.push_back(789);
 	buf.push_front(12);
 	_LOG("push: " << buf);
-
-	// is this reasonable
+		
 	buf.erase(1, 3);
 	_LOG("erase: " << buf);
 
@@ -108,9 +105,7 @@ void buffer_BufferEx()
 	buf.insert(1) = 200;
 	_LOG("insert: " << buf);
 
-	//since we has used std library,why not use all of it.
 	buf.Sort();
-	//std::sort(buf.Begin(), buf.End());
 	_LOG("sort: " << buf);
 
 	// sort
@@ -148,9 +143,10 @@ void buffer_BufferEx()
 	_LOG("Size: " << non_pod.GetSize());
 	_LOG("Strings: " << non_pod);
 
-	// should handle assignment to self in operator
+	
 	rt::BufferEx<rt::String>	non_pod_wrongcopy(non_pod);
-	non_pod_wrongcopy = non_pod_wrongcopy;
+	non_pod_wrongcopy=non_pod;
+	//non_pod_wrongcopy = non_pod_wrongcopy; don't do this
 	_LOG("Strings: " << non_pod_wrongcopy);
 
 	rt::BufferEx<rt::String>	non_pod_copy(non_pod);
@@ -170,14 +166,15 @@ void buffer_BufferEx()
 	_LOG("Size: " << non_pod_copy.GetSize());
 	auto ret = non_pod_copy.ChangeSize(5);
 	_LOG("Changed Size: " << non_pod_copy.GetSize());
-	//can not compile non_pod_copy.compact_memory();
+	_LOG(non_pod_copy);
+	non_pod_copy.compact_memory();
+	_LOG(non_pod_copy);
 
 	_LOG(non_pod_copy.GetReservedSize());
 
 	ret=non_pod_copy.reserve(7);
 	_LOG("reserved: " << non_pod_copy);
 	
-	// need sorted before this operation
 	auto ret2 = non_pod_copy.PushSorted("string1");
 	_LOG("PushSorted: " << non_pod_copy);
 	ret2 = non_pod_copy.PushUnique("string1");
@@ -185,7 +182,6 @@ void buffer_BufferEx()
 }
 void buffer_CircularBuffer()
 {
-	//too hard to understand
 	rt::String str("1234567890");
 	rt::CircularBuffer cyc;
 	cyc.SetSize(1024);
@@ -260,14 +256,13 @@ void buffer_BooleanArray()
 	boolvec.Reset(8);
 	_LOG("Get 8 after reset: " << boolvec.Get(8));
 	_LOG("IsAllReset: " << boolvec.IsAllReset());
-	_LOG("PopCount: " << boolvec.PopCount());
-	// ^= && |= donot need test
+	_LOG("PopCount: " << boolvec.PopCount());	
 
 }
 void rt::UnitTests::buffer()
 {
-	//buffer_TopWeightedValues();
-	//buffer_BufferEx();	
-	//buffer_CircularBuffer();
+	buffer_TopWeightedValues();
+	buffer_BufferEx();	
+	buffer_CircularBuffer();
 	buffer_BooleanArray();
 }

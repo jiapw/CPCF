@@ -96,21 +96,26 @@ public:
 	const t_Val&	First() const { return _p[0]; }
 	t_Val&			Last(){ return _p[_len-1]; }
 	const t_Val&	Last() const { return _p[_len-1]; }
-
+	/**
+	 * @name operators
+	*/
+	///@{
 	operator LPItemType(){ return &_p[0]; }
 	operator LPCItemType()const { return &_p[0]; }
 	operator LPVOID(){ return &_p[0]; }
 	operator LPCVOID()const { return &_p[0]; }
-
+	///@}
 	t_Index GetSize() const { return _len; }
 
 public:
-	
-	t_Val*			begin(){ return _p; } ///< allow for(iterator : Buffer) syntax (C++ 11)
-	const t_Val*	begin() const { return _p; }///< allow for(iterator : Buffer) syntax (C++ 11)
-	t_Val*			end(){ return _p + _len; }///< allow for(iterator : Buffer) syntax (C++ 11)
-	const t_Val*	end() const { return _p + _len; }///< allow for(iterator : Buffer) syntax (C++ 11)
-
+	/** @name allow for(iterator : Buffer) syntax (C++ 11).
+	*/
+	///@{
+	t_Val*			begin(){ return _p; } 
+	const t_Val*	begin() const { return _p; }
+	t_Val*			end(){ return _p + _len; }
+	const t_Val*	end() const { return _p + _len; }
+	///@}
 	Buffer_Ref(){ _p=nullptr; _len=0; }
 	Buffer_Ref(const Buffer_Ref<t_Val>& x){ _p = x._p; _len = x._len; }
 	Buffer_Ref(const t_Val*	p, t_Index len){ _p = (t_Val*)p; _len = len; }
@@ -119,6 +124,10 @@ public:
 	{	t_Val*	end = _p + _len;	
 		for(t_Val* p = _p; p < end; p++)*p = x;
 	}
+	/**
+	 * @name operators
+	*/
+	///@{
 	template<typename T>
 	t_Val& operator [](T i){ ASSERT(((SIZE_T)i)<=_len); return _p[i]; }
 	template<typename T>
@@ -137,6 +146,7 @@ public:
 			if(_p[i] != x[i])return true;
 		return false;
 	}
+	///@}
 	template<typename T> t_SignedIndex SearchItem(const T& x) const
 	{	for(t_Index i=0;i<GetSize();i++)
 			if(_p[i] == x)return i;
@@ -168,12 +178,16 @@ public:
 			return m;
 		}else return -1;
 	}
-	t_SignedIndex SearchSortedItem(const t_Val& x) const ///< binary search
+	/** @name binary search
+	*/
+	///@{
+	t_SignedIndex SearchSortedItem(const t_Val& x) const 
 	{	return std::find(Begin(), End(), x) - Begin();
 	}
-	t_SignedIndex SearchLowerbound(const t_Val& x) const ///< binary search
+	t_SignedIndex SearchLowerbound(const t_Val& x) const 
 	{	return std::lower_bound(Begin(), End(), x) - Begin();
 	}
+	///@}
 	void Zero(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Zero() applies only to POD elements"); memset((LPVOID)_p, 0, _len*sizeof(t_Val)); }
 	void Void(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Void() applies only to POD elements"); memset((LPVOID)_p, 0xff, _len*sizeof(t_Val)); }
 	template<typename T>
@@ -229,7 +243,10 @@ public:
 				rt::Swap((*this)[i], (*this)[i+ rng%(GetSize()-i)]);
 		}
 	}
-	SSIZE_T PushSorted(const t_Val& x) ///< last item will be dropped
+	/**
+	 * @brief last item will be dropped.
+	*/
+	SSIZE_T PushSorted(const t_Val& x) 
 	{
 		if(GetSize() == 0 || Last() < x)return -1;
 		_xt::dtor(Last());
@@ -353,6 +370,10 @@ public:
 	Buffer(const t_Val* p, SIZE_T len){ *this = Buffer_Ref<t_Val>(p,len); }
 	explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	///< copy ctor should be avoided, use reference for function parameters
 	explicit Buffer(const Buffer<t_Val> &x){ *this=x; }	///< copy ctor should be avoided, use reference for function parameters
+	/**
+	 * @name operators
+	*/
+	///@{
 	const Buffer_Ref<t_Val>& operator = (const Buffer<t_Val> &x){ *this = (Buffer_Ref<t_Val>&)x; return *this; }
 	const Buffer_Ref<t_Val>& operator = (const Buffer_Ref<t_Val> &x)
     {	for(SIZE_T i=0;i<_SC::_len;i++)
@@ -367,8 +388,13 @@ public:
 			_SC::_xt::ctor(&_SC::_p[i], x[i]);
 		return x;
 	}
+	///@}
 	~Buffer(){ __SafeFree(); }
-	bool SetSize(SIZE_T co=0) ///< zero for clear
+	/**
+	 * @brief Set buffer size
+	 * @param co zero for clear
+	*/
+	bool SetSize(SIZE_T co=0) 
 	{	
 		if(co == _SC::_len)
 		{	if(co == 0)__SafeFree();
@@ -389,7 +415,12 @@ public:
 		}
 		return true;
 	}
-	bool ChangeSize(SIZE_T new_size) ///< Original data at front is preserved
+	/**
+	 * @brief Change buffer size
+	 * 
+	 * Original data at front is preserved
+	*/
+	bool ChangeSize(SIZE_T new_size)  
 	{	
 		if(new_size<=_SC::_len){ ShrinkSize(new_size); return true; }
 		else	//expand buffer
@@ -406,11 +437,19 @@ public:
 		}
 		return false;
 	}
-	bool ExpandSize(SIZE_T new_size)	// no shrink
+	/**
+	 * @brief Expand buffer size
+	 * @param new_size no shrink
+	*/
+	bool ExpandSize(SIZE_T new_size)	
 	{	if(new_size <= _SC::_len)return true;
 		return ChangeSize(new_size);
 	}
-	void ShrinkSize(SIZE_T new_size)	// no expand
+	/**
+	 * @brief Shrink buffer size
+	 * @param new_size no expand
+	*/
+	void ShrinkSize(SIZE_T new_size)	
 	{	if(new_size >= _SC::_len)return;
 		if(new_size<_SC::_len)
 		{	
@@ -462,8 +501,15 @@ protected:
 	SIZE_T	_len_reserved;
 public:
 	BufferEx(const BufferEx &x){ _len_reserved = 0; *this = x; }
+	/**
+	 * @brief donot assign to self 
+	 * @param x 
+	 * @return 
+	*/
 	const BufferEx& operator = (const BufferEx &x)
-	{	_SC::ShrinkSize(0);
+	{
+		ASSERT(&x!=this);
+		_SC::ShrinkSize(0);
 		_SC::_len = x.GetSize();
 		if(_SC::_len <= _len_reserved){}
 		else
@@ -477,7 +523,12 @@ public:
 		return x;
 	}
 	BufferEx(){ _len_reserved=0; }
-	bool SetSize(SIZE_T co=0) ///< zero for clear
+	/**
+	 * @brief Set buffer size
+	 * @param co zero for clear
+	 * @return 
+	*/
+	bool SetSize(SIZE_T co=0) 
 	{	if(_SC::SetSize(co)){ _len_reserved=_SC::_len; return true; }
 		else{ _len_reserved=0; return false; }
 	}
@@ -488,9 +539,20 @@ public:
 		else _len_reserved = 0;
 		return p;
 	}
-	SIZE_T GetSize() const { return _SC::GetSize(); } ///< make Visual Studio happy
+	/**
+	 * @brief make Visual Studio happy
+	 * @return 
+	*/
+	SIZE_T GetSize() const { return _SC::GetSize(); } 
 	bool Clear(){ return SetSize(0); }
-	bool ChangeSize(SIZE_T new_size, bool keep_old_data = true) ///< Original data at front is preserved
+	/**
+	 * @brief Change buffer size
+	 * 
+	 * Original data at front is preserved
+	 * @param new_size 
+	 * @param keep_old_data 
+	*/
+	bool ChangeSize(SIZE_T new_size, bool keep_old_data = true) 
 	{	if( new_size == _SC::_len )return true;
 		if( new_size < _SC::_len ){ _SC::ShrinkSize(new_size); return true; }
 		else 
@@ -514,11 +576,21 @@ public:
 			return true;
 		}
 	}
-	bool ExpandSize(SIZE_T new_size, bool keep_old_data = true)	// no shrink
+	/**
+	 * @brief Expand Size
+	 * @param new_size  no shrink
+	 * @param keep_old_data 
+	 * @return 
+	*/
+	bool ExpandSize(SIZE_T new_size, bool keep_old_data = true)
 	{	if(new_size <= _SC::_len)return true;
 		return ChangeSize(new_size, keep_old_data);
 	}
-	void ShrinkSize(SIZE_T new_size)	// no expand
+	/**
+	 * @brief Shrink Size 
+	 * @param new_size no expand
+	*/
+	void ShrinkSize(SIZE_T new_size)	
 	{	if(new_size >= _SC::_len)return;
 		if(new_size<_SC::_len)
 		{	
@@ -527,6 +599,9 @@ public:
 		}
 	}
 	SIZE_T GetReservedSize() const { return _len_reserved; }
+	/** @name push
+	*/
+	///@{
 	t_Val& push_front()
 	{	VERIFY(_add_entry());
 		memmove(&_SC::_p[1],&_SC::_p[0],sizeof(t_Val)*(_SC::_len-1));
@@ -593,6 +668,7 @@ public:
 		if(ChangeSize(sz + count)){ for(SIZE_T i=0; i<count; i++) _SC::_p[i+sz] = v; return true; }
 		return false;
 	}
+	///@}
 	void erase(const t_Val* p)
 	{	ASSERT(p < _SC::End());
 		ASSERT(p >= _SC::Begin());
@@ -605,10 +681,20 @@ public:
 		_SC::_len--;
 		memmove(&_SC::_p[index],&_SC::_p[index+1],sizeof(t_Val)*(_SC::_len-index));
 	}
-	void erase(const t_Val* begin, const t_Val* end) ///< *end will not be erased
+	/**
+	 * @brief erase
+	 * @param begin 
+	 * @param end end will not be erased
+	*/
+	void erase(const t_Val* begin, const t_Val* end) 
 	{	erase(begin - _SC::Begin(), end - _SC::Begin());
 	}
-	void erase(SIZE_T index_begin, SIZE_T index_end) ///< [index_end] will not be erased
+	/**
+	 * @brief erase
+	 * @param index_begin 
+	 * @param index_end [index_end] will not be erased
+	*/
+	void erase(SIZE_T index_begin, SIZE_T index_end) 
 	{	ASSERT(index_begin<=index_end);
 		ASSERT(index_end<=_SC::_len);
 		// call dtor for removed items
@@ -630,9 +716,10 @@ public:
 		{	LPBYTE pNew = (LPBYTE)_Malloc32AL(t_Val,_SC::_len);
 			if(pNew)
 			{	memcpy(pNew,_SC::_p,sizeof(t_Val)*_SC::_len);
-				_SafeFree32AL(_SC::_p);
-				_SC::_p = pNew;
+				t_Val* old = _SC::_p;
+				_SC::_p = (t_Val*)(pNew);
 				_len_reserved = _SC::_len;
+				_SafeFree32AL(old);
 			}
 		}
 	};
@@ -641,9 +728,10 @@ public:
 		{	LPBYTE pNew = (LPBYTE)_Malloc32AL(t_Val,co);
 			if(pNew)
 			{	memcpy(pNew,_SC::_p,sizeof(t_Val)*_SC::_len);
-				_SafeFree32AL(_SC::_p);
+				t_Val* old = _SC::_p;				
 				_SC::_p = (t_Val*)pNew;
 				_len_reserved = co;
+				_SafeFree32AL(old);
 			}
 			return (bool)(pNew!=nullptr);
 		}
@@ -701,6 +789,13 @@ public:
 		for(SIZE_T i = index;i<index+count;i++)_SC::_xt::ctor(&_SC::_p[i], x);
 		_SC::_len += count;
 	}
+	/**
+	 * @brief Push Sorted
+	 * 
+	 * Only for ordered BufferEx
+	 * @param x 
+	 * @return 
+	*/
 	SSIZE_T PushSorted(const t_Val& x)
 	{
 		if(GetSize() == 0 || x<first()){ push_front(x); return 0; }
@@ -719,6 +814,15 @@ public:
 		_SC::_xt::ctor(p, x);
 		return p - _SC::Begin();
 	}
+	/**
+	 * @brief Push Sorted
+	 * 
+	 * Only for ordered BufferEx
+	 * @tparam compr_less 
+	 * @param x 
+	 * @param compr 
+	 * @return 
+	*/
 	template<typename compr_less>
 	SSIZE_T PushSorted(const t_Val& x, compr_less& compr)
 	{
@@ -771,7 +875,10 @@ public:
 	static const bool IsPOD = false;
 	static const bool IsNumeric = false;
 };
-
+/** \addtogroup Functions_buffer_type
+* @ingroup buffer_type
+*  @{
+*/
 template<class t_Ostream, typename t_Ele>
 t_Ostream& operator<<(t_Ostream& Ostream, const _details::_LOG_FULLDATA<rt::Buffer_Ref<t_Ele>> & vec)
 {	Ostream<<'{';
@@ -827,6 +934,7 @@ t_Ostream& operator<<(t_Ostream& Ostream, const rt::Buffer_Ref<t_Ele> & vec)
 
 	return Ostream << rt::LOG_FULLDATA(vec);
 }
+/** @}*/
 /** @}*/
 } // namespace rt
 
@@ -933,7 +1041,13 @@ public:
 	};
 	LPCVOID	GetBits() const { return _SC::_Bits; }
 	bool	Get(const Index& idx) const { return _SC::_Bits[idx.BlockOffset]&idx.Bitmask; }
-	DWORD	Get(UINT idx, UINT bit_count) ///< bit_count <= 32
+	/**
+	 * @brief Get value
+	 * @param idx 
+	 * @param bit_count bit_count <= 32
+	 * @return 
+	*/
+	DWORD	Get(UINT idx, UINT bit_count) 
 			{	ASSERT(bit_count <= 32);
 				if(idx + bit_count > _SC::BIT_SIZE)bit_count = _SC::BIT_SIZE - idx;
 				if(bit_count == 0)return 0;
@@ -947,7 +1061,13 @@ public:
 					_SC::_Bits[idx.BlockOffset] &= ~idx.Bitmask;
 				return org;
 			}
-	void	Set(UINT idx, DWORD bits, UINT bit_count) ///< bit_count <= 32
+	/**
+	 * @brief Set value
+	 * @param idx 
+	 * @param bits bit_count <= 32
+	 * @param bit_count 
+	*/
+	void	Set(UINT idx, DWORD bits, UINT bit_count) 
 			{	if(bit_count)
 				{	ASSERT(idx + bit_count < _SC::BIT_SIZE);
 					ASSERT(bit_count <= 32);
@@ -956,11 +1076,21 @@ public:
 					ull = (ull&~(((1ULL<<bit_count)-1)<<shift)) | (((ULONGLONG)bits) << shift);
 				}
 			}
-	bool	AtomicSet(const Index& idx) ///< return the bit value before atomic set
+	/**
+	 * @brief Atomic Set
+	 * @param idx 
+	 * @return return the bit value before atomic set
+	*/
+	bool	AtomicSet(const Index& idx) 
 			{
 				return idx.Bitmask & os::AtomicOr(idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
-	bool	AtomicReset(const Index& idx) ///< return the bit value before atomic set
+	/**
+	 * @brief Atomic Reset
+	 * @param idx 
+	 * @return  return the bit value before atomic set
+	*/
+	bool	AtomicReset(const Index& idx) 
 			{
 				return idx.Bitmask & os::AtomicAnd(~idx.Bitmask, (volatile UINT*)&_SC::_Bits[idx.BlockOffset]);
 			}
@@ -1061,7 +1191,12 @@ public:
 				if(i + 1 < _SC::RT_BLOCK_COUNT)rt::Zero(&_SC::_Bits[i+1], (_SC::RT_BLOCK_COUNT - i - 1)*RT_BLOCK_SIZE/8);
 			}
 };
+/** \addtogroup Typedefs_buffer_type
+* @ingroup buffer_type
+*  @{
+*/
 typedef BooleanArray<0, true> BooleanArrayRef;
+/** @}*/
 /** @}*/
 } // namespace rt
 
@@ -1158,10 +1293,13 @@ public:
 	}
 	bool SetLength(UINT sz){ m_Pos = rt::min(m_Pos,sz); m_Used = sz; return ChangeSize((UINT)sz); }
 };
-
+/** \addtogroup Typedefs_buffer_type
+* @ingroup buffer_type
+*  @{
+*/
 typedef _details::OStreamT<Buffer_Ref<BYTE> > OStream_Ref;
 typedef _details::IStreamT<Buffer_Ref<BYTE> > IStream_Ref;
-
+/** @}*/
 template<UINT LEN>
 class OStreamFixed: public OStream_Ref
 {
@@ -1171,7 +1309,9 @@ public:
 	bool SetLength(UINT sz){ if(sz <= LEN){ m_Pos = rt::min(m_Pos,sz); m_Used = sz; return true; } return false; }
 };
 /**
- * @brief not thread-safe
+ * @brief Circular Buffer
+ * 
+ * A circular queue(first-in-first-out) which is not thread-safe.
  * 
  */
 class CircularBuffer 
@@ -1218,6 +1358,11 @@ public:
 		Back = NewBlock = 0;
 		pLastBlock = nullptr;
 	}
+	/**
+	 * @brief Push memory
+	 * @param size_max The smallest integer bigger than size_max that is divisible by 8
+	 * @return 
+	*/
 	LPBYTE Push(SIZE_T size_max)
 	{	size_max = _EnlargeTo32AL(size_max);
 		SIZE_T	block_size = size_max + sizeof(_BlockHeader);
@@ -1258,13 +1403,25 @@ public:
 			}
 		}
 	}
-	void SetBlockSize(LPCVOID pushed, SIZE_T finalized)	///< call after Push()
+	/**
+	 * @brief Set Block Size
+	 * 
+	 * call after Push()
+	 * @param pushed 
+	 * @param finalized 
+	*/
+	void SetBlockSize(LPCVOID pushed, SIZE_T finalized)	
 	{
 		ASSERT(finalized);
 		_Block* block = (_Block*)(((LPBYTE)pushed) - sizeof(_BlockHeader));
 		ASSERT(block->PayloadSize >= finalized);
 		block->PayloadLength = finalized;
+		pLastBlock = block;
 	}
+	/**
+	 * @brief Get the earliest block in the current queue.
+	 * @return 
+	*/
 	const Block* Peek() const
 	{
 		Block* p = (Back != NewBlock)?(Block*)(_Buffer + Back + sizeof(_BlockHeader) - sizeof(SIZE_T)):nullptr;
@@ -1276,7 +1433,14 @@ public:
 	}
 };
 
-
+/**
+ * @brief Top Weighted Values
+ *
+ * @tparam T type of values
+ * @tparam T_WEIGHT type of weights
+ * @param TOP_K Top_k highest weight values will be recorded
+ * @param keep_latest_value keep latest value when operation "==" in type T is overloaded
+*/
 template<typename T, UINT TOP_K=1, typename T_WEIGHT = int, bool keep_latest_value = false>
 class TopWeightedValues
 {
@@ -1328,7 +1492,19 @@ public:
 					_TopValues[i].Count = 0;
 				}
 			}
-	int		Sample(const T& val, T_WEIGHT wei = 1)		///< UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
+	/**
+	 * @brief Sample
+	 * 
+	 * UNMATCHED / MATCHED / MATCH_WITH_TOP, 0: no match, 1: matched but not the top one no promote, 2: matched with top one
+	 * 
+	 * After reaching the TOP_K capacity, the small weight value will not be recorded
+	 * 
+	 * When weiget/value is close to the upper limit of the type, it will be divided by 2.  Will cause repeated division by 2 if not reaching the TOP_K capacity.
+	 * @param val 
+	 * @param wei 
+	 * @return 
+	*/
+	int		Sample(const T& val, T_WEIGHT wei = 1)		
 			{	int ret = _Match(val, wei);
  				if(ret == MATCHED_WITH_TOP)
 				{	if(	_TopValues[0].Count > TOP_COUNT_CLAMP || 
@@ -1385,7 +1561,10 @@ public:
 		protected:	int		_Match(const T& val, T_WEIGHT wei){ return 0; }
 					auto	_WeightSum() const { return 0; }
 	};
-
+	/** \addtogroup Functions_buffer_type
+	* @ingroup buffer_type
+	*  @{
+	*/
 template<class t_Ostream, typename t_Ele, UINT TOP, typename t_Wei, bool S>
 t_Ostream& operator<<(t_Ostream& Ostream, const TopWeightedValues<t_Ele, TOP, t_Wei, S> & vec)
 {	Ostream<<'{';
@@ -1410,6 +1589,7 @@ t_Ostream& operator<<(t_Ostream& Ostream, const TopWeightedValues<t_Ele, TOP, t_
 	Ostream<<'}';
 	return Ostream;
 }
+/** @}*/
 /** @}*/
 
 } // namespace rt

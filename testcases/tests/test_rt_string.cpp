@@ -125,6 +125,8 @@ void String_EscapeCharacters()
 
 	d.EscapeCharacters("\'\"", '\\');
 	_LOG(d);
+	d.UnescapeCharacters("\'\"", '\\');
+	_LOG(d);
 }
 void Stringbase_ResolveRelativePath()
 {
@@ -160,6 +162,10 @@ void Stringbase_SplitURL()
 	str = "http://www.google.com";
 	str.SplitURL(p, h, path);
 	_LOG("P:" << p << " , H:" << h << " , PATH:" << path);
+
+	str = "www.xxx.com/124/rty.jpg";
+	str.SplitURL(p, h, path);
+	_LOG("P:" << p << " , H:" << h << " , PATH:" << path);
 }
 void String_Insert()
 {
@@ -188,6 +194,8 @@ void Stringbase_Token()
 	_LOG(code.TrimAfter('*'));
 	_LOG(code.TrimBefore('.'));
 
+	_LOG(code.TrimAfterReverse('*'));
+	_LOG(code.TrimBeforeReverse('.'));
 	token.Empty();
 	rt::String_Ref nontoken;
 	while (code.GetNextToken(symbol, token, nontoken))
@@ -409,6 +417,10 @@ void Stringbase_ToNumber()
 	a.ToNumber(num);
 	_LOG("ToNumber: " << num);
 
+	a = "1024";
+	a.ToNumber<int, 2>(num);
+	_LOG("ToNumber: " << num);
+
 	a.TrimLeft(2).ToNumber(num);	_LOG("TrimLeft(2).ToNumber(num): " << num);
 	a.SubStrHead(4).ToNumber(num);	_LOG("SubStrHead(4).ToNumber(num): " << num);
 }
@@ -430,7 +442,7 @@ void Stringbase_Split()
 	rt::Zero(f);
 	a.Split<true>(f, 8, rt::SS(" ,$"));
 	_LOG("Split<true>(\" ,$\"): " << f[0] << ',' << f[1] << ',' << f[2] << ',' << f[3] << ',' << f[4] << ',' << f[5] << ',' << f[6] << ',' << f[7]);
-
+		
 	rt::SS("345;\"453;546\";4543;\"444\"").Split(f, 8, ';');
 	_LOG("Split<>(...): " << f[0] << ',' << f[1] << ',' << f[2] << ',' << f[3] << ',' << f[4] << ',' << f[5] << ',' << f[6] << ',' << f[7]);
 }
@@ -481,7 +493,6 @@ void String_TOS()
 }
 void rt::UnitTests::string()
 {
-	string_conv();
 	String_RegularizeUTF8();
 	StringRef_basic();
 	StringBase_GetUrlParam();

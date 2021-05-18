@@ -39,13 +39,17 @@
  * @ingroup CPCF
  *  @{
  */
+ /** \addtogroup json
+* @ingroup rt
+*  @{
+*/
 #include "string_type_ops.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Composing Json Data
 namespace rt
 {
-	/** \addtogroup json
+/** \addtogroup json
  * @ingroup rt
  *  @{
  */
@@ -253,6 +257,7 @@ public:
 					}
 };
 
+
 #define J_EXPR_CONNECT_OP(type, type_in, vt)					\
 FORCEINL _JVar<LPVOID, type, vt>								\
 operator = (type_in p)											\
@@ -261,6 +266,7 @@ operator = (type_in p)											\
 		return _JVar<LPVOID, type, vt>(tagname, __empty_p);		\
 	} else { return _JVar<LPVOID, type, vt>(tagname, p); }		\
 }																\
+
 
 struct _JTag
 {	
@@ -311,7 +317,10 @@ struct _JTag
 };
 
 #undef J_EXPR_CONNECT_OP
-
+/** \addtogroup Functions_json
+* @ingroup json
+*  @{
+*/
 template<typename LEFT, typename T, int VAL_TYPE>
 FORCEINL auto operator + (const String_Ref& left, const _JVar<LEFT, T, VAL_TYPE>& right)
 {	return _SE<String_Ref, _JVar<LEFT, T, VAL_TYPE>>( (left), (right) );
@@ -324,7 +333,7 @@ template<typename t_Left, typename t_Right, typename LEFT, typename T, int VAL_T
 FORCEINL auto operator + (const _SE<t_Left,t_Right>& x, const _JVar<LEFT, T, VAL_TYPE>& p)	
 {	return _SE<_SE<t_Left,t_Right>, _JVar<LEFT, T, VAL_TYPE>>(x, p);
 }
-
+/** @}*/
 namespace _details
 {
 	template<typename T, typename STRING>
@@ -333,12 +342,20 @@ namespace _details
 		(_t = v).template _AppendValueToString<STRING>(str);
 	}
 } // namespace _details
+/** @}*/
 } // namespace rt
-
+/** \addtogroup Macros_json
+* @ingroup json
+*  @{
+*/
 #define J(x)					rt::_JTag(#x)
 #define J_IF(cond, definition)	((cond) ? (definition) : decltype(definition)())
 #define JB(x)					(rt::_JVal((x), true))		///< Json Binary
-
+/** @}*/
+/** \addtogroup Functions_json
+* @ingroup json
+*  @{
+*/
 template<typename T>
 FORCEINL void _JA(rt::_JArray<>& a, T&& t) {
 	a.Append(t);
@@ -356,13 +373,20 @@ FORCEINL rt::_JArray<> JA(Ts&& ... args) {
 	return a;
 }
 template<> rt::_JArray<> FORCEINL JA() { return {}; }
-
+/** @}*/
 
 //////////////////////////////////////////////////////////////////////////////
 // Parsing Json Data
 namespace rt
 {
-
+/** \addtogroup json
+* @ingroup rt
+*  @{
+*/
+/** \addtogroup Enums_json
+* @ingroup rt
+*  @{
+*/
 typedef enum _tagJsonType
 {
 	JSON_STRING,
@@ -374,7 +398,7 @@ typedef enum _tagJsonType
 	JSON_BINARY,
 	JSON_CORRUPTED
 } JsonType;
-
+/** @}*/
 
 class JsonKeyValuePair
 {
@@ -402,14 +426,17 @@ public:
 								return default_val;
 							}
 };
-	
+/** \addtogroup Functions_json
+* @ingroup json
+*  @{
+*/
 template<>
 INLFUNC bool JsonKeyValuePair::GetValueAs<bool>(bool default_val) const
 {	rt::String_Ref s = GetValue();
 	if(!s.IsEmpty()){ return s[0] == 'T' || s[0] == 't'; }
 	return default_val;
 }
-
+/** @}*/
 class JsonObject
 {
 	friend class JsonArray;
@@ -491,13 +518,17 @@ public:
 						UnescapeStringValue(in, val_out);
 					}
 };
+/** \addtogroup Functions_json
+* @ingroup json
+*  @{
+*/
 template<>
 INLFUNC bool JsonObject::GetValueAs<bool>(const rt::String_Ref& xpath, bool default_val) const
 {	rt::String_Ref s = GetValue(xpath);
 	if(!s.IsEmpty()){ return s[0] != 'F' && s[0] != 'f' && s[0] != '0'; }
 	return default_val;
 }
-
+/** @}*/
 class JsonArray
 {
 	rt::String_Ref	_Doc;
@@ -769,4 +800,5 @@ public:
 };
 /** @}*/
 } // namespace rt
+/** @}*/
 /** @}*/

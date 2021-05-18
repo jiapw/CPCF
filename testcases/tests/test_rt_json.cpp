@@ -4,47 +4,47 @@
 #include "test.h"
 
 class _JArray;
-void rt::UnitTests::json()
+void json_GetKeyValue()
 {
-	{
-		rt::JsonObject json = rt::SS("{\"aa:aa\": 3}");
-		_LOG(json.GetValueAs<int>("aa:aa"));
-		rt::JsonKeyValuePair kv;
-		json.GetNextKeyValuePair(kv);
-		_LOG(kv.GetKey() << " = " << kv.GetValue());
-	}
-
-	{
-		rt::String str =
-			(
-				J_IF(false, J(cond_false) = "no"),
-				J(abs) = 1.3,
-				J_IF(1 > 0, J(cond_true) =
-					(
-						J_IF(2 > 1, J(cond_true_nested) = JA(1, 2, "eee")),
-						J(qwe) = "nested",
-						J_IF(2 < 1, J(cond_false_nested) = 1),
-						J_IF(2 < 1, J(cond_false_nested) = 1),
-						J(yue) = 3.1f,
-						J_IF(2 < 1, J(cond_false_nested) = 1)
-						)
+	rt::JsonObject json = rt::SS("{\"aa:aa\": 3}");
+	_LOG(json.GetValueAs<int>("aa:aa"));
+	rt::JsonKeyValuePair kv;
+	json.GetNextKeyValuePair(kv);
+	_LOG(kv.GetKey() << " = " << kv.GetValue());
+}
+void json_JsonBeautified() 
+{
+	rt::String str =
+		(
+			J_IF(false, J(cond_false) = "no"),
+			J(abs) = 1.3,
+			J_IF(1 > 0, J(cond_true) =
+				(
+					J_IF(2 > 1, J(cond_true_nested) = JA(1, 2, "eee")),
+					J(qwe) = "nested",
+					J_IF(2 < 1, J(cond_false_nested) = 1),
+					J_IF(2 < 1, J(cond_false_nested) = 1),
+					J(yue) = 3.1f,
+					J_IF(2 < 1, J(cond_false_nested) = 1)
+					)
+			),
+			J(empty) = (
+				J_IF(2 < 1, J(cond_false_nested) = 2),
+				J_IF(2 < 1, J(cond_false_nested) = 2)
 				),
-				J(empty) = (
-					J_IF(2 < 1, J(cond_false_nested) = 2),
-					J_IF(2 < 1, J(cond_false_nested) = 2)
-					),
-				J(fix) = (
-					J(H) = 0,
-					J_IF(false, J(R) = 1),
-					J_IF(true, J(R) = 2)
-					),
-				J_IF(true, J(cond_true) = 1234),
-				J_IF(false, J(cond_false) = "no")
-				);
+			J(fix) = (
+				J(H) = 0,
+				J_IF(false, J(R) = 1),
+				J_IF(true, J(R) = 2)
+				),
+			J_IF(true, J(cond_true) = 1234),
+			J_IF(false, J(cond_false) = "no")
+			);
 
-		_LOG(JsonBeautified(str));
-	}
-
+	_LOG(rt::JsonBeautified(str));
+}
+void json_JArray()
+{
 	rt::_JArray<> a;
 	a.Append((J(name) = "jake", J(age) = 12));
 	a.Append((J(name) = "mary", J(age) = 7));
@@ -53,8 +53,7 @@ void rt::UnitTests::json()
 	a.Append("haha");
 	a.Append('@');
 
-	_LOG(JsonBeautified(rt::String(a)));
-
+	_LOG(rt::JsonBeautified(rt::String(a)));
 	std::string std_string("std::string");
 
 	auto JsonObject =
@@ -94,8 +93,7 @@ void rt::UnitTests::json()
 	int  len = JsonObject.CopyTo(buf);
 	_LOG("Json Size: " << len << " = " << JsonObject.GetLength());
 
-	_LOG(JsonBeautified(rt::String_Ref(buf, len)));
-
+	_LOG(rt::JsonBeautified(rt::String_Ref(buf, len)));
 	rt::JsonObject obj(rt::String_Ref(buf, len));
 	_LOG(obj.GetValue("Key:Complex"));
 	_LOG(obj.GetValue("name"));
@@ -108,7 +106,6 @@ void rt::UnitTests::json()
 	_LOG(obj.GetValue("numbers[4][1]"));
 	_LOG(obj.GetValue("numbers[5]"));
 	_LOG(obj.GetValue("numbers[6]"));
-
 	static const LPCSTR json_type_name[] =
 	{
 		"string",
@@ -133,48 +130,51 @@ void rt::UnitTests::json()
 	{
 		_LOG(child.GetValue("name"));
 	}
+}
 
-	{
-		rt::JsonObject json(__STRING(
-			{
-				c:1,
-				b : [2,3,4] ,
-				a : 5
-			}
-		));
-
-		rt::JsonObject json_sub(__STRING(
-			{
-				d: "Yes",
-				c : 8.9
-			}
-		));
-
-		rt::JsonArray b = json.GetValue("b");
-		rt::JsonObject child;
-		while (b.GetNextObjectRaw(child))
+void json_GetNextObjectRaw()
+{
+	rt::JsonObject json(__STRING(
 		{
-			int val;
-			child.GetString().ToNumber(val);
-			_LOG(val);
-		};
-		rt::String out;
-		rt::JsonObject::Override(json, json_sub, out);
-		rt::JsonObject doc(out);
-		for (const char* s : { "a", "b", "c", "d" })
-			_LOG(s << ": " << doc.GetValue(s));
-	}
+			c:1,
+			b : [2,3,4] ,
+			a : 5
+		}
+	));
 
+	rt::JsonObject json_sub(__STRING(
+		{
+			d: "Yes",
+			c : 8.9
+		}
+	));
+
+	rt::JsonArray b = json.GetValue("b");
+	rt::JsonObject child;
+	while (b.GetNextObjectRaw(child))
 	{
-		rt::SS a("\x0\t\\ABC\'\"123");
-		rt::JsonEscapeString e(a);
-		_LOG("Escaped String: " << e);
+		int val;
+		child.GetString().ToNumber(val);
+		_LOG(val);
+	};
+	rt::String out;
+	rt::JsonObject::Override(json, json_sub, out);
+	rt::JsonObject doc(out);
+	for (const char* s : { "a", "b", "c", "d" })
+		_LOG(s << ": " << doc.GetValue(s));
+}
+void json_EscapeString()
+{
+	rt::SS a("\x0\t\\ABC\'\"123");
+	rt::JsonEscapeString e(a);
+	_LOG("Escaped String: " << e);
 
-		rt::JsonUnescapeString u(e);
+	rt::JsonUnescapeString u(e);
 
-		_LOG("Unescaped Matches: " << (u == a));
-	}
-
+	_LOG("Unescaped Matches: " << (u == a));
+}
+void json_Output()
+{
 	{
 		auto str = rt::SS("A Json: ") + false +
 			(
@@ -201,67 +201,78 @@ void rt::UnitTests::json()
 
 		_LOG(rt::JsonBeautified(a));
 	}
+}
+void json_AppendKey()
+{
+	rt::Json json;
+	json.Object() << (
+		J(key) = 32.1f
+		);
 
-	{
-		rt::Json json;
-		json.Object() << (
-			J(key) = 32.1f
-			);
-
-		{	auto u = json.ScopeMergingObject();
-		json.Object() << (
-			J(key1) = "merged"
-			);
-		}
-
-		{	json << (
-			J(key2) = "merged_scope"
-			);
-		}
-
-		{	auto scope = json.ScopeAppendingKey("array");
-		json.Array();
-		json << false << 1 << 2.1 << "ok" << (rt::SS("NN=") + 3);
-
-		{	auto ele = json.ScopeAppendingElement();
-		json.Object();
-		}
-		}
-
-		json.ScopeWritingStringEscapedAtKey("str").String() += "1234";
-		json.AppendKey("key3", (J(a) = false));
-		json.AppendKey("key4", 13);
-		json.AppendKey("key5", rt::SS("Hello ") + 1.0f);
-
-		_LOG(rt::JsonBeautified(json));
+	{	auto u = json.ScopeMergingObject();
+	json.Object() << (
+		J(key1) = "merged"
+		);
 	}
 
-	{
-		rt::String j_if;
-		j_if = (
-			J_IF(true, (J(a) = 1))
-			);
-		_LOG("J_IF: " << rt::JsonBeautified(j_if));
-
-		j_if = (
-			J_IF(false, (J(a) = 2))
-			);
-		_LOG("J_IF: " << rt::JsonBeautified(j_if));
-
-		j_if = (
-			J(b) = 3,
-			J_IF(false, (J(a) = 2)),
-			J(d) = 4
-			);
-		_LOG("J_IF: " << rt::JsonBeautified(j_if));
-
-		j_if = (
-			J(b) = 3,
-			J_IF(false, (J(a) = 2, J(c) = 3)),
-			J(d) = 4,
-			J_IF(true, (J(f) = 6, J(g) = 7)),
-			J(e) = 5
-			);
-		_LOG("J_IF: " << rt::JsonBeautified(j_if));
+	{	json << (
+		J(key2) = "merged_scope"
+		);
 	}
+
+	{	auto scope = json.ScopeAppendingKey("array");
+	json.Array();
+	json << false << 1 << 2.1 << "ok" << (rt::SS("NN=") + 3);
+
+	{	auto ele = json.ScopeAppendingElement();
+	json.Object();
+	}
+	}
+
+	json.ScopeWritingStringEscapedAtKey("str").String() += "1234";
+	json.AppendKey("key3", (J(a) = false));
+	json.AppendKey("key4", 13);
+	json.AppendKey("key5", rt::SS("Hello ") + 1.0f);
+
+	_LOG(rt::JsonBeautified(json));
+}
+void json_J_IF()
+{
+	rt::String j_if;
+	j_if = (
+		J_IF(true, (J(a) = 1))
+		);
+	_LOG("J_IF: " << rt::JsonBeautified(j_if));
+
+	j_if = (
+		J_IF(false, (J(a) = 2))
+		);
+	_LOG("J_IF: " << rt::JsonBeautified(j_if));
+
+	j_if = (
+		J(b) = 3,
+		J_IF(false, (J(a) = 2)),
+		J(d) = 4
+		);
+	_LOG("J_IF: " << rt::JsonBeautified(j_if));
+
+	j_if = (
+		J(b) = 3,
+		J_IF(false, (J(a) = 2, J(c) = 3)),
+		J(d) = 4,
+		J_IF(true, (J(f) = 6, J(g) = 7)),
+		J(e) = 5
+		);
+	_LOG("J_IF: " << rt::JsonBeautified(j_if));
+}
+void rt::UnitTests::json()
+{
+	json_GetKeyValue();
+	json_JsonBeautified();
+	json_JArray();
+	json_GetNextObjectRaw();
+	json_EscapeString();
+	json_Output();
+	json_AppendKey();
+	json_J_IF();
 }

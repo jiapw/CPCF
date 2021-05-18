@@ -41,7 +41,10 @@
  */
 
 #include "string_type.h"
-
+ /** \addtogroup string_type_ops
+  * @ingroup rt
+  *  @{
+  */
 
 namespace rt
 {
@@ -291,7 +294,9 @@ struct HexNum:public ::rt::tos::S_<1,LEN>
 		 _SC::_p[ _SC::_len] = 0;
 	}
 };
-
+/**
+ * @brief Binary
+*/
 template<SIZE_T LEN = 65, bool uppercase = true>
 struct Binary:public ::rt::tos::S_<1,LEN>
 {
@@ -314,7 +319,9 @@ struct Binary:public ::rt::tos::S_<1,LEN>
 		 _SC::_p[ _SC::_len] = 0;
 	}
 };
-
+/**
+ * @brief BinaryCString
+*/
 template<SIZE_T LEN = 65>
 struct BinaryCString:public ::rt::tos::S_<1,LEN>
 {
@@ -356,11 +363,14 @@ struct GUID:public ::rt::tos::S_<>
 };
 
 } // tos
-
+ /** \addtogroup Typedefs_string_type_ops
+ * @ingroup string_type_ops
+ *  @{
+ */
 typedef tos::StaticString SS;
 typedef tos::DataAsString DS;
 typedef tos::StdStringAsString	StdStr;
-
+/** @}*/
 // typename to string
 namespace _details
 {
@@ -378,7 +388,10 @@ struct __TNAS
 };
 
 } // namespace _details
-
+/** \addtogroup Functions_string_type_ops
+* @ingroup string_type_ops
+*  @{
+*/
 template<typename T>
 INLFUNC rt::String_Ref TypeNameToString()
 {
@@ -398,7 +411,7 @@ INLFUNC rt::String_Ref TypeNameToString()
 	// check if nested type defined within function scope, and fullback to clang's behavior 
 	return ret.Occurrence("()") >= 2?ret.TrimBeforeReverse("):"):ret;
 }
-
+/** @}*/
 namespace _details
 {
 template<typename T>
@@ -410,11 +423,15 @@ LPSTR __alloca_string(LPSTR p, const T& x)
 /** @}*/
 } // namespace rt
 
+ /** \addtogroup Macros_string_type_ops
+ * @ingroup string_type_ops
+ *  @{
+ */
 #define __SS(...)						(rt::SS(#__VA_ARGS__))
 #define ALLOCA_STRING_BUFFER(size)		(rt::String_Ref((LPSTR)alloca(size), size))
 #define ALLOCA_STRING_REF(x)			(rt::_details::__alloca_string_ref((LPSTR)alloca((x).GetLength()), (x)))	///< x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
 #define ALLOCA_C_STRING(x)				(rt::_details::__alloca_string((LPSTR)alloca((x).GetLength() + 1), (x)))	///< x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
-
+ /** @}*/
 
 //////////////////////////////////////////////////////
 // Stringify Enum
@@ -453,7 +470,7 @@ struct _EnumString
 } // namespace _details
 
 /** \addtogroup Macros_to_register_enum_for_log_conversion
- * @ingroup string_type_ops
+ * @ingroup Macros_string_type_ops
  *  @{
  */
 #define STRINGIFY_ENUM_BEGIN_(type)				namespace rt {								\
@@ -542,6 +559,10 @@ struct EnumStringify: public rt::String
  * @brief Parse Enum to val(with Enum type)
 */
 template<typename T_Enum>
+/** \addtogroup Functions_string_type_ops
+* @ingroup string_type_ops
+*  @{
+*/
 INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 				{	rt::String_Ref tags[sizeof(T_Enum)*8];
 					UINT co = name.Split(tags, sizeofArray(tags), "|,+;");
@@ -569,5 +590,7 @@ INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 					return true;
 				}
 /** @}*/
+/** @}*/
 } // namespace rt
+/** @}*/
 /** @}*/

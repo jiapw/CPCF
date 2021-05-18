@@ -39,6 +39,10 @@
  * @ingroup CPCF
  *  @{
  */
+ /** \addtogroup type_traits
+  * @ingroup rt
+  *  @{
+  */
 #include "../os/predefines.h"
 #include "runtime_base.h"
 #include <float.h>
@@ -795,5 +799,6 @@ struct _InvokeThisCall
 #define THISCALL_POLYMORPHISM_INVOKE(name, This, Func, ...)	(__ThisCallPolymorphism_ ## name::Invoke(This, Func, ##__VA_ARGS__))
 /** @}*/
 } // namespace rt
+/** @}*/
 /** @}*/
 

@@ -1,22 +1,4 @@
 ﻿=== UnitTest<string>: BEGIN ===
-12
-12
-123
-123
-123.45
-123.4500
-1.2300e+45
-1.2300e+45
-inf
-TE_X
-3
-TEB_COM
-TEB_COM|TEB_A
-TEB_COM|TEB_A
-TEB_COM|TEB_A
-TEB_COM
-TEB_COM|TEB_A
-TE_MAX
 123📢好的 456
 123好的 456
 std::string = 1234!!
@@ -32,3 +14,82 @@ i+=222;
 --\'\"--\\\\*\\9
 --\'\"--\\\\*\\9
 --'"--\\*\9
+--'"--\\*\9
+<div class=\"tabBody3 tabContent\"><ul><li><a id=\"viewItemsMeasurements\" title=\"View this items measurements\" href=\"/am/pssizechart.nap?productID=511413\">View this item\'s measurements</a><br></li></ul><span><ul><li> Fits true to size, take your normal size</li><li> Cut for a loose fit</li><li> Mid-weight, slightly stretchy fabric</li><li>Model is 177cm/ 5\'10\" and is wearing a FR size 36 </li></ul></span></div>
+'"
+/123/456/89/
+/123/456/89
+P:ftp , H:www.xxx.com , PATH:/124/rty.jpg
+P: , H: , PATH:124/rty.jpg
+P: , H: , PATH:rty.jpg
+P: , H: , PATH:/124/rty.jpg
+P:http , H:www.google.com , PATH:/
+P: , H: , PATH:www.xxx.com/124/rty.jpg
+!?123456~
+[-!?****123456~-]
+[
+c
+a
+trim_comments
+TrimCodeComments
+code
+80
+c->a
+TrimCodeComments(code);80
+c->a
+TrimCodeComments(code);80
+c	->
+a	*
+trim_comments	.
+TrimCodeComments	(
+code	);
+80	
+GetNextLine(line, true)
+"1"
+"2"
+GetNextLine(line, false)
+"1"
+""
+"2"
+""
+""
+""
+1
+0
+1
+abc
+bcd
+cde
+de
+abcde
+
+
+abcde
+cde
+e
+
+
+ab
+abcde
+abcde
+
+de
+abcde
+abcde
+abcd
+abcd
+hello world
+a[2]: l
+ToNumber: 123456
+ToNumber: 2
+TrimLeft(2).ToNumber(num): 24
+SubStrHead(4).ToNumber(num): 1024
+Split<>(','): 123, 456, 789, 123$ddd 'yes "\'no',,,,
+Split<>(" ,"): 123,,456,,789,,123$ddd,yes "\'no
+Split<true>(" ,$"): 123,456,789,123,ddd,yes "\'no,,
+Split<>(...): 345,453;546,4543,444,ddd,,,
+hello world 1233 !!
+String Expression 1: hello world 1233 !! ..
+String Expression 2: worlld !!
+Replace: wor===d !!
+IsPrefixOf: 1

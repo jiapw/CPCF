@@ -371,6 +371,10 @@ public:
 	bool		HasTrailingPathSeparator() const { return Last() == '\\' || Last() == '/'; }
 	template<typename t_Str>
 	void		ToString(t_Str& str){ str = *this; }
+	/**
+	 * @name operators
+	*/
+	///@{
 	template<typename T>
 	const char&	operator [](T i) const { return _SC::_p[i]; }
 	template<typename T>
@@ -396,13 +400,14 @@ public:
 	{	int ret = memcmp(_SC::_p,x.Begin(),min(GetLength(),x.GetLength())*sizeof(char));
 		return (ret > 0) || (ret==0 && (GetLength() >= x.GetLength()));
 	}
+	///@}
 	/**
-	 * @brief editing distance <= 1
+	 * @brief whether similar to the other string
 	 * 
 	 * @tparam StrT 
 	 * @param x 
-	 * @return true 
-	 * @return false 
+	 * @return true editing distance <= 1
+	 * @return false editing distance > 1
 	 */
 	template< class StrT >
 	bool		IsSimilarTo(const StrT& x) const  
@@ -426,14 +431,45 @@ public:
 public:
 	SIZE_T		CommonPrefixLength(const t_StrRef& x) const { SIZE_T i=0; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[i] == x[i];i++); return i; }
 	SIZE_T		CommonSuffixLength(const t_StrRef& x) const { SIZE_T i=1; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[_SC::_len-i] == x[x._len-i];i++); return i-1; }
+	/**
+	 * @brief Sub str from tail
+	 * @param len 
+	 * @return 
+	*/
 	t_StrRef SubStrTail(SIZE_T len) const { return len > GetLength() ? *this : t_StrRef(_SC::_p+GetLength()-len, len); }
+	/**
+	 * @brief Sub str from head
+	 * @param len 
+	 * @return 
+	*/
 	t_StrRef SubStrHead(SIZE_T len) const { return t_StrRef(_SC::_p,rt::min(len,GetLength())); }
+	/**
+	 * @brief Get sub str
+	 * @param start 
+	 * @param len 
+	 * @return 
+	*/
 	t_StrRef SubStr(SIZE_T start, SIZE_T len) const { return start < GetLength() ? t_StrRef(_SC::_p+start,rt::min(len,GetLength()-start)) : nullptr; }
+	/**
+	 * @brief Get sub str to the end
+	 * @param start 
+	 * @return 
+	*/
 	t_StrRef SubStr(SIZE_T start) const { return start < GetLength() ? t_StrRef(_SC::_p+start, GetLength()-start) : nullptr; }
+	/**
+	 * @brief Starts with prefix?
+	 * @param prefix 
+	 * @return 
+	*/
 	bool		StartsWith(const t_StrRef& prefix) const
 	{	return	(GetLength() >= prefix.GetLength()) &&
 				SubStr(0,prefix.GetLength()) == prefix;
 	}
+	/**
+	 * @brief Ends with prefix?
+	 * @param prefix
+	 * @return
+	*/
 	bool	EndsWith(const t_StrRef& suffix) const
 	{	return	(GetLength() >= suffix.GetLength()) &&
 				SubStr(GetLength() - suffix.GetLength(),suffix.GetLength()) == suffix;
@@ -618,8 +654,9 @@ public:
                 i += len - 1;
 	}	}   return *this; }
 	/**
-	 * @brief handles 0,1,T,F,t,f,true,false,TRUE,FALSE
+	 * @brief To number
 	 * 
+	 * handles 0,1,T,F,t,f,true,false,TRUE,FALSE
 	 * @param x 
 	 * @return int 
 	 */
@@ -633,17 +670,30 @@ public:
 		if(_SC::_p[0] == 'F'){ x = false; return (0x45534c41 == *(DWORD*)(_SC::_p+1))?5:1; }
 		return 0;
 	}
+	/**
+	 * @brief To number
+	 * @tparam T 
+	 * @param x 
+	 * @return 
+	*/
 	template<typename T>
 	int ToNumber(T& x) const {	return ToNumber<T,10,true,'.',','>(x); }
+	/**
+	 * @brief To number(similar to base)
+	 * @tparam T
+	 * @param x 
+	 * @return 
+	*/
 	template<typename T, int BASE>
 	int ToNumber(T& x) const {	return ToNumber<T,BASE,true,'.',','>(x); }
-    template<typename T, int BASE, bool ALLOW_LEADING_NON_NUMERIC, char DECIMAL_POINT, char DIGIT_GROUP_SEPARATOR>
 	/**
-	 * @brief [...][+/-/ ]12.34, return the offset where parsing stopped, return -1 if no number found
-	 * 
-	 * @param x 
-	 * @return int 
+	 * @brief To number
+	 *
+	 * [...][+/-/ ]12.34, return the offset where parsing stopped, return -1 if no number found.
+	 * @param x
+	 * @return int
 	 */
+    template<typename T, int BASE, bool ALLOW_LEADING_NON_NUMERIC, char DECIMAL_POINT, char DIGIT_GROUP_SEPARATOR>
 	int ToNumber(T& x) const  
 	{	x = (T)0;
 		char *s, *d, *end = _SC::_p + GetLength();
@@ -743,11 +793,10 @@ public:
 		return false;
 	}
 	/**
-	 * @brief Get the Next Line object
+	 * @brief Get the Next Line
 	 * 
-	 * empty line will be skipped
 	 * @param x 
-	 * @param skip_empty_line 
+	 * @param skip_empty_line empty line will be skipped while true
 	 * @return true 
 	 * @return false 
 	 */
@@ -784,6 +833,13 @@ public:
 		x = t_StrRef(start,end);
 		return true;
 	}
+	/**
+	 * @brief Get Next Token(record non_token)
+	 * @param token_charset 
+	 * @param token 
+	 * @param non_token 
+	 * @return 
+	*/
 	bool GetNextToken(const CharacterSet& token_charset, t_StrRef& token, t_StrRef& non_token) const
 	{	
 		LPCSTR start = _SC::_p;		LPCSTR tail = End();
@@ -807,6 +863,13 @@ public:
 		non_token = t_StrRef(nontoken_start, nontoken_end);
 		return true;
 	}
+	/**
+	 * @brief Get Tokens
+	 * @param token_charset 
+	 * @param token 
+	 * @param token_count Number of Tokens
+	 * @return 
+	*/
 	UINT GetTokens(const CharacterSet& token_charset, t_StrRef* token, UINT token_count) const
 	{	t_StrRef v;	UINT co = 0;
 		while(GetNextToken(token_charset, v))
@@ -816,6 +879,12 @@ public:
 		}
 		return co;
 	}
+	/**
+	 * @brief Get Next Token
+	 * @param token_charset 
+	 * @param token 
+	 * @return 
+	*/
 	bool GetNextToken(const CharacterSet& token_charset, t_StrRef& token) const
 	{	
 		LPCSTR start = _SC::_p;
@@ -837,15 +906,15 @@ public:
 	/**
 	 * @brief return count of field actually parsed
 	 * 
-	 * @tparam merge_adjecent_sep 
+	 * @tparam merge_adjecent_sep merge adjecent sep while true
 	 * @tparam quote1 
 	 * @tparam quote2 
 	 * @tparam T 
 	 * @param fields 
-	 * @param fields_count 
-	 * @param seps 
+	 * @param fields_count max fields count
+	 * @param seps seps which type of rt::SS
 	 * @param def_val 
-	 * @return UINT 
+	 * @return UINT count of field actually parsed
 	 */
 	template<bool merge_adjecent_sep, char quote1, char quote2, typename T>
 	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const 
@@ -857,16 +926,16 @@ public:
 		return co;
 	}
 	/**
-	 * @brief return count of field actually parsed
+	 * @brief Split string 
 	 * 
-	 * @tparam merge_adjecent_sep 
+	 * @tparam merge_adjecent_sep merge adjecent sep while true
 	 * @tparam quote1 
 	 * @tparam quote2 
 	 * @tparam T 
 	 * @param fields 
-	 * @param fields_count 
-	 * @param seps 
-	 * @return UINT 
+	 * @param fields_count max fields count
+	 * @param seps seps which type of rt::SS
+	 * @return UINT count of field actually parsed
 	 */
 	template<bool merge_adjecent_sep, char quote1, char quote2, typename T>
 	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const 
@@ -915,56 +984,56 @@ public:
 		}
 	}
 	/**
-	 * @brief return count of field actually parsed
+	 * @brief Split string
 	 * 
-	 * @tparam merge_adjecent_sep 
+	 * @tparam merge_adjecent_sep merge adjecent sep while true 
 	 * @tparam T 
 	 * @param fields 
 	 * @param fields_count 
 	 * @param seps 
-	 * @return UINT 
+	 * @return UINT count of field actually parsed
 	 */
 	template<bool merge_adjecent_sep, typename T>
 	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const
 	{	return Split<merge_adjecent_sep, '"', '\'', T>(fields, fields_count, seps);
 	}
 	/**
-	 * @brief return count of field actually parsed
+	 * @brief Split string
 	 * 
-	 * @tparam merge_adjecent_sep 
+	 * @tparam merge_adjecent_sep merge adjecent sep while true 
 	 * @tparam T 
 	 * @param fields 
-	 * @param fields_count 
-	 * @param seps 
+	 * @param fields_count max fields count
+	 * @param seps seps which type of rt::SS
 	 * @param def_val 
-	 * @return UINT 
+	 * @return UINT count of field actually parsed
 	 */
 	template<bool merge_adjecent_sep, typename T>
 	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const 
 	{	return SplitNumbers<merge_adjecent_sep, '"', '\'', T>(fields, fields_count, seps);
 	}
 	/**
-	 * @brief return count of field actually parsed
+	 * @brief Split string
 	 * 
 	 * @tparam T 
 	 * @param fields 
-	 * @param fields_count 
-	 * @param seps 
-	 * @return UINT 
+	 * @param fields_count max fields count
+	 * @param seps seps which type of rt::SS
+	 * @return UINT count of field actually parsed
 	 */
 	template<typename T>
 	UINT Split(T* fields, UINT fields_count, const CharacterSet& seps)	const 
 	{	return Split<false, '"', '\'', T>(fields, fields_count, seps);
 	}
 	/**
-	 * @brief return count of field actually parsed
+	 * @brief Split string
 	 * 
 	 * @tparam T 
 	 * @param fields 
-	 * @param fields_count 
-	 * @param seps 
+	 * @param fields_count fields_count max fields count
+	 * @param seps seps which type of rt::SS
 	 * @param def_val 
-	 * @return UINT 
+	 * @return UINT count of field actually parsed
 	 */
 	template<typename T>
 	UINT SplitNumbers(T* fields, UINT fields_count, const CharacterSet& seps, T def_val = 0) const 
@@ -1071,6 +1140,14 @@ FIND_EXT:
 				return t_StrRef(fn.Begin(), &fn[i]).GetFileName();
 		return GetFileName();
 	}
+	/**
+	 * @brief Split URL
+	 * 
+	 * must have ":\\" to identify
+	 * @param protocal 
+	 * @param host 
+	 * @param path 
+	*/
 	void SplitURL(t_StrRef& protocal, t_StrRef& host, t_StrRef& path) const
 	{	int s = (int)FindCharacter(':');
 		if(s<0 || ((int)GetLength()) < s+4 || _SC::_p[s+1] != '/' || _SC::_p[s+2] != '/')
@@ -1125,6 +1202,10 @@ FIND_EXT:
 		}
 		return def_val;
 	}
+	/**
+	 * @brief Resolve Relative Path
+	 * @return 
+	*/
 	t_StrRef ResolveRelativePath()
 	{
 		t_StrRef d[256];
@@ -1156,8 +1237,9 @@ FIND_EXT:
 		return *this;
 	}
 	/**
-	 * @brief separator will also be trimmed
+	 * @brief Trim Before Separator
 	 * 
+	 * separator will also be trimmed
 	 * @param seps 
 	 * @return t_StrRef 
 	 */
@@ -1168,8 +1250,9 @@ FIND_EXT:
 		return *this;
 	}
 	/**
-	 * @brief separator will also be trimmed
+	 * @brief Trim After Separator
 	 * 
+	 * separator will also be trimmed
 	 * @param seps 
 	 * @return t_StrRef 
 	 */
@@ -1180,8 +1263,9 @@ FIND_EXT:
 		return *this;
 	}
 	/**
-	 * @brief separator will also be trimmed
+	 * @brief Trim Before Reverse
 	 * 
+	 * separator will also be trimmed
 	 * @param seps 
 	 * @return t_StrRef 
 	 */
@@ -1192,8 +1276,8 @@ FIND_EXT:
 		return *this;
 	}
 	/**
-	 * @brief separator will also be trimmed
-	 * 
+	 * @brief TrimAfterReverse
+	 * separator will also be trimmed
 	 * @param seps 
 	 * @return t_StrRef 
 	 */
@@ -1217,22 +1301,44 @@ FIND_EXT:
 		}
 		return t_StrRef("./",2);
 	}
+	/**
+	 * @brief Trim from left
+	 * @param length 
+	 * @return 
+	*/
 	t_StrRef TrimLeft(SIZE_T length) const 
 	{	if(length >= GetLength())return t_StrRef();
 		return t_StrRef(_SC::_p+length, GetLength()-length);
 	}
+	/**
+	 * @brief Trim from right
+	 * @param length 
+	 * @return 
+	*/
 	t_StrRef	TrimRight(SIZE_T length) const
 	{	if(length >= GetLength())return t_StrRef();
 		return t_StrRef(_SC::_p, GetLength()-length);
 	}
+	/**
+	 * @brief Trim all left space
+	 * @return 
+	*/
 	t_StrRef	TrimLeftSpace() const 
 	{	if(_SC::IsEmpty())return *this;
 		char* p=_SC::_p, *end = _SC::_p+GetLength(); for(;p<end && *p<=0x20 && *p>=0;p++){}; return t_StrRef(p,end);
 	}
+	/**
+	 * @brief Trim all right space
+	 * @return 
+	*/
 	t_StrRef	TrimRightSpace() const
 	{	if(_SC::IsEmpty())return *this;
 		SIZE_T l = GetLength(); for(;l>1 && _SC::_p[l-1]<=0x20 && _SC::_p[l-1]>=0;l--){}; return t_StrRef(_SC::_p,l);
 	}
+	/**
+	 * @brief Trim left and right space
+	 * @return 
+	*/
 	t_StrRef	TrimSpace() const 
 	{	if(_SC::IsEmpty())return *this;
 		return TrimLeftSpace().TrimRightSpace(); 
@@ -1370,6 +1476,10 @@ public:
 		return *this;
 	}
 };
+/** \addtogroup Functions_string_type
+* @ingroup string_type
+*  @{
+*/
 template<class t_Ostream, typename t_StringStore, class t_String_Ref>
 FORCEINL t_Ostream& operator << (t_Ostream& Ostream, const String_Base<t_StringStore, t_String_Ref> & vec)
 {	
@@ -1382,6 +1492,7 @@ FORCEINL t_Ostream& operator << (t_Ostream& Ostream, const String_Base<t_StringS
 	}
 	return Ostream;
 }
+/** @}*/
 /** @}*/
 } // namespace rt
 
@@ -1572,7 +1683,10 @@ struct _SE:public rt::_details::String_AddExpr<t_Left,t_Right>
 	_SE(T1& l, T2& r):rt::_details::String_AddExpr<t_Left,t_Right>(l,r){}
     //~_SE(){}  // This is an unnecessary code, And even worse, it makes release build never ends in VS2010 SP1
 };
-
+/** \addtogroup Macros_string_type
+* @ingroup string_type
+*  @{
+*/
 #define CPF_STRING_CONNECT_OP_(t_Left, t_Right, t_Left_in, t_Right_in)						\
 FORCEINL _SE<t_Left, t_Right >  operator + (const t_Left_in left, const t_Right_in right)	\
 { return _SE<t_Left, t_Right > ( (left), (right) ); }										\
@@ -1623,13 +1737,16 @@ CPF_STRING_EXPR_CONNECT_OP(tos::S_<>,	LONGLONG		)
 CPF_STRING_EXPR_CONNECT_OP(tos::S_<>,	ULONGLONG		)
 CPF_STRING_EXPR_CONNECT_OP(tos::S_<>,	float			)
 CPF_STRING_EXPR_CONNECT_OP(tos::S_<>,	double			)
-
-
+/** @}*/
+/** \addtogroup Functions_string_type
+* @ingroup string_type
+*  @{
+*/
 template<typename t_LL, typename t_LR, typename t_RL, typename t_RR > 
 _SE<_SE<t_LL,t_LR>, _SE<t_RL,t_RR> >	
 FORCEINL operator + (const _SE<t_LL,t_LR>& xl, const _SE<t_RL,t_RR>& xr)					
 { return _SE<_SE<t_LL,t_LR>, _SE<t_RL,t_RR> >(xl,xr); }
-
+/** @}*/
 template<SIZE_T LEN>
 class StringFixed: public String_Base<_details::_StringArrayStore<LEN+1>, String_Ref>
 {	typedef String_Base<_details::_StringArrayStore<LEN+1>, String_Ref> _SC;
@@ -1644,6 +1761,10 @@ public:
 	{	if(sz <= LEN){ _SC::_len = sz; _SC::_p[sz] = 0; return true; }
 		else return false;
 	}
+	/**
+	 * @name operators
+	*/
+	///@{
 	const StringFixed& operator = (const char* x){ *this = String_Ref(x); return *this; }
 	const StringFixed& operator = (char* x){ *this = String_Ref(x); return *this; }
 	const StringFixed& operator = (const String_Ref& x)
@@ -1672,6 +1793,7 @@ public:
 	}
 	LPCSTR operator += (LPCSTR str){ (*this) += rt::String_Ref(str); return str; }
 	void operator += (char x){ SIZE_T pos = _SC::GetLength(); if(SetLength(pos+1))_SC::_p[pos] = x; }
+	///@}
 };
 /**
  * @brief only contains address and length.
@@ -1718,6 +1840,10 @@ public:
     String(const char c, int count){ _leng_reserved = 0; _p = nullptr; _len = 0; for (int i = 0; i < count; i++) *this += c; }
 	template<typename T>
 	String(const T& string_expr){ _p = nullptr; _leng_reserved = _len = 0; (*this) = string_expr; }
+	/**
+	 * @name operators
+	*/
+	///@{
 	FORCEINL	   String& operator = (String&& x){ rt::Copy(*this, x); x._p = nullptr; x._len = x._leng_reserved = 0; return *this; }
 	const String& operator = (const char* x){ *this = String_Ref(x); return *this; }
 	const String& operator = (char* x){ *this = String_Ref(x); return *this; }
@@ -1773,11 +1899,17 @@ public:
 	LPCSTR operator += (LPCSTR str){ (*this) += rt::String_Ref(str); return str; }
 	LPSTR operator += (LPSTR str){ (*this) += rt::String_Ref(str); return str; }
 	void operator += (char x){ SIZE_T pos = GetLength(); SetLength(pos+1); _p[pos] = x; }
+	///@}
 private:
 	bool ParseNextNumber(UINT& out){ ASSERT(0); return false; } // ParseNextNumber cannot be used on a String
 public:
+	/**
+	* @name operators
+	*/
+	///@{
 	operator LPCSTR () const { ASSERT(!_p || !_p[GetLength()]); return _p; }
 	operator LPSTR () { if(_p){ ASSERT(!_p[GetLength()]); } return _p; }
+	///@}
 	String_Ref RemoveCharacters(const rt::CharacterSet& s){ String_Ref::RemoveCharacters(s); if(!IsEmpty())_p[_len] = 0; return *this; }
 	void		RecalculateLength(){ if(_p){ _len = strlen(_p); }else{ _len = 0; } }
 	SSIZE_T	FindString(const char* pSub, SIZE_T skip_first = 0) const // return -1 if not found
@@ -1795,8 +1927,17 @@ public:
         rt::Swap(*this, tmp);
 		return *this;
 	}
+	/**
+	 * @brief  replace all a with b in the current string
+	 * 
+	 * low performance
+	 * @tparam T1 
+	 * @param a 
+	 * @param b 
+	 * @return return # of replacement
+	*/
 	template<typename T1>
-	UINT Replace(const T1& a, const String_Ref& b) ///< replace all a with b in the current string, low performance, return # of replacement
+	UINT Replace(const T1& a, const String_Ref& b) 
 	{	SIZE_T a_len = rt::String_Ref(a).GetLength();
 		if(a_len == 0)return 0;
 		rt::String tmp = *this;
@@ -1812,6 +1953,11 @@ public:
         rt::Swap(*this, tmp);
 		return replaced;
 	}
+	/**
+	 * @brief Unescape Characters
+	 * @param escape_sign 
+	 * @return 
+	*/
 	String& UnescapeCharacters(char escape_sign = '\\')
 	{	if(!IsEmpty())
 		{	String_Ref::UnescapeCharacters(escape_sign);
@@ -1819,6 +1965,12 @@ public:
 		}
 		return *this;
 	}
+	/**
+	 * @brief Unescape Characters(from input)
+	 * @param input 
+	 * @param escape_sign 
+	 * @return 
+	*/
 	String& UnescapeCharacters(const rt::String_Ref& input, char escape_sign = '\\')
 	{	VERIFY(SetLength(input.GetLength()));
 		LPCSTR s = input.Begin();	LPCSTR end = input.End();
@@ -1845,6 +1997,13 @@ public:
 		_p[_len] = 0;
 		return *this;
 	}
+	/**
+	 * @brief Escape Characters(from input)
+	 * @param input 
+	 * @param characters_to_be_escaped 
+	 * @param escape_sign default with '\\'
+	 * @return 
+	*/
 	String& EscapeCharacters(const rt::String_Ref& input, const CharacterSet& characters_to_be_escaped, char escape_sign = '\\')
 	{	LPCSTR s = input.Begin();
 		LPCSTR end = input.End();
@@ -1867,6 +2026,12 @@ public:
 		else *this = input;
 		return *this;
 	}
+	/**
+	 * @brief Escape Characters
+	 * @param characters_to_be_escaped
+	 * @param escape_sign default with '\\'
+	 * @return
+	*/
 	String& EscapeCharacters(const CharacterSet& characters_to_be_escaped, char escape_sign = '\\')
 	{	LPCSTR s = Begin();
 		LPCSTR end = End();
@@ -1939,6 +2104,11 @@ public:
 		*this = rt::String_Ref(output, out);
 		return *this;
 	}
+	/**
+	 * @brief Insert before position
+	 * @param pos 
+	 * @param c 
+	*/
 	void Insert(SIZE_T pos, char c)
 	{	SIZE_T org_len = GetLength();
 		ASSERT(pos<=GetLength());
@@ -1946,6 +2116,11 @@ public:
 		memmove(_p + pos + 1, _p + pos, org_len - pos);
 		_p[pos] = c;
 	}
+	/**
+	 * @brief Insert before position
+	 * @param pos 
+	 * @param sub_str 
+	*/
 	void Insert(SIZE_T pos, const rt::String_Ref& sub_str)
 	{	SIZE_T org_len = GetLength();
 		ASSERT(pos<=org_len);
