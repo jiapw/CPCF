@@ -1,6 +1,6 @@
 #include "datagram_pump.h"
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 #include <sys/epoll.h>
 #include <unistd.h>
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
@@ -55,7 +55,7 @@ bool AsyncDatagramCoreBase::_Init(os::FUNC_THREAD_ROUTE io_pump, UINT concurrenc
 	_Core = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, concurrency);
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
     _Core = kqueue();
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 	_Core = epoll_create(1);
 #else
 	#error AsyncIOCore Unsupported Platform
@@ -98,7 +98,7 @@ void AsyncDatagramCoreBase::Term()
 		::CloseHandle(c);
 #elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
         ::close(c);
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 		::close(c);
 #else
 	#error AsyncIOCore Unsupported Platform
@@ -128,7 +128,7 @@ bool AsyncDatagramCoreBase::_AddObject(SOCKET obj, LPVOID cookie)
     rt::Zero(event);
     EV_SET(&event, obj, EVFILT_READ, EV_ADD|EV_ENABLE, 0, 0, cookie);
     return kevent(_Core, &event, 1, NULL, 0, NULL) != -1;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 	epoll_event epevt;
 	epevt.data.ptr = cookie;
 	epevt.events = EPOLLIN;
@@ -147,7 +147,7 @@ void AsyncDatagramCoreBase::_RemoveObject(SOCKET obj)
     struct kevent event;
     EV_SET(&event, obj, EVFILT_READ, EV_DELETE, 0, 0, NULL);
     VERIFY(kevent(_Core, &event, 1, NULL, 0, NULL) != -1);
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 	epoll_event epevt;
 	VERIFY(epoll_ctl(_Core, EPOLL_CTL_DEL, obj, &epevt) == 0);
 	// In kernel versions before 2.6.9, the EPOLL_CTL_DEL operation required a non-NULL pointer in event, even though this argument is ignored.
@@ -180,7 +180,7 @@ bool DatagramSocket::__SendTo(LPCVOID pData, UINT len, LPCVOID addr, int addr_le
 	return false;
 }
 
-#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#if defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 namespace _details
 {
 template<int SIZE, int ITER = 0, bool STOP = ITER == SIZE>
@@ -238,7 +238,7 @@ bool AsyncDatagramCoreBase::_PickUpEvent(Event& e)
         e.count = batch;
         return true;
     }
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 	epoll_event epevts[AsyncDatagramCoreBase::EVENT_BATCH_SIZE];
     int batch = 0;
 	if((batch = epoll_wait(_Core, epevts, AsyncDatagramCoreBase::EVENT_BATCH_SIZE, 200)) > 0 && IsRunning())

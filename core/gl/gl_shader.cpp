@@ -25,7 +25,7 @@ namespace _details
 	#define GLSL_MACRO_PLATFORM "#define SHADER_PLATFORM_MAC\n"
 #elif defined(PLATFORM_IOS)
 	#define GLSL_MACRO_PLATFORM "#define SHADER_PLATFORM_IOS\n"
-#elif defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_ANDROID)
 	#define GLSL_MACRO_PLATFORM "#define SHADER_PLATFORM_ANDROID\n"
 #endif
 

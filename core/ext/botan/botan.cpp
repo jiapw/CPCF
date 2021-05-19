@@ -1,6 +1,12 @@
-#include "botan.h"
-
 #pragma warning(disable:4267)
+#pragma warning(disable:4244)
+#pragma warning(disable:4297)
+#pragma warning(disable:4996)
+#pragma warning(disable:4250)
+#pragma warning(disable:4146)
+#pragma warning(disable:4334)
+
+#include "botan.h"
 
 #if defined(PLATFORM_WIN)
 	#ifdef PLATFORM_64BIT

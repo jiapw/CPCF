@@ -562,7 +562,7 @@ bool os::File::LoadBinary(LPCSTR fn, rt::String& out, UINT expire_sec)
 
 bool os::File::LoadText(LPCSTR fn, rt::String& out, UINT expire_sec)
 {
-#if defined(PLATFORM_ANDRIOD) || defined(PLATFORM_LINUX)
+#if defined(PLATFORM_ANDROID) || defined(PLATFORM_LINUX)
 	rt::String_Ref filename(fn);
 	if(filename.StartsWith("/proc/") || filename.StartsWith("/sys/"))
 	{
@@ -734,7 +734,7 @@ bool os::File::Truncate(SIZE_T len)
 {
 #if defined(PLATFORM_WIN)
 	return _chsize_s(GetFD(), (long)len) == 0;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
     return ftruncate64(GetFD(), len) == 0;
 #else
 	return ftruncate(GetFD(), len) == 0;

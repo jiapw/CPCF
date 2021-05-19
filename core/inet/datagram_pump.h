@@ -44,7 +44,7 @@ public:
 #if defined(PLATFORM_WIN)
 	typedef	HANDLE	    IOCORE;
 	static const SIZE_T IOCORE_INVALID = (SIZE_T)INVALID_HANDLE_VALUE;
-#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_IOS) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
     static const int    EVENT_BATCH_SIZE = 8;  // for Linux/Mac only
     typedef	int		    IOCORE;
 	static const int 	IOCORE_INVALID = -1;
