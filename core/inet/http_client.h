@@ -186,11 +186,13 @@ public:
     bool			Request_Get(LPCSTR pURL, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);	// no automatic redirection (3xx) handling
     bool			Request_Post(LPCSTR pURL, LPCBYTE data, UINT sz=0, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
     bool			Request_PostFile(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR local_filename, bool keep_alive = true); // as multipart/form-data
+   
     struct DataBuf
     {	LPCVOID Data;
         UINT	Length;	
     };
     bool			Request_Post(LPCSTR pURL, const DataBuf* pBufs, UINT BufCount, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
+     bool			Request_Post(LPCSTR pURL, const DataBuf* pBufs, UINT BufCount, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8",  LPCSTR additional_header = nullptr, UINT additional_header_len = 0, bool keep_alive = true);
 
     void			SetDataCallback(FUNC_DATA_CALLBACK cb, LPVOID cookie){ m_pDataCallback = cb; m_pDataCallbackCookie = cookie; }
     bool			Request_GetPartial(LPCSTR pURL, int start, int length = -1, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);
