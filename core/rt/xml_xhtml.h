@@ -98,7 +98,10 @@ public:
 	UINT		GetDocumentLength(bool withHeader = true) const;  ///< size of XML document in byte, not include teminator zero
 	rt::String_Ref GetDocument(bool withHeader = true) const { return rt::String_Ref(GetDocumentBuffer(withHeader), GetDocumentLength(withHeader)); }
 };
-
+/** \addtogroup Enums_xml_xhtml
+ * @ingroup xml_xhtml
+ *  @{
+ */
 enum XMLParseError
 {
 	ERR_XML_OK							=  0,
@@ -142,7 +145,7 @@ enum XPathParseError
 	ERR_QUALIFIER_QUOTATION_NOT_MATCHED,			///< '\'' in string value is not found to matched #
 	ERR_QUALIFIER_OPERATOR_NOT_SUPPORTED,			///< only = and != are supported
 };
-
+/** @}*/
 namespace _details
 {
 	struct _XML_Tag_Filter

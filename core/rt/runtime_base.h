@@ -43,6 +43,10 @@
  * @ingroup rt
  *  @{
  */
+ /** \addtogroup Macros_runtime_base
+  * @ingroup runtime_base
+  *  @{
+  */
 #ifndef __cplusplus
 #error Not compiled as C++, use .mm instead of .m on Mac/iOS
 #endif
@@ -140,7 +144,7 @@ namespace rt
     };
 }
 #endif
-
+/** @}*/
 namespace rt
 {
 
@@ -152,7 +156,14 @@ struct _LOG_FULLDATA: public T{};
 
 template<typename T>
 INLFUNC const _details::_LOG_FULLDATA<T>& LOG_FULLDATA(const T& x){ return (const _details::_LOG_FULLDATA<T>&)x; }
-
+/** \addtogroup runtime_base
+ * @ingroup rt
+ *  @{
+ */
+ /** \addtogroup Enums_runtime_base
+  * @ingroup runtime_base
+  *  @{
+  */
 enum _tagLogType
 {
 	LOGTYPE_VERBOSE = 0,
@@ -168,7 +179,8 @@ enum _tagLogType
 	LOGTYPE_IN_CONSOLE_PROMPT = 0x800,
 	LOGTYPE_MAX,
 };
-
+/** @}*/
+/** @}*/
 } // namespace rt
 
 ///////////////////////////////////////////////////////
@@ -177,7 +189,10 @@ namespace os
 	extern void LogDisplayInConsole(bool yes);
 	extern bool LogIsDisplayInConsole();
 }
-
+/** \addtogroup Macros_runtime_base
+ * @ingroup runtime_base
+ *  @{
+ */
 #ifndef PLATFORM_DISABLE_LOG
 	#define __LOG_TYPE(x,type)	{	 \
 									std::ostringstream _ostr;							\
@@ -194,10 +209,8 @@ namespace os
 
 
 
-/** \addtogroup logs
- *  @{
- */
- /** \addtogroup both_consoleand_file
+ /** \addtogroup Both_consoleand_file
+  * @ingroup Macros_runtime_base
   *  @{
   */
 #define _LOG_VERBOSE(x)				__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE) 
@@ -210,9 +223,11 @@ namespace os
 #define _LOG_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOG_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_WARNING)
  /** @}*/
- /** \addtogroup Only_log_to_console
-  *  @{
-  */
+
+  /** \addtogroup Only_log_to_console
+   * @ingroup Macros_runtime_base
+   *  @{
+   */
 #define _LOGC_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE) 
 #define _LOGC(x)					__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGC_PROMPT()				__LOG_TYPE("", rt::LOGTYPE_IN_CONSOLE_PROMPT|rt::LOGTYPE_INFORMATIONAL)
@@ -223,9 +238,11 @@ namespace os
 #define _LOGC_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE)
 #define _LOGC_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_WARNING)
   /** @}*/
- /** \addtogroup Only_Log_to_file
-  *  @{
-  */ 
+
+  /** \addtogroup Only_Log_to_file
+   * @ingroup Macros_runtime_base
+   *  @{
+   */
 #define _LOGF_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOGF(x)					__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGF_HIGHLIGHT(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_HIGHLIGHT)
@@ -235,7 +252,7 @@ namespace os
 #define _LOGF_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOGF_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_WARNING)
   /** @}*/
-/** @}*/
+
 
 
 /**
@@ -317,7 +334,7 @@ INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCST
 	#define VERIFY_FLOAT(x)	while(x){ break; }
 #endif
 
-
+ /** @}*/
 ///////////////////////////////////////////////////////
 
 
@@ -325,9 +342,15 @@ INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCST
 // Some constant 
 namespace rt
 {
- 
+	/** \addtogroup runtime_base
+	* @ingroup rt
+	*  @{
+	*/
 struct _DummyType;
-
+/** \addtogroup Functions_runtime_base
+ * @ingroup runtime_base
+ *  @{
+ */
 template<typename T>
 INLFUNC T Sqr(T x){ return x*x; }
 
@@ -540,7 +563,7 @@ FORCEINL UINT xxHashStrong(const void* input, int len, unsigned int seed = 0)
 	return crc;
 }
 
-
+/** @}*/
 struct _File
 {
 	static const int Seek_Begin		= 0;
@@ -579,7 +602,10 @@ template<int size, SIZE_T set, bool size_exceeded = (size > 32)> struct _PodFill
 #endif
 
 } // namespace _details
-
+/** \addtogroup Functions_runtime_base
+ * @ingroup runtime_base
+ *  @{
+ */
 template<typename T> FORCEINL void Zero(T& obj){ _details::_PodFill<sizeof(T), 0>::Fill((LPBYTE)&obj); }
 template<typename T> FORCEINL void Void(T& obj){ _details::_PodFill<sizeof(T), (SIZE_T)-1>::Fill((LPBYTE)&obj); }
 template<UINT LEN> FORCEINL void Zero(LPVOID obj){ _details::_PodFill<LEN, 0>::Fill((LPBYTE)obj); }
@@ -681,7 +707,7 @@ FORCEINL bool IsEqual(LPCVOID obj, LPCVOID from){ return _details::_PodEqual<LEN
 template<typename T1, typename T2>
 FORCEINL bool IsEqual(const T1& obj, const T2& from){ return IsEqual<sizeof(T1)>((LPCBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::IsEqual sizes of operands mismatch"); }
 
-
+/** @}*/
 namespace _details
 {
 	// FNV Hash function (http://isthe.com/chongo/tech/comp/fnv/)
@@ -820,7 +846,7 @@ struct PodRef
 		{	return _Keyval1 < _Keyval2;		}
 	};
 };
-
+/** @}*/
 } // namespace rt
 
 namespace std
@@ -828,18 +854,23 @@ namespace std
 template<typename T_POD>
 struct hash<::rt::PodRef<T_POD>>: public ::rt::PodRef<T_POD>::hash_compare {};
 } // namespace std
+/** \addtogroup Macros_runtime_base
+ * @ingroup runtime_base
+ *  @{
+ */
 
-
-///////////////////////////////////////////////////////
-// Safe delete Objects
+  /** \addtogroup Safe_delete_Objects
+   * @ingroup Macros_runtime_base
+   *  @{
+   */
 #define _SafeRelease(x)				{ if(x){x->Release(); x=nullptr;} }
 #define _SafeRelease_ConstPtr(x)	{ if(x)rt::_CastToNonconst(x)->Release(); }
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 #define _SafeCFRelease(x)	{ if(x){::CFRelease(x); x=nullptr;} }
 #endif
-///////////////////////////////////////////////////////
-
+   /** @}*/
+/** @}*/
 namespace os
 {
 namespace _details
@@ -864,13 +895,24 @@ T*				TrackMemoryNew(T* p, LPCSTR type, LPCSTR fn, LPCSTR func, UINT line){ Trac
 extern LPVOID	Malloc32AL(size_t size);   ///< size in byte
 extern void		Free32AL(LPCVOID ptr_in);
 }
-
-extern void EnableMemoryExceptionInThread(bool throw_e);  // default is disabled
+/** \addtogroup runtime_base
+* @ingroup rt
+*  @{
+*/
+/** \addtogroup Functions_runtime_base
+ * @ingroup runtime_base
+ *  @{
+ */
+extern void EnableMemoryExceptionInThread(bool throw_e);  ///< default is disabled
 extern bool IsMemoryExceptionEnabledInThread();
-
+/** @}*/
+/** @}*/
 } // namespace os::_details
 
-
+/** \addtogroup Macros_runtime_base
+ * @ingroup runtime_base
+ *  @{
+ */
 #ifdef PLATFORM_DEBUG_BUILD
 
 #define _Malloc8AL(type, co)		_Malloc32AL(type, co)
@@ -916,14 +958,21 @@ extern bool IsMemoryExceptionEnabledInThread();
 #ifndef PLATFORM_WIN
 #define _alloca alloca
 #endif
-
+ /** @}*/
 
 namespace rt
 {
-
+	/** \addtogroup runtime_base
+	* @ingroup rt
+	*  @{
+	*/
+	/** \addtogroup Functions_runtime_base
+	 * @ingroup runtime_base
+	 *  @{
+	 */
 //INLFUNC void Randomize( DWORD seed = time(NULL) ){ srand(seed); }
 /**
- * @brief Misc inline templates
+ * @brief Max Power 2 less than Within
  * 
  * @tparam T 
  * @param within 
@@ -960,7 +1009,8 @@ FORCEINL T* _RelocatePointer(LPCVOID new_base, LPCVOID old_base, T* old_p)
 	if(new_base == nullptr || old_p == nullptr)return nullptr;
 	return (T*)(((LPBYTE)old_p) + ((LPCBYTE)new_base - (LPCBYTE)old_base));
 }
-
+/** @}*/
+/** @}*/
 } // namespace rt
 
 
@@ -992,7 +1042,15 @@ namespace _details
 } // namespace rt
 
 namespace rt
-{
+{	
+	/** \addtogroup runtime_base
+	* @ingroup rt
+	*  @{
+	*/
+	/** \addtogroup Functions_runtime_base
+	 * @ingroup runtime_base
+	 *  @{
+	 */
 	template<typename T>
 	FORCEINL void SwapByteOrder(T& x)
 	{	_details::_SwapByteOrder<sizeof(T)>((LPBYTE)&x);
@@ -1003,6 +1061,8 @@ namespace rt
 		_details::_SwapByteOrder<sizeof(T)>((LPBYTE)&out);
 		return out;
 	}
+	/** @}*/
+/** @}*/
 }
 
 namespace rt
@@ -1049,6 +1109,14 @@ namespace _details
 
 namespace rt
 {
+	/** \addtogroup runtime_base
+	* @ingroup rt
+	*  @{
+	*/
+	/** \addtogroup Functions_runtime_base
+	 * @ingroup runtime_base
+	 *  @{
+	 */
 	template<typename T>
 	FORCEINL void SwitchByteOrderTo(const T& from, T& to)
 	{	_details::_SwitchByteOrderTo<sizeof(T)>(((LPCBYTE)&from) + sizeof(T) - 1, (LPBYTE)&to);
@@ -1071,11 +1139,21 @@ namespace rt
 		ASSERT((val & (~mask)) == 0);
 		x = (x&(~mask)) | val;
 	}
+	/** @}*/
+/** @}*/
 } // namespace rt
 
 
 namespace rt
 {
+	/** \addtogroup runtime_base
+	* @ingroup rt
+	*  @{
+	*/
+	/** \addtogroup Functions_runtime_base
+	 * @ingroup runtime_base
+	 *  @{
+	 */
 FORCEINL WORD		BitSmudgeRight(WORD x) // (minimum power of 2 >= x) - 1
 					{	UINT r = x | (x>>1);
 						r |= r >> 2;	r |= r >> 4;	r |= r >> 8;
@@ -1091,6 +1169,8 @@ FORCEINL ULONGLONG	BitSmudgeRight(ULONGLONG x) // (minimum power of 2 >= x) - 1
 						r |= r >> 2;	r |= r >> 4;	r |= r >> 8;	r |= r >> 16;	r |= r >> 32;
 						return (WORD)r;
 					}
+/** @}*/
+/** @}*/
 }
 
 
@@ -1125,7 +1205,18 @@ namespace rt
 
 namespace rt
 {
-#pragma warning(disable: 4307) ///< warning C4307: '*' : integral constant overflow
+	/** \addtogroup runtime_base
+* @ingroup rt
+*  @{
+*/
+/** \addtogroup Functions_runtime_base
+ * @ingroup runtime_base
+ *  @{
+ */
+#pragma warning(disable: 4307) 
+/**
+ * @brief disable warning C4307: '*' : integral constant overflow
+*/
 template<typename T>
 FORCEINL void Swap(T& a, T& b)
 {	
@@ -1143,8 +1234,9 @@ FORCEINL void Swap(T& a, T& b)
 		((LPWORD)&b)[sizeof(T)/2-1] = (WORD)t;
 	}
 }
-#pragma warning(default: 4307) ///< warning C4307: '*' : integral constant overflow
-
+#pragma warning(default: 4307) 
+/** @}*/
+/** @}*/
 } // namespace rt
 
 
@@ -1224,7 +1316,7 @@ template<typename T> UINT LeadingZeroBits(T x) { return _details::AdvBitOps<T>::
 template<typename T> UINT TrailingZeroBits(T x) { return _details::AdvBitOps<T>::TrailingZeroBits(x); }
 template<typename T> UINT NonzeroBits(T x) { return _details::AdvBitOps<T>::NonzeroBits(x); }
 template<typename T> T	  ByteOrderSwap(T x) { return _details::AdvBitOps<T>::ByteOrderSwap(x); }
-template<typename T> UINT Log2(T x){ return sizeof(T)*8 - 1 - LeadingZeroBits(x); }
+template<typename T> UINT Log2(T x){ return sizeof(T)*8 - 1 - LeadingZeroBits(x); } ///< Approximately answer
 template<typename T> BYTE SubBorrow(BYTE b_in, T a, T b, T* out){ return _details::AdvBitOps<T>::SubBorrow(b_in, a, b, out); }
 template<typename T> BYTE AddCarry(BYTE b_in, T a, T b, T* out){ return _details::AdvBitOps<T>::AddCarry(b_in, a, b, out); }
 }
@@ -1236,6 +1328,10 @@ namespace rt
  * @ingroup rt
  *  @{
  */
+ /** \addtogroup Functions_runtime_base
+  * @ingroup runtime_base
+  *  @{
+  */
 template<typename T> class TypeTraits;
 template<typename T1, typename T2> struct IsTypeSame;
 
@@ -1364,15 +1460,13 @@ FORCEINL SIZE_T BinarySearch(const T& arr, SIZE_T len, const t_Val &key)
 {	return _details::_BinarySearch<T,t_Val,t_GetKey>(arr,len,key);
 }
 /**
- * @brief first item equal to or greater than that of a specified key
- * 
- * T should have operator [], and the element should have operator <
- * @tparam T 
- * @tparam t_Val 
- * @param arr 
- * @param len 
+ * @brief LowerBound
+ * @tparam T T should have operator [], and the element should have operator <
+ * @tparam t_Val type of key
+ * @param arr Sorted array
+ * @param len array length
  * @param key 
- * @return FORCEINL 
+ * @return  index of the first item equal to or greater than that of a specified key
  */
 template<class T, typename t_Val>	
 FORCEINL SIZE_T LowerBound(const T& arr, SIZE_T len, const t_Val &key)	
@@ -1380,20 +1474,20 @@ FORCEINL SIZE_T LowerBound(const T& arr, SIZE_T len, const t_Val &key)
 }
 
 /**
- * @brief first item equal to key, or length of arr
+ * @brief BinarySearch
  * 
- * @tparam T 
- * @tparam t_Val 
- * @param arr 
- * @param len 
+ * @tparam T type of array
+ * @tparam t_Val type of key
+ * @param arr Sorted array
+ * @param len array length
  * @param key 
- * @return FORCEINL 
+ * @return first item equal to key, or length of arr
  */
 template<class T, typename t_Val>
 FORCEINL SIZE_T BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	
 {	return _details::_BinarySearch<T,t_Val,_details::_TrivialGetKey>(arr,len,key);
 }
-
+/** @}*/
 template<class T>
 class ObjRef
 {	

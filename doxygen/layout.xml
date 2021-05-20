@@ -4,7 +4,7 @@
   <navindex>
     <tab type="pages" visible="no" title="" intro=""/>
     <tab type="modules" visible="yes" title="" intro=""/>
-	<tab type="filelist" visible="yes" title="" intro=""/>
+	<tab type="filelist" visible="no" title="" intro=""/>
     <tab type="examples" visible="yes" title="" intro=""/>  
   </navindex>
 

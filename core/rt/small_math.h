@@ -49,7 +49,7 @@
 // Small Vector 
 namespace rt
 {
-	/** \addtogroup small_math
+/** \addtogroup small_math
  * @ingroup rt
  *  @{
  */
@@ -60,7 +60,10 @@ struct Vec
 {	static const int LEN=chan;
 	typedef t_Val	 VALUE;
 	t_Val	_p[LEN];
-	
+/** \addtogroup Macros_small_math
+ * @ingroup small_math
+ *  @{
+ */
 #define DEF_VEC_FUNC \
 	typedef typename rt::_details::hash_compare_fix<Vec<t_Val, LEN> > hash_compare; \
 	INLFUNC Vec(const rt::String_Ref& str){ FromString(str); } \
@@ -151,7 +154,7 @@ struct Vec
 	} \
 	
 	DEF_VEC_FUNC;
-
+/** @}*/
 	INLFUNC t_Val Min(){ return rt::min(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Min()); }
 	INLFUNC t_Val Max(){ return rt::max(_p[LEN-1], ((Vec<t_Val, LEN-1>&)(*this)).Max()); }
 };
@@ -408,7 +411,10 @@ public:
 
 #undef DEF_VEC_FUNC
 
-
+/** \addtogroup Macros_small_math
+ * @ingroup small_math
+ *  @{
+ */
 /**
  * @brief small vec expression
  * 
@@ -449,7 +455,11 @@ DEF_VEC_OPS
 #undef DEF_VEC_OP
 
 #undef DEF_VEC_OPS
-
+/** @}*/
+/** \addtogroup Typedefs_small_math
+ * @ingroup small_math
+ *  @{
+ */
 typedef Vec<float, 1> Vec1f;
 typedef Vec<float, 2> Vec2f;
 typedef Vec<float, 3> Vec3f;
@@ -489,10 +499,17 @@ typedef Vec<signed char, 1> Vec1c;
 typedef Vec<signed char, 2> Vec2c;
 typedef Vec<signed char, 3> Vec3c;
 typedef Vec<signed char, 4> Vec4c;
-
+/** @}*/
+/** @}*/
 } // namespace rt
+
+
 namespace rt
 {
+/** \addtogroup small_math
+ * @ingroup rt
+ *  @{
+ */
 namespace tos
 {
 template<int chan = 4>
@@ -532,18 +549,27 @@ CPF_STRING_VEC_CONNECT_OP(BYTE)
 CPF_STRING_VEC_CONNECT_OP(signed char)
 
 #undef CPF_STRING_VEC_CONNECT_OP
-
+/** \addtogroup Functions_small_math
+ * @ingroup small_math
+ *  @{
+ */
 template<typename ostream, typename t_Val, int LEN>
 ostream& operator << (ostream& s, const Vec<t_Val, LEN>& v)
 {
 	s << '(' << rt::tos::Vec<LEN>(v) << ')';
 	return s;
 };
+/** @}*/
+/** @}*/
 } // rt
 
 
 namespace rt
 {
+/** \addtogroup small_math
+ * @ingroup rt
+ *  @{
+*/
 
 /**
  * @brief small matrix
@@ -581,7 +607,10 @@ struct Mat3x3
 
 	INLFUNC rt::Vec<t_Val,9>& GetVec(){ return *((rt::Vec<t_Val,9>*)&m); }
 	INLFUNC const rt::Vec<t_Val,9>& GetVec()const{ return *((const rt::Vec<t_Val,9>*)&m); }
-
+	/**
+	 * @brief swap(mij,mji)
+	 * @return 
+	*/
 	INLFUNC void Transpose()
 	{
 		rt::Swap(m01,m10);
@@ -1198,12 +1227,19 @@ struct Mat4x4
  //       return Vec<t_Val,4>(m[0][i],m[1][i],m[2][i],m[3][i]);
  //   }
 };
-
+/** \addtogroup Typedefs_small_math
+ * @ingroup small_math
+ *  @{
+ */
 typedef Mat3x3<float> Mat3x3f;
 typedef Mat4x4<float> Mat4x4f;
 typedef Mat3x3<double> Mat3x3d;
 typedef Mat4x4<double> Mat4x4d;
-
+/** @}*/
+/** \addtogroup Functions_small_math
+ * @ingroup small_math
+ *  @{
+ */
 template<class t_Ostream, typename t_Ele>
 t_Ostream& operator<<(t_Ostream& Ostream, const Mat3x3<t_Ele> & vec)
 {	Ostream<<*((rt::Vec<t_Ele,3>*)&vec.m00)<<'\n'
@@ -1219,13 +1255,18 @@ t_Ostream& operator<<(t_Ostream& Ostream, const Mat4x4<t_Ele> & vec)
 		   <<*((rt::Vec<t_Ele,3>*)&vec.m03);
 	return Ostream;
 }
+/** @}*/
+/** @}*/
 } // namespace rt
 
 //////////////////////////////////////////////////////////
 // Quaternion
 namespace rt
 {
-
+/** \addtogroup small_math
+ * @ingroup rt
+ *  @{
+	*/
 template <typename t_Val, typename t_Comp = double>
 class Quaternion : public rt::Vec<t_Val, 4>
 {
@@ -1484,9 +1525,13 @@ public:
     INLFUNC const Vec<t_Val,3>&	Quat_Vec() const { return SC::v3(); }
     INLFUNC Vec<t_Val,3>&		Quat_Vec(){ return SC::v3(); }
 };
-
+/** \addtogroup Typedefs_small_math
+ * @ingroup small_math
+ *  @{
+ */
 typedef Quaternion<float> Quaternionf;
 typedef Quaternion<double> Quaterniond;
+/** @}*/
 /** @}*/
 } // namespace rt
 

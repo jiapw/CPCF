@@ -103,9 +103,14 @@ class Remove_QualiferAndRef
     /** @}*/
 } // namespace rt
 
-
-///////////////////////////////////////////////////////////
-// Compiler intrinsics
+ /** \addtogroup Macros_type_traits
+  * @ingroup type_traits
+  *  @{
+  */
+  /** \addtogroup Compiler_intrinsics
+   * @ingroup Macros_type_traits
+   *  @{
+   */
 #if defined(_MSC_VER) && defined(_MSC_FULL_VER) && (_MSC_FULL_VER >=140050215)
 #define COMPILER_INTRINSICS_IS_POD(T)	__is_pod(T)
 //true if the type is a class or union with no constructor or private or protected
@@ -152,7 +157,8 @@ namespace rt
     } //namespace _meta_
 } //namespace rt
 #endif
-
+/** @}*/
+/** @}*/
 
 namespace rt
 {
@@ -160,14 +166,17 @@ namespace rt
  * @ingroup rt
  *  @{
  */
+ /** \addtogroup Macros_type_traits
+* @ingroup type_traits
+*  @{
+*/
+
 namespace _details
 {	extern LPCSTR _UnitTestOutputFilePrefix;
 } // namespace _details
-
-/**
- * @brief UnitTests Class in Global Scope
- *
- *  Allows access to protected/private members in Unit Test
+/** \addtogroup UnitTests Class in Global Scope(Allows access to protected/private members in Unit Test)
+ * @ingroup Macros_type_traits
+ *  @{
  */
 #define TYPETRAITS_UNITTEST_OPEN_ACCESS	friend struct rt::UnitTests;
 #define TYPETRAITS_UNITTEST_OUTPUT(x)	rt::_details::_UnitTestOutputFilePrefix = x;
@@ -175,6 +184,8 @@ namespace _details
 											_LOG("=== UnitTest<"<<#x<<">: BEGIN ===");												\
 											rt::UnitTests::x(); _LOG("=== UnitTest<"<<#x<<">: END =====\n");						\
 											_CheckHeap; }
+ /** @}*/
+ /** @}*/
 struct UnitTests;
 /** @}*/
 } // namespace rt
@@ -186,8 +197,14 @@ namespace rt
  * @ingroup rt
  *  @{
  */
-//////////////////////////////////////////////////////////////
-// Qualifiers that can not be nest specified (const/volatile/&)
+ /** \addtogroup StaticVals_type_traits
+* @ingroup type_traits
+*  @{
+*/
+/** \addtogroup Qualifiers_that_can_not_be_nest_specified_(const/volatile/&)
+* @ingroup StaticVals_type_traits
+*  @{
+*/
 static const int _typeid_expression		=-5;	///< classes for expressions in expr_templ.h
 static const int _typeid_virtual_array	=-4;	///< class for simulate array from scalar in expr_templ.h
 static const int _typeid_volatile		=-3;
@@ -219,6 +236,8 @@ static const int _typeid_vec			=0x300;	///< small vec, fixed size
 static const int _typeid_buffer			=0x400;	///< rt::Buffer/BufferEx
 static const int _typeid_string			=0x500;	///< rt::String/String_Ref
 
+/** @}*/
+/** @}*/
 namespace _details
 {
     #define __TypeTraitsSubstituteType(varname, t_default)						\
@@ -256,10 +275,13 @@ namespace _details
 
 #undef __TypeTraitsSubstituteConst
 }
-
+/** \addtogroup Macros_type_traits
+* @ingroup type_traits
+*  @{
+*/
 #define TYPETRAITS_DECLARE_NON_POD		public: static const bool __IsPOD = false;
 #define TYPETRAITS_DECLARE_POD			public: static const bool __IsPOD = true;
-
+/** @}*/
 /**
  * @brief TypeTraits
  * 
@@ -275,10 +297,13 @@ public:
 	typedef typename _details::_SubstituteType_t_Unsigned<T>::t_Result	t_Unsigned;
 
 	static const int Typeid			= _details::_SubstituteConst_Typeid<T>::Result;
-	static const bool IsPOD			= _details::_SubstituteConst_IsPOD<T>::Result;
+	static const bool IsPOD			= _details::_SubstituteConst_IsPOD<T>::Result; ///< Plain Old Data(can be exchanged with C libraries directly) 
 	static const bool IsNumeric		= _details::_SubstituteConst_IsNumeric<T>::Result;
 };
-
+/** \addtogroup Macros_type_traits
+* @ingroup type_traits
+*  @{
+*/
 // make sure it is declared in namespace rt
 #define TYPETRAITS_DEFINE(T_,Ele_,is_pod,is_num)			\
 	template<>												\
@@ -294,7 +319,7 @@ public:
 		static const bool IsNumeric	= is_num;				\
 	};														\
 
-
+/** @}*/
 /**
  * @brief void type
  * 
@@ -429,7 +454,10 @@ public:
 	static const bool IsArray = false ;
 	static const bool IsImage = false ;
 };
-
+/** \addtogroup Macros_type_traits
+* @ingroup type_traits
+*  @{
+*/
 
 
 /**
@@ -494,6 +522,9 @@ __NumFloat(long double	,long double,_typeid_64f	,LDBL_EPSILON*100			,-LDBL_MAX	,
 #undef __NumFloat
 
 #undef __NumT
+
+
+/** @}*/
 //all built-in num types
 /////////////////////////////////////////////////////////////////
 
@@ -550,13 +581,16 @@ namespace _details
 	};
 #pragma pack(pop)
 }
-
+/** \addtogroup Functions_type_traits
+* @ingroup type_traits
+*  @{
+*/
 template<typename T>
 FORCEINL bool IsZero(T v)
 {
 	return _details::_IsZero<T>::Is(v);
 }
-
+/** @}*/
 /**
  * @brief put temp variable on heap to avoid being collected by crash report
  * 
@@ -607,13 +641,16 @@ struct _CallLambda
 		}
 	};
 } // _details
-
+/** \addtogroup Functions_type_traits
+* @ingroup type_traits
+*  @{
+*/
 template<typename return_type, typename func_type, typename... arg_types>
 INLFUNC auto CallLambda(return_type _def_ret_val, func_type&& func, arg_types&&... args)
 {
 	return rt::_details::_CallLambda<return_type, decltype(func(std::forward<arg_types>(args)...))>(_def_ret_val, func, std::forward<arg_types>(args)...).retval;
 }
-
+/** @}*/
 
 namespace _details
 {
@@ -667,7 +704,17 @@ struct ByteOrderSwapped
 	operator T() const { return SwapByteOrder(v); }
 };
 #pragma pack(pop)
+/** \addtogroup Functions_type_traits
+* @ingroup type_traits
+*  @{
+*/
 
+/**
+ * @brief Get Data Adress Pointer
+ * @tparam T 
+ * @param x 
+ * @return 
+*/
 template<typename T>
 INLFUNC LPVOID GetDataPtr(T& x)
 {	_details::_GetDataPtr p(x);
@@ -675,13 +722,18 @@ INLFUNC LPVOID GetDataPtr(T& x)
 	_details::_PodAssert<decltype(r), T> _a;	_a = _a;
 	return p._p; 
 }
-
+/**
+ * @brief Get Data Size
+ * @tparam T 
+ * @param x 
+ * @return 
+*/
 template<typename T>
 INLFUNC SIZE_T GetDataSize(T& x)
 {	return _details::_GetDataSize<T>::_Size(x);
 }
 
-
+/** @}*/
 
 namespace _details
 {
@@ -776,7 +828,10 @@ struct _InvokeThisCall
 	};
 
 } // namespace _details
-
+/** \addtogroup Macros_type_traits
+* @ingroup type_traits
+*  @{
+*/
 #define THISCALL_MFPTR rt::__ThisCallMemberFunctionPointer
 #define THISCALL_POLYMORPHISM_DECLARE_(return_type, name, ...)												\
 			struct __ThisCallPolymorphism_ ## name															\
@@ -797,6 +852,7 @@ struct _InvokeThisCall
 				{ if(This)rt::_details::_InvokeThisCall<__ThisCallPolymorphism_ ## name>::Invoke(This, Func, args...); }}
 
 #define THISCALL_POLYMORPHISM_INVOKE(name, This, Func, ...)	(__ThisCallPolymorphism_ ## name::Invoke(This, Func, ##__VA_ARGS__))
+/** @}*/
 /** @}*/
 } // namespace rt
 /** @}*/

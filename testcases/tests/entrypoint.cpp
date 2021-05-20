@@ -24,7 +24,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(json);
+		TYPETRAITS_UNITTEST(sortedpush);
 		
 		return;
 	}

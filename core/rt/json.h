@@ -179,6 +179,11 @@ struct _JVar
 						if(len)return len + 2;
 						return 2;
 					}
+	/**
+	 * @brief Copy data to char*
+	 * @param p 
+	 * @return length
+	*/
 	FORCEINL UINT	CopyTo(LPSTR p) const
 					{	*p++ = '{';
 						UINT len = 0;
@@ -236,8 +241,11 @@ namespace _details
 	template<typename T, typename STRING>
 	static	void _AppendJsonValueToString(const T& v, STRING& str);
 } // namespace _details
-
-template<typename t_String = rt::StringFixed<1024>>  // or StringFixed<LEN>
+/**
+ * @brief Json K-V array at same level
+ * @tparam t_String StringFixed<LEN>,default=rt::StringFixed<1024>
+*/
+template<typename t_String = rt::StringFixed<1024>> 
 class _JArray
 {
 	t_String	_buf;
@@ -348,8 +356,8 @@ namespace _details
 * @ingroup json
 *  @{
 */
-#define J(x)					rt::_JTag(#x)
-#define J_IF(cond, definition)	((cond) ? (definition) : decltype(definition)())
+#define J(x)					rt::_JTag(#x) ///< Make x to json key
+#define J_IF(cond, definition)	((cond) ? (definition) : decltype(definition)()) ///< from right to left
 #define JB(x)					(rt::_JVal((x), true))		///< Json Binary
 /** @}*/
 /** \addtogroup Functions_json
@@ -413,6 +421,10 @@ public:
 	const rt::String_Ref&	GetKey() const { return _Key; }
 	const rt::String_Ref&	GetValue() const { return _Value; }
 	rt::String_Ref			GetValueRaw() const;
+	/**
+	 * @brief Get Value Type
+	 * @return 
+	*/
 	JsonType				GetValueType() const { return GetValueType(_Value); }
 	void					Empty(){ _Key.Empty(); _Value.Empty(); }
 	bool					IsEmpty() const { return _Key.IsEmpty() || _Value.IsEmpty(); }
@@ -486,18 +498,42 @@ public:
 	void			Attach(const rt::String_Ref& doc){	SSIZE_T s = doc.FindCharacter('{');	if(s>=0)_Doc = doc.SubStr(s); }
 	rt::String_Ref	GetValueRaw(const rt::String_Ref& xpath, const rt::String_Ref& default_val = rt::String_Ref(), bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
 	rt::String_Ref	GetValueRaw(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
+	/**
+	* @brief Get Value
+	* @param xpath Use [] to get value in array，use dot to get nested value for short.
+	* @param default_val return default_val if not find xpath.
+	* @param bDoNotSplitDot Not split dot while true,default = false
+	* @return
+	*/
 	rt::String_Ref	GetValue(const rt::String_Ref& xpath, const rt::String_Ref& default_val = rt::String_Ref(), bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
 	rt::String_Ref	GetValue(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
 	bool			IsEmpty() const { return _Doc.IsEmpty(); }
 	bool			IsEmptyObject() const;
+	/**
+	 * @brief Get Next Key Value Pair
+	 * @param kvp 
+	 * @return true if not empty.
+	*/
 	bool			GetNextKeyValuePair(JsonKeyValuePair& kvp) const;
-
+	/**
+	 * @brief Get value as type T
+	 * @tparam T 
+	 * @param xpath 
+	 * @param default_val return default_val if not find xpath.
+	 * @return 
+	*/
 	template<typename T>
 	T				GetValueAs(const rt::String_Ref& xpath, T default_val) const
 					{	rt::String_Ref s = GetValue(xpath);
 						if(!s.IsEmpty())s.ToNumber(default_val);
 						return default_val;
 					}
+	/**
+	 * @brief Get value as type T
+	 * @tparam T 
+	 * @param xpath 
+	 * @return 
+	*/
 	template<typename T>
 	T				GetValueAs(const rt::String_Ref& xpath) const { return GetValueAs<T>(xpath, 0); }
 
@@ -529,19 +565,46 @@ INLFUNC bool JsonObject::GetValueAs<bool>(const rt::String_Ref& xpath, bool defa
 	return default_val;
 }
 /** @}*/
+
+/**
+ * @brief JsonObject Array
+*/
 class JsonArray
 {
 	rt::String_Ref	_Doc;
 public:
 	JsonArray(const rt::String_Ref& doc);
 	bool IsEmpty() const { return _Doc.IsEmpty(); }
+	/**
+	 * @brief Get Next Raw Json Object
+	 * @param obj 
+	 * @return 
+	*/
 	bool GetNextObjectRaw(JsonObject& obj) const { return GetNextObjectRaw(obj._Doc); }
+	/**
+	 * @brief Get Next Raw Json Object
+	 * @param obj 
+	 * @return 
+	*/
 	bool GetNextObjectRaw(rt::String_Ref& obj) const;
+	/**
+	 * @brief Get Next Cooked Json Object
+	 * 
+	 * cook both string &&binary
+	 * @param obj 
+	 * @return 
+	*/
 	bool GetNextObject(rt::String_Ref& obj) const;
 	SIZE_T GetSize() const;
-
+	/**
+	 * @brief Copy Numbers
+	 * @tparam t_Num 
+	 * @param pDest 
+	 * @param DestLen 
+	 * @return actual number of numbers copied
+	*/
 	template<typename t_Num>
-	INLFUNC UINT CopyNumbers(t_Num* pDest, SIZE_T DestLen) const // return actual number of numbers copied
+	INLFUNC UINT CopyNumbers(t_Num* pDest, SIZE_T DestLen) const 
 	{	
 		SIZE_T i = 0;
 		rt::String_Ref item;
@@ -553,14 +616,18 @@ public:
 		return (UINT)i;
 	}
 };
-
+/**
+ * @brief Json string to escape string
+*/
 class JsonEscapeString: public rt::String
 {
 public:
 	JsonEscapeString(const rt::String_Ref& c_string, bool add_quote = false);
 	static void Concat(const rt::String_Ref& input, rt::String& out);
 };
-
+/**
+ * @brief Escape string to unescape string
+*/
 class JsonUnescapeString: public rt::String
 {
 public:
@@ -720,25 +787,48 @@ public:
 
 	template<typename T>
 	void	Object(const T& json_str){ _details::_AppendJsonValueToString(json_str, _String); }
-
+	
+	/** @name Object Operation
+	*/
+	///@{
 	/**
-	 * @brief Object Operation
+	 * @brief Scope Merging Object
+	 * 
+	 * Delete last '}'
 	 */
 	auto	ScopeMergingObject(){ return _MergingObject(*this); }
 	template<typename P, typename V, int VT>
 	auto&	MergeObject(const _JVar<P,V,VT>& json){ _MergingObject(*this)._pJson->_String += json; return *this; }
 	auto&	MergeObject(const rt::String_Ref& json_str){ ASSERT(json_str.First() == '{' && json_str.Last() == '}'); _MergingObject(*this)._pJson->_String += json_str; return *this; }
-
+	///@}
+	/** @name Key Operation
+	*/
+	///@{
+	/**
+	 * @brief Scope Appending Key
+	 * 
+	 * Delete last '}' and Concat Key
+	 * @param key 
+	 * @return 
+	*/
 	auto	ScopeAppendingKey(const rt::String_Ref& key){ return _AppendingKeyedValue(*this, key); }
 	template<typename T>
+	/**
+	 * @brief Append Key-Value pair
+	 * @tparam T 
+	 * @param key 
+	 * @param json_value 
+	 * @return 
+	*/
 	auto&	AppendKey(const rt::String_Ref& key, const T& json_value)
 			{	ASSERT(IsEndsWith('}'));
 				_details::_AppendJsonValueToString(json_value, _AppendingKeyedValue(*this, key)._pJson->_String);
 				return *this;
 			}
-	/**
-	 * @brief Array Operation
-	 */
+	///@}
+	/** @name Array Operation
+	*/
+	///@{
 	auto	ScopeAppendingElement(){ return _AppendingElement(*this); }
 	template<typename T>
 	auto&	AppendElement(const T& json_value)
@@ -750,6 +840,9 @@ public:
 	auto	ScopeMergingArray(){ return _AppendingArray(*this); }
 	template<typename T>
 	auto&	MergeArray(const T& json_array){ _AppendingArray(*this)._pJson->_String += json_array; return *this; }
+	///@}
+	/** @name Operators
+	*/
 	/**
 	 * @brief merge object or append array element
 	 * 
@@ -765,7 +858,7 @@ public:
 
 	template<typename T>
 	auto&	operator << (const T& x){ return AppendElement(x); }
-
+	///@}
 	template<typename T>
 	void	Number(T n){ _String += rt::tos::Number(n); }
 	void	Null(){ _String += rt::SS("null"); }
@@ -795,6 +888,12 @@ class JsonBeautified: public rt::String
 
 public:
 	JsonBeautified(){}
+	/**
+	 * @brief Beautify json string
+	 * @param json_string 
+	 * @param indent 
+	 * @param line_remain 
+	*/
 	JsonBeautified(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80){ Beautify(json_string, indent, line_remain); }
 	void Beautify(const rt::String_Ref& json_string, int indent = 3, int line_remain = 80);
 };

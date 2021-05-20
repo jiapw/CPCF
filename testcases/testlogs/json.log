@@ -1,3 +1,279 @@
 ﻿=== UnitTest<json>: BEGIN ===
 3
 aa:aa = 3
+{"abs":1.3000,"cond_true":{"cond_true_nested":[1,2,"eee"],"qwe":"nested","yue":3.10},"empty":{},"fix":{"H":0,"R":2},"cond_true":1234}
+{
+   "abs": 1.3000,
+   "cond_true": 
+   {
+      "cond_true_nested": [1, 2, "eee"],
+      "qwe": "nested",
+      "yue": 3.10
+   },
+   "empty": {},
+   "fix": {"H": 0, "R": 2},
+   "cond_true": 1234
+}
+[
+   {"name": "jake", "age": 12},
+   {"name": "mary", "age": 7},
+   1,
+   false,
+   "haha",
+   "@"
+]
+Json Size: 470 = 470
+{
+   "Key:Complex": "complex\" key",
+   "name": "this is name",
+   "sex": "a female",
+   "empty": "",
+   "alive": true,
+   "age": 20,
+   "char": "C",
+   "phone": {"number": 5235251, "ext": 432},
+   "weight": "123.50kg",
+   "state": 
+   {
+      "paid": false,
+      "lastshow": "2007/03/02"
+   },
+   "children": 
+   [
+      {"name": "jake", "age": 12},
+      {"name": "mary", "age": 7},
+      1,
+      false,
+      "haha",
+      "@"
+   ],
+   "numbers": 
+   [
+      1,
+      2,
+      "hello",
+      {"c": 1.2000},
+      [3, "c", false],
+      <7/InArray>,
+      4.50
+   ],
+   "other": [{"f0": 0}, {"f1": 1}],
+   "std": "std::string",
+   "bin": <21/1234567890ABCDEFGHIJK>,
+   "raw": null,
+   "empty": []
+}
+complex\" key
+this is name
+1234567890ABCDEFGHIJK
+
+5235251
+hello
+{"c":1.2000}
+1.2000
+false
+c
+InArray
+4.50
+Key:Complex [string] = complex\" key
+name [string] = this is name
+sex [string] = a female
+empty [string] = 
+alive [bool] = true
+age [number] = 20
+char [string] = C
+phone [object] = {"number":5235251,"ext":432}
+weight [string] = 123.50kg
+state [object] = {"paid":false,"lastshow":"2007/03/02"}
+children [array] = [{"name":"jake","age":12},{"name":"mary","age":7},1,false,"haha","@"]
+numbers [array] = [1,2,"hello",{"c":1.2000},[3,"c",false],<7/InArray>,4.50]
+other [array] = [{"f0":0},{"f1":1}]
+std [string] = std::string
+bin [binary] = 1234567890ABCDEFGHIJK
+raw [null] = null
+empty [array] = []
+{"name":"jake","age":12}
+jake
+{"name":"mary","age":7}
+mary
+1
+
+false
+
+"haha"
+
+"@"
+
+2
+3
+4
+a: 5
+b: [2,3,4]
+c: 8.9
+d: Yes
+{ "c" : 8.9,
+  "b" : [2,3,4],
+  "a" : 5,
+  "d" : "Yes",
+  "g" : 8.9,
+  "f" : [2,3,4],
+  "e" : 5,
+  "h" : "Yes"}
+{
+   "c": 8.9,
+   "b": [2, 3, 4],
+   "a": 5,
+   "d": "Yes",
+   "g": 8.9,
+   "f": [2, 3, 4],
+   "e": 5,
+   "h": "Yes"
+}
+Escaped String: \x00\t\\ABC'\"123
+UnEscaped String: [0] 
+UnEscaped String: [1] 	
+UnEscaped String: [2] \
+UnEscaped String: [3] A
+UnEscaped String: [4] B
+UnEscaped String: [5] C
+UnEscaped String: [6] '
+UnEscaped String: [7] "
+UnEscaped String: [8] 1
+UnEscaped String: [9] 2
+UnEscaped String: [10] 3
+Unescaped Matches: 1
+A Json: false{"var":1.3000}
+A Json:  13{"var":1.3000} EOF
+{
+   "a": "40e20100",
+   "b": "123456",
+   "c": 
+   [
+      "String",
+      "",
+      {"a": 12.00},
+      "40e20100",
+      "123456",
+      "0000000000000"
+   ]
+}
+{"key": 32.10}
+{"key": 32.10
+{"key": 32.10{"key1": "merged"}
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope"
+}
+{"key": 32.10, "key1": "merged", "key2": "merged_scope", "array": 
+{"key": 32.10, "key1": "merged", "key2": "merged_scope", "array": []
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope",
+   "array": 
+   [
+      false,
+      1,
+      2.1000,
+      "ok",
+      "NN=3"
+   ]
+]
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope"
+,
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope",
+   "array": 
+   [
+      false,
+      1,
+      2.1000,
+      "ok",
+      "NN=3",
+      {}
+   ]
+}
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope",
+   "array": 
+   [
+      false,
+      1,
+      2.1000,
+      "ok",
+      "NN=3",
+      {}
+   ],
+   "str": "1234"
+}
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope",
+   "array": 
+   [
+      false,
+      1,
+      2.1000,
+      "ok",
+      "NN=3",
+      {}
+   ],
+   "str": "1234",
+   "key3": {"a": false}
+}
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope",
+   "array": 
+   [
+      false,
+      1,
+      2.1000,
+      "ok",
+      "NN=3",
+      {}
+   ],
+   "str": "1234",
+   "key3": {"a": false},
+   "key4": 13
+}
+{
+   "key": 32.10,
+   "key1": "merged",
+   "key2": "merged_scope",
+   "array": 
+   [
+      false,
+      1,
+      2.1000,
+      "ok",
+      "NN=3",
+      {}
+   ],
+   "str": "1234",
+   "key3": {"a": false},
+   "key4": 13,
+   "key5": "Hello 1.00"
+}
+J_IF: {"a": 1}
+J_IF: {}
+J_IF: {"b": 3, "d": 4}
+J_IF: {
+   "b": 3,
+   "d": 4,
+   "g": 7,
+   "f": 6,
+   "e": 5
+}
+=== UnitTest<json>: END =====
+

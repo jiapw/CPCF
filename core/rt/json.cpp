@@ -291,6 +291,13 @@ bool JsonObject::GetNextKeyValuePair(JsonKeyValuePair& kvp) const
 	return !kvp._Value.IsEmpty() || *tail == '"';
 }
 
+/**
+ * @brief Override sub to base
+ * @param base 
+ * @param sub 
+ * @param derived Derived string
+ * @param append Empty derived string first while false
+*/
 void JsonObject::Override(const rt::String_Ref& base, const rt::String_Ref& sub, rt::String& derived, bool append)
 {	
 	ASSERT(base.Begin() != sub.Begin());
@@ -311,7 +318,12 @@ void JsonObject::Override(const rt::String_Ref& base, const rt::String_Ref& sub,
 			vals[kv.GetKey()] = kv.GetValueRaw();
 	}
 
-	if(!append)derived.Empty();
+	if (!append)derived.Empty();
+	else
+	{
+		ASSERT(derived.Last()=='}');
+		derived.Shorten(1);
+	}
 
 	t_ValList::const_iterator it = vals.begin();
 	for(; it != vals.end(); it++)

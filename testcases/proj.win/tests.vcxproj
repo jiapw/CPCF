@@ -198,6 +198,8 @@
     <ClCompile Include="..\..\core\rt\xml_xhtml.cpp" />
     <ClCompile Include="..\tests\entrypoint.cpp" />
     <ClCompile Include="..\tests\experiments.cpp" />
+    <ClCompile Include="..\tests\test_rt.cpp" />
+    <ClCompile Include="..\tests\test_rt_smallmath.cpp" />
     <ClCompile Include="..\tests\test_rt_string.cpp" />
     <ClCompile Include="..\tests\test_api.cpp" />
     <ClCompile Include="..\tests\test_botan.cpp" />
@@ -213,6 +215,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Ob0 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\tests\test_rt_json.cpp" />
+    <ClCompile Include="..\tests\test_rt_xml.cpp" />
     <ClCompile Include="main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

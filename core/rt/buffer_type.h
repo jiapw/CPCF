@@ -188,7 +188,14 @@ public:
 	{	return std::lower_bound(Begin(), End(), x) - Begin();
 	}
 	///@}
+	
+	/**
+	 * @brief set to 0
+	*/
 	void Zero(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Zero() applies only to POD elements"); memset((LPVOID)_p, 0, _len*sizeof(t_Val)); }
+	/**
+	 * @brief set to 0xff
+	*/
 	void Void(){ static_assert(rt::TypeTraits<t_Val>::IsPOD, "Void() applies only to POD elements"); memset((LPVOID)_p, 0xff, _len*sizeof(t_Val)); }
 	template<typename T>
 	void CopyFrom(const Buffer_Ref<T>& x)
@@ -296,6 +303,10 @@ public:
 		ASSERT(GetSize() >= k);
 		return _Find::kth(_p, 0, GetSize()-1, k);
 	}
+	/**
+	 * @brief Random bits by using rt::Randomizer
+	 * @param seed 
+	*/
 	void RandomBits(DWORD seed = rand())
 	{	static_assert(rt::TypeTraits<t_Val>::IsPOD, "RandomBits() applies only to POD elements");
 		Randomizer rng(seed);
@@ -794,7 +805,7 @@ public:
 	 * 
 	 * Only for ordered BufferEx
 	 * @param x 
-	 * @return 
+	 * @return insert position
 	*/
 	SSIZE_T PushSorted(const t_Val& x)
 	{

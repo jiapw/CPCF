@@ -40,7 +40,7 @@ void json_JsonBeautified()
 			J_IF(true, J(cond_true) = 1234),
 			J_IF(false, J(cond_false) = "no")
 			);
-
+	_LOG(str);
 	_LOG(rt::JsonBeautified(str));
 }
 void json_JArray()
@@ -101,6 +101,7 @@ void json_JArray()
 	_LOG(obj.GetValue("empty"));
 	_LOG(obj.GetValue("phone.number"));
 	_LOG(obj.GetValue("numbers[2]"));
+	_LOG(obj.GetValue("numbers[3]"));
 	_LOG(obj.GetValue("numbers[3].c"));
 	_LOG(obj.GetValue("numbers[4][2]"));
 	_LOG(obj.GetValue("numbers[4][1]"));
@@ -128,8 +129,9 @@ void json_JArray()
 	rt::JsonObject child;
 	while (arr.GetNextObjectRaw(child))
 	{
+		_LOG(child.GetString());
 		_LOG(child.GetValue("name"));
-	}
+	}	
 }
 
 void json_GetNextObjectRaw()
@@ -162,15 +164,37 @@ void json_GetNextObjectRaw()
 	rt::JsonObject doc(out);
 	for (const char* s : { "a", "b", "c", "d" })
 		_LOG(s << ": " << doc.GetValue(s));
+
+	rt::JsonObject json2(__STRING(
+		{
+			g:1,
+			f : [2,3,4] ,
+			e : 5
+		}
+	));
+
+	rt::JsonObject json_sub2(__STRING(
+		{
+			h: "Yes",
+			g : 8.9
+		}
+	));
+	rt::JsonObject::Override(json2, json_sub2, out,true);
+	rt::JsonObject doc2(out);
+	_LOG(doc2.GetString());
+	_LOG(rt::JsonBeautified(doc2));
 }
 void json_EscapeString()
 {
 	rt::SS a("\x0\t\\ABC\'\"123");
 	rt::JsonEscapeString e(a);
 	_LOG("Escaped String: " << e);
-
 	rt::JsonUnescapeString u(e);
-
+	
+	for (int i = 0; i < u.GetLength(); i++)
+	{
+		_LOG("UnEscaped String: [" <<i<<"] "<<u[i]);
+	}
 	_LOG("Unescaped Matches: " << (u == a));
 }
 void json_Output()
@@ -208,30 +232,40 @@ void json_AppendKey()
 	json.Object() << (
 		J(key) = 32.1f
 		);
+	//_LOG(rt::JsonBeautified(json));
 
 	{	auto u = json.ScopeMergingObject();
+	//_LOG(rt::JsonBeautified(json));
 	json.Object() << (
 		J(key1) = "merged"
 		);
+	//_LOG(rt::JsonBeautified(json));
 	}
 
 	{	json << (
 		J(key2) = "merged_scope"
 		);
+	//_LOG(rt::JsonBeautified(json));
 	}
 
 	{	auto scope = json.ScopeAppendingKey("array");
+	//_LOG(rt::JsonBeautified(json));
 	json.Array();
+	//_LOG(rt::JsonBeautified(json));
 	json << false << 1 << 2.1 << "ok" << (rt::SS("NN=") + 3);
-
+	//_LOG(rt::JsonBeautified(json));
 	{	auto ele = json.ScopeAppendingElement();
+	//_LOG(rt::JsonBeautified(json));
 	json.Object();
 	}
 	}
-
+	//_LOG(rt::JsonBeautified(json));
 	json.ScopeWritingStringEscapedAtKey("str").String() += "1234";
+	//_LOG(rt::JsonBeautified(json));
 	json.AppendKey("key3", (J(a) = false));
+	//_LOG(rt::JsonBeautified(json));
 	json.AppendKey("key4", 13);
+	//_LOG(rt::JsonBeautified(json));
 	json.AppendKey("key5", rt::SS("Hello ") + 1.0f);
 
 	_LOG(rt::JsonBeautified(json));
