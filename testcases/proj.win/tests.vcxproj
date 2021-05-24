@@ -198,6 +198,7 @@
     <ClCompile Include="..\..\core\rt\xml_xhtml.cpp" />
     <ClCompile Include="..\tests\entrypoint.cpp" />
     <ClCompile Include="..\tests\experiments.cpp" />
+    <ClCompile Include="..\tests\test_inet_socket.cpp" />
     <ClCompile Include="..\tests\test_rt.cpp" />
     <ClCompile Include="..\tests\test_rt_smallmath.cpp" />
     <ClCompile Include="..\tests\test_rt_string.cpp" />

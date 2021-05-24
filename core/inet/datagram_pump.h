@@ -126,8 +126,22 @@ class DatagramSocket: public Socket
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddrV6 &target);
 	bool Recv(LPVOID pData, UINT len, UINT& len_out, bool Peek);
     void EnableNonblockingIO(bool enable = true);
-    bool Create(const InetAddrV6 &BindTo,int nSocketType, bool reuse_addr);
-    bool Create(const InetAddr &BindTo,int nSocketType, bool reuse_addr);
+	/**
+	 * @brief Create(IPV6)
+	 * @param BindTo 
+	 * @param nSocketType 
+	 * @param reuse_addr use Macro SO_REUSEADDR  
+	 * @return 
+	*/
+	bool Create(const InetAddrV6 &BindTo,int nSocketType, bool reuse_addr);
+	/**
+	 * @brief Create
+	 * @param BindTo 
+	 * @param nSocketType 
+	 * @param reuse_addr use Macro SO_REUSEADDR  
+	 * @return 
+	*/
+	bool Create(const InetAddr &BindTo,int nSocketType, bool reuse_addr);
     bool Send(LPCVOID pData, UINT len, bool drop_if_busy = false);
     
 protected:
@@ -162,8 +176,20 @@ protected:
 
 public:
 	SOCKET	GetHandle() const { return _hSocket; }
-    bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false);
-    bool    Create(const InetAddr &bind_to, bool reuse_addr = false);
+	/**
+	 * @brief Create(IPV6)
+	 * @param bind_to 
+	 * @param reuse_addr use macro SO_REUSEADDR
+	 * @return 
+	*/
+	bool    Create(const InetAddrV6 &bind_to, bool reuse_addr = false);
+	/**
+	 * @brief Create
+	 * @param bind_to 
+	 * @param reuse_addr use macro SO_REUSEADDR
+	 * @return 
+	*/
+	bool    Create(const InetAddr &bind_to, bool reuse_addr = false);
 
 public:   
     static void     OnRecv(Datagram* g){ ASSERT(0); } ///< should be overrided
@@ -210,8 +236,9 @@ struct OnRecvAll
 /**
  * @brief Datagram Pump
  * 
+ * waiting for event from multiple socket to make OnRecv calls. 
  * @tparam SocketObject 
- * IOObjectDatagram or IOObjectStream
+ * IOObjectDatagram or IOObjectStream, should overide function "OnRecv" in Class DatagramSocket.
  */
 template<typename SocketObject> 
 class DatagramPump: public AsyncDatagramCoreBase

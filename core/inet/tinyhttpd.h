@@ -56,14 +56,17 @@ namespace inet
 class TinyHttpd;
 class HttpResponse;
 struct HttpEndpoint;
-
+/** \addtogroup Typedefs_tinyhttpd
+ * @ingroup tinyhttpd
+ *  @{
+ */
 typedef HttpEndpoint* LPHTTPENDPOINT;
 typedef const HttpEndpoint* LPCHTTPENDPOINT;
 
 typedef void (*FUNC_HTTP_HANLDER_RELEASE)(LPHTTPENDPOINT pThis);
 typedef bool (*FUNC_HTTP_HANLDER)(HttpResponse*, LPHTTPENDPOINT pThis);
 typedef bool (*FUNC_WebAssetsConvertion)(const rt::String_Ref& fn, LPCVOID data, SIZE_T datasize, rt::BufferEx<BYTE>& out);
-
+/** @}*/
 struct HttpEndpoint
 {	
 protected:
@@ -74,13 +77,16 @@ public:
 	void	SetEndPoint(LPCSTR path){ L1_Path = path; }
 	bool	HandleRequest(HttpResponse* resp){ return Handler(resp, this); }
 };
-
+/** \addtogroup Typedefs_tinyhttpd
+ * @ingroup tinyhttpd
+ *  @{
+ */
 enum _tagHttpVerb
 {
 	HTTP_GET = 0x20544547,  ///< 'GET '
 	HTTP_POST = 0x54534f50	///< 'POST'
 };
-
+/** @}*/
 class HttpResponse
 {
 	friend class TinyHttpd;

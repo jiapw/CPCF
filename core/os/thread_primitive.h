@@ -39,6 +39,10 @@
  * @ingroup CPCF
  *  @{
  */
+ /** \addtogroup thread_primitive
+  * @ingroup os
+  *  @{
+  */
 #include "predefines.h"
 #include "../rt/runtime_base.h"
 #include "../rt/type_traits.h"
@@ -341,4 +345,5 @@ public:
 };
 /** @}*/
 } // namespace os
+/** @}*/
 /** @}*/

@@ -39,6 +39,10 @@
  * @ingroup CPCF
  *  @{
  */
+ /** \addtogroup kernel
+  * @ingroup os
+  *  @{
+  */
 #include "predefines.h"
 #include "../rt/string_type.h"
 #include "../rt/buffer_type.h"
@@ -1067,4 +1071,5 @@ struct Base16: public String
 
 } // rt
 
+/** @}*/
 /** @}*/

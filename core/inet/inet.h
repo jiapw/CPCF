@@ -79,6 +79,10 @@ namespace inet
  * @ingroup inet
  *  @{
  */
+ /** \addtogroup Typedefs_inet_h
+* @ingroup inet_h
+*  @{
+*/
 #ifndef PLATFORM_WIN
 	typedef int SOCKET;
 #define INVALID_SOCKET  (-1)
@@ -92,9 +96,13 @@ namespace inet
 #else
 	typedef int SOCKET_SIZE_T;
 #endif
-	
+/** @}*/
+	/** \addtogroup Functions_inet_h
+	 * @ingroup inet
+	 *  @{
+	 */
 extern void GetHostName(rt::String& name_out);
-
+/** @}*/
 namespace _details
 {
 	template<typename t_ADDR>
@@ -153,19 +161,35 @@ public:
 	INLFUNC InetAddrT() = default;
 	INLFUNC explicit InetAddrT(const t_ADDR& sin) { memcpy(this, &sin, sizeof(t_ADDR)); }
 	INLFUNC explicit InetAddrT(SOCKET sock_peer){ OP::Init(*this); SetAsPeer(sock_peer); }
-	INLFUNC InetAddrT(WORD ushPort, LPCVOID pAddressBin) ///< dotted IP addr string or domain
+	/**
+	 * @brief dotted IP addr string or domain
+	 * @param ushPort 
+	 * @param pAddressBin 
+	 * @return 
+	*/
+	INLFUNC InetAddrT(WORD ushPort, LPCVOID pAddressBin) 
 	{	OP::Init(*this);
 		SetBinaryAddress(pAddressBin);
 		SetPort(ushPort);
 	}
-	INLFUNC InetAddrT(LPCSTR pHostname, WORD ushPort = 0) ///< dotted IP addr string or domain
+	/**
+	 * @brief dotted IP addr string or domain
+	 * @param pHostname 
+	 * @param ushPort 
+	 * @return 
+	*/
+	INLFUNC InetAddrT(LPCSTR pHostname, WORD ushPort = 0) 
 	{	OP::Init(*this);
 		SetAddress(pHostname, ushPort);
 	}
 	
 	INLFUNC bool	IsLoopback() const { return _details::InetAddrT_Op<t_ADDR>::IsAddressLoopback(*this); }
-	INLFUNC bool	SetAsLocal(bool no_loopback = false){ OP::Init(*this); return GetLocalAddresses(this,1,no_loopback); }
+	INLFUNC bool	SetAsLocal(bool no_loopback = false){ OP::Init(*this); return GetLocalAddresses(this,1,no_loopback); } ///<init and set local address
 	INLFUNC auto&	SetAsLoopback(){ OP::Init(*this); _details::InetAddrT_Op<t_ADDR>::AssignLoopbackAddress(*this); return *this; }
+	/**
+	 * @brief set as INADDR_ANY(0x00000000)
+	 * @return 
+	*/
 	INLFUNC auto&	SetAsAny(){ OP::Init(*this); _details::InetAddrT_Op<t_ADDR>::SetAny(*this); return *this; }
 	INLFUNC bool	SetAsPeer(SOCKET peer)
 	{	OP::Init(*this);
@@ -251,7 +275,10 @@ public:
 	INLFUNC bool operator != (const t_ADDR& x) const { return !OP::IsEqual(*this, x); }
 	///@}
 };
-
+/** \addtogroup Functions_inet_h
+ * @ingroup inet_h
+ *  @{
+ */
 /** @name operators
 */
 ///@{
@@ -262,7 +289,7 @@ t_Ostream& operator<<(t_Ostream& Ostream, const InetAddrT<t_ADDR>& x)
 	return Ostream; 
 }
 ///@}
-    
+/** @}*/
 struct InetAddr: public InetAddrT<sockaddr_in>
 {
     INLFUNC InetAddr() = default;
@@ -272,11 +299,30 @@ struct InetAddr: public InetAddrT<sockaddr_in>
 	INLFUNC InetAddr(WORD ushPort, LPCVOID pAddressBin):InetAddrT<sockaddr_in>(ushPort, pAddressBin){}
     INLFUNC InetAddr(LPCSTR pHostname, WORD ushPort = 0):InetAddrT<sockaddr_in>(pHostname, ushPort){}
 };
+/** \addtogroup Typedefs_inet_h
+ * @ingroup inet_h
+ *  @{
+ */
 typedef InetAddrT<sockaddr_in6>    InetAddrV6;
-    
+/** @}*/
+/** \addtogroup Functions_inet_h
+ * @ingroup inet_h
+ *  @{
+ */
+/**
+ * @brief Get Local Addresses
+ * @param pOut Array of InetAddrs
+ * @param out_size pOut size
+ * @param no_loopback 
+ * @param pOut_Broadcast 
+ * @param subnet_mask 
+ * @param interface_prefix must be nullptr in windows
+ * @param if_names must be nullptr in windows
+ * @return 
+*/
 extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT out_size, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
 extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT out_size, bool no_loopback, InetAddrV6* pOut_Broadcast = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
-
+/** @}*/
 class Socket
 {
 	typedef const struct sockaddr CSA;
@@ -291,15 +337,43 @@ protected:
 	bool __SendTo(LPCVOID pData, UINT len,const struct sockaddr &target, int addr_len);
 	bool __RecvFrom(LPVOID pData, UINT len, UINT& len_out, struct sockaddr &target, int addr_len, bool Peek = false);
 public:
+	/**
+	 * @brief Create
+	 * @param BindTo 
+	 * @param nSocketType 
+	 * @param reuse_addr use macro SO_REUSEADDR
+	 * @return 
+	*/
 	bool Create(const InetAddr &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddr), nSocketType, reuse_addr, PF_INET); }
 	bool GetPeerName(InetAddr &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddr)); }
 	bool GetBindName(InetAddr &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddr)); }
 	int  GetBindPort() const;
 	bool ConnectTo(const InetAddr &target){ return __ConnectTo((SA&)target, sizeof(InetAddr)); }
 	bool Accept(Socket& connected_out, InetAddr& peer_addr){ return __Accept(connected_out, (SA&)peer_addr, sizeof(InetAddr)); }
+	/**
+	 * @brief Send message in pData to target
+	 * @param pData message array
+	 * @param len message length
+	 * @param target address to send message
+	 * @return 
+	*/
 	bool SendTo(LPCVOID pData, UINT len,const InetAddr &target){ return __SendTo(pData, len, (SA&)target, sizeof(InetAddr)); }
+	/**
+	 * @brief Receive a message from a socket
+	 * @param pData array to save message
+	 * @param len array size
+	 * @param len_out message length
+	 * @param target message address
+	 * @return 
+	*/
 	bool RecvFrom(LPVOID pData, UINT len, UINT& len_out, InetAddr &target){ return __RecvFrom(pData, len, len_out, (SA&)target, sizeof(InetAddr));  }
-
+	/**
+	 * @brief Create
+	 * @param BindTo 
+	 * @param nSocketType 
+	 * @param reuse_addr use macro SO_REUSEADDR 
+	 * @return 
+	*/
 	bool Create(const InetAddrV6 &BindTo,int nSocketType = SOCK_STREAM, bool reuse_addr = false){ return __Create((CSA&)BindTo, sizeof(InetAddrV6), nSocketType, reuse_addr, PF_INET6); }
 	bool GetPeerName(InetAddrV6 &ConnectedTo) const { return __GetPeerName((SA&)ConnectedTo, sizeof(InetAddrV6)); }
 	bool GetBindName(InetAddrV6 &BindTo) const { return __GetBindName((SA&)BindTo, sizeof(InetAddrV6)); }
@@ -382,7 +456,10 @@ public:
 	void	SetSendTimeout(DWORD send_msec);
 };
 
-
+/** \addtogroup Enums_inet_h
+* @ingroup inet_h
+*  @{
+*/
 enum NetworkInterfaceType
 {
 	NITYPE_UNKNOWN = 0,
@@ -401,7 +478,7 @@ enum NetworkInterfaceType
 	NITYPE_BROADCAST	= 0x4000,
     NITYPE_ADDRESS_DUPLICATED = 0x8000,
 };
-
+/** @}*/
 struct NetworkInterface
 {
 #if defined(PLATFORM_WIN)
@@ -458,14 +535,17 @@ public:
     ConfigState	GetState() const;
 	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_trivial = true);
 };
-
+/** \addtogroup Enums_inet_h
+* @ingroup inet_h
+*  @{
+*/
 enum _tagSocketEventType
 {
 	SEVT_ReadIsReady	= 1,
 	SEVT_WriteIsReady	= 2,
 	SEVT_Exception		= 4
 };
-
+/** @}*/
 class SocketEvent
 {
 	struct	my_fd_set
@@ -500,7 +580,12 @@ class SocketEvent
 #endif
 public:
 	SocketEvent(DWORD signal_type = SEVT_ReadIsReady);
-	INT					WaitForEvents(UINT timeout = INFINITE);		///< num of sockets ready: 0 for timeout and SOCKET_ERROR for error
+	/**
+	 * @brief Wait For Events
+	 * @param timeout 
+	 * @return Num of sockets ready: 0 for timeout and SOCKET_ERROR for error
+	*/
+	INT					WaitForEvents(UINT timeout = INFINITE);		
 	void				Add(SOCKET s);
 	void				Remove(SOCKET s);
 	void				RemoveAll();
@@ -511,7 +596,10 @@ public:
 	INLFUNC SOCKET		GetNextSocketEvent_Write(){ return fd_set_write.get_next_event(); }
 	INLFUNC SOCKET		GetNextSocketEvent_Exception(){ return fd_set_exception.get_next_event(); }
 };
-
+/** \addtogroup Enums_inet_h
+* @ingroup inet_h
+*  @{
+*/
 enum _tagHttpStatus
 {	
 	HTTP_OK						= 200,
@@ -556,6 +644,7 @@ enum _tagHttpStatus
 	// Internal Use
 	HTTP_DELAYED_HANDLING		= 600,
 };
+/** @}*/
 /** @}*/
 } // namespace inet
 

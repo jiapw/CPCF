@@ -39,6 +39,10 @@
  * @ingroup CPCF
  *  @{
  */
+/** \addtogroup gl_basic
+ * @ingroup gl
+ *  @{
+ */
 #include "../os/user_inputs.h"
 #include "../rt/small_math.h"
 #include "../rt/string_type.h"
@@ -388,4 +392,5 @@ namespace _details
 
 /** @}*/
 } // namespace gl
+/** @}*/
 /** @}*/

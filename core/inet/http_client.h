@@ -58,6 +58,10 @@ public:
 };
 //////////////////////////////////////////////
 // HTTP client
+/** \addtogroup Enums_http_client
+ * @ingroup http_client
+ *  @{
+ */
 /**
  * @brief values provided in msg of FUNC_EVENT_CALLBACK, return 0 for cancel
  * 
@@ -82,7 +86,7 @@ enum
 
     HTTPCLIENT_EVENT_REDIRECT = 100			///< (LPCSTR)param is the target url (Issued by HttpNavigator only)
 };
-
+/** @}*/
 class HttpSession
 {
     sec::TLS			_SecureConn;
@@ -260,7 +264,10 @@ public:
     rt::String_Ref GetResponse();
     DWORD		   GetHttpStatus() const;
 };
-
+/** \addtogroup Enums_http_client
+ * @ingroup http_client
+ *  @{
+ */
 /**
  * @brief HTTP Downloadable content
  * 
@@ -281,7 +288,7 @@ enum
     HTTP_DLC_ERROR_SERVEROPEN,
     HTTP_DLC_ERROR_FILEIO,
 };
-
+/** @}*/
 class HttpDownloader
 {
     static const int DOWNLOAD_BUFFER_SIZE = 128*1024;
