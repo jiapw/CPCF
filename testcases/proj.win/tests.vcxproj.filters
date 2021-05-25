@@ -106,7 +106,7 @@
     <ClCompile Include="..\..\core\ext\rocksdb\rocksdb_serving.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\test_inet.cpp">
+    <ClCompile Include="..\tests\test_inet_networkInterfaces.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\core\ext\bignum\precision_num.cpp">
@@ -137,6 +137,9 @@
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\tests\test_inet_socket.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\test_inet_datagrampump.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
   </ItemGroup>

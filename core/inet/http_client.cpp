@@ -87,7 +87,7 @@ bool HttpSession::Request_Post(LPCSTR pURL, const HttpSession::DataBuf* pBufs, U
 		header = ALLOCA_C_STRING(x);
 	}
 	
-	if (SendRequest(pURL, HTTP_VERB_POST, additional_header, additional_header_len))
+	if (SendRequest(pURL, HTTP_VERB_POST, header.Begin(), (UINT)header.GetLength()))
 	{
 		for (UINT i = 0; i < BufCount; i++)
 		{

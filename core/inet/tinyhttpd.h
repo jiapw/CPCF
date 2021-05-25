@@ -193,7 +193,9 @@ protected:
 	virtual ~HttpHandler(){}
 	HttpHandler(){ Handler = _endpoint_handler; }
 };
-
+/**
+ * @brief A tiny http server
+*/
 class TinyHttpd
 {
 	volatile int __ConcurrencyCount;

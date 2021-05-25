@@ -6,6 +6,7 @@
 #include "test.h"
 
 
+
 bool http_cb(LPVOID param, UINT msg, LPVOID cookie)
 {
 	switch(msg)
@@ -53,7 +54,8 @@ void rt::UnitTests::download()
 	inet::HttpDownloader	dlc;
 	dlc.SetItemEventCallback(http_cb, nullptr);
 	//dlc.SetTask("http://gameswalls.com/shin-megami-tensei-digital-devil-saga-2/shin-megami-tensei/1024x768", "test.html", true);
-	dlc.SetTask("http://wallfive.com/wallpaper/games", "test.html", nullptr, true);
+	//dlc.SetTask("http://wallfive.com/wallpaper/games", "test.html", nullptr, true);
+	dlc.SetTask("http://zhuanlan.zhihu.com/p/150789618?utm_source=wechat_session/", "test.html", nullptr, true);
 	dlc.Start();
 	while(dlc.GetState() < inet::HTTP_DLC_STOPPED)
 	{	os::Sleep(500);
@@ -86,7 +88,8 @@ void rt::UnitTests::http_client()
 		//http.Request_Get("http://www.wallcoo.net/anime/illustration_CG_Girls_Collection_Artbook/index.html");
 		//http.SetResponseTimeout(5000);
 
-		LPCSTR url = "https://www.google.de";
+		LPCSTR url = "https://www.baidu.com";
+		//LPCSTR url = "https://www.google.de";
 		//LPCSTR url = "https://itunes.apple.com/us/app/facebook/id284882215?mt=8";
 		//LPCSTR url = "http://www.flash-screen.com/free-wallpaper/fractal-wallpapers/sea-shells-wallpaper,1920x1080,24487.jpg";
 
@@ -192,9 +195,10 @@ void rt::UnitTests::http_client()
 
 void rt::UnitTests::http_nav()
 {
+	
 	inet::HttpNavigator	http;
 	http.SetItemEventCallback(http_cb, nullptr);
-	if(http.NavigateTo("http://google.com/") && http.GetResponseLength()>5*1024)
+	if(http.NavigateTo("http://bing.com/") && http.GetResponseLength()>5*1024)
 	{
 		_LOG("Document Downloaded");
 	}
@@ -219,7 +223,7 @@ void rt::UnitTests::httpd()
 			inet::InetAddr addr;
 			addr.SetAsLocal();
 			addr.SetPort(8080);
-			wwwd.SetEndpoints(ep,2);
+			wwwd.SetEndpoints(ep, 1);
 			wwwd.Start(addr);
 
 			_LOG("Listening at: http://"<<rt::tos::ip(wwwd.GetBindedAddress())<<"/p/index.htm\n");

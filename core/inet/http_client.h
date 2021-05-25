@@ -91,7 +91,7 @@ class HttpSession
 {
     sec::TLS			_SecureConn;
     SocketTimed			_TcpConn;
-    bool				_Send(LPCVOID pData, UINT len);
+    bool				_Send(LPCVOID pDaRequest_Getta, UINT len);
     bool				_Recv(LPVOID pData, UINT len, UINT& len_out);
 
     static const int RECV_BUFFER_EXTSIZE = 2048;
@@ -206,10 +206,18 @@ public:
 /** @name Request
 */
 ///@{
+
+    /**
+     * @brief Set Item Event Callback
+     * 
+     * Set HttpSession Item Event Callback
+     * @param cb 
+     * @param cookie 
+    */
     void			SetItemEventCallback(FUNC_EVENT_CALLBACK cb, LPVOID cookie){ m_pEventCallbackSaved = cb; m_pEventCallbackCookie = cookie; }
     bool			Request_Get(LPCSTR pURL, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);	///< no automatic redirection (3xx) handling
     bool			Request_Post(LPCSTR pURL, LPCBYTE data, UINT sz=0, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8", bool keep_alive = true);
-    bool			Request_PostFile(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR local_filename, bool keep_alive = true); // as multipart/form-data
+    bool			Request_PostFile(LPCSTR pURL, LPCBYTE data, UINT sz, LPCSTR local_filename, bool keep_alive = true); ///< as multipart/form-data
    
     struct DataBuf
     {	LPCVOID Data;
@@ -219,6 +227,14 @@ public:
      bool			Request_Post(LPCSTR pURL, const DataBuf* pBufs, UINT BufCount, LPCSTR data_type = "text/plain", LPCSTR charset = "utf-8",  LPCSTR additional_header = nullptr, UINT additional_header_len = 0, bool keep_alive = true);
 
 ///@}
+
+    /**
+     * @brief Set Data Callback
+     * 
+     * Use GetResponse() & GetResponseLength() as data and data_len
+     * @param cb 
+     * @param cookie 
+    */
     void			SetDataCallback(FUNC_DATA_CALLBACK cb, LPVOID cookie){ m_pDataCallback = cb; m_pDataCallbackCookie = cookie; }
     bool			Request_GetPartial(LPCSTR pURL, int start, int length = -1, LPCSTR additional_header = nullptr, UINT additional_header_len = 0);
 /** @name BindingAddress
@@ -322,12 +338,32 @@ public:
     ~HttpDownloader();
     void	SetHangingTimeout(DWORD msec){ _Http.SetHangingTimeout(msec); }
     void	SetResponseTimeout(DWORD msec){ _Http.SetResponseTimeout(msec); }
+    /**
+     * @brief Set Item Event Callback
+     * 
+     * Set HttpSession Item Event Callback
+     * @param cb 
+     * @param cookie 
+    */
     void	SetItemEventCallback(HttpSession::FUNC_EVENT_CALLBACK cb, LPVOID cookie){ _Http.SetItemEventCallback(cb, cookie); }
-	void	SetTask(LPCSTR url, LPCSTR filepath, LPCSTR cookie = nullptr, bool resume = true);
+    /**
+     * @brief Set Task
+     * 
+     * Set Task Before Start
+     * @param url Source URL
+     * @param filepath Filepath to save source
+     * @param cookie 
+     * @param resume 
+    */
+    void	SetTask(LPCSTR url, LPCSTR filepath, LPCSTR cookie = nullptr, bool resume = true);
 	void	SetProxy(LPCSTR url);
 	void	SetAddtionalHeader(LPCSTR header, UINT header_len) { _AddtionalHeader = header; }
     void	Start(bool async = false);
     void	Stop(bool async = false);
+    /**
+     * @brief Get State(HTTP_DLC_XXX)
+     * @return 
+    */
     DWORD	GetState() const { return _WorkerState; }
     void	WaitForFinish() const;
     bool	IsDownloading() const;
@@ -338,14 +374,12 @@ public:
     UINT	GetDownloadedSize() const;
 };
 
-
-//////////////////////////////////////////////////////////
-// What has been handled:
-// 1. HTTP 3xx redirection with Location
-// 2. HTML http-equiv="refresh" redirection
-//
 /**
  * @brief a simple web navigator with redirection and cookie
+ * 
+ * What has been handled:
+ * 1. HTTP 3xx redirection with Location
+ * 2. HTML http-equiv="refresh" redirection
  */
 class HttpNavigator	
 {
@@ -367,7 +401,16 @@ public:
     void				SetHangingTimeout(DWORD msec){ _HttpSession.SetHangingTimeout(msec); }		///< limit the maximum time of server not responding
     void				SetResponseTimeout(DWORD msec){ _HttpSession.SetResponseTimeout(msec); }	///< limit the total time of fulfilling the request 
     void				CancelResponseWaiting(){ _HttpSession.CancelResponseWaiting(); }
-    // automatic redirection (3xx) handling, cookie storage
+    /**
+     * @brief automatic redirection (3xx) handling, cookie storage
+     * @param pURL 
+     * @param max_redirection_times 
+     * @param pPostData 
+     * @param postDataLen 
+     * @param customVerb_for_post 
+     * @param bWaitResponse 
+     * @return 
+    */
     bool				NavigateTo(LPCSTR pURL, int max_redirection_times = 8, const char *pPostData = nullptr, int postDataLen = 0, HttpSession::_tagHttpVerb customVerb_for_post = HttpSession::HTTP_VERB_POST, bool bWaitResponse = true);
     rt::String_Ref		GetNavigateDestination() const { return _NavigatedDestination; };	///< final redirected URL
     HttpNavigator(){}
@@ -387,6 +430,13 @@ public:
     void	SetCommonHeaders(LPCSTR agent, bool keepalive = false){ _HttpSession.SetCommonHeaders(agent,keepalive); }
     void	SetReferer(LPCSTR referer);
     void	AddAdditionalHeader(LPCSTR key, LPCSTR value);
+    /**
+     * @brief Set Item Event Callback
+     * 
+     * Set HttpSession Item Event Callback
+     * @param cb 
+     * @param cookie 
+    */
     void	SetItemEventCallback(HttpSession::FUNC_EVENT_CALLBACK cb, LPVOID cookie){ _HttpSession.SetItemEventCallback(cb, cookie); }
         
     LPCSTR	GetResponseHeader(){ return _HttpSession.GetResponseHeader(); }

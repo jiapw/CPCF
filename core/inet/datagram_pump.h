@@ -92,7 +92,7 @@ protected:
 public:
 	bool IsRunning() const { return _Core != (IOCORE)IOCORE_INVALID; }
 	void Term();
-	~AsyncDatagramCoreBase(){ Term(); }
+	~AsyncDatagramCoreBase(){ Term(); } ///< call function Term() when class is destructed, In case the user forgets.
 };
 
 #pragma pack(push, 1)
@@ -279,6 +279,15 @@ protected:
 	}
 
 public:
+	/**
+	 * @brief DatagramPump Init
+	 * 
+	 * call function Term() when class DatagramPump is destructed, In case the user forgets.
+	 * @param concurrency 
+	 * @param mtu 
+	 * @param stack_size 
+	 * @return 
+	*/
 	bool Init(UINT concurrency = 0, UINT mtu = 1500, UINT stack_size = 0)
 	{
         _MTU = mtu;
@@ -291,9 +300,9 @@ public:
 		return _Init(_call::_func, concurrency, stack_size);
 	}
 	/**
-	 * @brief lifecycle is **not** maintained by RecvPump
+	 * @brief Add Object
 	 * 
-	 * @param obj 
+	 * @param obj lifecycle is **not** maintained by RecvPump
 	 * @return true 
 	 * @return false 
 	 */

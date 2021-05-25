@@ -24,7 +24,7 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(recv_pump);
+		TYPETRAITS_UNITTEST(http_nav);
 		
 		return;
 	}

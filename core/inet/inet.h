@@ -47,7 +47,7 @@
 
 #if defined(PLATFORM_ANDROID)
 #pragma clang diagnostic ignored "-Wdeprecated-register"
-#endif
+#endif 
 
 #if defined(PLATFORM_WIN)
 #include <Winsock2.h>
@@ -392,11 +392,15 @@ public:
 	operator		SOCKET() const { return _hSocket; }
 	bool			IsEmpty() const { return _hSocket == INVALID_SOCKET; }
 
-public: //helpers
+public: 
+	/**
+	 * @name helpers
+	*/
+	///@{
 	static	int		GetLastError();
 	static  bool	IsErrorUnrecoverable(int err);
 	static	bool	IsLastOpPending();
-
+	///@}
 public:
 	bool			IsValid() const;
 	bool			IsConnected() const;
@@ -495,6 +499,9 @@ struct NetworkInterface
 		DWORD	SubnetMask;
 	}			v4[2];
 	UINT		v4Count;
+	/**
+	 * @brief Use Function SetBinaryAddress of Class InetAddrV6 with parameter v6[i].Local
+	*/
 	struct {
 		BYTE	Local[16];
 	}			v6[4];
@@ -531,8 +538,18 @@ protected:
 public:
 	NetworkInterfaces();
 	~NetworkInterfaces();
-
+    /**
+     * @brief Get Config State
+     * @return 
+    */
     ConfigState	GetState() const;
+	/**
+	 * @brief Populate NetworkInterface List
+	 * @param list 
+	 * @param only_up 
+	 * @param skip_trivial 
+	 * @return 
+	*/
 	static bool	Populate(rt::BufferEx<NetworkInterface>& list, bool only_up = true, bool skip_trivial = true);
 };
 /** \addtogroup Enums_inet_h
