@@ -46,7 +46,7 @@
 
 namespace os
 {
-	/** \addtogroup high_dir
+	/** \addtogroup high_level
  * @ingroup os
  *  @{
  */

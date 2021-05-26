@@ -49,7 +49,10 @@
 #include <android/log.h>
 #endif
 
-
+ /** \addtogroup Macros_predefines
+  * @ingroup predefines
+  *  @{
+  */
 #ifdef PLATFORM_WIN
 
 #ifndef WIN32_LEAN_AND_MEAN
@@ -85,19 +88,19 @@
 #pragma warning(error : 4715 4700) ///< not all control paths return a value
 
 
-/**
- * @brief Enable frequently used intrinsic function
- * 
- */
+//Enable frequently used intrinsic function 
 #pragma intrinsic(strcmp,strcpy,strcat,strlen)
 #pragma intrinsic(memcmp,memcpy,memset)
 
 #endif	// #ifdef PLATFORM_WIN
-
+/** @}*/
 #include <stdlib.h>
 #include <stdio.h>
 
-
+ /** \addtogroup Typedefs_predefines
+  * @ingroup predefines
+  *  @{
+  */
 ///////////////////////////////////////////////////////
 // Basic data types
 #ifndef PLATFORM_WIN
@@ -186,7 +189,11 @@ typedef struct _GUID {
 	unsigned char  Data4[ 8 ];
 } GUID;
 #endif
-
+/** @}*/
+ /** \addtogroup Macros_predefines
+  * @ingroup predefines
+  *  @{
+  */
 // GCC does not support _rotl outside of Windows
 #if !defined(PLATFORM_WIN)
 #define _rotl(x,r) ((x << r) | (x >> (32 - r)))
@@ -225,5 +232,6 @@ typedef struct _GUID {
 #endif
 
 #endif
+/** @}*/
 /** @}*/
 /** @}*/

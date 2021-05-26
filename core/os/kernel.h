@@ -63,9 +63,9 @@
 #endif
 
 #endif
-
+/// @cond
 #define ASSERT_STATIC_NOT_IMPLMENTED	static_assert(0, "Not Implmentated.")
-
+/// @endcond
 namespace os
 {
 /** \addtogroup kernel
@@ -160,12 +160,20 @@ public:
 protected:
 	LONGLONG	_Count;
 };
-
+/** @}*/
 } // namespace os
 
 
 namespace os
 {
+	/** \addtogroup kernel
+ * @ingroup os
+ *  @{
+ */
+ /** \addtogroup Enums_kernel
+* @ingroup kernel
+*  @{
+*/
 #ifndef PLATFORM_DISABLE_LOG
 enum LogPrefixItemCode
 {
@@ -176,7 +184,7 @@ enum LogPrefixItemCode
     _LOG_MEM, ///< in MB, e.g. 5217MB
     _LOG_CPU,
 };
-
+/** @}*/
 struct LogPrefix
 {
     struct _item
@@ -193,9 +201,12 @@ struct LogPrefix
 	LogPrefix& operator << (LPCSTR s);
     const LogPrefix& operator = (const LogPrefix& x);
 };
-
+/** \addtogroup Macros_kernel
+ * @ingroup kernel
+ *  @{
+ */
 #define _LOGFORMAT (os::LogPrefix())
-
+/** @}*/
 namespace _details
 {
 	void __ConsoleLogWrite(LPCSTR log, int type);
@@ -207,7 +218,10 @@ namespace _details
 	extern void SetLogWriteFunction(FUNC_LOG_WRITE func = nullptr, LPVOID cookie = nullptr);
 	extern void LogWriteDefault(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type, LPVOID);
 };
-
+/** \addtogroup Functions_kernel
+ * @ingroup kernel
+ *  @{
+ */
 extern void LogWrite(LPCSTR log, LPCSTR file, int line_num, LPCSTR func, int type);
 extern void LogWriteFlush();
 #endif // PLATFORM_DISABLE_LOG
@@ -286,8 +300,11 @@ extern bool	SavePreferenceString(const rt::String_Ref& keyname, const rt::String
 
 extern bool EncryptData(rt::String& cipertext, const rt::String_Ref& plaintext);
 extern bool DecryptData(rt::String& plaintext, const rt::String_Ref& cipertext);
-
-
+/** @}*/
+/** \addtogroup Enums_kernel
+ * @ingroup kernel
+ *  @{
+ */
 enum _tagProcessPriority
 {
 	PROCPRIO_REALTIME = 2,
@@ -296,14 +313,18 @@ enum _tagProcessPriority
 	PROCPRIO_LOW = -1,
 	PROCPRIO_IDLE = -2,
 };
-
+/** @}*/
+/** \addtogroup Functions_kernel
+ * @ingroup kernel
+ *  @{
+ */
 extern void		SetProcessPriority(int prio = PROCPRIO_HIGH);
 extern int		SearchProcess(LPCSTR base_name, bool substr_match = true);	///< -1 for not found
 extern int		SearchProcess(LPCSTR base_name, int* pProcessIds, UINT ProcessIdSize, bool substr_match = true);	///< 0 for not found
 extern int		GetProcessId();
 extern bool		TerminateProcess(int process_id);
 extern void		SetAppTitle(LPCSTR title);
-
+/** @}*/
 #pragma pack(1)
 /**
  * @brief UNIX time (UTC) in millisecond, compatible to javascript's (new Date(x))
@@ -435,6 +456,10 @@ struct Timestamp
 	static Fields		LocalDateTime(){ return Get().GetLocalDateTime(); }
 };
 #pragma pack()
+/** \addtogroup Functions_kernel
+ * @ingroup kernel
+ *  @{
+ */
 template<typename ostream>
 INLFUNC ostream& operator << (ostream& s, const os::Timestamp::Fields& f)
 {	s << f.Year	<<'/'<< 
@@ -446,10 +471,16 @@ INLFUNC ostream& operator << (ostream& s, const os::Timestamp::Fields& f)
 		rt::tos::Number(f.MillSecond).RightAlign(3,'0');
 	return s;
 };
+/** @}*/
+/** @}*/
 } // namespace os
 
 namespace rt
 {
+	/** \addtogroup kernel
+ * @ingroup os
+ *  @{
+ */
 namespace tos
 {
 template<bool show_msec = true, bool show_date = true, char sep_date = '/', char sep_time = ':'>
@@ -492,13 +523,16 @@ struct TimestampDate:public ::rt::tos::S_<1, 70>
 		:TimestampDate(local_time?os::Timestamp(timestamp).GetLocalDateTime():os::Timestamp(timestamp).GetDateTime())
 	{}
 };
-
+/** @}*/
 }} // namespace rt::tos
 
 
 namespace os
 {
-
+/** \addtogroup kernel
+ * @ingroup os
+ *  @{
+ */
 /**
  * @brief Console Progress Indicator 
  * 
@@ -518,7 +552,10 @@ public:
 	void SetProgress(ULONGLONG x){ _Prog = x; _Display(); }
 };
 
-
+/** \addtogroup Enums_kernel
+ * @ingroup kernel
+ *  @{
+ */
 /**
  * @brief Date32, representing only days  
  * 
@@ -527,7 +564,7 @@ enum tagDATEFMT
 {	DATEFMT_MMDDYYYY = 0x010002,
 	DATEFMT_YYYYMMDD = 0x020100
 };
-
+/** @}*/
 #pragma pack(1)
 struct Date32
 {
@@ -624,7 +661,12 @@ struct Date32
 
 };
 #pragma pack()
+/** @}*/
 } // namespace os
+/** \addtogroup Functions_kernel
+ * @ingroup kernel
+ *  @{
+ */
 template<typename ostream>
 ostream& operator << (ostream& s, const os::Date32& d)
 {	s << d.GetYear() <<'/'<< 
@@ -632,30 +674,49 @@ ostream& operator << (ostream& s, const os::Date32& d)
 		rt::tos::Number(d.GetDay()).RightAlign(2,'0');
 	return s;
 };
-
+/** @}*/
 
 namespace rt
 {
+	/** \addtogroup kernel
+ * @ingroup os
+ *  @{
+ */
 TYPETRAITS_DEFINE(os::Date32,void,true,false)
 TYPETRAITS_DEFINE(os::TickCount,void,true,false)
 TYPETRAITS_DEFINE(os::Timestamp,void,true,false)
+/** @}*/
 }
 
 namespace os
 {
-
+/** \addtogroup kernel
+ * @ingroup os
+ *  @{
+ */
+ /** \addtogroup Functions_kernel
+  * @ingroup kernel
+  *  @{
+  */
 extern DWORD		crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0);
 extern ULONGLONG	crc64(LPCVOID stream, SIZE_T n, ULONGLONG crc_init = 0);
-
+/** @}*/
 #if defined(PLATFORM_WIN)
 #else
 typedef char16_t        WCHAR;
 #endif
-    
-typedef WCHAR           U16CHAR;
-typedef const WCHAR*	LPCU16CHAR;
-typedef WCHAR*          LPU16CHAR;
-
+/** \addtogroup Typedefs_kernel
+ * @ingroup kernel
+ *  @{
+ */
+typedef WCHAR           U16CHAR; ///< WCHAR is not wchar_t
+typedef const WCHAR*	LPCU16CHAR; ///< WCHAR is not wchar_t
+typedef WCHAR*          LPU16CHAR; ///< WCHAR is not wchar_t
+/** @}*/
+/** \addtogroup Functions_kernel
+ * @ingroup kernel
+ *  @{
+ */
 /**
  * @brief UTF16 to UTF8 
  * 
@@ -712,12 +773,18 @@ extern U16CHAR	UTF8Decode(LPCSTR& pIn);
  * @return SIZE_T 
  */
 extern SIZE_T	UTF8ByteOffset(LPCSTR pIn, SIZE_T len, SIZE_T num_of_utf8_char); 
+/** @}*/
 
-// Charset to UTF8
-// charset_name follows http standard: http://www.iana.org/assignments/character-sets/character-sets.xhtml
-// the Preferred MIME name, or the name
-
-//**** charset index is platform dependent  ****//
+/** \addtogroup Variables_kernel
+* 
+* Charset to UTF8(charset index is platform dependent)
+* 
+* charset_name follows http standard: http://www.iana.org/assignments/character-sets/character-sets.xhtml
+* 
+* the Preferred MIME name, or the name
+ * @ingroup kernel
+ *  @{
+ */
 #ifdef PLATFORM_WIN
 	static const DWORD CHARSET_LATIN_BASE	= 28591;
 	static const DWORD CHARSET_SHIFT_JIS	= 932;
@@ -741,7 +808,11 @@ extern SIZE_T	UTF8ByteOffset(LPCSTR pIn, SIZE_T len, SIZE_T num_of_utf8_char);
 	static const DWORD CHARSET_KOI8_U		= 0;
 	static const DWORD CHARSET_KOI8_R		= 0;
 #endif
-
+/** @}*/
+/** \addtogroup Functions_kernel
+ * @ingroup kernel
+ *  @{
+ */
 /**
  * @brief return max possible number of char, -1 for unknown charset, len is in byte, *pCharsetIndex is platform dependent
  * 
@@ -762,7 +833,7 @@ extern SSIZE_T		UTF8EncodeLengthMax(LPCVOID pIn, SIZE_T size_in_byte, const rt::
  * @return SIZE_T 
  */
 extern SIZE_T		UTF8Encode(LPCVOID pIn, SIZE_T len, LPSTR pOut, DWORD charset_index);					
-
+/** @}*/
 
 struct __UTF16
 {	rt::BufferEx<U16CHAR>	_utf16;
@@ -891,7 +962,10 @@ private:
 	__UTF8_S(const __UTF8_S&){ ASSERT(0); }
 };
 
-
+/** \addtogroup Functions_kernel
+ * @ingroup kernel
+ *  @{
+ */
 extern SIZE_T	Base64EncodeLength(SIZE_T len);
 extern SIZE_T	Base64DecodeLength(LPCSTR pBase64, SIZE_T len);
 extern void		Base64Encode(LPSTR pBase64Out,LPCVOID pData, SIZE_T data_len); ///< assuming the data is well formated
@@ -926,17 +1000,19 @@ extern bool		Base32CrockfordDecode(LPVOID pDataOut, SIZE_T data_len, LPCSTR pBas
 extern void		Base32CrockfordEncode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 extern void		Base32CrockfordEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 /** @}*/
+/** @}*/
 } // namespace os
 
 
 namespace rt
 {
-namespace tos
-{
 /** \addtogroup kernel
  * @ingroup os
  *  @{
  */
+namespace tos
+{
+
 template<UINT LEN = 256>
 struct Base64OnStack: public ::rt::tos::S_<1, LEN>
 {	typedef ::rt::tos::S_<1, LEN> _SC;
@@ -1066,9 +1142,9 @@ struct Base16: public String
 	}
 };
 
-/** @}*/
-} // tos
 
+} // tos
+/** @}*/
 } // rt
 
 /** @}*/

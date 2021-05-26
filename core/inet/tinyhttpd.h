@@ -194,7 +194,7 @@ protected:
 	HttpHandler(){ Handler = _endpoint_handler; }
 };
 /**
- * @brief A tiny http server
+ * @brief Light-weight full feature web container
 */
 class TinyHttpd
 {

@@ -54,6 +54,10 @@ namespace os
  * @ingroup os
  *  @{
  */
+ /** \addtogroup Enums_user_inputs
+ * @ingroup user_inputs
+ *  @{
+ */
 enum _tagUserInputDevice
 {
 	UIDEV_SYS				= 0x0000,
@@ -188,6 +192,7 @@ enum _tagKeyCode
 	KC_PA1					= 0xFD,
 	KC_OEM_CLEAR			= 0xFE
 };
+/** @}*/
 /**
  * @brief Poll Mode
  * 

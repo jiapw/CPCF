@@ -1796,8 +1796,9 @@ public:
 	///@}
 };
 /**
- * @brief only contains address and length.
+ * @brief  Memory efficient strings operations and expression 
  * 
+ * based on string without trailing NULL, only contains address and length.
  * The functions that change the length are all placed in this class.
 */
 class String: public String_Ref

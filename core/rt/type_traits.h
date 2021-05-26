@@ -283,7 +283,7 @@ namespace _details
 #define TYPETRAITS_DECLARE_POD			public: static const bool __IsPOD = true;
 /** @}*/
 /**
- * @brief TypeTraits
+ * @brief Extensible type traits framework
  * 
  * @tparam T 
  */

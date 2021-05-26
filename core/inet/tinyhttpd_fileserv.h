@@ -46,6 +46,9 @@ namespace inet
  *  @{
  */
 
+/**
+ * @brief Light-weight static web server
+*/
 class HttpServerFiles:public HttpHandler<HttpServerFiles>
 {
 public:

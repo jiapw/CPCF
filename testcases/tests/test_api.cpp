@@ -1,8 +1,3 @@
-#include "../../core/rt/string_type_ops.h"
-#include "../../core/rt/buffer_type.h"
-#include "../../core/rt/small_math.h"
-#include "../../core/rt/xml_xhtml.h"
-#include "../../core/rt/json.h"
 #include "../../core/os/kernel.h"
 #include "../../core/os/multi_thread.h"
 #include "../../core/os/file_dir.h"
@@ -48,6 +43,24 @@ void rt::UnitTests::multithread()
 		ends = true;
 		a.WaitForEnding();
 		b.WaitForEnding();
+	}
+	{
+		volatile INT c = 0;
+		os::Thread a, b;
+		auto th = [&c]()
+		{	
+			for (;;)
+		{
+			int x = os::AtomicIncrement(&c);
+			_LOGC("c = " << x << " TH=" << os::Thread::GetCurrentId());
+			os::Sleep(100);
+		}
+		_LOGC("Exit TH=" << os::Thread::GetCurrentId());
+		};
+		a.Create(th);
+		b.Create(th);
+		a.WaitForEnding(2000,true);
+		b.WaitForEnding(2000, true);
 	}
 
 	static const int LOOPCOUNT = 500000;

@@ -196,7 +196,13 @@ public:
 		SOCKET_SIZE_T len = sizeof(t_ADDR);
 		return 0 == getpeername(peer,(sockaddr*)this,&len) && len == sizeof(t_ADDR);
 	}
-	bool			SetAddress(LPCSTR pHostname, WORD port = 0)  ///< www.xxx.com:pp (port is optional)
+	/**
+	 * @brief Set Address like www.xxx.com:pp
+	 * @param pHostname 
+	 * @param port port is optional
+	 * @return 
+	*/
+	bool			SetAddress(LPCSTR pHostname, WORD port = 0) 
 	{	OP::Init(*this);
 		rt::String_Ref ap[2];
 		if(2 == rt::String_Ref(pHostname).Split(ap, 2, ':'))
@@ -250,7 +256,14 @@ public:
 	INLFUNC auto&	SetBinaryAddress(LPCVOID addr_bin){ OP::Init(*this); OP::SetBinaryAddress(*this, addr_bin); return *this; }
 	INLFUNC auto&	SetPort(const WORD ushPort = 0){ *OP::GetPortPtr(*this) = htons(ushPort); return *this; }
 	INLFUNC auto&	SetBinaryPort(LPCWORD pPort){ *OP::GetPortPtr(*this) = *pPort; return *this; }
-	INLFUNC LPCSTR	GetDottedDecimalAddress(LPSTR text_out) const	///< buf size = 16/46 for ipv4/ipv6
+	/**
+	 * @brief Get Dotted Decimal Address
+	 * 
+	 * buf size = 16/46 for ipv4/ipv6
+	 * @param text_out 
+	 * @return 
+	*/
+	INLFUNC LPCSTR	GetDottedDecimalAddress(LPSTR text_out) const	
 	{	return inet_ntop(OP::SIN_FAMILY, OP::GetAddressPtr(*this), text_out, 47);
 	}
 	INLFUNC WORD	GetPort() const	{ return ntohs(*OP::GetPortPtr(*this)); } ///< Get port and address (even though they're public)
@@ -323,6 +336,10 @@ typedef InetAddrT<sockaddr_in6>    InetAddrV6;
 extern UINT GetLocalAddresses(InetAddrT<sockaddr_in>* pOut, UINT out_size, bool no_loopback, InetAddrT<sockaddr_in>* pOut_Broadcast = nullptr, DWORD* subnet_mask = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
 extern UINT GetLocalAddresses(InetAddrV6* pOut, UINT out_size, bool no_loopback, InetAddrV6* pOut_Broadcast = nullptr, LPCSTR interface_prefix = nullptr, rt::String* if_names = nullptr);
 /** @}*/
+
+/**
+ * @brief basic communication with sync/async socket
+*/
 class Socket
 {
 	typedef const struct sockaddr CSA;

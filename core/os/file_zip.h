@@ -330,11 +330,11 @@ public:
 ///@}	
 };
 
-
+/// @cond
 #if defined(PLATFORM_WIN)
 extern void EnableCrashDump(LPCSTR dump_filename, bool full_memory, bool zip_after_dump);
 #endif
-
+/// @endcond
 /**
  * @brief assumeing gzip with single file
  * 

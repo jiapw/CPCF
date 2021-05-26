@@ -62,7 +62,10 @@
 #endif
 
 #endif
-
+  /** \addtogroup Macros_thread_primitive
+   * @ingroup thread_primitive
+   *  @{
+   */
 #define EnterCSBlock(x) os::CriticalSection::_CCS_Holder MARCO_JOIN(_CCS_Holder_,__COUNTER__)(x);
 
 #if defined(PLATFORM_DEBUG_BUILD)
@@ -75,7 +78,7 @@
 #else
 #define ASSERT_NONRECURSIVE  while(0); 
 #endif
-
+/** @}*/
 namespace os
 {
 /** \addtogroup thread_primitive
@@ -86,6 +89,10 @@ namespace os
  * @brief All Atomic operation return the value after operation, EXCEPT AtomicOr and AtomicAnd 
  * 
  */
+ /** \addtogroup Functions_thread_primitive
+* @ingroup thread_primitive
+*  @{
+*/
 #if defined(PLATFORM_WIN)
 	FORCEINL int		AtomicIncrement(volatile int *theValue){ return _InterlockedIncrement((long volatile *)theValue); }
 	FORCEINL int		AtomicDecrement(volatile int *theValue){ return _InterlockedDecrement((long volatile *)theValue); }
@@ -129,7 +136,11 @@ namespace os
 	FORCEINL DWORD		AtomicAnd(DWORD bits, volatile DWORD* theValue){ return (DWORD)__sync_fetch_and_and((volatile uint32_t*)theValue, (uint32_t)bits); }
 	FORCEINL ULONGLONG	AtomicAnd(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)__sync_fetch_and_and((volatile uint64_t*)theValue, (uint64_t)bits); }
 #endif
-
+/** @}*/
+  /** \addtogroup Functions_thread_primitive
+   * @ingroup thread_primitive
+   *  @{
+   */
 INLFUNC SIZE_T GetCurrentThreadId()
 {
 #if defined(PLATFORM_WIN)
@@ -142,14 +153,22 @@ INLFUNC SIZE_T GetCurrentThreadId()
 	return (SIZE_T)pthread_self();
 #endif
 }
+/** @}*/
 
-class AtomicLock  ///< a non-waiting CriticalSection, no thread-recursive
+/**
+ * @brief a non-waiting CriticalSection, no thread-recursive
+*/
+class AtomicLock  
 {
 	volatile int	_iAtom;
 public:
 	FORCEINL AtomicLock(){ _iAtom = 0; }
 	FORCEINL void Reset(){ _iAtom = 0; }
-	FORCEINL bool TryLock()	///< must call Unlock ONCE, or Reset, if return true
+	/**
+	 * @brief must call Unlock ONCE, or Reset, if return true
+	 * @return 
+	*/
+	FORCEINL bool TryLock()	
 	{	int ret = AtomicIncrement(&_iAtom);
 		if(ret == 1)return true;
 		AtomicDecrement(&_iAtom);
@@ -177,7 +196,7 @@ public:
 	};
 
 #if defined(PLATFORM_WIN)
-#pragma warning(disable:4512) ///< assignment operator could not be generated
+#pragma warning(disable:4512) // assignment operator could not be generated
 protected:
 	CRITICAL_SECTION hCS;
 public:
@@ -200,7 +219,7 @@ public:
 		}	
 		return false;
 	}
-#pragma warning(default:4512) ///< assignment operator could not be generated
+#pragma warning(default:4512) // assignment operator could not be generated
 	CriticalSection(){ InitializeCriticalSection(&hCS); _OwnerTID = 0; }
 	~CriticalSection(){ ASSERT(_OwnerTID == 0); DeleteCriticalSection(&hCS); }
 #else
@@ -321,7 +340,12 @@ public:
 		_fences[_toggle]._num_reached = 0;
 	}
 	INLFUNC  int GetThreadCount() const { return _num_thread; }
-	FORCEINL bool WaitOthers(bool auto_release_others)	///< return true on all others thread are reached, you are the latest one
+	/**
+	 * @brief return true on all others thread are reached, you are the latest one
+	 * @param auto_release_others 
+	 * @return 
+	*/
+	FORCEINL bool WaitOthers(bool auto_release_others)	
 	{	int reached = os::AtomicIncrement(&_fences[_toggle]._num_reached);
 		if(reached < _num_thread)
 		{	_fences[_toggle]._release_sign.WaitSignal();
@@ -335,7 +359,11 @@ public:
 		ASSERT(0);
 		return false;
 	}
-	FORCEINL void ReleaseOthers()	///< release all other threads, supposed to be called by the latest reached thread
+	/**
+	 * @brief release all other threads, supposed to be called by the latest reached thread
+	 * @return 
+	*/
+	FORCEINL void ReleaseOthers()	
 	{
 		_toggle = (_toggle+1)&1;
 		_fences[_toggle]._release_sign.Reset();

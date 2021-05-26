@@ -638,7 +638,7 @@ public:
 };
 
 /**
- * @brief increamental json composing
+ * @brief Memory efficient simply Json parser and composer
  * 
  */
 class Json

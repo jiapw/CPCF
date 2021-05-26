@@ -53,9 +53,12 @@ namespace os
  * @ingroup os
  *  @{
  */
-
+ /** \addtogroup Typedefs_multi_thread
+  * @ingroup multi_thread
+  *  @{
+  */
 typedef DWORD	(*FUNC_THREAD_ROUTE)(LPVOID x); ///< Multi-threading
-
+/** @}*/
 class Thread
 {
 	LPVOID			__CB_Param;
@@ -103,7 +106,12 @@ public:
 
 	Thread();
 	~Thread();
-
+	/**
+	 * @brief Wait For Ending
+	 * @param time_wait_ms Time(ms) wait for this thread (Other threads are running normally)
+	 * @param terminate_if_timeout When the value is true, timeout forcibly terminates the thread
+	 * @return 
+	*/
 	bool	WaitForEnding(UINT time_wait_ms = INFINITE, bool terminate_if_timeout = false);
 	DWORD	GetExitCode() const { return _ExitCode; }
 	bool	IsRunning() const;
@@ -120,9 +128,16 @@ public:
 
 	bool	Create(LPVOID obj, const THISCALL_MFPTR& on_run, LPVOID param = nullptr, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0);
 	bool	Create(FUNC_THREAD_ROUTE x, LPVOID thread_cookie = nullptr, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0);
-
+	/**
+	 * @brief Caller should ensure the lifetime of variables captured by the lambda function
+	 * @tparam T 
+	 * @param threadroute 
+	 * @param CPU_affinity 
+	 * @param stack_size 
+	 * @return 
+	*/
 	template<typename T>
-	bool	Create(T threadroute, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0) ///< Caller should ensure the lifetime of variables captured by the lambda function
+	bool	Create(T threadroute, ULONGLONG CPU_affinity = 0xffffffffffffffffULL, UINT stack_size = 0) 
 			{	__MFPTR_Obj = nullptr;
 				ASSERT(_hThread == NULL);
 				struct _call { 
@@ -161,10 +176,15 @@ extern void	TrackedMemoryAllocationStatistic(rt::Json& json_out);
 } // os::_details
 #endif
 
-/**
- * @brief Daemon/Service/Agent Control
- * 
- */
+
+ /** \addtogroup Enums_multi_thread
+  * @ingroup multi_thread
+  *  @{
+  */
+  /**
+   * @brief Daemon/Service/Agent Control
+   *
+   */
 enum _tagDaemonState
 {
 	DAEMON_STOPPED           = 0x1,
@@ -180,7 +200,7 @@ enum _tagDaemonState
 	DAEMON_CONTROL_CONTINUE	 ,
 	
 };
-
+/** @}*/
 
 /**
  * @brief DelayedGarbageCollection 
@@ -220,12 +240,15 @@ public:
 	static void Exit();
 	static void Flush();
 };
-
+/** \addtogroup Macros_multi_thread
+ * @ingroup multi_thread
+ *  @{
+ */
 #define _SafeDel_Delayed(x, TTL_msec)		{ if(x){ os::DelayedGarbageCollection::DeleteObj(x,TTL_msec); x=nullptr; } }
 #define _SafeDelArray_Delayed(x,TTL_msec)	{ if(x){ os::DelayedGarbageCollection::DeleteArray(x,TTL_msec); x=nullptr; } }
 #define _SafeFree32AL_Delayed(x,TTL_msec)	{ if(x){ os::DelayedGarbageCollection::Delete32AL(x,TTL_msec); x=nullptr; } }
 #define _SafeRelease_Delayed(x, TTL_msec)	{ if(x){ os::DelayedGarbageCollection::ReleaseObj(x,TTL_msec); x=nullptr; } }
-
+/** @}*/
 
 namespace _details
 {
@@ -302,12 +325,15 @@ public:
 	
 	T&			GetObject(){ ASSERT(_cs.IsOwnedByCurrentThread()); return (T&)Get(); } ///<unsafe in multi-thread
 };
-
+/** \addtogroup Macros_multi_thread
+ * @ingroup multi_thread
+ *  @{
+ */
 #define THREADSAFEMUTABLE_LOCK(org_obj)				EnterCSBlock(*(os::CriticalSection*)&org_obj)
 #define THREADSAFEMUTABLE_UPDATE(org_obj, new_obj)	os::_details::_TSM_Updater<decltype(org_obj)> new_obj(org_obj, false)
 #define THREADSAFEMUTABLE_SET(org_obj, new_obj)		os::_details::_TSM_Updater<decltype(org_obj)> new_obj(org_obj, false); new_obj.ReadyModify(true)
 #define THREADSAFEMUTABLE_TRYUPDATE(org_obj, new_obj)	os::_details::_TSM_Updater<decltype(org_obj)> new_obj(org_obj, true)
-
+/** @}*/
 
 #if defined(PLATFORM_WIN)
 class LaunchProcess

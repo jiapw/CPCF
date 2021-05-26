@@ -87,6 +87,10 @@ enum
     HTTPCLIENT_EVENT_REDIRECT = 100			///< (LPCSTR)param is the target url (Issued by HttpNavigator only)
 };
 /** @}*/
+
+/**
+ * @brief HTTP connection supports HTTP HTTPS and Proxy
+*/
 class HttpSession
 {
     sec::TLS			_SecureConn;
@@ -305,6 +309,10 @@ enum
     HTTP_DLC_ERROR_FILEIO,
 };
 /** @}*/
+
+/**
+ * @brief High performance concurrent downloading with scheduler
+*/
 class HttpDownloader
 {
     static const int DOWNLOAD_BUFFER_SIZE = 128*1024;

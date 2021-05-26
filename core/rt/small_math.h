@@ -572,14 +572,14 @@ namespace rt
 */
 
 /**
- * @brief small matrix
+ * @brief Small math matrix for numeric operations
  * 
  * @tparam t_Val 
  */
 template<typename t_Val>
 struct Mat4x4;
 /**
- * @brief small matrix
+ * @brief Small math matrix for numeric operations
  * 
  * @tparam t_Val 
  */

@@ -49,6 +49,10 @@ namespace rt
  * @ingroup rt
  *  @{
  */
+
+/**
+ * @brief  XML composer support xpath expression
+*/
 class XMLComposer
 {
 	struct _TagCache
@@ -156,7 +160,7 @@ namespace _details
 
 class XMLParser;
 /**
- * @brief XPathParser
+ * @brief  XML parser support xpath expression
  * 
  * This class is not done yet
  * 

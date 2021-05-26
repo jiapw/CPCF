@@ -365,7 +365,10 @@ public:
 	}
 };
 
-
+/**
+ * @brief Simple linear container with assuming move syntax
+ * @tparam t_Val 
+*/
 template<typename t_Val>
 class Buffer:public Buffer_Ref<t_Val>
 {	typedef Buffer_Ref<t_Val> _SC;

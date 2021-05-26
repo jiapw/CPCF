@@ -207,11 +207,14 @@ public:
 	ULONGLONG			GetFileSize() const;
 	const rt::String&	GetFilename() const { return _Filename; }
 };
-
+/** \addtogroup Functions_file_dir
+ * @ingroup file_dir
+ *  @{
+ */
 extern ULONGLONG GetFreeDiskSpace(LPCSTR path, ULONGLONG* pTotal = nullptr); ///< in MB
 extern void		 GetAppSandbox(rt::String& out_path, LPCSTR app_name);	///< app_name not necessarily appears in the path
 extern void		 SetAppSandboxAsCurrentDirectory(LPCSTR app_name);
-
+/** @}*/
 class CurrentDirectoryStack
 {
 	rt::BufferEx<rt::String>	_DirStack;
@@ -663,8 +666,9 @@ namespace _details
 	typedef void (*FUNC_PostCrashDump)(LPCSTR fn);
 	extern void _SetPostCrashDumpHook(os::_details::FUNC_PostCrashDump hook);
 }
-
+/// @cond
 extern void EnableCrashDump(LPCSTR dump_filename, bool full_memory);
+/// @endcond
 #endif
 /** @}*/
 }
