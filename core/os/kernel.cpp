@@ -104,7 +104,7 @@ void assert_failed(LPCSTR msg, LPCSTR file, UINT line, LPCSTR func)
 		_wassert(os::__UTF16(msg), os::__UTF16(rt::String_Ref(func) + " @ " + file), line);
 #elif	defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 		__assert_rtn(func, file, line, msg);
-#elif   defined(PLATFORM_ANDRIOD)
+#elif   defined(PLATFORM_ANDROID)
 		__assert2(file, line, func, msg);
 #else
 		__assert_fail(msg, file, line, func);
@@ -236,7 +236,7 @@ bool os::GetProcessMemoryLoad(SIZE_T* vmem, SIZE_T* phy_mem)
 	if(vmem)*vmem = pmc.PrivateUsage;
 	if(phy_mem)*phy_mem = pmc.WorkingSetSize;
 	return true;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 	if(phy_mem)*phy_mem = 0;
 	if(vmem)*vmem = 0;
 	rt::String str;
@@ -383,7 +383,7 @@ void os::GetOSVersion(rt::String& name, bool rich_info)
 	else
 	{	name = rt::String_Ref() + major + '.' + minor;
 	}
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 	struct utsname out;
 	if(uname(&out))
 	{
@@ -530,7 +530,7 @@ void os::GetExecutableFilename(rt::String& name)
 	WCHAR fn[MAX_PATH];
 	::GetModuleFileNameW(NULL, fn, sizeofArray(fn));
 	name = os::__UTF8(fn);
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 	char exepath[2048];
 	int len = readlink("/proc/self/exe", exepath, sizeof(exepath)-1);
 	if(len > 0)name = rt::String_Ref(exepath, len);
@@ -1898,7 +1898,7 @@ bool Randomize(LPVOID p, UINT len)
 }
 }	// namespace sec
 
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 
 namespace os
 {

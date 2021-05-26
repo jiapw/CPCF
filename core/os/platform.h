@@ -52,10 +52,10 @@
 //	PLATFORM_WIN
 //	PLATFORM_IOS
 //	PLATFORM_MAC
-//	PLATFORM_ANDRIOD
+//	PLATFORM_ANDROID
 
 #if		defined(__ANDROID__)
-		#define PLATFORM_ANDRIOD
+		#define PLATFORM_ANDROID
 		#define PLATFORM_RECOGNIZED
 #elif	defined(__APPLE__)
 		#include "TargetConditionals.h"
@@ -115,7 +115,7 @@
 	#define PLATFORM_RELEASE_BUILD
 #endif
 
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDRIOD)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 
 #if defined(NDEBUG)
 	#define PLATFORM_RELEASE_BUILD

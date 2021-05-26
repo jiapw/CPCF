@@ -7,7 +7,7 @@
 // and you want OpenEXR to use it for multithreaded file I/O.
 //
 
-#if defined(PLATFORM_ANDRIOD) || defined(PLATFORM_IOS) || defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+#if defined(PLATFORM_ANDROID) || defined(PLATFORM_IOS) || defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 #define HAVE_PTHREAD 1
 #endif
 
@@ -17,7 +17,7 @@
 // own semaphore implementation.
 //
 
-#if defined(PLATFORM_ANDRIOD) || defined(PLATFORM_IOS) || defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
+#if defined(PLATFORM_ANDROID) || defined(PLATFORM_IOS) || defined(PLATFORM_IOS) || defined(PLATFORM_MAC)
 #define HAVE_POSIX_SEMAPHORES 1
 #endif
 

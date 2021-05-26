@@ -718,6 +718,17 @@ protected:
 
 				return true;
 			}
+public:
+	bool	LoadAllPages(const T_KEYVAL& b, rt::BufferEx<BYTE>& out, std::string& workspace) const
+			{
+				auto* first_page = GetPaged(b, 0, workspace);
+				if(!first_page|| !out.ChangeSize(first_page->TotalSize))return false;
+				return LoadAllPages(b, first_page, out);
+			}
+	bool	LoadAllPages(const T_KEYVAL& b, rt::BufferEx<BYTE>& out) const
+			{	std::string workspace;
+				return LoadAllPages(b, out, workspace);
+			}
 };
 
 template<typename T_KEYVAL, typename T_METADATA, int PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT, class DB_CLS = RocksDB>
