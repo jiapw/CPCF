@@ -83,7 +83,7 @@ bool HttpSession::Request_Post(LPCSTR pURL, const HttpSession::DataBuf* pBufs, U
 	else {
 		auto x =
 			rt::SS("Content-Type: ") + data_type + rt::SS("; charset=\"") + charset + rt::SS("\"\r\n") +
-			rt::SS("Content-Length: ") + tot_len + rt::SS("\r\n") + additional_header + rt::SS("\r\n");
+			rt::SS("Content-Length: ") + tot_len + rt::SS("\r\n") + additional_header;
 		header = ALLOCA_C_STRING(x);
 	}
 	
