@@ -1256,6 +1256,18 @@ protected:
 public:
 	TopWeightedValues(){ Reset(); }
 	static	UINT GetSize(){ return TOP_K; }
+	UINT	GetUniqueValueCount() const 
+			{	for(UINT i=0; i<TOP_K; i++)
+					if(_TopValues[i].Count == 0)return i;
+				return TOP_K;
+			}
+	int		FindValue(const T& v) const
+			{	for(UINT i=0; i<TOP_K; i++)
+				{	if(_TopValues[i].Count == 0)return -1;
+					if(_TopValues[i].Val == v)return i;
+				}
+				return -1;
+			}
 	void	Reset(){ rt::Zero(*this); }
 	void	ClampWeight(T_WEIGHT weight_max)
 			{	for(UINT i=0; i<TOP_K; i++)
