@@ -426,7 +426,7 @@ bool os::File::Remove(LPCSTR fn, bool secure)
 		{
 			SIZE_T len = file.GetLength();
 			rt::Buffer<BYTE> a;
-			a.SetSize(rt::min((unsigned long long int)len, 1024ULL*64));
+			a.SetSize((SIZE_T)rt::min((unsigned long long int)len, 1024ULL*64));
 			a.Zero();
 			file.SeekToBegin();
 			for(SIZE_T off = 0; off < file.GetLength(); off += a.GetSize())
@@ -745,9 +745,9 @@ SIZE_T os::File::GetCurrentPosition() const
 { 
 	ASSERT(IsOpen());
 #if defined(PLATFORM_WIN)
-    return _ftelli64(_hFile);
+    return (SIZE_T)_ftelli64(_hFile);
 #else
-    return ftello(_hFile);
+    return (SIZE_T)ftello(_hFile);
 #endif
 }
 

@@ -8,7 +8,7 @@ int pylon_copy(const rt::String_Ref& dest_in, const rt::String_Ref& src)
 	rt::String dest_string;
 	if(dest.Last() == '/')
 	{
-		dest_string = dest + src.GetFilename();
+		dest_string = dest + src.GetFileName();
 		dest = dest_string;
 	}
 
@@ -20,7 +20,7 @@ int pylon_copy(const rt::String_Ref& dest_in, const rt::String_Ref& src)
 		inet::HttpSession		http;
 		if(file.Open(fn))
 		{
-			if(	http.Request_PostFile(rt::String(dest), file, file.GetSize(), fn.GetFilename().Begin(), false) &&
+			if(	http.Request_PostFile(rt::String(dest), file, file.GetSize(), fn.GetFileName().Begin(), false) &&
 				http.WaitResponse()
 			)
 			{	

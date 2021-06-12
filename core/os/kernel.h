@@ -322,7 +322,7 @@ struct Timestamp	// UNIX time (UTC) in millisecond, compatible to javascript's (
 	FORCEINL ULONGLONG	operator = (ULONGLONG ts){ _Timestamp = ts; return ts; }
 
 	FORCEINL LONGLONG	TimeLapse() const { return TimeLapse(Get()); }
-	FORCEINL LONGLONG	TimeLapse(const Timestamp& t) const { return t._Timestamp - _Timestamp; }
+	FORCEINL LONGLONG	TimeLapse(LONGLONG t) const { return t - _Timestamp; }
 
 	bool				GetDateTime(Fields& f) const;	// GMT time
 	bool				GetLocalDateTime(Fields& f) const;	// Local Time

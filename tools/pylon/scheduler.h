@@ -36,10 +36,10 @@ protected:
 		int					stat_Terminated;
 		int					Duration;			// in sec
 
-		bool					IsRunning() const;
-		int						GetExitCode() const;
-		const os::Timestamp&	GetExitTime() const;
-		const rt::String_Ref&	GetConsoleOutput();
+		bool				IsRunning() const;
+		int					GetExitCode() const;
+		LONGLONG			GetExitTime() const;
+		rt::String_Ref		GetConsoleOutput();
 
 		_launch();
 	};

@@ -343,8 +343,8 @@ PROBE_TIGGER:
 						__SS(PYLON_LOCAL_SECOND=) + rt::tos::Number(local.Second).RightAlign(2,'0') + '\0' + 
 						__SS(PYLON_SECOND=) + rt::tos::Number(utc.Second).RightAlign(2,'0') + '\0' + 
 
-						__SS(PYLON_LOCAL_HM=) + rt::tos::TimestampFields<false, false, ' ', '-'>(local) + '\0' + 
-						__SS(PYLON_HM=) + rt::tos::TimestampFields<false, false, ' ', '-'>(utc) + '\0';
+						__SS(PYLON_LOCAL_HM=) + rt::tos::Timestamp<false, false, ' ', '-'>(local) + '\0' + 
+						__SS(PYLON_HM=) + rt::tos::Timestamp<false, false, ' ', '-'>(utc) + '\0';
 
 					env += 
 						__SS(PYLON_LOCAL_TODAY=) + rt::tos::TimestampDate<'-'>(local) + '\0' + 
@@ -352,8 +352,8 @@ PROBE_TIGGER:
 						__SS(PYLON_LOCAL_YESTERDAY=) + rt::tos::TimestampDate<'-'>(yesterday_local) + '\0' + 
 						__SS(PYLON_YESTERDAY=) + rt::tos::TimestampDate<'-'>(yesterday_utc) + '\0' + 
 
-						__SS(PYLON_LOCAL_TIMESTAMP=) + rt::tos::TimestampFields<>(local) + '\0' + 
-						__SS(PYLON_TIMESTAMP=) + rt::tos::TimestampFields<>(utc) + '\0' +
+						__SS(PYLON_LOCAL_TIMESTAMP=) + rt::tos::Timestamp<>(local) + '\0' + 
+						__SS(PYLON_TIMESTAMP=) + rt::tos::Timestamp<>(utc) + '\0' +
 						__SS(PYLON_LOCAL_DATEHOUR=) + rt::tos::TimestampDate<'-'>(local) + '-' + rt::tos::Number(local.Hour).RightAlign(2,'0') + '\0' + 
 						__SS(PYLON_DATEHOUR=) + rt::tos::TimestampDate<'-'>(utc) + '-' + rt::tos::Number(local.Hour).RightAlign(2,'0') + '\0' + 
 						__SS(PYLON=1) + '\0';
@@ -376,8 +376,7 @@ PROBE_TIGGER:
 					ASSERT(t.pLauncher);
 					if(t.pLauncher->Launch(
 									t.CmdLine, 
-									os::LaunchProcess::FLAG_SAVE_OUTPUT, 
-									SW_SHOW, 
+									os::LaunchProcess::FLAG_SAVE_OUTPUT,  
 									t.WorkingDirectory.IsEmpty()?NULL:t.WorkingDirectory.Begin(),
 									env
 					))
@@ -413,7 +412,7 @@ PROBE_TIGGER:
 			{
 				d.stat_Launch++;
 				d.LastLaunchTime.LoadCurrentTime();
-				if(d.pLauncher->Launch(d.CmdLine,os::LaunchProcess::FLAG_SAVE_OUTPUT,SW_SHOW,d.WorkingDirectory.IsEmpty()?NULL:d.WorkingDirectory.Begin()))
+				if(d.pLauncher->Launch(d.CmdLine,os::LaunchProcess::FLAG_SAVE_OUTPUT,d.WorkingDirectory.IsEmpty()?NULL:d.WorkingDirectory.Begin()))
 				{	
 				}
 				else
@@ -634,7 +633,7 @@ bool Scheduler::OnRequest(inet::HttpResponse& resp)
 					item.LastLaunchTime.LoadCurrentTime();
 					item.stat_Launch = 1;
 					item.Label = label;
-					if(!item.pLauncher->Launch(item.CmdLine, os::LaunchProcess::FLAG_SAVE_OUTPUT,SW_SHOW, item.WorkingDirectory))
+					if(!item.pLauncher->Launch(item.CmdLine, os::LaunchProcess::FLAG_SAVE_OUTPUT, item.WorkingDirectory))
 						item.stat_LaunchFailed = 1;
 
 					resp.SendChuncked_Begin(inet::TinyHttpd::MIME_STRING_XML);
@@ -748,7 +747,7 @@ int	Scheduler::_launch::GetExitCode() const
 		return ExitCode;
 }
 
-const os::Timestamp& Scheduler::_launch::GetExitTime() const
+LONGLONG Scheduler::_launch::GetExitTime() const
 {
 	if(pLauncher)
 		return pLauncher->GetExitTime();
@@ -756,16 +755,13 @@ const os::Timestamp& Scheduler::_launch::GetExitTime() const
 		return ExitTime;
 }
 
-
-
-const rt::String_Ref& Scheduler::_launch::GetConsoleOutput()
+rt::String_Ref Scheduler::_launch::GetConsoleOutput()
 {
 	if(pLauncher)
 		pLauncher->CopyOutput(RunningLog);
 	
 	return RunningLog;
 }
-
 
 void Scheduler::ComposeItemHtml(inet::HttpResponse& resp, LPCVOID pt, int i, UINT item_type)
 {
@@ -930,7 +926,7 @@ void Scheduler::ComposeItemHtml(inet::HttpResponse& resp, LPCVOID pt, int i, UIN
 
 		if(t.IsRunning())
 		{	
-			resp.SendChuncked(	rt::SS("Running since ") + rt::tos::TimestampFields<false>(t.LastLaunchTime.GetLocalDateTime()) + 
+			resp.SendChuncked(	rt::SS("Running since ") + rt::tos::Timestamp<false>(t.LastLaunchTime.GetLocalDateTime()) + 
 								rt::SS(" [ <a href=\"") + L1_Path + trigger_uri + taskid + rt::SS("&cmd=term\">Terminate</a> ]")
 							);
 		}
