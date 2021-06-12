@@ -735,7 +735,8 @@ namespace _details
 
 template<typename T_POD>
 struct PodRef		// caution: map.insert(std::make_pair(x->y,x)) is incorrect, should use map[x->y] = x;
-{	const T_POD* _p;
+{	static_assert(rt::TypeTraits<T_POD>::IsPOD, "PodRef takes POD only");
+	const T_POD* _p;
 	PodRef(){ _p = nullptr; }
 	PodRef(const PodRef& x):_p(x._p){}
 	PodRef(const T_POD* p):_p(p){}
@@ -750,7 +751,7 @@ struct PodRef		// caution: map.insert(std::make_pair(x->y,x)) is incorrect, shou
 	const PodRef&	operator = (const PodRef& x){ _p = x._p; return x; }
 	bool			operator== (const PodRef& x) const 
 					{	if(_p == x._p)return true; 
-						return _p && _p != (const T_POD*)-1 && x._p && x._p != (const T_POD*)-1 && *_p == *x._p;
+						return _p && _p != (const T_POD*)-1 && x._p && x._p != (const T_POD*)-1 && rt::IsEqual(*_p, *x._p);
 					}
 	bool			operator < (const PodRef& x) const 
 					{	if(_p == x._p || _p == (const T_POD*)-1 || x._p == 0)return false;

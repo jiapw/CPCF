@@ -93,10 +93,6 @@
     <ClCompile Include="..\..\..\core\os\high_level.cpp" />
     <ClCompile Include="..\..\..\core\rt\xml_xhtml.cpp" />
     <ClCompile Include="..\..\..\essentials.cpp" />
-    <ClCompile Include="..\deploy_svc.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\pylon.cpp" />
     <ClCompile Include="..\pylon_client.cpp" />
     <ClCompile Include="..\scheduler.cpp" />
@@ -111,10 +107,6 @@
     <ClInclude Include="..\..\..\core\os\high_level.h" />
     <ClInclude Include="..\..\..\core\rt\xml_xhtml.h" />
     <ClInclude Include="..\..\..\essentials.h" />
-    <ClInclude Include="..\deploy_svc.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="..\pylon.h" />
     <ClInclude Include="..\pylon_client.h" />
     <ClInclude Include="..\scheduler.h" />
