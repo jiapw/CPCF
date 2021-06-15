@@ -44,7 +44,7 @@ namespace _details
 #pragma warning(disable:4146)
 struct string_ops
 {	// code adapted based on modp_numtoa.h/.c (http://code.google.com/p/stringencoders/)
-	INLFUNC static void strreverse(char* begin, char* end){ char aux; while(end > begin)aux = *end, *end-- = *begin, *begin++ = aux; }
+	INLFUNC static void strreverse(char* begin, char* end){ char aux; while(end > begin){ aux = *end; *end-- = *begin; *begin++ = aux;} }
 	INLFUNC static int	itoa(INT value, char* str)
 						{	char* wstr=str;
 							// Take care of sign
@@ -349,8 +349,8 @@ public:
 	{	return Begin() >= x.Begin() && (End() <= x.End());
 	}
 public:
-	FORCEINL SIZE_T		  CommonPrefixLength(const t_String_Ref& x) const { SIZE_T i=0; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[i] == x[i];i++); return i; }
-	FORCEINL SIZE_T		  CommonSuffixLength(const t_String_Ref& x) const { SIZE_T i=1; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[_SC::_len-i] == x[x._len-i];i++); return i-1; }
+	FORCEINL SIZE_T		  CommonPrefixLength(const t_String_Ref& x) const { SIZE_T i=0; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[i] == x[i];i++){}; return i; }
+	FORCEINL SIZE_T		  CommonSuffixLength(const t_String_Ref& x) const { SIZE_T i=1; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[_SC::_len-i] == x[x._len-i];i++){}; return i-1; }
 	FORCEINL t_String_Ref SubStrTail(SIZE_T len) const { return len > GetLength() ? *this : t_String_Ref(_SC::_p+GetLength()-len, len); }
 	FORCEINL t_String_Ref SubStrHead(SIZE_T len) const { return t_String_Ref(_SC::_p,rt::min(len,GetLength())); }
 	FORCEINL t_String_Ref SubStr(SIZE_T start, SIZE_T len) const { return start < GetLength() ? t_String_Ref(_SC::_p+start,rt::min(len,GetLength()-start)) : nullptr; }

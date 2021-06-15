@@ -499,6 +499,50 @@ public:
     static size_t size(){ return sizeof(T_POD); }
 };
 
+
+///////////////////////////////////////////////////////////
+// PodRef
+template<typename T_POD>
+struct PodRef		// caution: map.insert(std::make_pair(x->y,x)) is incorrect, should use map[x->y] = x;
+{	static_assert(rt::TypeTraits<T_POD>::IsPOD, "PodRef takes POD only");
+	const T_POD* _p;
+	PodRef(){ _p = nullptr; }
+	PodRef(const PodRef& x):_p(x._p){}
+	PodRef(const T_POD* p):_p(p){}
+	PodRef(const T_POD& p):_p(&p){}
+
+	const T_POD&	Get() const { ASSERT(_p); return *_p; }
+	operator const	T_POD& () const { ASSERT(_p); return *_p; }
+	operator const	T_POD* () const { return _p; }
+
+	const T_POD*	operator = (const T_POD* x){ _p = x; return x; }
+	const T_POD&	operator = (const T_POD& x){ _p = &x; return x; }
+	const PodRef&	operator = (const PodRef& x){ _p = x._p; return x; }
+	bool			operator== (const PodRef& x) const 
+					{	if(_p == x._p)return true; 
+						return _p && _p != (const T_POD*)-1 && x._p && x._p != (const T_POD*)-1 && rt::IsEqual(*_p, *x._p);
+					}
+	bool			operator < (const PodRef& x) const 
+					{	if(_p == x._p || _p == (const T_POD*)-1 || x._p == 0)return false;
+						if(_p == 0 || x._p == (const T_POD*)-1)return true;
+						return *_p < *x._p;
+					}
+	T_POD*			operator ->(){ ASSERT(_p); return (T_POD*)_p; }
+	const T_POD*	operator ->() const { ASSERT(_p); return _p; }
+	struct hash_compare
+	{
+		enum // parameters for hash table
+		{	bucket_size = 4,	// 0 < bucket_size
+			min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
+		};
+		size_t operator()(const PodRef& key) const
+		{	return _details::_HashValue(key._p, sizeof(T_POD));
+        }
+		bool operator()(const PodRef& _Keyval1, const PodRef& _Keyval2) const
+		{	return _Keyval1 < _Keyval2;		}
+	};
+};
+
 ///////////////////////////////////////////////////////////
 // Call bool/void Lambda function
 namespace _details
@@ -708,4 +752,9 @@ struct _InvokeThisCall
 
 } // namespace rt
 
+namespace std
+{
+template<typename T_POD>
+struct hash<::rt::PodRef<T_POD>>: public ::rt::PodRef<T_POD>::hash_compare {};
+} // namespace std
 
