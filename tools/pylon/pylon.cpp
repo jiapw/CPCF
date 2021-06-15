@@ -239,8 +239,8 @@ bool Pylon::OnRequest(inet::HttpResponse& resp)
 				local_ips += ip[i].GetDottedDecimalAddress(buf);
 			}
 			
-			resp.SendChuncked(	(	J(localTime) = rt::tos::TimestampFields<>(os::Timestamp::Get().GetLocalDateTime()),
-									J(startTime) = rt::tos::TimestampFields<>(m_StartTime.GetLocalDateTime()),
+			resp.SendChuncked(	(	J(localTime) = rt::tos::Timestamp<>(os::Timestamp::Get().GetLocalDateTime()),
+									J(startTime) = rt::tos::Timestamp<>(m_StartTime.GetLocalDateTime()),
 									J(host) = host,
 									J(user) = user,
 									J(endpoints) = local_ips
