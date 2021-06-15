@@ -519,7 +519,7 @@ INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 					for(UINT i=0; i<co; i++)
 					{	auto tag = tags[i].TrimSpace();
 						if(tag.IsEmpty())continue;
-						if(tag[0] >= '0' && tag[0] <= '9' || (tag[0] == '-' && tag[1] >= '0' && tag[1] <= '9'))
+						if((tag[0] >= '0' && tag[0] <= '9') || (tag[0] == '-' && tag[1] >= '0' && tag[1] <= '9'))
 						{	UINT x;
 							tag.ToNumber(x);
 							value_out = (T_Enum)((UINT)value_out | (UINT)x);
