@@ -988,17 +988,31 @@ extern void		UrlEncode(const rt::String_Ref& url, rt::String& encoded_url);
 extern UINT		UrlDecode(LPCSTR encoded_url, UINT encoded_url_len, LPSTR url);  ///< return encoded length
 extern void		UrlDecode(const rt::String_Ref& encoded_url, rt::String& url);
 
-// Base32 Encoding
+
+/** @name Base32 Encoding
+*/
+///@{
 extern SIZE_T	Base32EncodeLength(SIZE_T len);
 extern SIZE_T	Base32DecodeLength(SIZE_T len);
-// Base32 Extended HEX (0-9A-V)
+///@}
+
+/** @name Base32 Extended HEX (0-9A-V)
+*/
+///@{
 extern bool		Base32Decode(LPVOID pDataOut,SIZE_T data_len,LPCSTR pBase32, SIZE_T str_len);  ///< for both upper/lowercase
 extern void		Base32Encode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 extern void		Base32EncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
-// Base32 Modified Crockford (also avoids s and z, which confuse with 2 and 5)
+///@}
+
+/** @name Base32 Modified Crockford 
+* 
+* also avoids s and z, which confuse with 2 and 5
+*/
+///@{
 extern bool		Base32CrockfordDecode(LPVOID pDataOut, SIZE_T data_len, LPCSTR pBase32, SIZE_T str_len);  ///< for both upper/lowercase
 extern void		Base32CrockfordEncode(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
 extern void		Base32CrockfordEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE_T data_len);
+///@}
 /** @}*/
 /** @}*/
 } // namespace os

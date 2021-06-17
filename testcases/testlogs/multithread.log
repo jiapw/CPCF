@@ -1,4 +1,6 @@
 ﻿=== UnitTest<multithread>: BEGIN ===
-AtomicOr: 10 -> 1010
-ATOM Result: 456789
-CriticalSection Result: 456789
+Event Set: 0
+Event Set: 1
+Thread Run: 1
+Event Timeout: 2016
+Event Timeout: 2000

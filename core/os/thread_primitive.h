@@ -66,7 +66,7 @@
    * @ingroup thread_primitive
    *  @{
    */
-#define EnterCSBlock(x) os::CriticalSection::_CCS_Holder MARCO_JOIN(_CCS_Holder_,__COUNTER__)(x);
+#define EnterCSBlock(x) os::CriticalSection::_CCS_Holder MARCO_JOIN(_CCS_Holder_,__COUNTER__)(x);///< Same as std::lock_guard<std::mutex>
 
 #if defined(PLATFORM_DEBUG_BUILD)
 #define ASSERT_NONRECURSIVE									\
@@ -181,7 +181,9 @@ public:
 #endif
 };
 
-
+/**
+ * @brief Use Macro EnterCSBlock
+*/
 class CriticalSection
 {
 	CriticalSection(const CriticalSection&x){ ASSERT(0); }
@@ -279,10 +281,28 @@ class Event
 protected:
 	HANDLE	hEvent;
 public:	
+	/**
+	 * @brief Waits until the specified object is in the signaled state or the time-out interval elapses.
+	 * @param Timeout 
+	 * @return 
+	*/
 	bool WaitSignal(DWORD Timeout = INFINITE){ return WaitForSingleObject(hEvent,Timeout) == WAIT_OBJECT_0; }
+	/**
+	 * @brief WaitSignal(0)
+	 * @return 
+	*/
 	bool IsSignaled(){ return WaitSignal(0); }
+	/**
+	 * @brief Sets the specified event object to the signaled state.
+	*/
 	void Set(){ VERIFY(::SetEvent(hEvent)); }
+	/**
+	 * @brief Sets the specified event object to the nonsignaled state.
+	*/
 	void Reset(){ VERIFY(::ResetEvent(hEvent)); }
+	/**
+	 * @brief Sets the specified event object to the signaled state and then resets it to the nonsignaled state after releasing the appropriate number of waiting threads.
+	*/
 	void Pulse(){ VERIFY(::PulseEvent(hEvent)); }
 	Event(){ VERIFY(hEvent = ::CreateEvent(NULL,true,false,NULL)); }
 	~Event(){ ::CloseHandle(hEvent); }

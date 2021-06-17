@@ -7,7 +7,7 @@ void exp_tracking_proc_ip();
 #if defined (PLATFORM_ANDROID) || defined (PLATFORM_IOS)
 extern "C"
 #endif
-void TestMain()
+void TestMain(int  mode)
 {
 	rt::String out;
 	os::File::GetCurrentDirectory(out);
@@ -24,8 +24,18 @@ void TestMain()
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		TYPETRAITS_UNITTEST(multithread);
-		
+		if (mode == 0)
+		{
+			TYPETRAITS_UNITTEST(pump_server);
+		}
+		else if (mode ==1)
+		{
+			TYPETRAITS_UNITTEST(pump_client);
+		}
+		else if (mode == 2)
+		{
+			TYPETRAITS_UNITTEST(pump_client2);
+		}
 		return;
 	}
 	else

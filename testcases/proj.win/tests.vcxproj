@@ -200,6 +200,8 @@
     <ClCompile Include="..\tests\experiments.cpp" />
     <ClCompile Include="..\tests\test_inet_datagrampump.cpp" />
     <ClCompile Include="..\tests\test_inet_socket.cpp" />
+    <ClCompile Include="..\tests\test_os_multithread.cpp" />
+    <ClCompile Include="..\tests\test_os_precompiler.cpp" />
     <ClCompile Include="..\tests\test_rt.cpp" />
     <ClCompile Include="..\tests\test_rt_smallmath.cpp" />
     <ClCompile Include="..\tests\test_rt_string.cpp" />

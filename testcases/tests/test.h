@@ -68,6 +68,9 @@ struct UnitTests
 	static void mkl_vector();
 	static void mkl_linequ();
 #endif
+	static void pump_client();
+	static void pump_client2();
+	static void pump_server();
 };
 
 } // namespace rt

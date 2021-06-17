@@ -153,7 +153,11 @@ public:
 	void	Empty();
 
 	void	SetSourceFilename(const rt::String_Ref& fn){ _SourceCodeFilename = fn; }
-
+	/**
+	 * @brief Compile
+	 * @param filename For Error or import/include
+	 * @param source 
+	*/
 	void	Compile(LPCSTR filename, const rt::String_Ref& source = nullptr);
 	const	rt::String_Ref& GetCompiled() const;
 
@@ -163,7 +167,10 @@ public:
 	void	SubsituteMacros(const rt::String_Ref& content, rt::String& output);
 	bool	IsMacroDefined(const rt::String_Ref& macro_name) const;
 	const	rt::String_Ref& GetMacroDefinition(const rt::String_Ref& macro_name);
-
+	/**
+	 * @brief Set environment variable
+	 * @param pv 
+	*/
 	void	SetEnvVars(const PrecompilerPredefinedMacros* pv);
 	void	SetFileLoader(FileLoad* f, bool allow_fallback = true);
 	void	SetIncludeSearchDirectories(const rt::String_Ref& dirs); ///< will be converted to absolute directory based on current directory, dir is seperated by ';' or '|'
