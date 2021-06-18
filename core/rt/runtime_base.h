@@ -541,8 +541,8 @@ template<int size, SIZE_T set, bool size_exceeded = (size > 32)> struct _PodFill
 
 } // namespace _details
 
-template<typename T> FORCEINL void Zero(T& obj){ _details::_PodFill<sizeof(T), 0>::Fill((LPBYTE)&obj); }
-template<typename T> FORCEINL void Void(T& obj){ _details::_PodFill<sizeof(T), (SIZE_T)-1>::Fill((LPBYTE)&obj); }
+template<typename T> FORCEINL void Zero(T& obj){ _details::_PodFill<sizeof(T), 0>::Fill((LPBYTE)&obj); } // treat any type as POD
+template<typename T> FORCEINL void Void(T& obj){ _details::_PodFill<sizeof(T), (SIZE_T)-1>::Fill((LPBYTE)&obj); } // treat any type as POD
 template<UINT LEN> FORCEINL void Zero(LPVOID obj){ _details::_PodFill<LEN, 0>::Fill((LPBYTE)obj); }
 template<UINT LEN> FORCEINL void Void(LPVOID obj){ _details::_PodFill<LEN, (SIZE_T)-1>::Fill((LPBYTE)obj); }
 
@@ -635,12 +635,12 @@ template<int size, bool size_exceeded = (size > 32)> struct _PodEqual
 template<UINT LEN>
 FORCEINL void Copy(LPVOID obj, LPCVOID from){ _details::_PodCopy<LEN>::Fill((LPBYTE)obj, (LPCBYTE)from); }
 template<typename T1, typename T2>
-FORCEINL void Copy(T1& obj, const T2& from){ Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::Copy sizes of operands mismatch"); }
+FORCEINL void Copy(T1& obj, const T2& from){ Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::Copy sizes of operands mismatch"); } // treat any type as POD
 
 template<UINT LEN>
 FORCEINL bool IsEqual(LPCVOID obj, LPCVOID from){ return _details::_PodEqual<LEN>::IsEqual((LPCBYTE)obj, (LPCBYTE)from); }
 template<typename T1, typename T2>
-FORCEINL bool IsEqual(const T1& obj, const T2& from){ return IsEqual<sizeof(T1)>((LPCBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::IsEqual sizes of operands mismatch"); }
+FORCEINL bool IsEqual(const T1& obj, const T2& from){ return IsEqual<sizeof(T1)>((LPCBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::IsEqual sizes of operands mismatch"); } // treat any type as POD
 
 
 namespace _details

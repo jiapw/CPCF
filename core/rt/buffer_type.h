@@ -317,9 +317,10 @@ protected:
 	}
 public:
 	Buffer(){}
+	Buffer(const Buffer &x){ *this = x; }
+	Buffer(Buffer &&x){ rt::Copy(*this, x); rt::Zero(x); }
+	Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }
 	Buffer(const t_Val* p, SIZE_T len){ *this = Buffer_Ref<t_Val>(p,len); }
-	explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
-	explicit Buffer(const Buffer<t_Val> &x){ *this=x; }	//copy ctor should be avoided, use reference for function parameters
 	const Buffer_Ref<t_Val>& operator = (const Buffer<t_Val> &x){ *this = (Buffer_Ref<t_Val>&)x; return *this; }
 	const Buffer_Ref<t_Val>& operator = (const Buffer_Ref<t_Val> &x)
     {	for(SIZE_T i=0;i<_SC::_len;i++)
@@ -428,7 +429,9 @@ class BufferEx: public Buffer<t_Val>
 protected:
 	SIZE_T	_len_reserved;
 public:
+	BufferEx(){ _len_reserved=0; }
 	BufferEx(const BufferEx &x){ _len_reserved = 0; *this = x; }
+	BufferEx(BufferEx &&x){ rt::Copy(*this, x); rt::Zero(x); }
 	const BufferEx& operator = (const BufferEx &x)
 	{	_SC::ShrinkSize(0);
 		_SC::_len = x.GetSize();
@@ -443,7 +446,6 @@ public:
 			_SC::_xt::ctor(&_SC::_p[i], x[i]);
 		return x;
 	}
-	BufferEx(){ _len_reserved=0; }
 	bool SetSize(SIZE_T co=0) //zero for clear
 	{	if(_SC::SetSize(co)){ _len_reserved=_SC::_len; return true; }
 		else{ _len_reserved=0; return false; }
