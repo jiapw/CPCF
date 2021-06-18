@@ -148,6 +148,12 @@
     <ClCompile Include="..\tests\test_os_precompiler.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_os_kernel.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\test_os_filedir.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\ext\botan\botan.h" />

@@ -849,7 +849,7 @@ int Timestamp::Fields::FromString(const rt::String_Ref& s, bool low_bound)
 					s.SubStr(0, 8).ToNumber(t);
 					Year = t/10000;	Month = (t%10000)/100;	Day = t%100;
 					s.SubStr(8, 6).ToNumber(t);
-					Hour = t/10000; Month = (t%10000)%100; Day = t%100;
+					Hour = t/10000; Minute = (t%10000)%100; Second = t%100;
 					MillSecond = low_bound?0:999;
 				}
 				return 6;

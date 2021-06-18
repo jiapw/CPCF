@@ -123,6 +123,13 @@ void rt::UnitTests::precompiler()
 
 	os::CommandLine cmd;
 	cmd.LoadEnvironmentVariablesAsOptions();
+	
+	auto optSize = cmd.GetOptionCount();
+	for (UINT i = 1; i < optSize+1; i++)
+	{
+		_LOG(cmd.GetOptionName(i)<<"="<< cmd.GetOptionValue(i));
+
+	}
 
 	os::PrecompilerPredefinedMacros predefined;
 	predefined.ImportCmdLineOptions(cmd);

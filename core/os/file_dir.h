@@ -171,7 +171,13 @@ public:
 	static bool IsDirectory(LPCSTR path);
 	static bool IsFile(LPCSTR path);
 	static bool IsExist(LPCSTR fn);
-	static bool ProbeAvailableFilename(LPCSTR fn, rt::String& fn_out);	///< true, confliction found, false no confliction, fn_out will not be set in this case
+	/**
+	 * @brief Probe Available Filename
+	 * @param fn File name
+	 * @param fn_out Will be set while return true
+	 * @return Confliction founded while true, and no confliction while false
+	*/
+	static bool ProbeAvailableFilename(LPCSTR fn, rt::String& fn_out);	
 	static bool Remove(LPCSTR fn, bool secure = false);
 	static bool RemoveDirectory(LPCSTR path);
 	static bool Rename(LPCSTR fn,LPCSTR new_fn);
@@ -305,6 +311,13 @@ public:
 	FileWrite();
 	~FileWrite(){ Close(); }
 	bool		IsOpen() const;
+	/**
+	* @brief Open file
+	* @param fn file name
+	* @param flag Enum FileWriteFlag like os::FileWrite::FW_TRUNCATE|os::FileWrite::FW_ASYNC
+	* @param header_size
+	* @return
+	*/
 	bool		Open(LPCSTR fn, DWORD flag = 0, UINT header_size = 0);
 	void		Close();
 	bool		Write(LPCVOID p, UINT size)
@@ -467,7 +480,16 @@ protected:
 
 public:
 	void	AddFile(const rt::String_Ref& fn, bool IsDir = false);
-	UINT	Populate(LPCSTR directory, LPCSTR suffix_filter = nullptr, DWORD flag = FLAG_SKIPHIDDEN|FLAG_NODIRECTORY);	///< suffix_filter = ".bmp|.jpg|.png", up to 64 suffixies, each individul filter should short than 16 characters
+	/**
+	 * @brief Populate filenames in the directory
+	 * 
+	 * suffix_filter = ".bmp|.jpg|.png", up to 64 suffixies, each individul filter should short than 16 characters
+	 * @param directory
+	 * @param sf
+	 * @param flag
+	 * @return Relative path starting with "/"
+	*/
+	UINT	Populate(LPCSTR directory, LPCSTR suffix_filter = nullptr, DWORD flag = FLAG_SKIPHIDDEN|FLAG_NODIRECTORY);	
 
 #ifdef PLATFORM_WIN
 	UINT	PopulateDropList(HDROP hfile, LPCSTR suffix_filter = nullptr, DWORD flag = FLAG_SKIPHIDDEN|FLAG_NODIRECTORY);
@@ -565,7 +587,10 @@ public:
 	void			Parse(LPCSTR pCmdLine);			///< for _twmain
 	explicit		CommandLine(int argc, char* argv[]){ SetOptionInitial(); Parse(argc, argv); }
 	explicit		CommandLine(LPCSTR pCmdLine){ SetOptionInitial(); Parse(pCmdLine); }
-
+	
+	/**
+	* @brief Replace the macros with prefix and suffix flags with corresponding values
+	*/
 	void			SubstituteOptions(rt::String& string, const rt::String_Ref& prefix = rt::SS("%"), const rt::String_Ref& suffix = rt::SS("%")) const;
 
 	template<typename T>
@@ -602,14 +627,18 @@ public:
 	UINT			GetTextCount()const{ return (UINT)_Arguments.GetSize(); }
 	LPCSTR			GetText(UINT idx, LPCSTR default_val = nullptr) const { return _Arguments.GetSize()>idx?(LPCSTR)_Arguments[idx]:default_val; }
 	void			AppendText(const rt::String_Ref& arg);
-
+	
 	auto&			GetOriginalLine() const { return _CommandLine; }
 
 	UINT			GetOptionCount()const{ return (UINT)_Options.GetSize(); }
 	LPCSTR			GetOptionName(UINT idx)const{ return _Options[idx].Name; }
 	LPCSTR			GetOptionValue(UINT idx)const{ return _Options[idx].Value; }
 	void			SecureClear();
-
+	/**
+	* @brief Load Environment Variables As Options
+	* 
+	*  Not implemented on Mac/iOS 
+	*/
 	void			LoadEnvironmentVariablesAsOptions();
 	void			SetOptionDefault(const rt::String_Ref& opt_name, const rt::String_Ref& value);
 	void			SetOption(const rt::String_Ref& opt_name, const rt::String_Ref& value);

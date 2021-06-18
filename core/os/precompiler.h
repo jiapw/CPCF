@@ -69,6 +69,11 @@ class PrecompilerPredefinedMacros
 
 public:
 	void	ImportCmdLineOptions(const os::CommandLine& cmd);
+	/**
+	 * @brief set macro as value
+	 * @param macro 
+	 * @param value 
+	*/
 	void	Set(const rt::String_Ref& macro, const rt::String_Ref& value);
 	void	Set(const rt::String_Ref& macro);
 	void	Unset(const rt::String_Ref& macro);

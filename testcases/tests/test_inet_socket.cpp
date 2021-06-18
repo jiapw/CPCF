@@ -235,3 +235,20 @@ void rt::UnitTests::socket_socket_event()
 	};
 
 }
+
+void rt::UnitTests::sockettimed()
+{
+	inet::SocketTimed s;
+	inet::InetAddr addr;
+	addr.SetAsLocal();
+	s.Create(addr);
+	if (s.ConnectTo(inet::InetAddr("i-funbox.com", 80)))
+	{
+		_LOG("connected");
+	}
+	else
+	{
+		_LOG("failed");
+	}
+
+}

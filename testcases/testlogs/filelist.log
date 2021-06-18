@@ -5,10 +5,20 @@
 /test_botan.cpp
 /test_ext.cpp
 /test_http.cpp
+/test_inet_datagrampump.cpp
+/test_inet_networkInterfaces.cpp
+/test_inet_socket.cpp
 /test_ipp.cpp
-/test_mkl.cpp
+/test_os_filedir.cpp
+/test_os_kernel.cpp
+/test_os_multithread.cpp
+/test_os_precompiler.cpp
 /test_perf.cpp
+/test_rt.cpp
+/test_rt_buffer.cpp
+/test_rt_json.cpp
+/test_rt_smallmath.cpp
+/test_rt_string.cpp
+/test_rt_xml.cpp
 
 Process Listed 1
-=== UnitTest<filelist>: END =====
-

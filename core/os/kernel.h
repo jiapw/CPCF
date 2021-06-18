@@ -105,11 +105,23 @@ struct TickCount
 	FORCEINL void  operator += (DWORD x){ _Tick+=x; }
 	FORCEINL void  operator -= (int x){ _Tick-=x; }
 	FORCEINL void  operator += (int x){ _Tick+=x; }
+	/**
+	 * @brief Set _Tick value as the number of milliseconds that have elapsed since the system was started.
+	 * @return 
+	*/
 	FORCEINL void  LoadCurrentTick(){ _Tick = Get(); }
+	/**
+	 * @brief The time elapsed since the last LoadCurrentTick
+	 * @return
+	*/
 	FORCEINL int  TimeLapse(DWORD later) const // in msec
 	{	if(_Tick <= later)return later - _Tick;
 		else return (UINT)(0x100000000LL + later - _Tick);
 	}
+	/**
+	 * @brief The time elapsed since the last LoadCurrentTick
+	 * @return
+	*/
 	FORCEINL int  TimeLapse() const { return TimeLapse(Get()); }
 	FORCEINL int  TimeInterval()
 	{	DWORD t = Get();
@@ -149,7 +161,15 @@ public:
 				#endif	
 				}
 	HighPerformanceCounter(){ SetOutputUnit(1); }
+	/**
+	 * @brief The time elapsed since the last LoadCurrentTime
+	 * @return
+	*/
 	LONGLONG	TimeLapse(LONGLONG later) const { return later - _Count; }
+	/**
+	 * @brief The time elapsed since the last LoadCurrentTime
+	 * @return
+	*/
 	LONGLONG	TimeLapse() const{ return TimeLapse(Get()); }
 	LONGLONG	Restart(){ ULONGLONG later = Get(); later -= _Count; _Count += later; return later; }
 	void		Restart(LONGLONG unix_time_msec){ _Count = Get() - unix_time_msec*1000000ULL; }
@@ -366,10 +386,21 @@ struct Timestamp
 	FORCEINL explicit	Timestamp(const Fields& f, bool local = true){ local?SetLocalDateTime(f):SetDateTime(f); }
 	FORCEINL explicit	Timestamp(LONGLONG x):_Timestamp(x){}
 	FORCEINL operator	LONGLONG () const { return _Timestamp; }
+	/**
+	 * @brief Set _Timestamp as microseconds since 00:00:00 January 1, 1970.
+	 * @return 
+	*/
 	FORCEINL void		LoadCurrentTime(){ _Timestamp = Get(); }
 	FORCEINL ULONGLONG	operator = (ULONGLONG ts){ _Timestamp = ts; return ts; }
-
+	/**
+	 * @brief The time elapsed since the last LoadCurrentTime
+	 * @return 
+	*/
 	FORCEINL LONGLONG	TimeLapse() const { return TimeLapse(Get()); }
+	/**
+	 * @brief The time elapsed since the last LoadCurrentTime
+	 * @return
+	*/
 	FORCEINL LONGLONG	TimeLapse(const Timestamp& t) const { return t._Timestamp - _Timestamp; }
 
 	bool				GetDateTime(Fields& f) const;	///< GMT time
@@ -383,7 +414,27 @@ struct Timestamp
 	bool				SetDateTime(const Fields& f);
 	bool				SetLocalDateTime(const Fields& f);
 	bool				SetDateTime(const Fields& f, int Timezone);
-
+	/**
+	 * @brief Set Date Time
+	 * 
+	 * Divide f into n segments with a separator(by " -/:.+,;\t\r\nTZ")
+	 * 
+	 * case n=7 yyyy mm dd hh min sec msec
+	 * 
+	 * case n=6 yyyy mm dd hh min sec
+	 * 
+	 * case n=5 yyyy mm dd hh min
+	 * 
+	 * case n=4 yyyy hh min sec msec
+	 * 
+	 * case n=3 yyyy mm dd, or hh min sec(1970/1/1)
+	 * 
+	 * case n=2 hh min(1970/1/1)
+	 * 
+	 * case n=1 Calculate datetime when the string length is 8/12/14
+	 * @param f 
+	 * @return 
+	*/
 	FORCEINL bool		SetDateTime(const rt::String_Ref& f)
 						{	Fields fd; 
 							int r=fd.FromString(f);
@@ -422,6 +473,15 @@ struct Timestamp
 						{	static const int days[2][12] = {{ 0,31,59,90,120,151,181,212,243,273,304,334},{ 0,31,60,91,121,152,182,213,244,274,305,335}};
 							return days[IsLeapYear(year)][month-1] + day - 1;
 						}
+	/**
+	 * @brief GetDayOfWeek
+	 * 
+	 * Only valid for dates after 1970/1/1
+	 * @param year 
+	 * @param month 
+	 * @param day 
+	 * @return 
+	*/
 	static FORCEINL int	GetDayOfWeek(int year,int month,int day){ return (DaysSince1970(year) + DaysSinceYear(year,month,day)-3)%7; }
 	static FORCEINL int	GetDayOfMonthMax(int year, int month)
 						{	static const int dm[] = {31,28,31, 30,31,30, 31,31,30, 31,30,31};
@@ -635,11 +695,19 @@ struct Date32
 		{	ret._Date = (GetMonth() !=1)?(_Date&0xffffff00) - 0x100 + os::Timestamp::GetDayOfMonthMax(GetYear(), GetMonth()-1):(_Date&0xffff0000) - 0x10000 + 31 + (12<<8);	}
 		return ret;
 	}
-	INLFUNC Date32 NextMonth() const ///< day will be 1
+	/**
+	 * @brief day will be 1
+	 * @return 
+	*/
+	INLFUNC Date32 NextMonth() const 
 	{	int m = GetMonth();
 		return Date32(GetYear() + m/12, 1 + m%12, 1);
 	}
-	INLFUNC Date32 LastMonth() const ///< day will be 1
+	/**
+	 * @brief day will be 1
+	 * @return 
+	*/
+	INLFUNC Date32 LastMonth() const 
 	{	int m = GetMonth();
 		return Date32(GetYear() - (13-m)/12, 1 + (10+m)%12, 1);
 	}
@@ -1020,13 +1088,13 @@ extern void		Base32CrockfordEncodeLowercase(LPSTR pBase32Out,LPCVOID pData, SIZE
 
 namespace rt
 {
-/** \addtogroup kernel
- * @ingroup os
- *  @{
- */
+
 namespace tos
 {
-
+	/** \addtogroup kernel
+	 * @ingroup os
+	 *  @{
+	 */
 template<UINT LEN = 256>
 struct Base64OnStack: public ::rt::tos::S_<1, LEN>
 {	typedef ::rt::tos::S_<1, LEN> _SC;
@@ -1156,9 +1224,9 @@ struct Base16: public String
 	}
 };
 
-
-} // tos
 /** @}*/
+} // tos
+
 } // rt
 
 /** @}*/

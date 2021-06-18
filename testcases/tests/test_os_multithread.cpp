@@ -255,3 +255,23 @@ void rt::UnitTests::multithread()
 	multithread_ATOM();
 	multithread_Event();
 }
+
+struct A
+{
+	os::TickCount tc;
+	A() { tc.LoadCurrentTick(); }
+	~A()
+	{
+		_LOG("killed, after " << tc.TimeLapse() << " msec");
+	}
+};
+
+void rt::UnitTests::delayed_deletion()
+{
+	A* p = _New(A);
+	_SafeDel_Delayed(p, 2000);
+	p = _New(A);
+	_SafeDel_Delayed(p, 5000);
+
+	os::Sleep(9000);
+}

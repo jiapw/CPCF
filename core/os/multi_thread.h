@@ -244,8 +244,9 @@ public:
  * @ingroup multi_thread
  *  @{
  */
-#define _SafeDel_Delayed(x, TTL_msec)		{ if(x){ os::DelayedGarbageCollection::DeleteObj(x,TTL_msec); x=nullptr; } }
-#define _SafeDelArray_Delayed(x,TTL_msec)	{ if(x){ os::DelayedGarbageCollection::DeleteArray(x,TTL_msec); x=nullptr; } }
+
+#define _SafeDel_Delayed(x, TTL_msec)		{ if(x){ os::DelayedGarbageCollection::DeleteObj(x,TTL_msec); x=nullptr; } } ///< Use macro _New()
+#define _SafeDelArray_Delayed(x,TTL_msec)	{ if(x){ os::DelayedGarbageCollection::DeleteArray(x,TTL_msec); x=nullptr; } }///< Use macro _New()
 #define _SafeFree32AL_Delayed(x,TTL_msec)	{ if(x){ os::DelayedGarbageCollection::Delete32AL(x,TTL_msec); x=nullptr; } }
 #define _SafeRelease_Delayed(x, TTL_msec)	{ if(x){ os::DelayedGarbageCollection::ReleaseObj(x,TTL_msec); x=nullptr; } }
 /** @}*/

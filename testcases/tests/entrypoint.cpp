@@ -26,7 +26,8 @@ void TestMain(int  mode)
 	{
 		if (mode == 0)
 		{
-			TYPETRAITS_UNITTEST(pump_server);
+			TYPETRAITS_UNITTEST(filelist);
+
 		}
 		else if (mode ==1)
 		{

@@ -1,1 +1,18 @@
 ﻿=== UnitTest<precompiler>: BEGIN ===
+
+Precompiled:
+val is 1
+val is 1 for sure
+
+
+Precompiled:
+val is 2
+
+
+Precompiled:
+val is 3
+
+
+Precompiled:
+val > 3
+

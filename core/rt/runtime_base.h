@@ -920,8 +920,8 @@ extern bool IsMemoryExceptionEnabledInThread();
 
 #define _SafeFree8AL_ConstPtr(ptr)	_SafeFree32AL_ConstPtr(ptr)
 #define _SafeFree32AL_ConstPtr(ptr)	{ if(ptr){ os::_details::UntrackMemoryAllocation(ptr); os::_details::Free32AL(ptr); }}
-#define _SafeDel_ConstPtr(x)		{ if(x){ os::_details::UntrackMemoryAllocation(x); delete x; } }
-#define _SafeDelArray_ConstPtr(x)	{ if(x){ os::_details::UntrackMemoryAllocation(x); delete [] x; } }
+#define _SafeDel_ConstPtr(x)		{ if(x){ os::_details::UntrackMemoryAllocation(x); delete x; } } ///< Use macro _New()
+#define _SafeDelArray_ConstPtr(x)	{ if(x){ os::_details::UntrackMemoryAllocation(x); delete [] x; } }///< Use macro _New()
 
 #define _New(...)					(os::_details::TrackMemoryNew(os::IsMemoryExceptionEnabledInThread()? new __VA_ARGS__ : new (std::nothrow) __VA_ARGS__, #__VA_ARGS__, __FILE__, __FUNCTION__, __LINE__))
 #define _NewArray(type, co)			((type*)os::_details::TrackMemoryAllocation(os::IsMemoryExceptionEnabledInThread()? new type[co] : new (std::nothrow) type[co], sizeof(type)*co, false, #type, (UINT)(co), __FILE__, __FUNCTION__, __LINE__))
@@ -935,8 +935,8 @@ extern bool IsMemoryExceptionEnabledInThread();
 
 #define _SafeFree8AL_ConstPtr(ptr)	{ delete [] (LPBYTE)ptr; }
 #define _SafeFree32AL_ConstPtr(ptr)	{ os::_details::Free32AL(ptr); }
-#define _SafeDel_ConstPtr(x)		{ if(x){delete x; } }
-#define _SafeDelArray_ConstPtr(x)	{ if(x){delete [] x; } }
+#define _SafeDel_ConstPtr(x)		{ if(x){delete x; } } ///< Use macro _New()
+#define _SafeDelArray_ConstPtr(x)	{ if(x){delete [] x; } } ///< Use macro _New()
 
 #define _New(...)					(os::IsMemoryExceptionEnabledInThread()? new __VA_ARGS__ : new (std::nothrow) __VA_ARGS__)
 #define _NewArray(type, co)			(os::IsMemoryExceptionEnabledInThread()? new type[co] : new (std::nothrow) type[co])
@@ -947,9 +947,9 @@ extern bool IsMemoryExceptionEnabledInThread();
 
 #define _SafeFree8AL(ptr)			{ _SafeFree8AL_ConstPtr(ptr); ptr = nullptr; }
 #define _SafeFree32AL(ptr)			{ _SafeFree32AL_ConstPtr(ptr); ptr = nullptr; }
-#define _SafeDel(ptr)				{ _SafeDel_ConstPtr(ptr); ptr = nullptr; }
-#define _SafeDel_Untracked(ptr)		{ if(ptr){ delete ptr; ptr = nullptr; }}
-#define _SafeDelArray(ptr)			{ _SafeDelArray_ConstPtr(ptr); ptr = nullptr; }
+#define _SafeDel(ptr)				{ _SafeDel_ConstPtr(ptr); ptr = nullptr; }///< Use macro _New()
+#define _SafeDel_Untracked(ptr)		{ if(ptr){ delete ptr; ptr = nullptr; }}///< Use macro _New()
+#define _SafeDelArray(ptr)			{ _SafeDelArray_ConstPtr(ptr); ptr = nullptr; }///< Use macro _New()
 
 #define _EnlargeTo32AL(num)			((((num) + 0x7)&(~((SIZE_T)0x7))))
 #define _Alloca32AL(sz)				((LPVOID)_EnlargeTo32AL((SIZE_T)alloca(sz + 4)))
