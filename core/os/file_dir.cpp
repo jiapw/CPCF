@@ -268,6 +268,38 @@ ULONGLONG os::File::GetFileSize() const
 		return 0;
 }
 
+bool os::File::Lock(bool no_wait)
+{
+	ASSERT(_FileLockedSize == -1);
+#ifdef	PLATFORM_WIN
+	auto os_h = _get_osfhandle(GetFD());
+	OVERLAPPED lap;
+	rt::Zero(lap);
+
+	ULONGLONG size = GetFileSize();
+	if(::LockFileEx((HANDLE)os_h, LOCKFILE_EXCLUSIVE_LOCK|(no_wait?LOCKFILE_FAIL_IMMEDIATELY:0), 0, (DWORD)size, (DWORD)(size>>32), &lap))
+	{
+		_FileLockedSize = (LONGLONG)size;
+		return true;
+	}
+	else return false;
+#else
+#error TBD
+#endif
+}
+
+void os::File::Unlock()
+{
+	ASSERT(_FileLockedSize >= 0);
+#ifdef	PLATFORM_WIN
+	auto os_h = _get_osfhandle(GetFD());
+	VERIFY(::UnlockFile((HANDLE)os_h, 0, 0, (DWORD)_FileLockedSize, (DWORD)(_FileLockedSize>>32)));
+	_FileLockedSize = -1;
+#else
+#error TBD
+#endif
+}
+
 ULONGLONG os::File::GetFileSize(LPCSTR pathname)
 {
 	struct _stat s;
@@ -717,6 +749,7 @@ void os::File::Close()
 {
 	if(IsOpen())
 	{
+		if(IsLockAcquired())Unlock();
 		fclose(_hFile);
 		_hFile = nullptr;
 	}
