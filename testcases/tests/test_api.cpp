@@ -1809,24 +1809,7 @@ void rt::UnitTests::file()
 		}
 	}
 }
-#include <io.h> 
-bool Lock(HANDLE fd,bool no_wait)
-{	
-	OVERLAPPED lap;
-	rt::Zero(lap);
-	if (::LockFileEx(fd, LOCKFILE_EXCLUSIVE_LOCK | (no_wait ? LOCKFILE_FAIL_IMMEDIATELY : 0)
-		, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >>32), &lap))
-	{
-		return true;
-	}
-	else return false;
-}
-void Unlock(HANDLE fd)
-{
-	OVERLAPPED lap;
-	rt::Zero(lap);
-	VERIFY(::UnlockFileEx(fd, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >> 32), &lap));
-}
+
 void rt::UnitTests::lockfile()
 {	
 	os::File out;
