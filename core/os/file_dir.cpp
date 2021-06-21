@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+
 #if defined(PLATFORM_WIN)
 #include <io.h> 
 #include <Psapi.h>
@@ -17,7 +18,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <signal.h>
-
+#include <sys/file.h>
 namespace os
 {
 struct _stat:public stat{};
