@@ -401,7 +401,7 @@ struct Timestamp
 	 * @brief The time elapsed since the last LoadCurrentTime
 	 * @return
 	*/
-	FORCEINL LONGLONG	TimeLapse(const Timestamp& t) const { return t._Timestamp - _Timestamp; }
+	FORCEINL LONGLONG	TimeLapse(LONGLONG t) const { return t - _Timestamp; }
 
 	bool				GetDateTime(Fields& f) const;	///< GMT time
 	bool				GetLocalDateTime(Fields& f) const;	///< Local Time

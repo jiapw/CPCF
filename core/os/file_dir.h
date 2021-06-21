@@ -92,6 +92,7 @@ public:
 class File:public rt::_File
 {
 protected:
+	LONGLONG		_FileLockedSize = -1;
 	FILE*			_hFile;
 	bool			_bErrorFlag;
 	rt::String		_Filename;
@@ -120,6 +121,10 @@ public:
 	File(LPCSTR fn_utf8, LPCSTR mode = Normal_Read, bool create_path = false);
 	bool		IsOpen() const { return _hFile != nullptr; }
 
+	bool		Lock(bool no_wait = true);
+	bool		IsLockAcquired() const { return _FileLockedSize >= 0; }
+	void		Unlock();
+
 	SIZE_T		Write(const rt::String_Ref& x){ return Write(x.Begin(), x.GetLength()); }
 	SIZE_T		Write(const rt::String& x){ return Write(x.Begin(), x.GetLength()); }
 	SIZE_T		Write(LPCSTR str){ return Write(str, strlen(str)); }
@@ -141,6 +146,7 @@ public:
 	void		Close();
 	bool		Open(LPCSTR fn_utf8, LPCSTR mode = Normal_Read, bool create_path = false);
 	SIZE_T		GetLength() const;
+	bool		Preallocate(SIZE_T len); // may takes a long time for zeroing on Window/Mac/iOS
 	bool		Truncate(SIZE_T len);
 	SIZE_T		GetCurrentPosition() const;
 	SIZE_T		Seek(SSIZE_T offset, UINT nFrom = Seek_Begin);

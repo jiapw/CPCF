@@ -58,11 +58,15 @@ struct UnitTests
 
 	static void callback_to_member_function();
 
- #if defined(PLATFORM_INTEL_IPP_SUPPORT)
-	 static void ipp_matting();
-	 static void ipp_image_apps();
-	 static void ipp_imageproc();
- #endif
+	static void image_to_text();
+
+	static void lockfile();
+
+	#if defined(PLATFORM_INTEL_IPP_SUPPORT)
+	static void ipp_matting();
+	static void ipp_image_apps();
+	static void ipp_imageproc();
+	#endif
 
 #if defined(PLATFORM_INTEL_MKL_SUPPORT)
 	static void mkl_vector();

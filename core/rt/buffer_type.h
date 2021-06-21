@@ -381,9 +381,10 @@ protected:
 	}
 public:
 	Buffer(){}
+	Buffer(const Buffer &x){ *this = x; }
+	Buffer(Buffer &&x){ rt::Copy(*this, x); rt::Zero(x); }
+	Buffer(const Buffer_Ref<t_Val> &x){ *this=x; } ///< copy ctor should be avoided, use reference for function parameters
 	Buffer(const t_Val* p, SIZE_T len){ *this = Buffer_Ref<t_Val>(p,len); }
-	explicit Buffer(const Buffer_Ref<t_Val> &x){ *this=x; }	///< copy ctor should be avoided, use reference for function parameters
-	explicit Buffer(const Buffer<t_Val> &x){ *this=x; }	///< copy ctor should be avoided, use reference for function parameters
 	/**
 	 * @name operators
 	*/
@@ -514,11 +515,13 @@ class BufferEx: public Buffer<t_Val>
 protected:
 	SIZE_T	_len_reserved;
 public:
+	BufferEx(){ _len_reserved=0; }
 	BufferEx(const BufferEx &x){ _len_reserved = 0; *this = x; }
+	BufferEx(BufferEx &&x){ rt::Copy(*this, x); rt::Zero(x); }
 	/**
-	 * @brief donot assign to self 
-	 * @param x 
-	 * @return 
+	 * @brief donot assign to self
+	 * @param x
+	 * @return
 	*/
 	const BufferEx& operator = (const BufferEx &x)
 	{
@@ -536,7 +539,6 @@ public:
 			_SC::_xt::ctor(&_SC::_p[i], x[i]);
 		return x;
 	}
-	BufferEx(){ _len_reserved=0; }
 	/**
 	 * @brief Set buffer size
 	 * @param co zero for clear
@@ -1498,6 +1500,18 @@ protected:
 public:
 	TopWeightedValues(){ Reset(); }
 	static	UINT GetSize(){ return TOP_K; }
+	UINT	GetUniqueValueCount() const 
+			{	for(UINT i=0; i<TOP_K; i++)
+					if(_TopValues[i].Count == 0)return i;
+				return TOP_K;
+			}
+	int		FindValue(const T& v) const
+			{	for(UINT i=0; i<TOP_K; i++)
+				{	if(_TopValues[i].Count == 0)return -1;
+					if(_TopValues[i].Val == v)return i;
+				}
+				return -1;
+			}
 	void	Reset(){ rt::Zero(*this); }
 	void	ClampWeight(T_WEIGHT weight_max)
 			{	for(UINT i=0; i<TOP_K; i++)

@@ -125,3 +125,5 @@ libs/win/ippvmmt.lib
 .vscode
 html
 xml-dir
+doxygen/that_style
+.vscode

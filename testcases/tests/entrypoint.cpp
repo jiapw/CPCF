@@ -24,19 +24,9 @@ void TestMain(int  mode)
 
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
-		if (mode == 0)
-		{
-			TYPETRAITS_UNITTEST(filelist);
-
-		}
-		else if (mode ==1)
-		{
-			TYPETRAITS_UNITTEST(pump_client);
-		}
-		else if (mode == 2)
-		{
-			TYPETRAITS_UNITTEST(pump_client2);
-		}
+		//TYPETRAITS_UNITTEST(big_num);
+		TYPETRAITS_UNITTEST(lockfile);
+		//TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}
 	else
