@@ -60,6 +60,8 @@ struct UnitTests
 
 	static void image_to_text();
 
+	static void lockfile();
+
 	#if defined(PLATFORM_INTEL_IPP_SUPPORT)
 	static void ipp_matting();
 	static void ipp_image_apps();

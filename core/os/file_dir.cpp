@@ -277,14 +277,22 @@ bool os::File::Lock(bool no_wait)
 	rt::Zero(lap);
 
 	ULONGLONG size = GetFileSize();
-	if(::LockFileEx((HANDLE)os_h, LOCKFILE_EXCLUSIVE_LOCK|(no_wait?LOCKFILE_FAIL_IMMEDIATELY:0), 0, (DWORD)size, (DWORD)(size>>32), &lap))
+	if (::LockFileEx((HANDLE)os_h, LOCKFILE_EXCLUSIVE_LOCK | (no_wait ? LOCKFILE_FAIL_IMMEDIATELY : 0), 0, (DWORD)size, (DWORD)(size >> 32), &lap))
 	{
 		_FileLockedSize = (LONGLONG)size;
 		return true;
 	}
 	else return false;
 #else
-#error TBD
+	struct flock os_flock = {
+		.l_type = short(F_WRLCK),
+		.l_whence = SEEK_SET,
+		.l_start = 0,
+		.l_len = (LONGLONG)GetFileSize(),
+		.l_pid = 0
+};
+	int res = fcntl(GetFD(), no_wait ? F_SETLK : F_SETLKW, &os_flock);
+	return res == -1 ? false : true;
 #endif
 }
 
@@ -293,10 +301,17 @@ void os::File::Unlock()
 	ASSERT(_FileLockedSize >= 0);
 #ifdef	PLATFORM_WIN
 	auto os_h = _get_osfhandle(GetFD());
-	VERIFY(::UnlockFile((HANDLE)os_h, 0, 0, (DWORD)_FileLockedSize, (DWORD)(_FileLockedSize>>32)));
+	VERIFY(::UnlockFile((HANDLE)os_h, 0, 0, (DWORD)_FileLockedSize, (DWORD)(_FileLockedSize >> 32)));
 	_FileLockedSize = -1;
 #else
-#error TBD
+	struct flock os_flock = {
+		.l_type = F_UNLCK,
+		.l_whence = SEEK_SET,
+		.l_start = 0,
+		.l_len = (LONGLONG)GetFileSize(),
+		.l_pid = 0
+	};
+	int res = fcntl(GetFD(), F_SETLK, &os_flock);
 #endif
 }
 

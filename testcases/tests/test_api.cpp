@@ -1809,7 +1809,45 @@ void rt::UnitTests::file()
 		}
 	}
 }
-
+void rt::UnitTests::lockfile()
+{
+	{
+		_LOG((LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY) );
+		_LOG((LOCKFILE_EXCLUSIVE_LOCK | 0));
+	}
+	{
+		os::File out;
+		out.Open("lockfile.txt", os::File::Normal_WriteText);
+		os::Thread th1, th2;
+		bool ends = false;
+		volatile INT c = 0;
+		auto func = [&out, &ends, &c]()
+		{			
+			if (!out.IsLockAcquired())
+			{
+				auto ans = out.Lock(false);								
+				while (!ends)
+				{
+					int x = os::AtomicIncrement(&c);
+					out.Write(std::to_string(x).c_str());
+					out.Write("\n", 1);
+					os::Sleep(100);
+				}
+				//out.Unlock();
+				out.Close();
+			}
+			
+		};
+		
+		th1.Create(func);
+		th2.Create(func);
+		os::Sleep(2000);
+		ends = true;
+		th1.WaitForEnding();
+		th2.WaitForEnding();
+	}
+	
+}
 void rt::UnitTests::pfw()
 {
 	{	os::ParallelFileWriter	pfw;
