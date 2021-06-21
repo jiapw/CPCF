@@ -1,52 +1,35 @@
 #pragma once
 
-/**
- * @file runtime_base.h
- * @author JP Wang (wangjiaping@idea.edu.cn)
- * @brief 
- * @version 1.0
- * @date 2021-04-30
- * 
- * @copyright  
- * Cross-Platform Core Foundation (CPCF)
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *      * Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer.
- *      * Redistributions in binary form must reproduce the above
- *        copyright notice, this list of conditions and the following
- *        disclaimer in the documentation and/or other materials provided
- *        with the distribution.
- *      * Neither the name of CPCF.  nor the names of its
- *        contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *  
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
- */
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
-/** \addtogroup runtime_base
- * @ingroup rt
- *  @{
- */
- /** \addtogroup Macros_runtime_base
-  * @ingroup runtime_base
-  *  @{
-  */
+//////////////////////////////////////////////////////////////////////
+// Cross-Platform Core Foundation (CPCF)
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+//       copyright notice, this list of conditions and the following
+//       disclaimer in the documentation and/or other materials provided
+//       with the distribution.
+//     * Neither the name of CPCF.  nor the names of its
+//       contributors may be used to endorse or promote products derived
+//       from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//////////////////////////////////////////////////////////////////////
+
 #ifndef __cplusplus
 #error Not compiled as C++, use .mm instead of .m on Mac/iOS
 #endif
@@ -144,10 +127,9 @@ namespace rt
     };
 }
 #endif
-/** @}*/
+
 namespace rt
 {
-
 namespace _details
 {
 template<typename T>
@@ -156,14 +138,7 @@ struct _LOG_FULLDATA: public T{};
 
 template<typename T>
 INLFUNC const _details::_LOG_FULLDATA<T>& LOG_FULLDATA(const T& x){ return (const _details::_LOG_FULLDATA<T>&)x; }
-/** \addtogroup runtime_base
- * @ingroup rt
- *  @{
- */
- /** \addtogroup Enums_runtime_base
-  * @ingroup runtime_base
-  *  @{
-  */
+
 enum _tagLogType
 {
 	LOGTYPE_VERBOSE = 0,
@@ -179,8 +154,6 @@ enum _tagLogType
 	LOGTYPE_IN_CONSOLE_PROMPT = 0x800,
 	LOGTYPE_MAX,
 };
-/** @}*/
-/** @}*/
 } // namespace rt
 
 ///////////////////////////////////////////////////////
@@ -189,10 +162,7 @@ namespace os
 	extern void LogDisplayInConsole(bool yes);
 	extern bool LogIsDisplayInConsole();
 }
-/** \addtogroup Macros_runtime_base
- * @ingroup runtime_base
- *  @{
- */
+
 #ifndef PLATFORM_DISABLE_LOG
 	#define __LOG_TYPE(x,type)	{	 \
 									std::ostringstream _ostr;							\
@@ -207,13 +177,8 @@ namespace os
 	#define _LOGP
 #endif
 
-
-
- /** \addtogroup Both_consoleand_file
-  * @ingroup Macros_runtime_base
-  *  @{
-  */
-#define _LOG_VERBOSE(x)				__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE) 
+// Log to both console and file
+#define _LOG_VERBOSE(x)				__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOG_UPDATING(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_UPDATING)
 #define _LOG(x)						__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOG_HIGHLIGHT(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_HIGHLIGHT)
@@ -222,13 +187,9 @@ namespace os
 
 #define _LOG_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOG_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_WARNING)
- /** @}*/
 
-  /** \addtogroup Only_log_to_console
-   * @ingroup Macros_runtime_base
-   *  @{
-   */
-#define _LOGC_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE) 
+// Only Log to console
+#define _LOGC_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE)
 #define _LOGC(x)					__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGC_PROMPT()				__LOG_TYPE("", rt::LOGTYPE_IN_CONSOLE_PROMPT|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGC_HIGHLIGHT(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_HIGHLIGHT)
@@ -237,12 +198,8 @@ namespace os
 			
 #define _LOGC_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_VERBOSE)
 #define _LOGC_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_WARNING)
-  /** @}*/
 
-  /** \addtogroup Only_Log_to_file
-   * @ingroup Macros_runtime_base
-   *  @{
-   */
+// Only Log to file
 #define _LOGF_VERBOSE(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOGF(x)					__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_INFORMATIONAL)
 #define _LOGF_HIGHLIGHT(x)			__LOG_TYPE(x, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_HIGHLIGHT)
@@ -251,14 +208,11 @@ namespace os
 
 #define _LOGF_POS					__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_VERBOSE)
 #define _LOGF_POS_WARNING			__LOG_TYPE(__FUNCTION__<<":L"<<__LINE__<<":"<<__FILE__, rt::LOGTYPE_IN_LOGFILE|rt::LOGTYPE_WARNING)
-  /** @}*/
 
 
 
-/**
- * @brief  Debugging and error handling
- * 
- */
+///////////////////////////////////////////////////////
+// Debugging and error handling
 #ifndef ASSERT
 	#ifdef PLATFORM_DEBUG_BUILD
 		#if defined(PLATFORM_WIN)
@@ -315,11 +269,8 @@ INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCST
 } // namespace rt
 
 
-
-/**
- * @brief Runtime diagnosis
- * 
- */
+///////////////////////////////////////////////////////
+// Runtime diagnosis
 #if defined(PLATFORM_DEBUG_BUILD) && defined(PLATFORM_WIN)
 	#define _CheckHeap	ASSERT(_CrtCheckMemory())
 #else
@@ -334,7 +285,7 @@ INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCST
 	#define VERIFY_FLOAT(x)	while(x){ break; }
 #endif
 
- /** @}*/
+
 ///////////////////////////////////////////////////////
 
 
@@ -342,15 +293,9 @@ INLFUNC auto _VERIFY_RET(RET&& exp, LPCSTR exp_str, LPCSTR func, int line, LPCST
 // Some constant 
 namespace rt
 {
-	/** \addtogroup runtime_base
-	* @ingroup rt
-	*  @{
-	*/
+ 
 struct _DummyType;
-/** \addtogroup Functions_runtime_base
- * @ingroup runtime_base
- *  @{
- */
+
 template<typename T>
 INLFUNC T Sqr(T x){ return x*x; }
 
@@ -429,18 +374,18 @@ FORCEINL void MakeNotANumber			(double& val){ ((ULONGLONG&)val)=0x7fffffffffffff
 // PopCount
 namespace _details
 {
-const ULONGLONG m1  = 0x5555555555555555ULL; ///< binary: 0101...
-const ULONGLONG m2  = 0x3333333333333333ULL; ///< binary: 00110011..
-const ULONGLONG m4  = 0x0f0f0f0f0f0f0f0fULL; ///< binary:  4 zeros,  4 ones ...
+const ULONGLONG m1  = 0x5555555555555555ULL; //binary: 0101...
+const ULONGLONG m2  = 0x3333333333333333ULL; //binary: 00110011..
+const ULONGLONG m4  = 0x0f0f0f0f0f0f0f0fULL; //binary:  4 zeros,  4 ones ...
 };
 
 FORCEINL int PopCount(ULONGLONG x) {
-    x -= (x >> 1) & _details::m1;             ///< put count of each 2 bits into those 2 bits
-    x = (x & _details::m2) + ((x >> 2) & _details::m2); ///< put count of each 4 bits into those 4 bits 
-    x = (x + (x >> 4)) & _details::m4;        ///< put count of each 8 bits into those 8 bits 
-    x += x >>  8;  ///< put count of each 16 bits into their lowest 8 bits
-    x += x >> 16;  ///< put count of each 32 bits into their lowest 8 bits
-    x += x >> 32;  ///< put count of each 64 bits into their lowest 8 bits
+    x -= (x >> 1) & _details::m1;             //put count of each 2 bits into those 2 bits
+    x = (x & _details::m2) + ((x >> 2) & _details::m2); //put count of each 4 bits into those 4 bits 
+    x = (x + (x >> 4)) & _details::m4;        //put count of each 8 bits into those 8 bits 
+    x += x >>  8;  //put count of each 16 bits into their lowest 8 bits
+    x += x >> 16;  //put count of each 32 bits into their lowest 8 bits
+    x += x >> 32;  //put count of each 64 bits into their lowest 8 bits
     return x & 0x7f;
 }
 
@@ -455,14 +400,7 @@ namespace _details
 	static const UINT PRIME4 =   668265263U;
 	static const UINT PRIME5 =  0x165667b1U;
 
-	/**
-	 * @brief This version is for very small inputs (< 16  bytes)
-	 * 
-	 * @param key 
-	 * @param len 
-	 * @param seed 
-	 * @return FORCEINL 
-	 */
+	// This version is for very small inputs (< 16  bytes)
 	FORCEINL unsigned int xxHash_small(const void* key, int len, unsigned int seed)
 	{	const unsigned char* p = (unsigned char*)key;
 		const unsigned char* const bEnd = p + len;
@@ -563,7 +501,7 @@ FORCEINL UINT xxHashStrong(const void* input, int len, unsigned int seed = 0)
 	return crc;
 }
 
-/** @}*/
+
 struct _File
 {
 	static const int Seek_Begin		= 0;
@@ -572,7 +510,7 @@ struct _File
 
 	virtual SIZE_T		Read(LPVOID lpBuf,SIZE_T nCount) = 0;
 	virtual SIZE_T		Write(LPCVOID lpBuf,SIZE_T nCount) = 0;
-	virtual SIZE_T		Seek(SSIZE_T offset,UINT nFrom = Seek_Begin) = 0; ///< return ULLONG_MAX for failure.
+	virtual SIZE_T		Seek(SSIZE_T offset,UINT nFrom = Seek_Begin) = 0; // return ULLONG_MAX for failure.
 	virtual SIZE_T		GetLength() const = 0;
 };
 
@@ -602,12 +540,9 @@ template<int size, SIZE_T set, bool size_exceeded = (size > 32)> struct _PodFill
 #endif
 
 } // namespace _details
-/** \addtogroup Functions_runtime_base
- * @ingroup runtime_base
- *  @{
- */
-template<typename T> FORCEINL void Zero(T& obj){ _details::_PodFill<sizeof(T), 0>::Fill((LPBYTE)&obj); }
-template<typename T> FORCEINL void Void(T& obj){ _details::_PodFill<sizeof(T), (SIZE_T)-1>::Fill((LPBYTE)&obj); }
+
+template<typename T> FORCEINL void Zero(T& obj){ _details::_PodFill<sizeof(T), 0>::Fill((LPBYTE)&obj); } // treat any type as POD
+template<typename T> FORCEINL void Void(T& obj){ _details::_PodFill<sizeof(T), (SIZE_T)-1>::Fill((LPBYTE)&obj); } // treat any type as POD
 template<UINT LEN> FORCEINL void Zero(LPVOID obj){ _details::_PodFill<LEN, 0>::Fill((LPBYTE)obj); }
 template<UINT LEN> FORCEINL void Void(LPVOID obj){ _details::_PodFill<LEN, (SIZE_T)-1>::Fill((LPBYTE)obj); }
 
@@ -700,14 +635,14 @@ template<int size, bool size_exceeded = (size > 32)> struct _PodEqual
 template<UINT LEN>
 FORCEINL void Copy(LPVOID obj, LPCVOID from){ _details::_PodCopy<LEN>::Fill((LPBYTE)obj, (LPCBYTE)from); }
 template<typename T1, typename T2>
-FORCEINL void Copy(T1& obj, const T2& from){ Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::Copy sizes of operands mismatch"); }
+FORCEINL void Copy(T1& obj, const T2& from){ Copy<sizeof(T1)>((LPBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::Copy sizes of operands mismatch"); } // treat any type as POD
 
 template<UINT LEN>
 FORCEINL bool IsEqual(LPCVOID obj, LPCVOID from){ return _details::_PodEqual<LEN>::IsEqual((LPCBYTE)obj, (LPCBYTE)from); }
 template<typename T1, typename T2>
-FORCEINL bool IsEqual(const T1& obj, const T2& from){ return IsEqual<sizeof(T1)>((LPCBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::IsEqual sizes of operands mismatch"); }
+FORCEINL bool IsEqual(const T1& obj, const T2& from){ return IsEqual<sizeof(T1)>((LPCBYTE)&obj, (LPCBYTE)&from); static_assert(sizeof(T1) == sizeof(T2), "rt::IsEqual sizes of operands mismatch"); } // treat any type as POD
 
-/** @}*/
+
 namespace _details
 {
 	// FNV Hash function (http://isthe.com/chongo/tech/comp/fnv/)
@@ -768,17 +703,12 @@ namespace _details
 	INLFUNC SIZE_T _HashValuePod(const T& obj, SIZE_T val = _HashInit)
 	{	return _HashValueFix<sizeof(T)>::Val((LPCBYTE)&obj, val);
 	}
-	/**
-	 * @brief traits class for hash containers
-	 * 
-	 * @tparam T 
-	 */
 	template<typename T>
 	struct hash_compare_str
-	{	
-		enum ///< parameters for hash table
-		{	bucket_size = 4,	///< 0 < bucket_size
-			min_buckets = 8		///< min_buckets = 2 ^^ N, 0 < N
+	{	// traits class for hash containers
+		enum // parameters for hash table
+		{	bucket_size = 4,	// 0 < bucket_size
+			min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
 		};
 		INLFUNC size_t operator()(const T& key) const
 		{	return _HashValue(key.Begin(),(key.End() - key.Begin())*sizeof(*key.Begin()));	
@@ -791,9 +721,9 @@ namespace _details
 	struct hash_compare_fix;
 	template<typename T> struct hash_compare_fix<T, 1>
 	{	
-		enum ///< parameters for hash table
-		{	bucket_size = 4,	///< 0 < bucket_size
-			min_buckets = 8		///< min_buckets = 2 ^^ N, 0 < N
+		enum // parameters for hash table
+		{	bucket_size = 4,	// 0 < bucket_size
+			min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
 		};
 		INLFUNC size_t operator()(const T& key) const
 		{	return _HashValueFix<sizeof(T)>::Val((LPCBYTE)&key);}
@@ -801,76 +731,18 @@ namespace _details
 		{	return memcmp(&_Keyval1, &_Keyval2, sizeof(T)) < 0;	}
 	};
 } // namespace _details
-
-/**
- * @brief caution: map.insert(std::make_pair(x->y,x)) is incorrect, should use map[x->y] = x;
- * 
- * @tparam T_POD 
- */
-template<typename T_POD>
-struct PodRef		
-{	const T_POD* _p;
-	PodRef(){ _p = nullptr; }
-	PodRef(const PodRef& x):_p(x._p){}
-	PodRef(const T_POD* p):_p(p){}
-	PodRef(const T_POD& p):_p(&p){}
-
-	const T_POD&	Get() const { ASSERT(_p); return *_p; }
-	operator const	T_POD& () const { ASSERT(_p); return *_p; }
-	operator const	T_POD* () const { return _p; }
-
-	const T_POD*	operator = (const T_POD* x){ _p = x; return x; }
-	const T_POD&	operator = (const T_POD& x){ _p = &x; return x; }
-	const PodRef&	operator = (const PodRef& x){ _p = x._p; return x; }
-	bool			operator== (const PodRef& x) const 
-					{	if(_p == x._p)return true; 
-						return _p && _p != (const T_POD*)-1 && x._p && x._p != (const T_POD*)-1 && *_p == *x._p;
-					}
-	bool			operator < (const PodRef& x) const 
-					{	if(_p == x._p || _p == (const T_POD*)-1 || x._p == 0)return false;
-						if(_p == 0 || x._p == (const T_POD*)-1)return true;
-						return *_p < *x._p;
-					}
-	T_POD*			operator ->(){ ASSERT(_p); return (T_POD*)_p; }
-	const T_POD*	operator ->() const { ASSERT(_p); return _p; }
-	struct hash_compare
-	{
-		enum ///< parameters for hash table
-		{	bucket_size = 4,	///< 0 < bucket_size
-			min_buckets = 8		///< min_buckets = 2 ^^ N, 0 < N
-		};
-		size_t operator()(const PodRef& key) const
-		{	return _details::_HashValue(key._p, sizeof(T_POD));
-        }
-		bool operator()(const PodRef& _Keyval1, const PodRef& _Keyval2) const
-		{	return _Keyval1 < _Keyval2;		}
-	};
-};
-/** @}*/
 } // namespace rt
 
-namespace std
-{
-template<typename T_POD>
-struct hash<::rt::PodRef<T_POD>>: public ::rt::PodRef<T_POD>::hash_compare {};
-} // namespace std
-/** \addtogroup Macros_runtime_base
- * @ingroup runtime_base
- *  @{
- */
-
-  /** \addtogroup Safe_delete_Objects
-   * @ingroup Macros_runtime_base
-   *  @{
-   */
+///////////////////////////////////////////////////////
+// Safe delete Objects
 #define _SafeRelease(x)				{ if(x){x->Release(); x=nullptr;} }
 #define _SafeRelease_ConstPtr(x)	{ if(x)rt::_CastToNonconst(x)->Release(); }
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 #define _SafeCFRelease(x)	{ if(x){::CFRelease(x); x=nullptr;} }
 #endif
-   /** @}*/
-/** @}*/
+///////////////////////////////////////////////////////
+
 namespace os
 {
 namespace _details
@@ -883,36 +755,21 @@ template<typename T>
 T*				TrackMemoryNew(T* p, LPCSTR type, LPCSTR fn, LPCSTR func, UINT line){ TrackMemoryAllocation(p, sizeof(T), false, type, 1, fn, func, line); return p; }
 #endif
 
-/**
- * @brief 32byte Aligned Memory allocation and free 
- * 
- * 1. use 32byte-Aligned Memory is optimized for cache hitting rate on CPUs of PIII and above
- * 
- * 2. Add prefix and suffix bytes to allocated memory block to detect buffer overflow
- * @param size 
- * @return LPVOID 
- */
-extern LPVOID	Malloc32AL(size_t size);   ///< size in byte
+//////////////////////////////////////////////////////////
+// 32byte Aligned Memory allocation and free 
+//
+// 1. use 32byte-Aligned Memory is optimized for cache hitting rate on CPUs of PIII and above
+// 2. Add prefix and suffix bytes to allocated memory block to detect buffer overflow
+extern LPVOID	Malloc32AL(size_t size);   //size in byte
 extern void		Free32AL(LPCVOID ptr_in);
 }
-/** \addtogroup runtime_base
-* @ingroup rt
-*  @{
-*/
-/** \addtogroup Functions_runtime_base
- * @ingroup runtime_base
- *  @{
- */
-extern void EnableMemoryExceptionInThread(bool throw_e);  ///< default is disabled
+
+extern void EnableMemoryExceptionInThread(bool throw_e);  // default is disabled
 extern bool IsMemoryExceptionEnabledInThread();
-/** @}*/
-/** @}*/
+
 } // namespace os::_details
 
-/** \addtogroup Macros_runtime_base
- * @ingroup runtime_base
- *  @{
- */
+
 #ifdef PLATFORM_DEBUG_BUILD
 
 #define _Malloc8AL(type, co)		_Malloc32AL(type, co)
@@ -920,8 +777,8 @@ extern bool IsMemoryExceptionEnabledInThread();
 
 #define _SafeFree8AL_ConstPtr(ptr)	_SafeFree32AL_ConstPtr(ptr)
 #define _SafeFree32AL_ConstPtr(ptr)	{ if(ptr){ os::_details::UntrackMemoryAllocation(ptr); os::_details::Free32AL(ptr); }}
-#define _SafeDel_ConstPtr(x)		{ if(x){ os::_details::UntrackMemoryAllocation(x); delete x; } } ///< Use macro _New()
-#define _SafeDelArray_ConstPtr(x)	{ if(x){ os::_details::UntrackMemoryAllocation(x); delete [] x; } }///< Use macro _New()
+#define _SafeDel_ConstPtr(x)		{ if(x){ os::_details::UntrackMemoryAllocation(x); delete x; } }
+#define _SafeDelArray_ConstPtr(x)	{ if(x){ os::_details::UntrackMemoryAllocation(x); delete [] x; } }
 
 #define _New(...)					(os::_details::TrackMemoryNew(os::IsMemoryExceptionEnabledInThread()? new __VA_ARGS__ : new (std::nothrow) __VA_ARGS__, #__VA_ARGS__, __FILE__, __FUNCTION__, __LINE__))
 #define _NewArray(type, co)			((type*)os::_details::TrackMemoryAllocation(os::IsMemoryExceptionEnabledInThread()? new type[co] : new (std::nothrow) type[co], sizeof(type)*co, false, #type, (UINT)(co), __FILE__, __FUNCTION__, __LINE__))
@@ -935,8 +792,8 @@ extern bool IsMemoryExceptionEnabledInThread();
 
 #define _SafeFree8AL_ConstPtr(ptr)	{ delete [] (LPBYTE)ptr; }
 #define _SafeFree32AL_ConstPtr(ptr)	{ os::_details::Free32AL(ptr); }
-#define _SafeDel_ConstPtr(x)		{ if(x){delete x; } } ///< Use macro _New()
-#define _SafeDelArray_ConstPtr(x)	{ if(x){delete [] x; } } ///< Use macro _New()
+#define _SafeDel_ConstPtr(x)		{ if(x){delete x; } }
+#define _SafeDelArray_ConstPtr(x)	{ if(x){delete [] x; } }
 
 #define _New(...)					(os::IsMemoryExceptionEnabledInThread()? new __VA_ARGS__ : new (std::nothrow) __VA_ARGS__)
 #define _NewArray(type, co)			(os::IsMemoryExceptionEnabledInThread()? new type[co] : new (std::nothrow) type[co])
@@ -947,9 +804,9 @@ extern bool IsMemoryExceptionEnabledInThread();
 
 #define _SafeFree8AL(ptr)			{ _SafeFree8AL_ConstPtr(ptr); ptr = nullptr; }
 #define _SafeFree32AL(ptr)			{ _SafeFree32AL_ConstPtr(ptr); ptr = nullptr; }
-#define _SafeDel(ptr)				{ _SafeDel_ConstPtr(ptr); ptr = nullptr; }///< Use macro _New()
-#define _SafeDel_Untracked(ptr)		{ if(ptr){ delete ptr; ptr = nullptr; }}///< Use macro _New()
-#define _SafeDelArray(ptr)			{ _SafeDelArray_ConstPtr(ptr); ptr = nullptr; }///< Use macro _New()
+#define _SafeDel(ptr)				{ _SafeDel_ConstPtr(ptr); ptr = nullptr; }
+#define _SafeDel_Untracked(ptr)		{ if(ptr){ delete ptr; ptr = nullptr; }}
+#define _SafeDelArray(ptr)			{ _SafeDelArray_ConstPtr(ptr); ptr = nullptr; }
 
 #define _EnlargeTo32AL(num)			((((num) + 0x7)&(~((SIZE_T)0x7))))
 #define _Alloca32AL(sz)				((LPVOID)_EnlargeTo32AL((SIZE_T)alloca(sz + 4)))
@@ -958,26 +815,14 @@ extern bool IsMemoryExceptionEnabledInThread();
 #ifndef PLATFORM_WIN
 #define _alloca alloca
 #endif
- /** @}*/
 
+///////////////////////////////////////////////////////
+// Misc inline templates
 namespace rt
 {
-	/** \addtogroup runtime_base
-	* @ingroup rt
-	*  @{
-	*/
-	/** \addtogroup Functions_runtime_base
-	 * @ingroup runtime_base
-	 *  @{
-	 */
+
 //INLFUNC void Randomize( DWORD seed = time(NULL) ){ srand(seed); }
-/**
- * @brief Max Power 2 less than Within
- * 
- * @tparam T 
- * @param within 
- * @return FORCEINL 
- */
+
 template<typename T>
 FORCEINL T MaxPower2Within(T within)
 {
@@ -1009,24 +854,17 @@ FORCEINL T* _RelocatePointer(LPCVOID new_base, LPCVOID old_base, T* old_p)
 	if(new_base == nullptr || old_p == nullptr)return nullptr;
 	return (T*)(((LPBYTE)old_p) + ((LPCBYTE)new_base - (LPCBYTE)old_base));
 }
-/** @}*/
-/** @}*/
+
 } // namespace rt
 
 
 
-
+/////////////////////////////////////////////////////
+// switch little-endian/big-endian values, inplace
 namespace rt
 {
 namespace _details
 {	
-	/**
-	 * @brief switch little-endian/big-endian values, inplace
-	 * 
-	 * @tparam sz 
-	 * @param p 
-	 * @return FORCEINL 
-	 */
 	template<int sz>
 	FORCEINL void _SwapByteOrder(LPBYTE p)
 	{	BYTE t = p[0];
@@ -1042,15 +880,7 @@ namespace _details
 } // namespace rt
 
 namespace rt
-{	
-	/** \addtogroup runtime_base
-	* @ingroup rt
-	*  @{
-	*/
-	/** \addtogroup Functions_runtime_base
-	 * @ingroup runtime_base
-	 *  @{
-	 */
+{
 	template<typename T>
 	FORCEINL void SwapByteOrder(T& x)
 	{	_details::_SwapByteOrder<sizeof(T)>((LPBYTE)&x);
@@ -1061,8 +891,6 @@ namespace rt
 		_details::_SwapByteOrder<sizeof(T)>((LPBYTE)&out);
 		return out;
 	}
-	/** @}*/
-/** @}*/
 }
 
 namespace rt
@@ -1109,14 +937,6 @@ namespace _details
 
 namespace rt
 {
-	/** \addtogroup runtime_base
-	* @ingroup rt
-	*  @{
-	*/
-	/** \addtogroup Functions_runtime_base
-	 * @ingroup runtime_base
-	 *  @{
-	 */
 	template<typename T>
 	FORCEINL void SwitchByteOrderTo(const T& from, T& to)
 	{	_details::_SwitchByteOrderTo<sizeof(T)>(((LPCBYTE)&from) + sizeof(T) - 1, (LPBYTE)&to);
@@ -1139,21 +959,11 @@ namespace rt
 		ASSERT((val & (~mask)) == 0);
 		x = (x&(~mask)) | val;
 	}
-	/** @}*/
-/** @}*/
 } // namespace rt
 
 
 namespace rt
 {
-	/** \addtogroup runtime_base
-	* @ingroup rt
-	*  @{
-	*/
-	/** \addtogroup Functions_runtime_base
-	 * @ingroup runtime_base
-	 *  @{
-	 */
 FORCEINL WORD		BitSmudgeRight(WORD x) // (minimum power of 2 >= x) - 1
 					{	UINT r = x | (x>>1);
 						r |= r >> 2;	r |= r >> 4;	r |= r >> 8;
@@ -1169,26 +979,16 @@ FORCEINL ULONGLONG	BitSmudgeRight(ULONGLONG x) // (minimum power of 2 >= x) - 1
 						r |= r >> 2;	r |= r >> 4;	r |= r >> 8;	r |= r >> 16;	r |= r >> 32;
 						return (WORD)r;
 					}
-/** @}*/
-/** @}*/
 }
 
 
+////////////////////////////////////////////////////////////////////////////
+// Optimized Object Swap, UNSAFE if the object has self or member pointed pointers
+// No additional temporary object, no ctor/dtor called
 namespace rt
 {
 	namespace _details
 	{
-		/**
-		 * @brief Optimized Object Swap
-		 * 
-		 * Optimized Object Swap, UNSAFE if the object has self or member pointed pointers
-		 * 
-		 * No additional temporary object, no ctor/dtor called
-		 * @tparam Len 
-		 * @param obj_a 
-		 * @param obj_b 
-		 * @return FORCEINL 
-		 */
 		template<UINT Len>
 		FORCEINL void _Exchange_32AL(LPDWORD obj_a,LPDWORD obj_b)
 		{
@@ -1205,18 +1005,7 @@ namespace rt
 
 namespace rt
 {
-	/** \addtogroup runtime_base
-* @ingroup rt
-*  @{
-*/
-/** \addtogroup Functions_runtime_base
- * @ingroup runtime_base
- *  @{
- */
-#pragma warning(disable: 4307) 
-/**
- * @brief disable warning C4307: '*' : integral constant overflow
-*/
+#pragma warning(disable: 4307) //warning C4307: '*' : integral constant overflow
 template<typename T>
 FORCEINL void Swap(T& a, T& b)
 {	
@@ -1234,9 +1023,8 @@ FORCEINL void Swap(T& a, T& b)
 		((LPWORD)&b)[sizeof(T)/2-1] = (WORD)t;
 	}
 }
-#pragma warning(default: 4307) 
-/** @}*/
-/** @}*/
+#pragma warning(default: 4307) //warning C4307: '*' : integral constant overflow
+
 } // namespace rt
 
 
@@ -1316,7 +1104,7 @@ template<typename T> UINT LeadingZeroBits(T x) { return _details::AdvBitOps<T>::
 template<typename T> UINT TrailingZeroBits(T x) { return _details::AdvBitOps<T>::TrailingZeroBits(x); }
 template<typename T> UINT NonzeroBits(T x) { return _details::AdvBitOps<T>::NonzeroBits(x); }
 template<typename T> T	  ByteOrderSwap(T x) { return _details::AdvBitOps<T>::ByteOrderSwap(x); }
-template<typename T> UINT Log2(T x){ return sizeof(T)*8 - 1 - LeadingZeroBits(x); } ///< Approximately answer
+template<typename T> UINT Log2(T x){ return sizeof(T)*8 - 1 - LeadingZeroBits(x); }
 template<typename T> BYTE SubBorrow(BYTE b_in, T a, T b, T* out){ return _details::AdvBitOps<T>::SubBorrow(b_in, a, b, out); }
 template<typename T> BYTE AddCarry(BYTE b_in, T a, T b, T* out){ return _details::AdvBitOps<T>::AddCarry(b_in, a, b, out); }
 }
@@ -1324,14 +1112,7 @@ template<typename T> BYTE AddCarry(BYTE b_in, T a, T b, T* out){ return _details
 
 namespace rt
 {
-/** \addtogroup runtime_base
- * @ingroup rt
- *  @{
- */
- /** \addtogroup Functions_runtime_base
-  * @ingroup runtime_base
-  *  @{
-  */
+
 template<typename T> class TypeTraits;
 template<typename T1, typename T2> struct IsTypeSame;
 
@@ -1373,20 +1154,8 @@ bool CyclicLessThan(T_NUM a, T_NUM b)
 
 namespace _details
 {
-/**
- * @brief first item equal to or greater than that of a specified key
- * 
- * T should have operator [], and the element should have operator <  
- * @tparam T 
- * @tparam t_Val 
- * @tparam t_GetKey 
- * @param arr 
- * @param len 
- * @param key 
- * @return INLFUNC 
- */
-template<class T, typename t_Val, class t_GetKey>	
-INLFUNC SIZE_T _LowerBound(const T& arr, SIZE_T len, const t_Val &key)	
+template<class T, typename t_Val, class t_GetKey>	// T should have operator [], and the element should have operator <
+INLFUNC SIZE_T _LowerBound(const T& arr, SIZE_T len, const t_Val &key)	// first item equal to or greater than that of a specified key
 {
 	if(len == 0 || !(t_GetKey::Key(arr[0]) < key))return 0;
 	if( !(t_GetKey::Key(arr[len - 1]) < key) ){}
@@ -1403,19 +1172,9 @@ INLFUNC SIZE_T _LowerBound(const T& arr, SIZE_T len, const t_Val &key)
 	}
 	return ret;
 }
-/**
- * @brief first item equal to key, or length of arr
- * 
- * @tparam T 
- * @tparam t_Val 
- * @tparam t_GetKey 
- * @param arr 
- * @param len 
- * @param key 
- * @return INLFUNC 
- */
+
 template<class T, typename t_Val, class t_GetKey>
-INLFUNC SIZE_T _BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	
+INLFUNC SIZE_T _BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	// first item equal to key, or length of arr
 {
 	SIZE_T r = _LowerBound<T,t_Val,t_GetKey>(arr,len,key);
 	if(r<len && key < t_GetKey::Key(arr[r]))return len;
@@ -1427,67 +1186,27 @@ struct _TrivialGetKey
 };
 
 } // namespace _details
-/**
- * @brief first item equal to or greater than that of a specified key
- * 
- *  T should have operator [], and the element should have operator <
- * @tparam t_GetKey 
- * @tparam T 
- * @tparam t_Val 
- * @param arr 
- * @param len 
- * @param key 
- * @return FORCEINL 
- */
-template<class t_GetKey, class T, typename t_Val>
-FORCEINL SIZE_T LowerBound(const T& arr, SIZE_T len, const t_Val &key)	
+
+template<class t_GetKey, class T, typename t_Val>	// T should have operator [], and the element should have operator <
+FORCEINL SIZE_T LowerBound(const T& arr, SIZE_T len, const t_Val &key)	// first item equal to or greater than that of a specified key
 {	return _details::_LowerBound<T,t_Val,t_GetKey>(arr,len,key);
 }
 
-/**
- * @brief first item equal to key, or length of arr
- * 
- * @tparam t_GetKey 
- * @tparam T 
- * @tparam t_Val 
- * @param arr 
- * @param len 
- * @param key 
- * @return FORCEINL 
- */
 template<class t_GetKey, class T, typename t_Val>
-FORCEINL SIZE_T BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	
+FORCEINL SIZE_T BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	// first item equal to key, or length of arr
 {	return _details::_BinarySearch<T,t_Val,t_GetKey>(arr,len,key);
 }
-/**
- * @brief LowerBound
- * @tparam T T should have operator [], and the element should have operator <
- * @tparam t_Val type of key
- * @param arr Sorted array
- * @param len array length
- * @param key 
- * @return  index of the first item equal to or greater than that of a specified key
- */
-template<class T, typename t_Val>	
-FORCEINL SIZE_T LowerBound(const T& arr, SIZE_T len, const t_Val &key)	
+
+template<class T, typename t_Val>	// T should have operator [], and the element should have operator <
+FORCEINL SIZE_T LowerBound(const T& arr, SIZE_T len, const t_Val &key)	// first item equal to or greater than that of a specified key
 {	return _details::_LowerBound<T,t_Val,_details::_TrivialGetKey>(arr,len,key);
 }
 
-/**
- * @brief BinarySearch
- * 
- * @tparam T type of array
- * @tparam t_Val type of key
- * @param arr Sorted array
- * @param len array length
- * @param key 
- * @return first item equal to key, or length of arr
- */
 template<class T, typename t_Val>
-FORCEINL SIZE_T BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	
+FORCEINL SIZE_T BinarySearch(const T& arr, SIZE_T len, const t_Val &key)	// first item equal to key, or length of arr
 {	return _details::_BinarySearch<T,t_Val,_details::_TrivialGetKey>(arr,len,key);
 }
-/** @}*/
+
 template<class T>
 class ObjRef
 {	
@@ -1592,12 +1311,8 @@ public:
 };
 
 
-
-/**
- * @brief simple pseudo-random number generator invented by George Marsaglia.
- * 
- * http://en.wikipedia.org/wiki/Random_number_generation
- */
+// simple pseudo-random number generator invented by George Marsaglia.
+// http://en.wikipedia.org/wiki/Random_number_generation
 class Randomizer
 {
 	UINT m_z, m_w;
@@ -1630,8 +1345,7 @@ public:
 	}
 	FORCEINL operator UINT(){ return GetNext(); }
 };
-/** @}*/
+
 } // namespace rt
 ////////////////////////////////////////////////////////////////////////////
-/** @}*/
-/** @}*/
+
