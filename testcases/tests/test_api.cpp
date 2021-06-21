@@ -1809,44 +1809,44 @@ void rt::UnitTests::file()
 		}
 	}
 }
-void rt::UnitTests::lockfile()
+#include <io.h> 
+bool Lock(HANDLE fd,bool no_wait)
+{	
+	OVERLAPPED lap;
+	rt::Zero(lap);
+	if (::LockFileEx(fd, LOCKFILE_EXCLUSIVE_LOCK | (no_wait ? LOCKFILE_FAIL_IMMEDIATELY : 0)
+		, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >>32), &lap))
+	{
+		return true;
+	}
+	else return false;
+}
+void Unlock(HANDLE fd)
 {
+	OVERLAPPED lap;
+	rt::Zero(lap);
+	VERIFY(::UnlockFileEx(fd, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >> 32), &lap));
+}
+void rt::UnitTests::lockfile()
+{	
+	os::File out;
+	out.Open("lockfile.txt", os::File::Normal_WriteText);
+	if (!out.IsLockAcquired())
 	{
-		_LOG((LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY) );
-		_LOG((LOCKFILE_EXCLUSIVE_LOCK | 0));
+		auto ans = out.Lock(false);
+		if (ans)
+		{
+			_LOG("Locked");
+			os::Sleep(10000);
+			out.Unlock();
+			_LOG("Unlocked");
+		}
+		else
+		{
+			_LOG("failed");
+		}
 	}
-	{
-		os::File out;
-		out.Open("lockfile.txt", os::File::Normal_WriteText);
-		os::Thread th1, th2;
-		bool ends = false;
-		volatile INT c = 0;
-		auto func = [&out, &ends, &c]()
-		{			
-			if (!out.IsLockAcquired())
-			{
-				auto ans = out.Lock(false);								
-				while (!ends)
-				{
-					int x = os::AtomicIncrement(&c);
-					out.Write(std::to_string(x).c_str());
-					out.Write("\n", 1);
-					os::Sleep(100);
-				}
-				//out.Unlock();
-				out.Close();
-			}
-			
-		};
-		
-		th1.Create(func);
-		th2.Create(func);
-		os::Sleep(2000);
-		ends = true;
-		th1.WaitForEnding();
-		th2.WaitForEnding();
-	}
-	
+
 }
 void rt::UnitTests::pfw()
 {
