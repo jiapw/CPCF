@@ -109,3 +109,7 @@ testcases/proj.mac/Index/
 core/ext/botan/amalgamation_build/
 
 /testcases/proj.andriod/tests/app/src/main/cpp/out/build/x64-Debug (default)
+/html
+/xml-dir
+/doxygen/that_style
+/.vscode

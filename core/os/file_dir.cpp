@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+
 #if defined(PLATFORM_WIN)
 #include <io.h> 
 #include <Psapi.h>
@@ -17,7 +18,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <signal.h>
-
+#include <sys/file.h>
 namespace os
 {
 struct _stat:public stat{};
@@ -266,6 +267,48 @@ ULONGLONG os::File::GetFileSize() const
 		return s.st_size;
 	else
 		return 0;
+}
+
+bool os::File::Lock(bool no_wait)
+{
+	ASSERT(_FileLockedSize == -1);
+#ifdef	PLATFORM_WIN
+	auto os_h = _get_osfhandle(GetFD());
+	OVERLAPPED lap;
+	rt::Zero(lap);
+
+	ULONGLONG size = GetFileSize();
+	if (::LockFileEx((HANDLE)os_h, LOCKFILE_EXCLUSIVE_LOCK | (no_wait ? LOCKFILE_FAIL_IMMEDIATELY : 0)
+		, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >> 32), &lap))
+	{
+		_FileLockedSize = (LONGLONG)size;
+		return true;
+	}
+	else return false;
+#else
+	int res = flock(GetFD(), LOCK_EX | (no_wait ? LOCK_NB : 0));
+	if (res != -1)
+	{
+		_FileLockedSize = (LONGLONG)GetFileSize();
+		return true;
+	}
+	return false;
+#endif
+}
+
+void os::File::Unlock()
+{
+	ASSERT(_FileLockedSize >= 0);
+#ifdef	PLATFORM_WIN
+	auto os_h = _get_osfhandle(GetFD());
+	OVERLAPPED lap;
+	rt::Zero(lap);
+	VERIFY(::UnlockFileEx((HANDLE)os_h, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >> 32), &lap));
+	_FileLockedSize = -1;
+#else
+	VERIFY(flock(GetFD(), LOCK_UN) != -1);
+	_FileLockedSize = -1;
+#endif
 }
 
 ULONGLONG os::File::GetFileSize(LPCSTR pathname)
@@ -717,6 +760,7 @@ void os::File::Close()
 {
 	if(IsOpen())
 	{
+		if(IsLockAcquired())Unlock();
 		fclose(_hFile);
 		_hFile = nullptr;
 	}
@@ -728,6 +772,27 @@ SIZE_T os::File::GetLength() const
 	_GetFileStat(s);
 
 	return (SIZE_T)s.st_size;
+}
+
+bool os::File::Preallocate(SIZE_T len)
+{
+	if(len <= GetLength())
+		return Truncate(len);
+	else
+	{
+#if defined(PLATFORM_WIN)
+	auto os_h = _get_osfhandle(GetFD());
+	ULONGLONG l = len + 1;
+	if(!::SetFilePointerEx((HANDLE)os_h, (LARGE_INTEGER&)l, NULL, FILE_BEGIN) || !::SetEndOfFile((HANDLE)os_h))return false;
+	Seek(--l); Write('\x0');
+	_chsize_s(GetFD(), l);
+	return true;
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
+    return fallocate64(GetFD(), 0, 0, len) == 0;
+#else
+	return Truncate(len);  // TBD, a better way?
+#endif
+	}
 }
 
 bool os::File::Truncate(SIZE_T len)

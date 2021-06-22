@@ -1810,6 +1810,27 @@ void rt::UnitTests::file()
 	}
 }
 
+void rt::UnitTests::lockfile()
+{	
+	os::File out;
+	out.Open("lockfile.txt", os::File::Normal_WriteText);
+	if (!out.IsLockAcquired())
+	{
+		auto ans = out.Lock(false);
+		if (ans)
+		{
+			_LOG("Locked");
+			os::Sleep(10000);
+			out.Unlock();
+			_LOG("Unlocked");
+		}
+		else
+		{
+			_LOG("failed");
+		}
+	}
+
+}
 void rt::UnitTests::pfw()
 {
 	{	os::ParallelFileWriter	pfw;
