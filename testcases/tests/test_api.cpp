@@ -1816,7 +1816,7 @@ void rt::UnitTests::lockfile()
 	out.Open("lockfile.txt", os::File::Normal_WriteText);
 	if (!out.IsLockAcquired())
 	{
-		auto ans = out.Lock(false);
+		auto ans = out.Lock();
 		if (ans)
 		{
 			_LOG("Locked");
