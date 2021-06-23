@@ -135,6 +135,7 @@ public:
 	void		Close();
 	bool		Open(LPCSTR fn_utf8, LPCSTR mode = Normal_Read, bool create_path = false);
 	SIZE_T		GetLength() const;
+	bool		Preallocate(SIZE_T len); // may takes a long time for zeroing on Window/Mac/iOS
 	bool		Truncate(SIZE_T len);
 	SIZE_T		GetCurrentPosition() const;
 	SIZE_T		Seek(SSIZE_T offset, UINT nFrom = Seek_Begin);

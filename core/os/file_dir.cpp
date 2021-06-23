@@ -774,6 +774,27 @@ SIZE_T os::File::GetLength() const
 	return (SIZE_T)s.st_size;
 }
 
+bool os::File::Preallocate(SIZE_T len)
+{
+	if(len <= GetLength())
+		return Truncate(len);
+	else
+	{
+#if defined(PLATFORM_WIN)
+	auto os_h = _get_osfhandle(GetFD());
+	ULONGLONG l = len + 1;
+	if(!::SetFilePointerEx((HANDLE)os_h, (LARGE_INTEGER&)l, NULL, FILE_BEGIN) || !::SetEndOfFile((HANDLE)os_h))return false;
+	Seek(--l); Write('\x0');
+	_chsize_s(GetFD(), l);
+	return true;
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
+    return fallocate64(GetFD(), 0, 0, len) == 0;
+#else
+	return Truncate(len);  // TBD, a better way?
+#endif
+	}
+}
+
 bool os::File::Truncate(SIZE_T len)
 {
 #if defined(PLATFORM_WIN)
