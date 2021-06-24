@@ -43,10 +43,10 @@
 
 namespace ipp
 {
-/** \addtogroup ipp_canvas
- * @ingroup ipp
- *  @{
- */
+/** \addtogroup ipp
+* @ingroup ext
+*  @{
+*/
 namespace _details
 {
 	template<typename t_Value> struct _Value;
@@ -479,15 +479,11 @@ protected:
 public:
 	INLFUNC Canvas(){ _resetDrawingState(); }
 	INLFUNC Canvas(_SC& img):Image_Ref<t_Value, Channel>(img){ _resetDrawingState(); }
-
 	INLFUNC void DrawPixel(const ::ipp::Point& p, const RGBA& c){ if(_IsInBound(p))_SetPixel(p.x, p.y, c); }
 	INLFUNC void DrawPixel(int x, int y, const RGBA& c){ if(_IsInBound(x,y))_SetPixel(x, y, c); }
 	INLFUNC void DrawPixel(const ::ipp::Point& p, const RGB& c){ if(_IsInBound(p))_SetPixel(p.x, p.y, c); }
 	INLFUNC void DrawPixel(int x, int y, const RGB& c){ if(_IsInBound(x,y))_SetPixel(x, y, c); }
-
 	INLFUNC void Clear(const t_Val& c){ _SC::Set(c); }
-
-
 /** @name Drawing State
 */
 ///@{
@@ -622,7 +618,10 @@ public:
 ///@}
 };
 
-
+/** \addtogroup Typedefs_ipp
+ * @ingroup ipp
+ *  @{
+ */
 typedef Canvas<float,1>	Canvas_1c32f;
 typedef Canvas<float,3>	Canvas_3c32f;
 typedef Canvas<float,4>	Canvas_4c32f;
@@ -631,6 +630,6 @@ typedef Canvas<BYTE,1>	Canvas_1c8u;
 typedef Canvas<BYTE,3>	Canvas_3c8u;
 typedef Canvas<BYTE,4>	Canvas_4c8u;
 /** @}*/
-
+/** @}*/
 } // namespace ipp
 /** @}*/

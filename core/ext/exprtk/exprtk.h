@@ -108,6 +108,10 @@ public:
 		rt::_details::_translate_symbol(symbol, out);
 		_Vars.add_vector(out, p, len);
 	}
+	/**
+	 * @brief Compute Expression(Performance is worse than normal)
+	 * @return 
+	*/
 	INLFUNC T Compute(){ return _Expr.value(); }
 	const rt::String& GetLastError() const { return _LastErrMsg; }
 };

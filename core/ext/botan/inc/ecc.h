@@ -48,7 +48,6 @@ enum _tagECCMethods
 {
 	ECDSA_SECP256K1 = 1,
 	ECDSA_SECP256R1
-/** @}*/
 //  return "secp256r1";
 //  return "secp384r1";
 //  return "secp521r1";
@@ -56,9 +55,8 @@ enum _tagECCMethods
 //  return "brainpool384r1";
 //  return "brainpool512r1";
 //  return "x25519";
-
 };
-
+/** @}*/
 namespace _details
 {
 template<int CRYTOMETHOD>

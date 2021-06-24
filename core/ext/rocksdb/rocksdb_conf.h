@@ -39,10 +39,10 @@
  * @ingroup ext
  *  @{
  */
-/** \addtogroup rocksdb_conf
- * @ingroup rocksdb
- *  @{
- */
+ /** \addtogroup Macros_rocks_db
+* @ingroup rocks_db
+*  @{
+*/
 #include "../../os/platform.h"
 #include <functional>
 

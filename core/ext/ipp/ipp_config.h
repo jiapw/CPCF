@@ -76,10 +76,10 @@
  * @ingroup ext
  *  @{
  */
-/** \addtogroup ipp_config
- * @ingroup ipp
- *  @{
- */
+ /** \addtogroup Macros_ipp
+  * @ingroup ipp
+  *  @{
+  */
 #include "../../os/predefines.h"
 
 #define IPP_LINK_STATIC_LIB_PX

@@ -54,18 +54,25 @@
 #include "inc/ipps_cpp.h"
 #endif
 
-
+/** \addtogroup Macros_ipp
+ * @ingroup ipp
+ *  @{
+ */
 #define ASSERT_SIZE(x1,x2) ASSERT((x1).GetWidth() == (x2).GetWidth() && (x1).GetHeight() == (x2).GetHeight())
 
 #define IPPARG_IMG(x)	 ((x).GetImageData()),((int)(x).GetStep())
 #define IPPARG_IMG2(x)	 ((x).GetImageData()),(x),((int)(x).GetStep())
-
+/** @}*/
 namespace ipp
 {
-/** \addtogroup ipp_image
- * @ingroup ipp
- *  @{
- */
+/** \addtogroup ipp
+* @ingroup ext
+*  @{
+*/
+/** \addtogroup Enums_ipp
+* @ingroup ipp
+*  @{
+*/
 enum _tagImageCodec
 {
 	ImageCodec_Auto = 0,
@@ -89,7 +96,7 @@ enum _tagCodecFlag
 	JPEG_ColorSample411     = 1,    ///< Valid on a JPEG w/ 3 channels. 
 	JPEG_ColorSample422     = 2,    ///< Valid on a JPEG w/ 3 channels. 
 };
-
+/** @}*/
 namespace _details
 {
 class ImageCodec
@@ -137,7 +144,7 @@ class ImageEncoder: public _details::ImageCodec
 	int		m_Flag;
 public:
 	ImageEncoder(){ m_Quality = 95; m_Flag = 0; }
-	void	SetQualityRatio(int quality){ ASSERT(quality<=100 && quality>=0); m_Quality = quality; }
+	void	SetQualityRatio(int quality){ ASSERT(quality<=100 && quality>=0); m_Quality = quality; } ///< 0 < quality < 100
 	void	SetSubSamplingType(int	mode = 0){ m_Flag = mode; }
 
 	bool	Encode(LPCBYTE pData,int Channel,int Width,int Height,int Step, DWORD codec = ImageCodec_JPG);	///< codec:=_tagImageCodec
@@ -524,10 +531,11 @@ public:
 
 public:
 /**
- * @brief ipp::GetEnv()->JpegEncodeQuality for controling of the quality of the jpeg file
+ * @brief Save Image
  * 
+ * ipp::GetEnv()->JpegEncodeQuality for controling of the quality of the jpeg file
  * @param fn 
- * @param ic 
+ * @param ic Defalut as ImageCodec_Auto
  * @return INLFUNC 
  */
 	INLFUNC  bool Save(LPCSTR fn, _tagImageCodec ic = ImageCodec_Auto) const	
@@ -2226,14 +2234,7 @@ class Image:public Image_Ref<t_Value, Channel>
 	void Attach(LPCVOID p = nullptr, UINT w = 0, UINT h = 0, UINT step = 0){ ASSERT(0); }
 	void Attach(const Image_Ref<t_Value, Channel>& x){ ASSERT(0); }
 
-	FORCEINL void	__SafeFree()
-	{	
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		if(Ref::lpData){ IPPCALL(ippiFree)(Ref::lpData); Ref::lpData = nullptr; }	
-#else
-		_SafeFree32AL(Ref::lpData);
-#endif	// #ifdef PLATFORM_INTEL_IPP_SUPPORT
-	}
+	FORCEINL void	__SafeFree(){ _SafeFree32AL(Ref::lpData); }
 public:
 	FORCEINL Image(){}
 	FORCEINL ~Image(){ __SafeFree(); }
@@ -2350,7 +2351,10 @@ public:
 	}
 	FORCEINL void	Empty(){ __SafeFree(); }
 };
-
+/** \addtogroup Typedefs_ipp
+ * @ingroup ipp
+ *  @{
+ */
 typedef Image_Ref<float,1>	ImageRef_1c32f;
 typedef Image_Ref<float,3>	ImageRef_3c32f;
 typedef Image_Ref<float,4>	ImageRef_4c32f;
@@ -2366,7 +2370,7 @@ typedef Image<float,4>	Image_4c32f;
 typedef Image<BYTE,1>	Image_1c8u;
 typedef Image<BYTE,3>	Image_3c8u;
 typedef Image<BYTE,4>	Image_4c8u;
-
+/** @}*/
 /** @}*/
 
 } // namespace ipp

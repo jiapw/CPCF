@@ -46,16 +46,20 @@
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
 #include "inc/ipp.h"
 
+/** \addtogroup Macros_ipp
+ * @ingroup ipp
+ *  @{
+ */
 /**
  * @brief Helper macro 
  * 
  */
 #define IPPVERIFY(x) { auto ret = (x); if(ippStsNoErr==x){}else{ _LOG_ERROR(#x " returns "<<ret); ASSERT(0); }}
 #define IPPI_INTER_DEFAULT IPPI_INTER_LINEAR
-
+ /** @}*/
 namespace ipp
 {
-/** \addtogroup ipp_core
+/** \addtogroup Enums_ipp
  * @ingroup ipp
  *  @{
  */
@@ -88,10 +92,14 @@ typedef double			Ipp64f;
 
 namespace ipp
 {
-/** \addtogroup ipp_core
- * @ingroup ipp
- *  @{
- */
+/** \addtogroup ipp
+* @ingroup ext
+*  @{
+*/
+/** \addtogroup Enums_ipp
+* @ingroup ipp
+*  @{
+*/
 /**
  * @brief IppEnv
  * 
@@ -128,7 +136,7 @@ enum _tagIppEnvOption
 
 	IppiOption_Max
 };
-
+/** @}*/
 struct IppiEnvParamItems
 {
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
@@ -162,17 +170,21 @@ public:
 	void	Push();
 	void	Pop();
 };
+/** \addtogroup Functions_ipp
+* @ingroup ipp
+*  @{
+*/
 INLFUNC IppiEnvParam * GetEnv(){ return &IppiEnvParam::g_IppEnv; }
-
+/** @}*/
 /** @}*/
 } // namespace ipp
 
 namespace ipp
 {
-/** \addtogroup ipp_core
- * @ingroup ipp
+/** \addtogroup ipp
+ * @ingroup ext
  *  @{
- */
+	 */
 struct Size:public IppiSize
 {
 	FORCEINL Size(){}
@@ -227,7 +239,10 @@ struct Rect:public IppiRect
 								y = yy;
 							}
 };
-
+/** \addtogroup Macros_ipp
+ * @ingroup ipp
+ *  @{
+ */
 /**
  * @brief Type definitions
  * 
@@ -243,7 +258,11 @@ struct Rect:public IppiRect
 	IPP_TYPE_EXT(Ipp64s);
 	IPP_TYPE_EXT(Ipp64f);
 #undef IPP_TYPE_EXT
-
+/** @}*/
+/** \addtogroup Functions_ipp
+* @ingroup ipp
+*  @{
+*/
 INLFUNC ULONGLONG crc64(LPCVOID stream, SIZE_T n, ULONGLONG crc_init = 0){ return os::crc64(stream, n, crc_init); }
 
 #ifndef PLATFORM_INTEL_IPP_SUPPORT
@@ -255,6 +274,7 @@ INLFUNC DWORD crc32c(LPCVOID data, SIZE_T length, DWORD crc_init = 0)
 	return ~crc_init;
 }
 #endif
+/** @}*/
 /** @}*/
 } // namespace ipp
 /** @}*/

@@ -55,11 +55,15 @@ namespace ext
  * @ingroup rocksdb
  *  @{
  */
+ /** \addtogroup Typedefs_rocks_db
+* @ingroup rocks_db
+*  @{
+*/
 typedef ::rocksdb::WriteOptions	WriteOptions;
 typedef ::rocksdb::ReadOptions	ReadOptions;
 typedef ::rocksdb::Iterator		Iterator;
 typedef ::rocksdb::Options		Options;
-
+/** @}*/
 
 class SliceDyn: public ::rocksdb::Slice
 {
@@ -121,10 +125,13 @@ public:
 		return *((T*)(data_ + off));
 	}
 };
-
+/** \addtogroup Macros_rocks_db
+* @ingroup rocks_db
+*  @{
+*/
 #define SliceValueNull		::rocksdb::Slice()
 #define SliceValueSS(x)		::rocksdb::Slice(x, sizeof(x)-1)
-
+/** @}*/
 class RocksCursor
 {
 	::rocksdb::Iterator* iter;
@@ -327,14 +334,17 @@ public:
 		return ret;
 	}
 };
-
+/** \addtogroup Enums_rocks_db
+* @ingroup rocks_db
+*  @{
+*/
 enum RocksStorageWriteRobustness
 {							
 	ROCKSSTG_FASTEST = 0,	
 	ROCKSSTG_DEFAULT,		
 	ROCKSSTG_STRONG			
 };
-
+/** @}*/
 namespace _details
 {
 template<int LEN, bool is_pod>
@@ -784,10 +794,13 @@ public:
 	RocksDBPaged(const RocksDB& x){ RocksDB::_pDB = x._pDB; RocksDB::_pCF = x._pCF; }
 	auto&	operator = (const RocksDB& x){ *(RocksDB*)this = x; return x; }
 };
-
+/** \addtogroup Typedefs_rocks_db
+* @ingroup rocks_db
+*  @{
+*/
 template<typename T_KEYVAL, typename T_PAGE_METADATA = void, int PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT>
 using RocksDBStandalonePaged = _details::RocksPagedBaseT<T_KEYVAL, T_PAGE_METADATA, PAGING_SIZE, T_PAGE, T_VALUESIZE, RocksDBStandalone>;
-
+/** @}*/
 
 template<char separator = ':'>
 class SeparatorPrefixTransform : public ::rocksdb::SliceTransform 
@@ -812,12 +825,16 @@ public:
 		return strchr(prefix.data(), ':') != nullptr;
 	}
 };
-
+/** \addtogroup Macros_rocks_db
+* @ingroup rocks_db
+*  @{
+*/
 #define ALLOCA_DBKEY(varname, ...)	auto	varname##_strexp = __VA_ARGS__;	\
 									char*	varname##_buf = (char*)alloca(varname##_strexp.GetLength());	\
 									UINT	varname##_strlen = (UINT)varname##_strexp.CopyTo(varname##_buf); \
 									SliceValue varname(varname##_buf, varname##_strlen); \
 
+/** @}*/
 /** @}*/
 } // namespace ext
 /** @}*/

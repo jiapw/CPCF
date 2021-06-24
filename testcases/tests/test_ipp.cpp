@@ -331,22 +331,24 @@ void rt::UnitTests::ipp_image()
 		//::ipp::ImageRef_3c8u base(frame.data, frame.cols, frame.rows);
 	}
 
-	{	ipp::Image_3c8u img;
-		img.Load("test_16.gif");
-		img.Save("from_gif_16.png");
-		img.Load("test_16_interfaced.gif");
-		img.Save("from_test_16_interfaced.png");
-		img.Load("test.gif");
-		img.Save("from_gif.png");
+	//{	
+	//	// need gifs to test
+	//	ipp::Image_3c8u img;
+	//	img.Load("test_16.gif");
+	//	img.Save("from_gif_16.png");
+	//	img.Load("test_16_interfaced.gif");
+	//	img.Save("from_test_16_interfaced.png");
+	//	img.Load("test.gif");
+	//	img.Save("from_gif.png");
 
-		ipp::GetEnv()->Push();
-		ipp::GetEnv()->GifEncodeColorCount = 64;
-		img.Save("from_gif_64.gif");
+	//	ipp::GetEnv()->Push();
+	//	ipp::GetEnv()->GifEncodeColorCount = 64;
+	//	img.Save("from_gif_64.gif");
 
-		ipp::GetEnv()->GifEncodeColorCount = 16;
-		img.Save("from_gif_16.gif");
-		ipp::GetEnv()->Pop();
-	}
+	//	ipp::GetEnv()->GifEncodeColorCount = 16;
+	//	img.Save("from_gif_16.gif");
+	//	ipp::GetEnv()->Pop();
+	//}
 
 	{	ipp::Image_3c8u	img;
 		img.SetSize(200,200);
@@ -597,7 +599,7 @@ void rt::UnitTests::ipp_image_apps()
 		_LOG("PX = "<<sumv.x/255);
 	}
 
-	return;
+	//return;
 
 	{	// DY's brain training >_<
 		int seed = 66165;
