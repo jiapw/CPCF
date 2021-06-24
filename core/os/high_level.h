@@ -401,6 +401,11 @@ protected:
 	ParallelWriter<LogWriter>	_PW;
 
 public:
+	/**
+	 * @brief When defining an instance of a class, the log will be recorded by ParalleLog by default
+	 * @param writedown_interval Interval of writting down to file (at least 100)
+	 * @param buffer_size 
+	*/
 	ParallelLog(UINT writedown_interval = 500, UINT buffer_size = 1024*1024)
 	{	VERIFY(_PW.Open(buffer_size)); _PW.SetWriteDownInterval(writedown_interval);
 		struct _call
@@ -498,10 +503,14 @@ public:
 	bool	Open(LPCSTR filename, bool append_existing = true, UINT buffer_size = 1024*1024, bool filetime_by_localtime = false);  ///< filename may contain macros as %YEAR% %MONTH% %DAY% %HOUR% %MINUTE% %HALFHOUR% %QUARTER%
 	void	Close();
 	void	PreClose(); ///< call if you want ParallelFileWriter to close but will do something else before hanging on Close() or dtor
-	void	LogAlert();
+	void	LogAlert(); ///< Log ParallelFileWriter Alert to view failure rate.
 	bool	IsOpen() const { return _File.IsOpen(); }
 	void	SwitchTo(LPCSTR filename, bool no_wait);
 	UINT	GetWriteDownInterval() const { return _WriteDownInterval; }
+	/**
+	 * @brief Set interval of writting down to file 
+	 * @param write_interval_msec max(100,write_interval_msec)
+	*/
 	void	SetWriteDownInterval(UINT write_interval_msec);
 	UINT	GetBufferSize() const { return _WriteBufferSize; }
 	void	GetCurrentLogFilename(rt::String& filename);

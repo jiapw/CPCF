@@ -198,35 +198,21 @@ void rt::UnitTests::filelist()
 }
 void rt::UnitTests::lockfile()
 {
-	/*{
-		os::File out;
-		out.Open("lockfile.txt", os::File::Normal_WriteText);
-		if (!out.IsLockAcquired())
-		{
-			auto ans = out.Lock(false);
-			if (ans)
-			{
-				_LOG("Locked");
-				os::Sleep(10000);
-				out.Unlock();
-				_LOG("Unlocked");
-			}
-			else
-			{
-				_LOG("failed");
-			}
-		}
-	}*/
+	os::File out;
+	out.Open("lockfile.txt", os::File::Normal_WriteText);
+	if (!out.IsLockAcquired())
 	{
-		os::File out1;
-		out1.Open("lockfile.txt", os::File::Normal_Read);
-		auto ans1 = out1.Lock();
-		_LOG("Fd " << out1.GetFD()<<" ans " << ans1);
-		os::File out2;
-		out2.Open("lockfile.txt", os::File::Normal_Read);
-		auto ans2 = out2.Lock();
-		_LOG("Fd " << out2.GetFD() << " ans " << ans2);
-		out1.Unlock();
-		//out2.Unlock();
+		auto ans = out.Lock(false);
+		if (ans)
+		{
+			_LOG("Locked");
+			os::Sleep(10000);
+			out.Unlock();
+			_LOG("Unlocked");
+		}
+		else
+		{
+			_LOG("failed");
+		}
 	}
 }

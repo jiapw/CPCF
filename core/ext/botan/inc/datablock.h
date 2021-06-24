@@ -35,7 +35,10 @@
 
 namespace sec
 {
-
+/** \addtogroup botan
+* @ingroup ext
+*  @{
+*/
 template<UINT _LEN>
 struct dword_op
 {	INLFUNC static void set(LPDWORD x, DWORD v){ *x = v; dword_op<_LEN-1>::set(x+1,v); }
@@ -274,7 +277,7 @@ public:
 	}
 };
 #pragma pack(pop)
-
+/** @}*/
 } // namespace sec
 
 namespace std

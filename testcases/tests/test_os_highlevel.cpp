@@ -102,7 +102,7 @@ void rt::UnitTests::plog()
 		os::Sleep(100);
 	}
 
-	//log.Write("test", "test_file", 0, "test_func", rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_INFORMATIONAL);
+//log.Write("test", "test_file", 0, "test_func", rt::LOGTYPE_IN_CONSOLE|rt::LOGTYPE_INFORMATIONAL);
 #endif
 }
 

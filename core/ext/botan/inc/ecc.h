@@ -36,12 +36,19 @@
 
 namespace sec
 {
-
+/** \addtogroup botan
+* @ingroup ext
+*  @{
+*/
+/** \addtogroup Enums_botan
+* @ingroup botan
+*  @{
+*/
 enum _tagECCMethods
 {
 	ECDSA_SECP256K1 = 1,
 	ECDSA_SECP256R1
-
+/** @}*/
 //  return "secp256r1";
 //  return "secp384r1";
 //  return "secp521r1";
@@ -343,5 +350,5 @@ public:
 	}
 	bool Decrypt(const rt::String_Ref& s){ return Decrypt((const Botan::byte*)s.Begin(), s.GetLength()); }
 };
-
+/** @}*/
 } // namespace sec

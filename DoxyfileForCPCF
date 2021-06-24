@@ -118,7 +118,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = core\rt core\os core\inet core\gl core\ext core\ext\7zip core\ext\bignum core\ext\botan core\ext\concurrentqueue\async_queue.h core\ext\exprtk core\ext\ipp core\ext\rocksdb core\ext\snappy core\ext\sparsehash core\ext\zlib ./
+INPUT                  = core\rt core\os core\inet core\gl core\ext core\ext\7zip core\ext\bignum core\ext\botan core\ext\botan\inc core\ext\concurrentqueue\async_queue.h core\ext\exprtk core\ext\ipp core\ext\rocksdb core\ext\snappy core\ext\sparsehash core\ext\zlib ./
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h\
                          *.md

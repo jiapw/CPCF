@@ -22,7 +22,7 @@
     <ClCompile Include="..\tests\experiments.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\test_api.cpp">
+    <ClCompile Include="..\tests\test_os_highlevel.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\tests\test_botan.cpp">

@@ -34,7 +34,14 @@
 
 namespace sec
 {
-
+/** \addtogroup botan
+ * @ingroup ext
+ * @{
+*/
+/** \addtogroup Enums_botan
+* @ingroup botan
+*  @{
+*/
 enum _tagHashMethod
 {	HASH_CRC32 = 0,
 	HASH_MD5,
@@ -45,7 +52,7 @@ enum _tagHashMethod
 	HASH_SHA512,
 	HASH_MAX,
 };
-
+/** @}*/
 namespace _details
 {
 	template<int HASH_METHOD>
@@ -73,12 +80,17 @@ namespace _details
 		};
 
 } // namespace _details
+/** @}*/
 } // namespace sec
 
 
 #if defined(PLATFORM_INTEL_IPP_SUPPORT)
 namespace sec
 {
+/** \addtogroup botan
+ * @ingroup ext
+ * @{
+*/
 namespace _details
 {
 	template<UINT _METHOD>
@@ -150,7 +162,7 @@ public:
 	void	Calculate(LPCVOID data, UINT size, LPVOID HashValue){ Reset(); Update(data, size); Finalize(HashValue); }
 	DWORD	Calculate(LPCVOID data, UINT size){ DWORD a; Calculate(data,size,&a); return a; }
 };
-
+/** @}*/
 } // namespace sec
 
 #else // back by Botan

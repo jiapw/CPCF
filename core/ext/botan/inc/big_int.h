@@ -35,7 +35,14 @@
 
 namespace Botan
 {
-
+/** \addtogroup botan
+ * @ingroup ext
+ *  @{
+*/
+/** \addtogroup Functions_botan
+* @ingroup botan
+*  @{
+*/
 INLFUNC void BigIntAssign(BigInt& bi, LPCVOID p, SIZE_T len)
 {	
 	auto& raw = bi.get_word_vector();
@@ -66,7 +73,8 @@ INLFUNC void BigIntToString(const BigInt& x, rt::String& out)
 		}
 	}
 }
-
+/** @}*/
+/** @}*/
 } // namespace Botan
 
 

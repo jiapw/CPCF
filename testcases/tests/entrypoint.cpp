@@ -25,7 +25,7 @@ void TestMain(int  mode)
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
 		//TYPETRAITS_UNITTEST(big_num);
-		TYPETRAITS_UNITTEST(lockfile);
+		TYPETRAITS_UNITTEST(ipp_canvas);
 		//TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}

@@ -17,14 +17,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		TestMain(0);
 	}
-	else if(std::wstring(argv[1]) == L"1")
-	{		
-		TestMain(1);		
-	}
-	else if (std::wstring(argv[1]) == L"2")
-	{
-		TestMain(2);
-	}
+	
 	// _DumpMemoryAllocations;
 	return 0;
 }

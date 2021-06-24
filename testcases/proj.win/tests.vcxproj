@@ -207,7 +207,7 @@
     <ClCompile Include="..\tests\test_rt.cpp" />
     <ClCompile Include="..\tests\test_rt_smallmath.cpp" />
     <ClCompile Include="..\tests\test_rt_string.cpp" />
-    <ClCompile Include="..\tests\test_api.cpp" />
+    <ClCompile Include="..\tests\test_os_highlevel.cpp" />
     <ClCompile Include="..\tests\test_botan.cpp" />
     <ClCompile Include="..\tests\test_rt_buffer.cpp" />
     <ClCompile Include="..\tests\test_ext.cpp" />

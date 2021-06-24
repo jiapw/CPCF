@@ -100,7 +100,10 @@ public:
 	void SetExpectedServerPublicKey(LPCVOID data = 0, UINT data_size = 0);
 	bool HasCertificateError() const { return _CertificateError; }
 };
-
+/** \addtogroup Functions_botan
+* @ingroup botan
+*  @{
+*/
 INLFUNC void Randomize(LPVOID p, UINT len)
 {	if(os::Randomize(p, len))return;
 	Botan::AutoSeeded_RNG().randomize((LPBYTE)p, len);
@@ -108,5 +111,6 @@ INLFUNC void Randomize(LPVOID p, UINT len)
 
 template<typename T>
 INLFUNC void Randomize(T& d){ Randomize(&d, sizeof(T)); }
+/** @}*/
 /** @}*/
 } // namespace sec

@@ -34,8 +34,17 @@
 #define PLATFORM_INTEL_IPP_SUPPORT_disabled
 namespace sec
 {
+ /** \addtogroup botan
+ * @ingroup ext
+ *  @{
+ */
 //////////////////////////////////////////////////////
 // Symmetric Cryptography AES
+
+/** \addtogroup Enums_botan
+ * @ingroup botan
+ *  @{
+ */
 enum _tagCipherMethod
 {
 	CIPHER_AES128 = 1,
@@ -47,7 +56,7 @@ enum _tagCipherMode
 	CIPHER_ECB = 0,
 	CIPHER_CBC
 };
-
+/** @}*/
 namespace _details
 {
 
@@ -71,6 +80,7 @@ struct CipherInitVec: public DataBlock<_LEN>
 };
 
 } // namespace _details
+/** @}*/
 } // namespace sec
 
 
@@ -80,6 +90,10 @@ struct CipherInitVec: public DataBlock<_LEN>
 
 namespace sec
 {
+/** \addtogroup botan
+ * @ingroup ext
+ *  @{
+ */
 namespace _details
 {
 
@@ -116,7 +130,7 @@ DEF_AES_CIPHER(CIPHER_AES128)
 DEF_AES_CIPHER(CIPHER_AES256)
 
 #undef DEF_AES_CIPHER
-
+/** @}*/
 } // namespace sec
 
 #else
