@@ -39,14 +39,14 @@
 #include "../rt/small_math.h"
 #include "../rt/buffer_type.h"
 
-/** \addtogroup gl 
+/** \addtogroup Gl 
  * @ingroup CPCF
  *  @{
  */
 namespace gl
 {
-/** \addtogroup gl_texture
- * @ingroup gl
+/** \addtogroup Gl_Texture
+ * @ingroup Gl
  *  @{
  */
 namespace _details
@@ -210,7 +210,10 @@ public:
 		_LogGLError;
 	}
 };
-
+/** \addtogroup Typedefs_Gl_Texture
+ * @ingroup Gl_Texture
+ *  @{
+ */
 /** @name Conventional Textures
 */
 ///@{
@@ -239,6 +242,7 @@ typedef Texture2DBase<GL_TEXTURE_2D,GL_RG32F	,GL_RG,GL_FLOAT>						Texture2c32f;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_DEPTH_COMPONENT16,GL_DEPTH_COMPONENT,GL_FLOAT>	DepthTexture16f;
 typedef Texture2DBase<GL_TEXTURE_2D,GL_DEPTH_COMPONENT32,GL_DEPTH_COMPONENT,GL_FLOAT>	DepthTexture32f;
 ///@}
+/** @}*/
 class Texture2D:public TextureBase
 {
 public:

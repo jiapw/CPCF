@@ -46,8 +46,8 @@
 
 namespace ext
 {
-/** \addtogroup big_num
- * @ingroup bigNum
+/** \addtogroup bigNum
+ * @ingroup ext
  *  @{
  */
 class BigNumMutable;
@@ -222,9 +222,12 @@ struct BN_Fix
 #pragma pack(pop)
 
 } // namespace _details
-
+/** \addtogroup Typedefs_BigNum
+ * @ingroup bigNum
+ *  @{
+ */
 typedef _details::BN_Ref	BigNumRef;
-
+/** @}*/
 #pragma pack(push, 1)
 template<class STORE_CLS>
 struct BigNumImmutable: public STORE_CLS
@@ -440,8 +443,12 @@ public:
 	void CopyLowBits(UINT w, const BigNumRef& a);
 	void SetToPowerOfTwo(UINT exp);
 };
-
+/** \addtogroup Typedefs_BigNum
+ * @ingroup bigNum
+ *  @{
+ */
 typedef BigNumMutable	_BN;
+/** @}*/
 /** @}*/
 } // namespace oxd
 /** @}*/

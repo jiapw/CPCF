@@ -45,8 +45,8 @@
 
 namespace ext
 {
-	/** \addtogroup rocksdb_serving
- * @ingroup rocksdb
+/** \addtogroup rocksdb
+ * @ingroup ext
  *  @{
  */
 class RocksDB;

@@ -54,7 +54,7 @@
 #include "inc/ipps_cpp.h"
 #endif
 
-/** \addtogroup Macros_ipp
+/** \addtogroup Macros_Ipp
  * @ingroup ipp
  *  @{
  */
@@ -69,7 +69,7 @@ namespace ipp
 * @ingroup ext
 *  @{
 */
-/** \addtogroup Enums_ipp
+/** \addtogroup Enums_Ipp
 * @ingroup ipp
 *  @{
 */
@@ -2351,7 +2351,7 @@ public:
 	}
 	FORCEINL void	Empty(){ __SafeFree(); }
 };
-/** \addtogroup Typedefs_ipp
+/** \addtogroup Typedefs_Ipp
  * @ingroup ipp
  *  @{
  */

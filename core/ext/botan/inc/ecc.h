@@ -40,7 +40,7 @@ namespace sec
 * @ingroup ext
 *  @{
 */
-/** \addtogroup Enums_botan
+/** \addtogroup Enums_Botan
 * @ingroup botan
 *  @{
 */

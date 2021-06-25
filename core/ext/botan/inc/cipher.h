@@ -41,7 +41,7 @@ namespace sec
 //////////////////////////////////////////////////////
 // Symmetric Cryptography AES
 
-/** \addtogroup Enums_botan
+/** \addtogroup Enums_Botan
  * @ingroup botan
  *  @{
  */
@@ -110,7 +110,10 @@ struct	_cipher_spec;
 
 template<UINT _METHOD>
 class Cipher;
-
+/** \addtogroup Macros_Botan
+* @ingroup botan
+*  @{
+*/
 #define DEF_AES_CIPHER(_METHOD) \
 template<> class Cipher<_METHOD> \
 {		protected: BYTE _Context[_details::_cipher_spec<_METHOD>::ContextSize]; \
@@ -130,6 +133,7 @@ DEF_AES_CIPHER(CIPHER_AES128)
 DEF_AES_CIPHER(CIPHER_AES256)
 
 #undef DEF_AES_CIPHER
+/** @}*/
 /** @}*/
 } // namespace sec
 

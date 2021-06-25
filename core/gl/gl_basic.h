@@ -35,12 +35,12 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-/** \addtogroup gl 
+/** \addtogroup Gl 
  * @ingroup CPCF
  *  @{
  */
-/** \addtogroup gl_basic
- * @ingroup gl
+/** \addtogroup Gl_Basic
+ * @ingroup Gl
  *  @{
  */
 #include "../os/user_inputs.h"
@@ -54,7 +54,7 @@ extern "C" void _objc_opengl_setup_disaply_link(LPVOID pUIView);
 
 namespace gl
 {
-/** \addtogroup gl_basic
+/** \addtogroup Gl_Basic
  * @ingroup gl
  *  @{
  */
@@ -155,33 +155,43 @@ public:
 	INLFUNC float	GetFramerate() const { return Fps; }
 };
 
-
+/** \addtogroup Enums_Gl_Basic
+ * @ingroup Gl_Basic
+ *  @{
+ */
 enum _tagRenderingMode
 {
 	RENDER_ZTEST_ON = 0x100,
 	RENDER_SCENEMASK = 0xff
 };
-
+/** @}*/
+/** \addtogroup Functions_Gl_Basic
+ * @ingroup Gl_Basic
+ *  @{
+ */
 extern void		StartRendering(DWORD mode = RENDER_ZTEST_ON);
 extern void		FinalizeRendering(const RenderContext& rc);
 extern void		SetViewport(int x, int y, int w, int h);
 extern void		SetLineWidth(float w);
 extern LPCSTR	GetLastError();
 extern void		DrawUnitBox(ShaderProgramBase* pShader);
-
+/** @}*/
 /** @}*/	
 } // namespace gl
-
+/** \addtogroup Macros_Gl_Basic
+ * @ingroup Gl_Basic
+ *  @{
+ */
 #if defined(_DEBUG)
 #define _LogGLError	{ LPCSTR err; if((err = gl::GetLastError())){ _LOG(rt::String_Ref(err)<<rt::SS(" in " __FUNCTION__ ":L")<<__LINE__<<':'<<rt::SS(__FILE__)); ASSERT(0); } }
 #else
 #define _LogGLError {}
 #endif
-
+ /** @}*/
 namespace gl
 {
-/** \addtogroup gl_basic
- * @ingroup gl
+/** \addtogroup Gl_Basic
+ * @ingroup Gl
  *  @{
  */
 class Camera
@@ -344,14 +354,22 @@ public:
 };
 
 } // namespace _details
-
+/** \addtogroup Typedefs_Gl_Basic
+ * @ingroup Gl_Basic
+ *  @{
+ */
 typedef _details::VertexBufferObject<GL_ARRAY_BUFFER>			VertexAttributeBuffer;
 typedef _details::VertexBufferObject<GL_ELEMENT_ARRAY_BUFFER>	VertexIndexBuffer;
-
+/** @}*/
+/** \addtogroup Functions_Gl_Basic
+ * @ingroup Gl_Basic
+ *  @{
+ */
 INLFUNC void StopUsingVBO(){ VertexAttributeBuffer::UseNull(); VertexIndexBuffer::UseNull(); }
 
 extern UINT GetGLTypeSize(DWORD type);
 extern const rt::String_Ref& GetGLTypeName(DWORD type);
+/** @}*/
 /** @}*/
 } // namespace gl
 
@@ -359,8 +377,8 @@ extern const rt::String_Ref& GetGLTypeName(DWORD type);
 
 namespace gl
 {
-/** \addtogroup gl_basic
- * @ingroup gl
+/** \addtogroup Gl_Basic
+ * @ingroup Gl
  *  @{
  */
 namespace _details

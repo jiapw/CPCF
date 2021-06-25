@@ -44,10 +44,10 @@
 
 namespace ext
 {
-/** \addtogroup precision_num
- * @ingroup bigNum
+/** \addtogroup bigNum
+ * @ingroup ext
  *  @{
- */	
+ */
 #pragma pack(push, 4)
 namespace _details
 {
@@ -85,12 +85,15 @@ public:
 	friend t_Ostream& operator<<(t_Ostream& Ostream, const PrecisionFloat& x){	Ostream << x.ToString(); return Ostream; }
 };
 } // namespace _details
-
+/** \addtogroup Typedefs_BigNum
+ * @ingroup bigNum
+ *  @{
+ */
 typedef _details::PrecisionFloat<2048>	Float2048;
 typedef _details::PrecisionFloat<1024>	Float1024;
 typedef _details::PrecisionFloat<512>	Float512;
 typedef _details::PrecisionFloat<256>	Float256;
-
+/** @}*/
 #pragma pack(pop)
 /** @}*/
 } // namespace ext

@@ -76,7 +76,7 @@
  * @ingroup ext
  *  @{
  */
- /** \addtogroup Macros_ipp
+ /** \addtogroup Macros_Ipp
   * @ingroup ipp
   *  @{
   */

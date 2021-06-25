@@ -38,7 +38,7 @@ namespace sec
  * @ingroup ext
  * @{
 */
-/** \addtogroup Enums_botan
+/** \addtogroup Enums_Botan
 * @ingroup botan
 *  @{
 */
@@ -114,7 +114,10 @@ namespace _details
 
 template<UINT _METHOD = HASH_MD5> class Hash;
 template<UINT _METHOD = HASH_MD5> class HmacHash;
-
+/** \addtogroup Macros_Botan
+* @ingroup botan
+*  @{
+*/
 #define HASH_IPP(tag)	template<> class Hash<HASH_##tag> \
 						{	public: \
 							static const int HASHSIZE = _details::_HashSize<HASH_##tag>::size; \
@@ -146,7 +149,7 @@ void Reset(LPCVOID key, UINT key_len){ IPPCALL(ippsHMAC_Init)((LPCBYTE)key, key_
 		HASH_IPP(SHA512)
 
 #undef HASH_IPP
-
+/** @}*/
 template<> class Hash<HASH_CRC32>
 {	
 protected:

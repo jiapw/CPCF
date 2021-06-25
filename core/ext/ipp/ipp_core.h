@@ -46,7 +46,7 @@
 #ifdef PLATFORM_INTEL_IPP_SUPPORT
 #include "inc/ipp.h"
 
-/** \addtogroup Macros_ipp
+/** \addtogroup Macros_Ipp
  * @ingroup ipp
  *  @{
  */
@@ -59,7 +59,7 @@
  /** @}*/
 namespace ipp
 {
-/** \addtogroup Enums_ipp
+/** \addtogroup Enums_Ipp
  * @ingroup ipp
  *  @{
  */
@@ -96,7 +96,7 @@ namespace ipp
 * @ingroup ext
 *  @{
 */
-/** \addtogroup Enums_ipp
+/** \addtogroup Enums_Ipp
 * @ingroup ipp
 *  @{
 */
@@ -239,7 +239,7 @@ struct Rect:public IppiRect
 								y = yy;
 							}
 };
-/** \addtogroup Macros_ipp
+/** \addtogroup Macros_Ipp
  * @ingroup ipp
  *  @{
  */

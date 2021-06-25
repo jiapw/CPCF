@@ -39,7 +39,7 @@ namespace Botan
  * @ingroup ext
  *  @{
 */
-/** \addtogroup Functions_botan
+/** \addtogroup Functions_Botan
 * @ingroup botan
 *  @{
 */

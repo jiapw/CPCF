@@ -35,14 +35,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-/** \addtogroup gl 
+/** \addtogroup Gl 
  * @ingroup CPCF
  *  @{
  */
-/** \addtogroup gl_pal
- * @ingroup gl
+/** \addtogroup Gl_Pal
+ * @ingroup Gl
  *  @{
  */
+ /** \addtogroup Macros_Gl_Pal
+  * @ingroup Gl_Pal
+  *  @{
+  */
 #include "../rt/runtime_base.h"
 
 #if defined(PLATFORM_OPENGL_SUPPORT)
@@ -330,5 +334,6 @@ typedef GLint GLhandle;
 #define GL_SAMPLER_2D_RECT_SHADOW_ARB	0x8B64
 #endif
 */
+/** @}*/
 /** @}*/
 /** @}*/

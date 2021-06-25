@@ -38,14 +38,14 @@
 #include "gl_basic.h"
 #include "gl_shader.h"
 #include "gl_math.h"
-/** \addtogroup gl 
+/** \addtogroup Gl 
  * @ingroup CPCF
  *  @{
  */
 namespace gl
 {
-/** \addtogroup gl_animator
- * @ingroup gl
+/** \addtogroup Gl_Object
+ * @ingroup Gl
  *  @{
  */
 struct Surface
@@ -73,7 +73,10 @@ struct Surface
 	UINT					_VertexCount;
 	int						GetVertexAttributeSize() const; ///< in byte
 };
-
+/** \addtogroup Enums_Gl_Object
+ * @ingroup Gl_Object
+ *  @{
+ */
 enum _tagMaterialType
 {	
 	MATERIAL_TYPE_NONE = 0,
@@ -94,7 +97,7 @@ enum _tagMaterialConfig
 	MATERIAL_PHONG_USE_KS	=	0x0004|MATERIAL_PHONG,
 
 };
-
+/** @}*/
 
 struct MaterialPhong
 {

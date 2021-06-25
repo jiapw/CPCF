@@ -35,7 +35,7 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-/** \addtogroup gl 
+/** \addtogroup Gl 
  * @ingroup CPCF
  *  @{
  */
@@ -45,8 +45,8 @@
 
 namespace gl
 {
-/** \addtogroup gl_math
- * @ingroup gl
+/** \addtogroup Gl_Math
+ * @ingroup Gl
  *  @{
  */
 template <typename t_Val>
@@ -216,9 +216,13 @@ public:
 
 	const rt::Mat4x4<t_Val>& GetMatrix() const{ return m_Rotation; }
 };
-
+/** \addtogroup Typedefs_Gl_Math
+ * @ingroup Gl_Math
+ *  @{
+ */
 typedef ArcBall<float>	ArcBallf;
 typedef ArcBall<double> ArcBalld;
-/** @}*/    
+/** @}*/  
+/** @}*/
 } // namespace gl
 /** @}*/    

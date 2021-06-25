@@ -35,7 +35,7 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-/** \addtogroup gl 
+/** \addtogroup Gl 
  * @ingroup CPCF
  *  @{
  */
@@ -47,8 +47,8 @@
 
 namespace gl
 {
-/** \addtogroup gl_shader
- * @ingroup gl
+/** \addtogroup Gl_Shader
+ * @ingroup Gl
  *  @{
  */
 namespace _details

@@ -51,12 +51,12 @@
 
 namespace ext
 {
-/** \addtogroup rocks_db
- * @ingroup rocksdb
+/** \addtogroup rocksdb
+ * @ingroup ext
  *  @{
  */
- /** \addtogroup Typedefs_rocks_db
-* @ingroup rocks_db
+ /** \addtogroup Typedefs_Rocksdb
+* @ingroup ext
 *  @{
 */
 typedef ::rocksdb::WriteOptions	WriteOptions;
@@ -125,8 +125,8 @@ public:
 		return *((T*)(data_ + off));
 	}
 };
-/** \addtogroup Macros_rocks_db
-* @ingroup rocks_db
+/** \addtogroup Macros_Rocksdb
+* @ingroup rocksdb
 *  @{
 */
 #define SliceValueNull		::rocksdb::Slice()
@@ -334,8 +334,8 @@ public:
 		return ret;
 	}
 };
-/** \addtogroup Enums_rocks_db
-* @ingroup rocks_db
+/** \addtogroup Enums_Rocksdb
+* @ingroup rocksdb
 *  @{
 */
 enum RocksStorageWriteRobustness
@@ -802,8 +802,8 @@ public:
 	RocksDBPaged(const RocksDB& x){ RocksDB::_pDB = x._pDB; RocksDB::_pCF = x._pCF; }
 	auto&	operator = (const RocksDB& x){ *(RocksDB*)this = x; return x; }
 };
-/** \addtogroup Typedefs_rocks_db
-* @ingroup rocks_db
+/** \addtogroup Typedefs_Rocksdb
+* @ingroup rocksdb
 *  @{
 */
 template<typename T_KEYVAL, typename T_PAGE_METADATA = void, int PAGING_SIZE = 64*1024, typename T_PAGE = WORD, typename T_VALUESIZE = UINT>
@@ -833,8 +833,8 @@ public:
 		return strchr(prefix.data(), ':') != nullptr;
 	}
 };
-/** \addtogroup Macros_rocks_db
-* @ingroup rocks_db
+/** \addtogroup Macros_Rocksdb
+* @ingroup rocksdb
 *  @{
 */
 #define ALLOCA_DBKEY(varname, ...)	auto	varname##_strexp = __VA_ARGS__;	\

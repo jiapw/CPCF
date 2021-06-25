@@ -618,7 +618,7 @@ public:
 ///@}
 };
 
-/** \addtogroup Typedefs_ipp
+/** \addtogroup Typedefs_Ipp
  * @ingroup ipp
  *  @{
  */

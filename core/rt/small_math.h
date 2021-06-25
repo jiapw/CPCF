@@ -522,7 +522,10 @@ struct Vec:public ::rt::tos::S_<chan>
 };
 } // namespace tos
 
-
+/** \addtogroup Macros_small_math
+ * @ingroup small_math
+ *  @{
+ */
 #define CPF_STRING_VEC_CONNECT_OP(T) \
 template<int chan> \
 FORCEINL _SE<String_Ref, tos::S_<chan> >  operator + (const String_Ref& left, const Vec<T,chan>& right) \
@@ -549,6 +552,7 @@ CPF_STRING_VEC_CONNECT_OP(BYTE)
 CPF_STRING_VEC_CONNECT_OP(signed char)
 
 #undef CPF_STRING_VEC_CONNECT_OP
+/** @}*/
 /** \addtogroup Functions_small_math
  * @ingroup small_math
  *  @{

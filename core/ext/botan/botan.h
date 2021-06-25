@@ -100,7 +100,7 @@ public:
 	void SetExpectedServerPublicKey(LPCVOID data = 0, UINT data_size = 0);
 	bool HasCertificateError() const { return _CertificateError; }
 };
-/** \addtogroup Functions_botan
+/** \addtogroup Functions_Botan
 * @ingroup botan
 *  @{
 */

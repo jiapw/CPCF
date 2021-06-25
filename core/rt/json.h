@@ -265,7 +265,10 @@ public:
 					}
 };
 
-
+/** \addtogroup Macros_json
+* @ingroup json
+*  @{
+*/
 #define J_EXPR_CONNECT_OP(type, type_in, vt)					\
 FORCEINL _JVar<LPVOID, type, vt>								\
 operator = (type_in p)											\
@@ -325,6 +328,7 @@ struct _JTag
 };
 
 #undef J_EXPR_CONNECT_OP
+/** @}*/
 /** \addtogroup Functions_json
 * @ingroup json
 *  @{

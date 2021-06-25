@@ -35,7 +35,7 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
  */
-/** \addtogroup gl 
+/** \addtogroup Gl 
  * @ingroup CPCF
  *  @{
  */
@@ -47,12 +47,16 @@
 
 namespace gl
 {
-/** \addtogroup gl_gdi
- * @ingroup gl
+/** \addtogroup Gl_Gdi
+ * @ingroup Gl
  *  @{
  */
+ /** \addtogroup Typedefs_Gl_Gdi
+* @ingroup Gl_Gdi
+*  @{
+*/
 typedef os::U16CHAR		GDICHAR;
-
+/** @}*/
 /**
  * @brief Reading Unicode Glyph Bitmap File Format (*.ufg)
  * 
@@ -182,7 +186,10 @@ public:
 	{	return rt::_CastToNonconst(this)->_GetGlyph(code,region_id,x,w,h); }
 
 };
-
+/** \addtogroup Enums_Gl_Gdi
+* @ingroup Gl_Gdi
+*  @{
+*/
 enum _tagDrawingParam
 {	
 	PNAME_FORCE_NEAREST_SAMPLING = 0,	///< affect DrawImage only
@@ -196,7 +203,7 @@ enum _tagDrawingParam
 	TEXT_ALIGNMENT_RIGHT = 0x1002,
 	TEXT_ALIGNMENT_BOTTOM = 0x1002,
 };
-
+/** @}*/
 class gdiCanvas
 {
 	friend class gdiCanvasLayout;
