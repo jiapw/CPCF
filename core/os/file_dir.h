@@ -92,7 +92,7 @@ public:
 class File:public rt::_File
 {
 protected:
-	LONGLONG		_FileLockedSize = -1;
+	bool		_FileLockedSize = false;
 	FILE*			_hFile;
 	bool			_bErrorFlag;
 	rt::String		_Filename;
@@ -122,7 +122,7 @@ public:
 	bool		IsOpen() const { return _hFile != nullptr; }
 
 	bool		Lock(bool no_wait = true);
-	bool		IsLockAcquired() const { return _FileLockedSize >= 0; }
+	bool		IsLockAcquired() const { return _FileLockedSize; }
 	void		Unlock();
 
 	SIZE_T		Write(const rt::String_Ref& x){ return Write(x.Begin(), x.GetLength()); }
