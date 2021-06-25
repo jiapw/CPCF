@@ -97,8 +97,26 @@ extern void		BN_Mul(const NativeFloat& b, ext::BigNumMutable& ret);
 extern void		BN_AbsMul(const BN_Unsigned& a, UINT b, ext::BigNumMutable& ret); ///< ret = a*b
 extern void		BN_AbsMul(const BN_Unsigned& a, ULONGLONG b, ext::BigNumMutable& ret); ///< ret = a*b
 extern void		BN_AbsMul(UINT b, ext::BigNumMutable& ret); ///< ret *= b
-
-extern bool		BN_Div(const BN_Unsigned& a, UINT b, UINT* reminder, ext::BigNumMutable& ret); ///< ret = (a - *reminder)/b
+/**
+ * @brief ret = (a - *reminder)/b
+ * 
+ * if it is an early out case, quotient and remainder will both be 0.
+ * @param a 
+ * @param b 
+ * @param reminder 
+ * @param ret 
+ * @return 
+*/
+extern bool		BN_Div(const BN_Unsigned& a, UINT b, UINT* reminder, ext::BigNumMutable& ret); 
+/**
+ * @brief ret = (a - *reminder)/b
+ * 
+ * if it is an early out case, quotient and remainder will both be 0.
+ * @param a 
+ * @param b 
+ * @param remainder 
+ * @param ret 
+*/
 extern void     BN_Div(const BN_Ref& a, const BN_Ref& b, ext::BigNumMutable *remainder, ext::BigNumMutable& ret);
 
 extern double	BN_2_double(const BN_Ref& x);

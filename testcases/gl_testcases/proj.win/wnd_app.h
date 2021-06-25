@@ -30,8 +30,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////
 
-#include "../../../../CPF/core/os/predefines.h"
-#include "../../../../CPF/core/rt/string_type.h"
+#include "../../../../CPCF/core/os/predefines.h"
+#include "../../../../CPCF/core/rt/string_type.h"
 
 #ifdef CreateDialog
 #undef CreateDialog

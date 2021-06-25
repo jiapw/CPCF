@@ -1,5 +1,5 @@
-#include "../../../../CPF/core/rt/runtime_base.h"
-#include "../../../../CPF/core/os/file_dir.h"
+#include "../../../../CPCF/core/rt/runtime_base.h"
+#include "../../../../CPCF/core/os/file_dir.h"
 #include "wnd_app.h"
 
 #include <Wincon.h>

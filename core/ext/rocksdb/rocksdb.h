@@ -475,14 +475,22 @@ public:
 
 
 	/**
-	 * @brief first ':' in the name will be treated as wild prefix
+	 * @brief Set DB Open Option
+	 * 
+	 * first ':' in the name will be treated as wild prefix,
 	 * so you can set db_name to "abc:" and all column famlity with db_name starts with "abc:" will be applied the specified options
 	 * @param db_name 
 	 * @param opt 
 	 */
 	void		SetDBOpenOption(LPCSTR db_name, const RocksDBOpenOption& opt); 
 	void		SetDBDefaultOpenOption(const RocksDBOpenOption& opt){ _DefaultOpenOpt = opt; }
-
+	/**
+	 * @brief Nuke
+	 * 
+	 * Try DestroyDB & RemovePath 10 times in 1 sec.
+	 * @param db_path 
+	 * @return 
+	*/
 	static bool Nuke(LPCSTR db_path);
 	static bool Rename(LPCSTR db_old_path, LPCSTR db_new_path);
 };

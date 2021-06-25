@@ -238,7 +238,7 @@ public:
  * @tparam T 
  * @tparam BLOCKING 
  * @tparam BLOCK_SIZE 
- * @tparam SINGLE_READER_WRITER 
+ * @tparam SINGLE_READER_WRITER A single-producer, single-consumer queue while true.
  */
 template<typename T, bool BLOCKING = true, UINT BLOCK_SIZE = 32, bool SINGLE_READER_WRITER = false>
 class AsyncDataQueue: public AsyncDataQueueInfinite<T, BLOCKING, BLOCK_SIZE, true, SINGLE_READER_WRITER>
@@ -251,6 +251,12 @@ public:
 	using WithType = AsyncDataQueue<T2, BLOCKING, BLOCK_SIZE, SINGLE_READER_WRITER>;
 
 	AsyncDataQueue(INT max_size = 0x7fffffff, INT reserve_size = 32):_SC(reserve_size){ __SizeMax = max_size; }
+	/**
+	 * @brief Push
+	 * @param t 
+	 * @param force_grow Force push while true.
+	 * @return 
+	*/
 	INLFUNC bool Push(const T& t, bool force_grow = false)
 	{	if(force_grow || _SC::GetSize()<__SizeMax)
 		{	_SC::Push(t);
