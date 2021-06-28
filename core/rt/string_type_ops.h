@@ -1,50 +1,37 @@
 #pragma once
 
-/**
- * @file string_type_ops.h
- * @author JP Wang (wangjiaping@idea.edu.cn)
- * @brief 
- * @version 1.0
- * @date 2021-04-30
- * 
- * @copyright  
- * Cross-Platform Core Foundation (CPCF)
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *      * Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer.
- *      * Redistributions in binary form must reproduce the above
- *        copyright notice, this list of conditions and the following
- *        disclaimer in the documentation and/or other materials provided
- *        with the distribution.
- *      * Neither the name of CPCF.  nor the names of its
- *        contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *  
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   
- */
-/** \addtogroup rt 
- * @ingroup CPCF
- *  @{
- */
+//////////////////////////////////////////////////////////////////////
+// Cross-Platform Core Foundation (CPCF)
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+//       copyright notice, this list of conditions and the following
+//       disclaimer in the documentation and/or other materials provided
+//       with the distribution.
+//     * Neither the name of CPCF.  nor the names of its
+//       contributors may be used to endorse or promote products derived
+//       from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//////////////////////////////////////////////////////////////////////
 
 #include "string_type.h"
- /** \addtogroup string_type_ops
-  * @ingroup rt
-  *  @{
-  */
+
 
 namespace rt
 {
@@ -61,15 +48,9 @@ String_Ref __alloca_string_ref(LPSTR p, const T& x)
 
 namespace rt
 {
-/** \addtogroup string_type_ops
- * @ingroup rt
- *  @{
- */
 namespace tos
 {
-/**
- * @brief Number to String
-*/
+
 typedef ::rt::tos::S_<> Number;
 
 struct WhiteSpace:public ::rt::tos::S_<>
@@ -294,9 +275,7 @@ struct HexNum:public ::rt::tos::S_<1,LEN>
 		 _SC::_p[ _SC::_len] = 0;
 	}
 };
-/**
- * @brief Binary
-*/
+
 template<SIZE_T LEN = 65, bool uppercase = true>
 struct Binary:public ::rt::tos::S_<1,LEN>
 {
@@ -319,9 +298,7 @@ struct Binary:public ::rt::tos::S_<1,LEN>
 		 _SC::_p[ _SC::_len] = 0;
 	}
 };
-/**
- * @brief BinaryCString
-*/
+
 template<SIZE_T LEN = 65>
 struct BinaryCString:public ::rt::tos::S_<1,LEN>
 {
@@ -363,14 +340,11 @@ struct GUID:public ::rt::tos::S_<>
 };
 
 } // tos
- /** \addtogroup Typedefs_string_type_ops
- * @ingroup string_type_ops
- *  @{
- */
+
 typedef tos::StaticString SS;
 typedef tos::DataAsString DS;
 typedef tos::StdStringAsString	StdStr;
-/** @}*/
+
 // typename to string
 namespace _details
 {
@@ -388,10 +362,7 @@ struct __TNAS
 };
 
 } // namespace _details
-/** \addtogroup Functions_string_type_ops
-* @ingroup string_type_ops
-*  @{
-*/
+
 template<typename T>
 INLFUNC rt::String_Ref TypeNameToString()
 {
@@ -411,7 +382,7 @@ INLFUNC rt::String_Ref TypeNameToString()
 	// check if nested type defined within function scope, and fullback to clang's behavior 
 	return ret.Occurrence("()") >= 2?ret.TrimBeforeReverse("):"):ret;
 }
-/** @}*/
+
 namespace _details
 {
 template<typename T>
@@ -420,25 +391,18 @@ LPSTR __alloca_string(LPSTR p, const T& x)
 	return p;
 }
 } // namespace rt::_details
-/** @}*/
 } // namespace rt
 
- /** \addtogroup Macros_string_type_ops
- * @ingroup string_type_ops
- *  @{
- */
 #define __SS(...)						(rt::SS(#__VA_ARGS__))
 #define ALLOCA_STRING_BUFFER(size)		(rt::String_Ref((LPSTR)alloca(size), size))
-#define ALLOCA_STRING_REF(x)			(rt::_details::__alloca_string_ref((LPSTR)alloca((x).GetLength()), (x)))	///< x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
-#define ALLOCA_C_STRING(x)				(rt::_details::__alloca_string((LPSTR)alloca((x).GetLength() + 1), (x)))	///< x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
- /** @}*/
+#define ALLOCA_STRING_REF(x)			(rt::_details::__alloca_string_ref((LPSTR)alloca((x).GetLength()), (x)))	// x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
+#define ALLOCA_C_STRING(x)				(rt::_details::__alloca_string((LPSTR)alloca((x).GetLength() + 1), (x)))	// x should be a varible, instead of a expression. use auto x = ..... if it need to be an expression
+
 
 //////////////////////////////////////////////////////
 // Stringify Enum
 namespace rt
 {
-
-
 namespace _details
 {
 template<typename T>
@@ -469,10 +433,6 @@ struct _EnumString
 };
 } // namespace _details
 
-/** \addtogroup Macros_to_register_enum_for_log_conversion
- * @ingroup Macros_string_type_ops
- *  @{
- */
 #define STRINGIFY_ENUM_BEGIN_(type)				namespace rt {								\
 												namespace _details {						\
 												template<>									\
@@ -527,11 +487,7 @@ struct _EnumString
 												INLFUNC type operator &= (type& a, type b){ return a = (type)((UINT)a&(UINT)b); } \
 												INLFUNC type operator ^= (type& a, type b){ return a = (type)((UINT)a^(UINT)b); } \
 												INLFUNC type operator ~ (type b){ return (type)(~((UINT)b)); } \
-/** @}*/
-  /** \addtogroup string_type_ops
- * @ingroup rt
- *  @{
- */
+
 struct EnumStringify: public rt::String
 {
 	template<typename T_Enum>
@@ -555,14 +511,7 @@ struct EnumStringify: public rt::String
 	}
 };
 
-/**
- * @brief Parse Enum to val(with Enum type)
-*/
 template<typename T_Enum>
-/** \addtogroup Functions_string_type_ops
-* @ingroup string_type_ops
-*  @{
-*/
 INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 				{	rt::String_Ref tags[sizeof(T_Enum)*8];
 					UINT co = name.Split(tags, sizeofArray(tags), "|,+;");
@@ -589,8 +538,4 @@ INLFUNC bool	EnumParse(const rt::String_Ref& name, T_Enum& value_out)
 					}	}
 					return true;
 				}
-/** @}*/
-/** @}*/
 } // namespace rt
-/** @}*/
-/** @}*/
