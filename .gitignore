@@ -127,3 +127,10 @@ html
 xml-dir
 doxygen/that_style
 .vscode
+/html
+/xml-dir
+/doxygen/that_style
+/.vscode
+/testcases/tests/test_os_kernel.cpp
+
+*.idb

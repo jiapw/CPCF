@@ -44,40 +44,40 @@ namespace _details
 #pragma warning(disable:4146)
 struct string_ops
 {	// code adapted based on modp_numtoa.h/.c (http://code.google.com/p/stringencoders/)
-	INLFUNC static void strreverse(char* begin, char* end){ char aux; while(end > begin){ aux = *end; *end-- = *begin; *begin++ = aux;} }
-	INLFUNC static int	itoa(INT value, char* str)
-						{	char* wstr=str;
-							// Take care of sign
-							unsigned int uvalue = (value < 0) ? -value : value;
-							// Conversion. Number is reversed.
-							do *wstr++ = (char)(48 + (uvalue % 10));	while(uvalue /= 10);
-							if (value < 0) *wstr++ = '-';				*wstr='\0';
-							// Reverse string
-							strreverse(str,wstr-1);						return (int)(wstr - str);
-						}
-	INLFUNC static int	itoa(UINT value, char* str)
-						{	char* wstr=str;
-							// Conversion. Number is reversed.
-							do *wstr++ = (char)(48 + (value % 10));		while (value /= 10);		*wstr='\0';
-							// Reverse string
-							strreverse(str, wstr-1);					return (int)(wstr - str);
-						}
-	INLFUNC static int	itoa(LONGLONG value, char* str)
-						{	char* wstr=str;
-							ULONGLONG uvalue = (LONGLONG)((value < 0) ? -value : value);
-							// Conversion. Number is reversed.
-							do *wstr++ = (char)(48 + (uvalue % 10));	while(uvalue /= 10);
-							if (value < 0) *wstr++ = '-';				*wstr='\0';
-							// Reverse string
-							strreverse(str,wstr-1);						return (int)(wstr - str);
-						}
-	INLFUNC static int	itoa(ULONGLONG value, char* str)
-						{	char* wstr=str;
-							// Conversion. Number is reversed.
-							do *wstr++ = (char)(48 + (value % 10));		while (value /= 10);		*wstr='\0';
-							// Reverse string
-							strreverse(str, wstr-1);					return (int)(wstr - str);
-						}
+	static void strreverse(char* begin, char* end){ char aux; while(end > begin)aux = *end, *end-- = *begin, *begin++ = aux; }
+	static int	itoa(INT value, char* str)
+				{	char* wstr=str;
+					// Take care of sign
+					unsigned int uvalue = (value < 0) ? -value : value;
+					// Conversion. Number is reversed.
+					do *wstr++ = (char)(48 + (uvalue % 10));	while(uvalue /= 10);
+					if (value < 0) *wstr++ = '-';				*wstr='\0';
+					// Reverse string
+					strreverse(str,wstr-1);						return (int)(wstr - str);
+				}
+	static int	itoa(UINT value, char* str)
+				{	char* wstr=str;
+					// Conversion. Number is reversed.
+					do *wstr++ = (char)(48 + (value % 10));		while (value /= 10);		*wstr='\0';
+					// Reverse string
+					strreverse(str, wstr-1);					return (int)(wstr - str);
+				}
+	static int	itoa(LONGLONG value, char* str)
+				{	char* wstr=str;
+					ULONGLONG uvalue = (LONGLONG)((value < 0) ? -value : value);
+					// Conversion. Number is reversed.
+					do *wstr++ = (char)(48 + (uvalue % 10));	while(uvalue /= 10);
+					if (value < 0) *wstr++ = '-';				*wstr='\0';
+					// Reverse string
+					strreverse(str,wstr-1);						return (int)(wstr - str);
+				}
+	static int	itoa(ULONGLONG value, char* str)
+				{	char* wstr=str;
+					// Conversion. Number is reversed.
+					do *wstr++ = (char)(48 + (value % 10));		while (value /= 10);		*wstr='\0';
+					// Reverse string
+					strreverse(str, wstr-1);					return (int)(wstr - str);
+				}
 	template<typename T>
 	INLFUNC static int	ftoa(T value, char* str, int prec = 2)
 						{	static const T pow10[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
@@ -349,13 +349,13 @@ public:
 	{	return Begin() >= x.Begin() && (End() <= x.End());
 	}
 public:
-	FORCEINL SIZE_T		  CommonPrefixLength(const t_String_Ref& x) const { SIZE_T i=0; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[i] == x[i];i++){}; return i; }
-	FORCEINL SIZE_T		  CommonSuffixLength(const t_String_Ref& x) const { SIZE_T i=1; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[_SC::_len-i] == x[x._len-i];i++){}; return i-1; }
-	FORCEINL t_String_Ref SubStrTail(SIZE_T len) const { return len > GetLength() ? *this : t_String_Ref(_SC::_p+GetLength()-len, len); }
-	FORCEINL t_String_Ref SubStrHead(SIZE_T len) const { return t_String_Ref(_SC::_p,rt::min(len,GetLength())); }
-	FORCEINL t_String_Ref SubStr(SIZE_T start, SIZE_T len) const { return start < GetLength() ? t_String_Ref(_SC::_p+start,rt::min(len,GetLength()-start)) : nullptr; }
-	FORCEINL t_String_Ref SubStr(SIZE_T start) const { return start < GetLength() ? t_String_Ref(_SC::_p+start, GetLength()-start) : nullptr; }
-	FORCEINL bool	StartsWith(const t_String_Ref& prefix) const
+	SIZE_T		CommonPrefixLength(const t_StrRef& x) const { SIZE_T i=0; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[i] == x[i];i++); return i; }
+	SIZE_T		CommonSuffixLength(const t_StrRef& x) const { SIZE_T i=1; SIZE_T len = rt::min(GetLength(), x.GetLength()); for(;i<len && _SC::_p[_SC::_len-i] == x[x._len-i];i++); return i-1; }
+	t_StrRef SubStrTail(SIZE_T len) const { return len > GetLength() ? *this : t_StrRef(_SC::_p+GetLength()-len, len); }
+	t_StrRef SubStrHead(SIZE_T len) const { return t_StrRef(_SC::_p,rt::min(len,GetLength())); }
+	t_StrRef SubStr(SIZE_T start, SIZE_T len) const { return start < GetLength() ? t_StrRef(_SC::_p+start,rt::min(len,GetLength()-start)) : nullptr; }
+	t_StrRef SubStr(SIZE_T start) const { return start < GetLength() ? t_StrRef(_SC::_p+start, GetLength()-start) : nullptr; }
+	bool		StartsWith(const t_StrRef& prefix) const
 	{	return	(GetLength() >= prefix.GetLength()) &&
 				SubStr(0,prefix.GetLength()) == prefix;
 	}

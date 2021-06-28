@@ -472,9 +472,10 @@ public:
 					typedef void		t_Element;								\
 					typedef Signed_		t_Signed;								\
 					typedef Unsigned_	t_Unsigned;								\
-					static const int	Typeid = TypeId_ ;						\
-					static const bool	IsPOD = true ;							\
-					static const bool	IsNumeric = true ;						\
+					static const int	Typeid = TypeId_;						\
+					static const bool	IsPOD = true;							\
+					static const bool	IsNumeric = true;						\
+					static const bool	IsFloatPoint = false;					\
 					template<class ostream>										\
 					static void TypeName(ostream & outstr){ outstr<<(#T_); }	\
 		 public:	FORCEINL static constexpr T_	Epsilon(){ return Eps_; }	\
@@ -529,6 +530,22 @@ __NumFloat(long double	,long double,_typeid_64f	,LDBL_EPSILON*100			,-LDBL_MAX	,
 /////////////////////////////////////////////////////////////////
 
 
+//////////////////////////////////////////////////
+// Trait num type properties
+namespace _details
+{
+template<typename T, bool fp = (TypeTraits<T>::Typeid == _typeid_32f || TypeTraits<T>::Typeid == _typeid_64f)>
+struct NumericTraits_Equal
+{	static bool equ(T a, T b){ return a == b; }
+	static bool not_equ(T a, T b){ return a != b; }
+};
+	template<typename T>
+	struct NumericTraits_Equal<T, true>
+	{	static bool equ(T a, T b){ T t = a-b; return t > -TypeTraits<T>::Epsilon() && t < TypeTraits<T>::Epsilon(); }
+		static bool not_equ(T a, T b){ T t = a-b; return t <= -TypeTraits<T>::Epsilon() || t >= TypeTraits<T>::Epsilon(); }
+	};
+} // namespace _details 
+
 /**
  * @brief Trait num type properties
  * 
@@ -542,7 +559,9 @@ struct NumericTraits
 	static const bool IsFloat = (_Typeid==_typeid_32f)||(_Typeid==_typeid_64f) ;
 	static const bool IsUnsigned = _Typeid==_typeid_8u || _Typeid==_typeid_16u || _Typeid==_typeid_32u || _Typeid==_typeid_64u;
 	static const bool IsSigned = _Typeid==_typeid_8s || _Typeid==_typeid_16s || _Typeid==_typeid_32s || _Typeid==_typeid_64s || _Typeid==_typeid_32f || _Typeid==_typeid_64f;
-	static const bool IsBuiltInNumeric = (_Typeid>=_typeid_bool)&&(_Typeid<=_typeid_64f) ;
+	static const bool IsBuiltInNumeric = (_Typeid>=_typeid_bool)&&(_Typeid<=_typeid_64f);
+	static bool		  IsEqual(T a, T b){ return _details::NumericTraits_Equal<T>::equ(a, b); }
+	static bool		  IsNotEqual(T a, T b){ return _details::NumericTraits_Equal<T>::not_equ(a, b); }
 	// non-num is rated as 0xffff
 };
 
