@@ -1,53 +1,59 @@
-/* /////////////////////////////////////////////////////////////////////////////
-//
-//                  INTEL CORPORATION PROPRIETARY INFORMATION
-//     This software is supplied under the terms of a license agreement or
-//     nondisclosure agreement with Intel Corporation and may not be copied
-//     or disclosed except in accordance with the terms of that agreement.
-//          Copyright(c) 2001-2012 Intel Corporation. All Rights Reserved.
-//
-//          Intel(R) Integrated Performance Primitives
-//                      Core (ippCore)
-//
+/* 
+// Copyright 2001-2020 Intel Corporation All Rights Reserved.
+// 
+// The source code, information and material ("Material") contained herein is
+// owned by Intel Corporation or its suppliers or licensors, and title
+// to such Material remains with Intel Corporation or its suppliers or
+// licensors. The Material contains proprietary information of Intel
+// or its suppliers and licensors. The Material is protected by worldwide
+// copyright laws and treaty provisions. No part of the Material may be used,
+// copied, reproduced, modified, published, uploaded, posted, transmitted,
+// distributed or disclosed in any way without Intel's prior express written
+// permission. No license under any patent, copyright or other intellectual
+// property rights in the Material is granted to or conferred upon you,
+// either expressly, by implication, inducement, estoppel or otherwise.
+// Any license under such intellectual property rights must be express and
+// approved by Intel in writing.
+// 
+// Unless otherwise agreed by Intel in writing,
+// you may not remove or alter this notice or any other notice embedded in
+// Materials by Intel or Intel's suppliers or licensors in any way.
+// 
 */
 
-#if !defined( __IPPCORE_H__ ) || defined( _OWN_BLDPCS )
-#define __IPPCORE_H__
+/* 
+//              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
+//              Core (ippCore)
+// 
+// 
+*/
 
-#if defined (_WIN32_WCE) && defined (_M_IX86) && defined (__stdcall)
-  #define _IPP_STDCALL_CDECL
-  #undef __stdcall
-#endif
 
-#ifndef __IPPDEFS_H__
+#if !defined( IPPCORE_H__ ) || defined( _OWN_BLDPCS )
+#define IPPCORE_H__
+
+#ifndef IPPDEFS_H__
   #include "ippdefs.h"
 #endif
+
+#include "ippcore_l.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-#if !defined( _IPP_NO_DEFAULT_LIB )
-  #if defined( _IPP_PARALLEL_DYNAMIC )
-    #pragma comment( lib, "ippcore" )
-  #elif defined( _IPP_PARALLEL_STATIC )
-    #pragma comment( lib, "ippcore_t" )
+#if !defined( IPP_NO_DEFAULT_LIB )
+  #if defined( _IPP_SEQUENTIAL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcore" )
   #elif defined( _IPP_SEQUENTIAL_STATIC )
-    #pragma comment( lib, "ippcore_l" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcoremt" )
+  #elif defined( _IPP_PARALLEL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcore" )
+  #elif defined( _IPP_PARALLEL_STATIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcoremt" )
   #endif
 #endif
-
-
-typedef enum {
-    ippAffinityCompactFineCore, /* KMP_AFFINITY=granularity=fine,compact,n,offset, where n - level */
-    ippAffinityCompactFineHT,   /* KMP_AFFINITY=granularity=fine,compact,0,offset */
-    ippAffinityAllEnabled,      /* KMP_AFFINITY=respect */
-    ippAffinityRestore,
-    ippTstAffinityCompactFineCore, /* test mode for affinity type ippAffinityCompactFineCore */
-    ippTstAffinityCompactFineHT    /* test mode for affinity type ippAffinityCompactFineHT   */
-} IppAffinityType;
-
 
 /* /////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +78,7 @@ IPPAPI( const IppLibraryVersion*, ippGetLibVersion, (void) )
 //  Name:       ippGetStatusString
 //  Purpose:    convert the library status code to a readable string
 //  Parameters:
-//    StsCode   IPP status code
+//    StsCode   Intel(R) IPP status code
 //  Returns:    pointer to string describing the library status code
 //
 //  Notes:      don't free the pointer
@@ -80,15 +86,6 @@ IPPAPI( const IppLibraryVersion*, ippGetLibVersion, (void) )
 IPPAPI( const char*, ippGetStatusString, ( IppStatus StsCode ) )
 
 
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippGetCpuType
-//  Purpose:    detects Intel(R) processor
-//  Parameter:  none
-//  Return:     IppCpuType
-//
-*/
-
-IPPAPI_NOPREFIX( IppCpuType, ippGetCpuType, (void) )
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippGetCpuClocks
@@ -135,8 +132,7 @@ IPPAPI( IppStatus, ippSetDenormAreZeros, ( int value ))
 //    alignBytes - number of bytes to align
 //
 */
-IPPAPI_NOPREFIX( void*, ippAlignPtr, ( void * ptr, int alignBytes ) )
-
+IPPAPI( void*, ippAlignPtr, ( void * ptr, int alignBytes ) )
 
 /* /////////////////////////////////////////////////////////////////////////////
 //                   Functions to allocate and free memory
@@ -152,8 +148,7 @@ IPPAPI_NOPREFIX( void*, ippAlignPtr, ( void * ptr, int alignBytes ) )
 //              function only.
 */
 
-IPPAPI_NOPREFIX( void*, ippMalloc,  (int length) )
-
+IPPAPI( void*, ippMalloc,  (int length) )
 
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -164,24 +159,9 @@ IPPAPI_NOPREFIX( void*, ippMalloc,  (int length) )
 //
 //  Notes:      use the function to free memory allocated by ippMalloc
 */
-IPPAPI_NOPREFIX( void, ippFree, (void* ptr) )
+IPPAPI( void, ippFree, (void* ptr) )
 
 
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippStaticInit
-//  Purpose:    Automatic switching to best for current cpu library code using.
-//  Returns:
-//   ippStsNoErr       - the best code (static) successfully set
-//   ippStsNonIntelCpu - px version (static) of code was set
-//   ippStsNoOperationInDll - function does nothing in the dynamic version of the library
-//
-//  Parameter:  nothing
-//
-//  Notes:      At the moment of this function execution no any other IPP function
-//              has to be working
-*/
-IPP_DEPRECATED("is deprecated: use ippInit function instead of this one")\
-IPPAPI( IppStatus, ippStaticInit, ( void ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippInit
@@ -191,50 +171,10 @@ IPPAPI( IppStatus, ippStaticInit, ( void ))
 //
 //  Parameter:  nothing
 //
-//  Notes:      At the moment of this function execution no any other IPP function
+//  Notes:      At the moment of this function execution no any other Intel(R) IPP function
 //              has to be working
 */
 IPPAPI( IppStatus, ippInit, ( void ))
-
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippInitCpu
-//  Purpose:    switching to user defined target cpu library code using
-//
-//  Returns:
-//   ippStsNoErr       - required target cpu library code is successfully set
-//   ippStsCpuMismatch - required target cpu library can't be set, the previous
-//                       set is used
-//  Parameter:  IppCpuType
-//
-//  Notes:      At the moment of this function execution no any other IPP function
-//              has to be working
-*/
-IPPAPI( IppStatus, ippInitCpu, ( IppCpuType cpu ) )
-
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippEnableCpu
-//  Purpose:    allows dispatching CPU specific IPP library. It doesn't dispatch the code.
-//              The following call ippInit(), if it follows ippEnableCpu, does that if application
-//              is executed on CPU enabled platform or CPU simulator.
-//              Introducing this function in IPP 6.1 was needed to allow IPP users run the codes
-//              with Intel(R) AVX instructions in the case they have an Intel AVX-enabled hardware
-//              or simulator
-//
-//  Returns:
-//   ippStsNoErr
-//
-//  Parameter:  IppCpuType
-//
-//  Notes: The ippInit() call without calling ippEnableCpu() as well as ippEnableCpu
-//         without ippInit() call will not dispatch AVX code, even if you run code on Intel AVX
-//         enabled platform. Call the functions sequentially:
-//         ippEnableCpu(ippCpuAVX); ippInit(); to dispatch IPP AVX code.
-//         The function works and could be useful for ippCpuAVX processor type only.
-//
-*/
-IPPAPI( IppStatus, ippEnableCpu, ( IppCpuType cpu ) )
 
 
 /* ////////////////////////////////////////////////////////////////////////////
@@ -315,14 +255,6 @@ IPPAPI( IppStatus, ippGetNumThreads, (int* pNumThr) )
 IPPAPI( IppStatus, ippGetMaxCacheSizeB, ( int* pSizeByte ) )
 
 /*
-//  Name:       ippGetNumCoresOnDie
-//  Purpose:    to distinguish MultiCore processors from other
-//  Returns:    number of cores
-//
-*/
-IPPAPI( int, ippGetNumCoresOnDie,( void ))
-
-/*
 //  Name:       ippGetCpuFeatures
 //  Purpose:    Detects CPU features.
 //  Parameters:
@@ -342,10 +274,14 @@ IPPAPI( int, ippGetNumCoresOnDie,( void ))
 //                      [10] - AES        ( ippCPUID_AES   )
 //                      [11] - PCLMULQDQ  ( ippCPUID_CLMUL )
 //                      [12] - ABR        ( ippCPUID_ABR )
-//                      [13] - RDRRAND    ( ippCPUID_RDRRAND )
+//                      [13] - RDRAND     ( ippCPUID_RDRAND )
 //                      [14] - F16C       ( ippCPUID_F16C )
 //                      [15] - AVX2       ( ippCPUID_AVX2 )
-//                      [16:63] - Reserved
+//                      [16] - ADOX/ADCX  ( ippCPUID_ADCOX )      ADCX and ADOX instructions
+//                      [17] - RDSEED     ( ippCPUID_RDSEED )     The RDSEED instruction
+//                      [18] - PREFETCHW  ( ippCPUID_PREFETCHW )  The PREFETCHW instruction
+//                      [19] - SHA        ( ippCPUID_SHA )        Intel (R) SHA Extensions
+//                      [20:63] - Reserved
 //
 //    pCpuidInfoRegs  Pointer to the 4-element vector.
 //                    Result of CPUID.1 are stored in this vector.
@@ -367,7 +303,7 @@ IPPAPI( IppStatus, ippGetCpuFeatures, ( Ipp64u* pFeaturesMask,
 
 /*
 //  Name:       ippGetEnabledCpuFeatures
-//  Purpose:    Detects unabled features for loaded libraries
+//  Purpose:    Detects enabled features for loaded libraries
 //  Returns:    Features mask
 //                    Features mask values are defined in the ippdefs.h
 //                      [ 0] - ippCPUID_MMX
@@ -383,120 +319,117 @@ IPPAPI( IppStatus, ippGetCpuFeatures, ( Ipp64u* pFeaturesMask,
 //                      [10] - ippCPUID_AES
 //                      [11] - ippCPUID_CLMUL
 //                      [12] - ippCPUID_ABR
-//                      [13] - ippCPUID_RDRRAND
+//                      [13] - ippCPUID_RDRAND
 //                      [14] - ippCPUID_F16C
 //                      [15] - ippCPUID_AVX2
-//                      [16:63] - Reserved
+//                      [16] - ippCPUID_ADCOX
+//                      [17] - ippCPUID_RDSEED
+//                      [18] - ippCPUID_PREFETCHW
+//                      [19] - ippCPUID_SHA
+//                      [20:63] - Reserved
 //
 */
 IPPAPI( Ipp64u, ippGetEnabledCpuFeatures, ( void ) )
 
-
-/* /////////////////////////////////////////////////////////////////////////////
-//                   i18n functions to operate with Message Catalogs
-///////////////////////////////////////////////////////////////////////////// */
-
-#if !defined( _OWN_BLDPCS )
-   DECLARE_IPPCONTEXT( IppMsgCatalog );
-   #if defined (_WIN32)
-   typedef unsigned short* IppMsg;
-   #else
-     typedef char* IppMsg;
-   #endif
-#endif /* _OWN_BLDPCS */
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippMessageCatalogOpenI18n
-//  Purpose:    Opens i18n Message Catalog
-//  Parameters:
+/* ////////////////////////////////////////////////////////////////////////////
+//  Name:       ippSetCpuFeatures
 //
+//  Purpose: Changes the set of enabled/disabled CPU features.
+//           This function sets the processor-specific code of the Intel(R) IPP
+//           library according to the processor features specified in cpuFeatures.
+//
+//  Return:
+//        ippStsNoErr                 No errors.
+//    Warnings:
+//        ippStsFeatureNotSupported   Current CPU doesn't support at least 1 of the desired features;
+//                                    For example you've ordered P8_FM feature combination (see below),
+//                                    but you CPU doesn't support Intel(R) AES New Instructions. Non-supported features will be disabled -
+//                                    ippCPUID_AES in our example.
+//        ippStsUnknownFeature        At least one of the desired features is unknown;
+//                                    All supported features are declared in the ipptypes.h header file
+//        ippStsFeaturesCombination   Wrong or incomplete combination of features;
+//                                    This warning indicates situation like if you've ordered (for example) ippCPUID_AVX
+//                                    and haven't ordered ippCPUID_SSE42 or ippCPUID_SSE2 features - there are no Intel(R) CPUs
+//                                    that support only some new feature (for example Intel(R) Advanced Vector Extensions instruction set) 
+//                                    and don't support some previous feature generation like Intel(R) Streaming SIMD Extensions 2.
+//                                    This means that all "old" features will be enabled automatically.
+//        ippStsCpuMismatch           Indicates that the specified processor features are not valid. Previously set code is used.
+//                                    This situation means that (for example) you can't set ippCPUID_AVX feature on CPU 
+//                                    that doesn't support Intel(R) Advanced Vector Extensions instruction set, or operating system
+//                                    doesn't support ippAVX_ENABLEDBYOS feature.
+//
+//  Arguments:
+//    cpuFeatures                 Desired features to support by the library
+//                                (see ippdefs.h for ippCPUID_XX definition)
+//
+//  NOTE:       this function can re-initializes dispatcher and after the
+//              call another library (letter) may work
+//  CAUTION:    At the moment of this function excecution no any other Intel(R) IPP
+//              function has to be working
+//
+//  The next pre-defined sets of features can be used:
+//  32-bit code:
+// #define PX_FM ( ippCPUID_MMX | ippCPUID_SSE )
+// #define W7_FM ( PX_FM | ippCPUID_SSE2 )
+// #define V8_FM ( W7_FM | ippCPUID_SSE3 | ippCPUID_SSSE3 )
+// #define S8_FM ( V8_FM | ippCPUID_MOVBE )
+// #define P8_FM ( V8_FM | ippCPUID_SSE41 | ippCPUID_SSE42 | ippCPUID_AES | ippCPUID_CLMUL | ippCPUID_SHA )
+// #define G9_FM ( P8_FM | ippCPUID_AVX | ippAVX_ENABLEDBYOS | ippCPUID_RDRAND | ippCPUID_F16C )
+// #define H9_FM ( G9_FM | ippCPUID_AVX2 | ippCPUID_MOVBE | ippCPUID_ADCOX | ippCPUID_RDSEED | ippCPUID_PREFETCHW )
+//
+// 64-bit code:
+// #define PX_FM ( ippCPUID_MMX | ippCPUID_SSE | ippCPUID_SSE2 )
+// #define M7_FM ( PX_FM | ippCPUID_SSE3 )
+// #define U8_FM ( M7_FM | ippCPUID_SSSE3 )
+// #define N8_FM ( U8_FM | ippCPUID_MOVBE )
+// #define Y8_FM ( U8_FM | ippCPUID_SSE41 | ippCPUID_SSE42 | ippCPUID_AES | ippCPUID_CLMUL | ippCPUID_SHA )
+// #define E9_FM ( Y8_FM | ippCPUID_AVX | ippAVX_ENABLEDBYOS | ippCPUID_RDRAND | ippCPUID_F16C )
+// #define L9_FM ( E9_FM | ippCPUID_MOVBE | ippCPUID_AVX2 | ippCPUID_ADCOX | ippCPUID_RDSEED | ippCPUID_PREFETCHW )
+// #define N0_FM ( L9_FM | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512PF | ippCPUID_AVX512ER | ippAVX512_ENABLEDBYOS )
+// #define K0_FM ( L9_FM | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512VL | ippCPUID_AVX512BW | ippCPUID_AVX512DQ | ippAVX512_ENABLEDBYOS )
+//
+*/
+IPPAPI( IppStatus, ippSetCpuFeatures,( Ipp64u cpuFeatures ))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippGetCacheParams
+//  Purpose:    Retrieves cache parameters: cache type, level and size
+//  Parameter:  pointer to array of structures describing cpu cache:
+//              typedef struct {
+//                 int type;
+//                 int level;
+//                 int size
+//              } IppCache;
+//              where type can be: 0 = Null - No more caches, 
+//                                 1 = Data Cache, 
+//                                 2 = Instruction Cache, 
+//                                 3 = Unified Cache.
+//              level means cache level starting from 1
+//              cache size field is in bytes
 //  Returns:
-//    ippStsMemAllocErr
-//    ippStsNullPtrErr
-//    ippStsI18nUnsupportedErr
-//    ippStsI18nMsgCatalogOpenErr
-//    ippStsNoErr
+//    ippStsNullPtrErr         Input pointer is NULL
+//    ippStsCpuNotSupportedErr Cpu arch is too old to be supported by this function
+//    ippStsNoErr              No error
 //
-//  Notes: function allocates memory, this memory has to be freed by ippMessageCatalogCloseI18n
-//         ippMessageCatalogCloseI18n It should be used, despite of the returned status code
+//  Notes:      don't free pointer!
 */
-IPPAPI( IppStatus, ippMessageCatalogOpenI18n, ( IppMsgCatalog** pMsgCatalog ) )
+IPPAPI( IppStatus, ippGetCacheParams,( IppCache** ppCacheInfo ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippMessageCatalogCloseI18n
-//  Purpose:    Closes i18n Message Catalog, which was opened by ippMessageCatalogOpenI18n
-//  Parameters:
-//
+//  Name:       ippGetL2CacheSize
+//  Purpose:    Retrieves L2 cache size in bytes
+//  Parameter:  pointer to int where to store L2 cache size
+//              if returned size is 0 - than cpu is not supported by this function
 //  Returns:
-//  ippStsContextMatchErr
-//  ippStsNullPtrErr
-//  ippStsI18nMsgCatalogCloseErr
-//  ippStsI18nUnsupportedErr
-//
-//  Notes:
+//    ippStsNullPtrErr         Input pointer is NULL
+//    ippStsCpuNotSupportedErr Cpu arch is too old to be supported by this function
+//    ippStsNoErr              No error
 */
-IPPAPI( IppStatus, ippMessageCatalogCloseI18n, ( IppMsgCatalog* pMsgCatalog ) )
+IPPAPI( IppStatus, ippGetL2CacheSize,( int* pSize ))
 
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippGetMessageStatusI18n
-//  Purpose:    gets localized message corresponding to IppStatus
-//  Parameters:
-//  Returns:
-//    ippStsMemAllocErr
-//    ippStsNullPtrErr
-//    ippStsContextMatchErr
-//    ippStsI18nMsgCatalogInvalid
-//    ippStsI18nGetMessageFail
-//    ippStsUnknownStatusCodeErr
-//
-//  Notes:
-//
-*/
-IPPAPI( IppStatus, ippGetMessageStatusI18n, ( const IppMsgCatalog* pMsgCatalog, IppStatus StsCode, IppMsg* pMsg ) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippStatusToMessageIdI18n
-//  Purpose:    transforms of IPP status to message ID for Message Catalog
-//  Parameters:
-//    StsCode   IPP status code
-//
-//  Returns:    Message ID for i18n catalogs
-//
-//  Notes:      Function is useful for direct Message Catalogs access
-//
-*/
-IPPAPI( Ipp32u, ippStatusToMessageIdI18n, ( IppStatus StsCode ) )
-
-/* ///////////////////////////////////////////////////////////////////////////
-Name:
-ippSetAffinity
-  Purpose:
-    Binds OpenMP threads to OS processors.
-  Parameters:
-           affType  Type of affinity settings, the possible values:
-           ippAffinityCompactFineCore
-           ippAffinityCompactFineHT
-           ippAffinityRestore
-           ippTstAffinityCompactFineCore
-           ippTstAffinityCompactFineHT
-           offset  - Specified the starting position for thread assignment.
-  Returns:
-     ippStsNoErr            - no errors.
-     ippStsLLADisabled      - Low Level Affinity API was disabled.
-     ippStsNotSupportedCpu  - the cpu is not supported.
-*/
-
-IPPAPI(IppStatus, ippSetAffinity,(IppAffinityType aType, int offset))
-
-
-#if defined (_IPP_STDCALL_CDECL)
-  #undef  _IPP_STDCALL_CDECL
-  #define __stdcall __cdecl
-#endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __IPPCORE_H__ */
-/* ////////////////////////////// End of file /////////////////////////////// */
+#endif /* IPPCORE_H__ */

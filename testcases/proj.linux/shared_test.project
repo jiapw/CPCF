@@ -11,6 +11,62 @@
     <File Name="../../core/ext/rocksdb/rocksdb.cpp"/>
     <File Name="../../core/ext/rocksdb/rocksdb.h"/>
   </VirtualDirectory>
+  <VirtualDirectory Name="CPCF">
+    <File Name="../../core/ext/bignum/big_num.cpp"/>
+    <File Name="../../core/ext/bignum/big_num.h"/>
+    <File Name="../../core/ext/botan/botan.cpp"/>
+    <File Name="../../core/ext/botan/botan.h"/>
+    <File Name="../../core/ext/exprtk/exprtk.cpp"/>
+    <File Name="../../core/ext/exprtk/exprtk.h"/>
+    <File Name="../../core/os/file_dir.cpp"/>
+    <File Name="../../core/os/file_dir.h"/>
+    <File Name="../../core/os/file_zip.cpp"/>
+    <File Name="../../core/os/file_zip.h"/>
+    <File Name="../../core/os/high_level.cpp"/>
+    <File Name="../../core/os/high_level.h"/>
+    <File Name="../../core/inet/http_client.cpp"/>
+    <File Name="../../core/inet/http_client.h"/>
+    <File Name="../../core/inet/inet.cpp"/>
+    <File Name="../../core/inet/inet.h"/>
+    <File Name="../../core/ext/ipp/ipp_core.cpp"/>
+    <File Name="../../core/ext/ipp/ipp_core.h"/>
+    <File Name="../../core/ext/ipp/ipp_image.cpp"/>
+    <File Name="../../core/rt/json.cpp"/>
+    <File Name="../../core/rt/json.h"/>
+    <File Name="../../core/os/kernal_encode.cpp"/>
+    <File Name="../../core/os/kernel.cpp"/>
+    <File Name="../../core/os/kernel.h"/>
+    <File Name="../../core/os/kernel_log.cpp"/>
+    <File Name="../../core/ext/lib_inc.c"/>
+    <File Name="../../core/os/multi_thread.cpp"/>
+    <File Name="../../core/os/multi_thread.h"/>
+    <File Name="../../core/os/platform.h"/>
+    <File Name="../../core/ext/bignum/precision_num.cpp"/>
+    <File Name="../../core/ext/bignum/precision_num.h"/>
+    <File Name="../../core/os/precompiler.cpp"/>
+    <File Name="../../core/os/precompiler.h"/>
+    <File Name="../../core/os/predefines.h"/>
+    <File Name="../../core/inet/datagram_pump.cpp"/>
+    <File Name="../../core/inet/datagram_pump.h"/>
+    <File Name="../../core/inet/tinyhttpd.cpp"/>
+    <File Name="../../core/inet/tinyhttpd.h"/>
+    <File Name="../../core/inet/tinyhttpd_fileserv.cpp"/>
+    <File Name="../../core/inet/tinyhttpd_fileserv.h"/>
+    <File Name="../../core/rt/xml_xhtml.cpp"/>
+    <File Name="../../core/rt/xml_xhtml.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="tests">
+    <File Name="../tests/entrypoint.cpp"/>
+    <File Name="../tests/experiments.cpp"/>
+    <File Name="../tests/test.h"/>
+    <File Name="../tests/test_api.cpp"/>
+    <File Name="../tests/test_botan.cpp"/>
+    <File Name="../tests/test_ext.cpp"/>
+    <File Name="../tests/test_http.cpp"/>
+    <File Name="../tests/test_inet.cpp"/>
+    <File Name="../tests/test_ipp.cpp"/>
+    <File Name="../tests/test_perf.cpp"/>
+  </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="-std=c++14;-pthread" C_Options="" Assembler="">
@@ -18,30 +74,62 @@
       </Compiler>
       <Linker Options="-pthread;-ldl;-lX11;">
         <LibraryPath Value="../../libs/linux"/>
-        <Library Value="libippj_l.a"/>
-        <Library Value="libippac_l.a"/>
-        <Library Value="libippcp_l.a"/>
-        <Library Value="libippi_l.a"/>
-        <Library Value="libippsc_l.a"/>
-        <Library Value="libippcc_l.a"/>
-        <Library Value="libippcv_l.a"/>
-        <Library Value="libipps_l.a"/>
-        <Library Value="libippch_l.a"/>
-        <Library Value="libippdc_l.a"/>
-        <Library Value="libippm_l.a"/>
-        <Library Value="libippvc_l.a"/>
-        <Library Value="libippcore_l.a"/>
-        <Library Value="libippdi_l.a"/>
-        <Library Value="libippr_l.a"/>
-        <Library Value="libippvm_l.a"/>
+        <Library Value="libippac90lgc.a"/>
+        <Library Value="libippcc90lgc.a"/>
+        <Library Value="libippcc.a"/>
+        <Library Value="libippch90lgc.a"/>
+        <Library Value="libippch.a"/>
+        <Library Value="libippcore.a"/>
+        <Library Value="libippcp.a"/>
+        <Library Value="libippcv90lgc.a"/>
+        <Library Value="libippcv.a"/>
+        <Library Value="libippdc90lgc.a"/>
+        <Library Value="libippdc.a"/>
+        <Library Value="libippdi90lgc.a"/>
+        <Library Value="libippgen90lgc.a"/>
+        <Library Value="libippi90lgc.a"/>
+        <Library Value="libippi.a"/>
+        <Library Value="libippj90lgc.a"/>
+        <Library Value="libippm90lgc.a"/>
+        <Library Value="libippr90lgc.a"/>
+        <Library Value="libipps90lgc.a"/>
+        <Library Value="libipps.a"/>
+        <Library Value="libippsc90lgc.a"/>
+        <Library Value="libippvc90lgc.a"/>
+        <Library Value="libippvm.a"/>
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-g;-O0;-w" C_Options="-g;-O0;-w" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
       </Compiler>
-      <Linker Options="" Required="yes"/>
+      <Linker Options="" Required="yes">
+        <LibraryPath Value="../../libs/linux"/>
+        <Library Value="libippac90lgc.a"/>
+        <Library Value="libippcc90lgc.a"/>
+        <Library Value="libippcc.a"/>
+        <Library Value="libippch90lgc.a"/>
+        <Library Value="libippch.a"/>
+        <Library Value="libippcore.a"/>
+        <Library Value="libippcp.a"/>
+        <Library Value="libippcv90lgc.a"/>
+        <Library Value="libippcv.a"/>
+        <Library Value="libippdc90lgc.a"/>
+        <Library Value="libippdc.a"/>
+        <Library Value="libippdi90lgc.a"/>
+        <Library Value="libippgen90lgc.a"/>
+        <Library Value="libippi90lgc.a"/>
+        <Library Value="libippi.a"/>
+        <Library Value="libippj90lgc.a"/>
+        <Library Value="libippm90lgc.a"/>
+        <Library Value="libippr90lgc.a"/>
+        <Library Value="libipps90lgc.a"/>
+        <Library Value="libipps.a"/>
+        <Library Value="libippsc90lgc.a"/>
+        <Library Value="libippvc90lgc.a"/>
+        <Library Value="libippvm.a"/>
+      </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="$(IntermediateDirectory)/$(ProjectName)" CommandArguments="/verify--" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="." PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
@@ -81,7 +169,32 @@
         <IncludePath Value="."/>
         <Preprocessor Value="NDEBUG"/>
       </Compiler>
-      <Linker Options="" Required="yes"/>
+      <Linker Options="" Required="yes">
+        <LibraryPath Value="../../libs/linux"/>
+        <Library Value="libippac90lgc.a"/>
+        <Library Value="libippcc90lgc.a"/>
+        <Library Value="libippcc.a"/>
+        <Library Value="libippch90lgc.a"/>
+        <Library Value="libippch.a"/>
+        <Library Value="libippcore.a"/>
+        <Library Value="libippcp.a"/>
+        <Library Value="libippcv90lgc.a"/>
+        <Library Value="libippcv.a"/>
+        <Library Value="libippdc90lgc.a"/>
+        <Library Value="libippdc.a"/>
+        <Library Value="libippdi90lgc.a"/>
+        <Library Value="libippgen90lgc.a"/>
+        <Library Value="libippi90lgc.a"/>
+        <Library Value="libippi.a"/>
+        <Library Value="libippj90lgc.a"/>
+        <Library Value="libippm90lgc.a"/>
+        <Library Value="libippr90lgc.a"/>
+        <Library Value="libipps90lgc.a"/>
+        <Library Value="libipps.a"/>
+        <Library Value="libippsc90lgc.a"/>
+        <Library Value="libippvc90lgc.a"/>
+        <Library Value="libippvm.a"/>
+      </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Release" Command="$(IntermediateDirectory)/$(ProjectName)" CommandArguments="/verify" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="." PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>

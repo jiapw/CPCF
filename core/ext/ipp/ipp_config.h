@@ -69,7 +69,7 @@
 
 #include "../../os/predefines.h"
 
-#define IPP_LINK_STATIC_LIB_M8
+#define IPP_LINK_STATIC_LIB_PX
 
 #define PNG_USE_GLOBAL_ARRAYS
 #define PNG_SETJMP_SUPPORTED
@@ -90,77 +90,82 @@
 #define _IPP_SEQUENTIAL_STATIC
 #endif
 
-#define _IPP_NO_DEFAULT_LIB
+#define IPP_NO_DEFAULT_LIB
 
 #pragma warning(disable:4819)
 
 
-#if defined(IPP_LINK_STATIC_LIB_W7)
-	#define IPPAPI(type,name,arg) extern type __STDCALL w7_##name arg;
-	#define IPPCALL(name) w7_##name
-#elif defined(IPP_LINK_STATIC_LIB_V8)
-	#define IPPAPI(type,name,arg) extern type __STDCALL v8_##name arg;
-	#define IPPCALL(name) v8_##name
-#elif defined(IPP_LINK_STATIC_LIB_P8)
-	#define IPPAPI(type,name,arg) extern type __STDCALL p8_##name arg;
-	#define IPPCALL(name) p8_##name
-#elif defined(IPP_LINK_STATIC_LIB_MX)
-	#define IPPAPI(type,name,arg) extern type __STDCALL mx_##name arg;
-	#define IPPCALL(name) mx_##name
-#elif defined(IPP_LINK_STATIC_LIB_M7)
-	#define IPPAPI(type,name,arg) extern type __STDCALL m7_##name arg;
+#if defined(IPP_LINK_STATIC_LIB_N8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n8_##name arg;
+	#define IPPCALL(name) n8_##name
+#elif defined(IPP_LINK_STATIC_LIB_M7)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL m7_##name arg;
 	#define IPPCALL(name) m7_##name
-#elif defined(IPP_LINK_STATIC_LIB_Y8)
-	#define IPPAPI(type,name,arg) extern type __STDCALL y8_##name arg;
+#elif defined(IPP_LINK_STATIC_LIB_Y8) // work but very slow
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL y8_##name arg;
 	#define IPPCALL(name) y8_##name
+#elif defined(IPP_LINK_STATIC_LIB_E9) // work but very slow
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL e9_##name arg;
+	#define IPPCALL(name) e9_##name
+#elif defined(IPP_LINK_STATIC_LIB_L9) // work but very slow	, will crash
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL l9_##name arg;
+	#define IPPCALL(name) l9_##name
+#elif defined(IPP_LINK_STATIC_LIB_K0) //crash
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL k0_##name arg;
+	#define IPPCALL(name) k0_##name
+#elif defined(IPP_LINK_STATIC_LIB_N0)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL n0_##name arg;
+	#define IPPCALL(name) n0_##name
+#elif defined(IPP_LINK_STATIC_LIB_MX)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL mx_##name arg;
+	#define IPPCALL(name) mx_##name
+#elif defined(IPP_LINK_STATIC_LIB_U8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL u8_##name arg;
+	#define IPPCALL(name) u8_##name
+#elif defined(IPP_LINK_STATIC_LIB_M8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL m8_##name arg;
+	#define IPPCALL(name) m8_##name
+#elif defined(IPP_LINK_STATIC_LIB_W7)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL w7_##name arg;
+	#define IPPCALL(name) w7_##name
+#elif defined(IPP_LINK_STATIC_LIB_V8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL v8_##name arg;
+	#define IPPCALL(name) v8_##name
+#elif defined(IPP_LINK_STATIC_LIB_P8)//NO, wont compile
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL p8_##name arg;
+	#define IPPCALL(name) p8_##name
 #else
-	#define IPP_LINK_STATIC_LIB_PX
-	#define IPPAPI(type,name,arg) extern type __STDCALL name arg;
+	#define IPP_LINK_STATIC_LIB_PX //fastest
+	#define IPPAPI(type,name,arg) extern type IPP_STDCALL name arg;
 	#define IPPCALL(name) name
 #endif
 
-#define IPPAPI_NOPREFIX(type,name,arg) extern type __STDCALL name arg;
+#define IPPAPI_NOPREFIX(type,name,arg) extern type IPP_STDCALL name arg;
 
 #if defined(PLATFORM_WIN)
-
-#ifdef _WIN64
-	#pragma comment(lib,"ipp_x64_ippac_l.lib")
-	#pragma comment(lib,"ipp_x64_ippcc_l.lib")
-	#pragma comment(lib,"ipp_x64_ippch_l.lib")
-	#pragma comment(lib,"ipp_x64_ippcore_l.lib")
-	#pragma comment(lib,"ipp_x64_ippcp_l.lib")
-	#pragma comment(lib,"ipp_x64_ippcv_l.lib")
-	#pragma comment(lib,"ipp_x64_ippdc_l.lib")
-	#pragma comment(lib,"ipp_x64_ippdi_l.lib")
-	#pragma comment(lib,"ipp_x64_ippgen_l.lib")
-	#pragma comment(lib,"ipp_x64_ippi_l.lib")
-	#pragma comment(lib,"ipp_x64_ippj_l.lib")
-	#pragma comment(lib,"ipp_x64_ippm_l.lib")
-	#pragma comment(lib,"ipp_x64_ippr_l.lib")
-	#pragma comment(lib,"ipp_x64_ippsc_l.lib")
-	#pragma comment(lib,"ipp_x64_ipps_l.lib")
-	#pragma comment(lib,"ipp_x64_ippvc_l.lib")
-	#pragma comment(lib,"ipp_x64_ippvm_l.lib")
-#else
-	#pragma comment(lib,"ipp_w32_ippac_l.lib")
-	#pragma comment(lib,"ipp_w32_ippcc_l.lib")
-	#pragma comment(lib,"ipp_w32_ippch_l.lib")
-	#pragma comment(lib,"ipp_w32_ippcore_l.lib")
-	#pragma comment(lib,"ipp_w32_ippcp_l.lib")
-	#pragma comment(lib,"ipp_w32_ippcv_l.lib")
-	#pragma comment(lib,"ipp_w32_ippdc_l.lib")
-	#pragma comment(lib,"ipp_w32_ippdi_l.lib")
-	#pragma comment(lib,"ipp_w32_ippgen_l.lib")
-	#pragma comment(lib,"ipp_w32_ippi_l.lib")
-	#pragma comment(lib,"ipp_w32_ippj_l.lib")
-	#pragma comment(lib,"ipp_w32_ippm_l.lib")
-	#pragma comment(lib,"ipp_w32_ippr_l.lib")
-	#pragma comment(lib,"ipp_w32_ippsc_l.lib")
-	#pragma comment(lib,"ipp_w32_ipps_l.lib")
-	#pragma comment(lib,"ipp_w32_ippvc_l.lib")
-	#pragma comment(lib,"ipp_w32_ippvm_l.lib")
-#endif
-
+	//#pragma comment(lib,"ippac90lgc.lib")
+	#pragma comment(lib,"ippccmt.lib")
+	//#pragma comment(lib,"ippcc90lgc.lib")
+	#pragma comment(lib,"ippchmt.lib")
+	//#pragma comment(lib,"ippch90lgc.lib")
+	#pragma comment(lib,"ippcoremt.lib")
+	#pragma comment(lib,"ippcpmt.lib")
+	#pragma comment(lib,"ippcvmt.lib")
+	//#pragma comment(lib,"ippcv90lgc.lib")
+	#pragma comment(lib,"ippdcmt.lib")
+	//#pragma comment(lib,"ippdc90lgc.lib")
+	//#pragma comment(lib,"ippdi90lgc.lib")
+	//#pragma comment(lib,"ippgen90lgc.lib")
+	#pragma comment(lib,"ippimt.lib")
+	#pragma comment(lib,"ippi90lgcmt.lib")
+	//#pragma comment(lib,"ippj90lgc.lib")
+	//#pragma comment(lib,"ippm90lgc.lib")
+	//#pragma comment(lib,"ippr90lgc.lib")
+	#pragma comment(lib,"ippsmt.lib")
+	//#pragma comment(lib,"ipps90lgc.lib")
+	//#pragma comment(lib,"ippsc90lgc.lib")
+	//#pragma comment(lib,"ippvc90lgc.lib")
+	#pragma comment(lib,"ippvmmt.lib")
 #endif // #if defined(PLATFORM_WIN)
 
 #endif // #ifdef PLATFORM_INTEL_IPP_SUPPORT

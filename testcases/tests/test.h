@@ -68,10 +68,10 @@ struct UnitTests
 	static void ipp_imageproc();
 	#endif
 
-	#if defined(PLATFORM_INTEL_MKL_SUPPORT)
+#if defined(PLATFORM_INTEL_MKL_SUPPORT)
 	static void mkl_vector();
 	static void mkl_linequ();
-	#endif
+#endif
 };
 
 } // namespace rt

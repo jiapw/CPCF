@@ -1,25 +1,38 @@
-/* /////////////////////////////////////////////////////////////////////////////
-//
-//                  INTEL CORPORATION PROPRIETARY INFORMATION
-//     This software is supplied under the terms of a license agreement or
-//     nondisclosure agreement with Intel Corporation and may not be copied
-//     or disclosed except in accordance with the terms of that agreement.
-//          Copyright(c) 2002-2012 Intel Corporation. All Rights Reserved.
-//
-//
-//                  Intel(R) Integrated Performance Primitives
-//                  String Manipulations Library (ippCH)
-//
+/* 
+// Copyright 2002-2020 Intel Corporation All Rights Reserved.
+// 
+// The source code, information and material ("Material") contained herein is
+// owned by Intel Corporation or its suppliers or licensors, and title
+// to such Material remains with Intel Corporation or its suppliers or
+// licensors. The Material contains proprietary information of Intel
+// or its suppliers and licensors. The Material is protected by worldwide
+// copyright laws and treaty provisions. No part of the Material may be used,
+// copied, reproduced, modified, published, uploaded, posted, transmitted,
+// distributed or disclosed in any way without Intel's prior express written
+// permission. No license under any patent, copyright or other intellectual
+// property rights in the Material is granted to or conferred upon you,
+// either expressly, by implication, inducement, estoppel or otherwise.
+// Any license under such intellectual property rights must be express and
+// approved by Intel in writing.
+// 
+// Unless otherwise agreed by Intel in writing,
+// you may not remove or alter this notice or any other notice embedded in
+// Materials by Intel or Intel's suppliers or licensors in any way.
+// 
 */
-#if !defined( __IPPCH_H__ ) || defined( _OWN_BLDPCS )
-#define __IPPCH_H__
 
-#if defined (_WIN32_WCE) && defined (_M_IX86) && defined (__stdcall)
-  #define _IPP_STDCALL_CDECL
-  #undef __stdcall
-#endif
+/* 
+//              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
+//              String Manipulations Library (ippCH)
+// 
+// 
+*/
 
-#ifndef __IPPDEFS_H__
+
+#if !defined( IPPCH_H__ ) || defined( _OWN_BLDPCS )
+#define IPPCH_H__
+
+#ifndef IPPDEFS_H__
   #include "ippdefs.h"
 #endif
 
@@ -27,37 +40,26 @@
 extern "C" {
 #endif
 
-#if !defined( _IPP_NO_DEFAULT_LIB )
-  #if defined( _IPP_PARALLEL_DYNAMIC )
-    #pragma comment( lib, "ippch" )
-    #pragma comment( lib, "ippcore" )
-  #elif defined( _IPP_PARALLEL_STATIC )
-    #pragma comment( lib, "ippch_t" )
-    #pragma comment( lib, "ipps_t" )
-    #pragma comment( lib, "ippcore_t" )
+#if !defined( IPP_NO_DEFAULT_LIB )
+  #if defined( _IPP_SEQUENTIAL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippch" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcore" )
   #elif defined( _IPP_SEQUENTIAL_STATIC )
-    #pragma comment( lib, "ippch_l" )
-    #pragma comment( lib, "ipps_l" )
-    #pragma comment( lib, "ippcore_l" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippchmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippsmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippvmmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcoremt" )
+  #elif defined( _IPP_PARALLEL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippch" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcore" )
+  #elif defined( _IPP_PARALLEL_STATIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippchmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippsmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippvmmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcoremt" )
   #endif
 #endif
 
-#if !defined( _OWN_BLDPCS )
-
-typedef struct {
- void *pFind;
- int lenFind;
-} IppRegExpFind;
-
-struct RegExpState;
-typedef struct RegExpState IppRegExpState;
-
-typedef enum {
-    ippFmtASCII = 0,
-    ippFmtUTF8
-} IppRegExpFormat;
-
-#endif /* _OWN_BLDPCS */
 
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -76,6 +78,8 @@ typedef enum {
 //
 //  Notes:      not necessary to release the returned structure
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI( const IppLibraryVersion*, ippchGetLibVersion, (void) )
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -83,10 +87,10 @@ IPPAPI( const IppLibraryVersion*, ippchGetLibVersion, (void) )
 ///////////////////////////////////////////////////////////////////////////// */
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsFind_8u        ippsFind_16u
-//              ippsFindC_8u       ippsFindC_16u
-//              ippsFindRev_8u     ippsFindRev_16u
-//              ippsFindRevC_8u    ippsFindRevC_16u
+//  Name:       ippsFind_8u
+//              ippsFindC_8u
+//              ippsFindRev_8u
+//              ippsFindRevC_8u
 //
 //  Purpose:    Finds the match for string of elements or single element
 //              within source string in direct or reverse direction
@@ -106,35 +110,25 @@ IPPAPI( const IppLibraryVersion*, ippchGetLibVersion, (void) )
 //   ippStsNullPtrErr  pSrc, pFind or pIndex are NULL
 //   ippStsLengthErr   len or lenFind are negative
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFind_8u,  (const Ipp8u* pSrc, int len,
                                   const Ipp8u* pFind, int lenFind,
                                   int *pIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFind_16u, (const Ipp16u* pSrc, int len,
-                                  const Ipp16u* pFind, int lenFind,
-                                  int *pIndex))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFindC_8u,  (const Ipp8u* pSrc, int len,
                                    Ipp8u valFind, int *pIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFindC_16u, (const Ipp16u* pSrc, int len,
-                                   Ipp16u valFind, int *pIndex))
-
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFindRev_8u,  (const Ipp8u* pSrc, int len,
                                      const Ipp8u* pFind, int lenFind,
                                      int *pIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFindRev_16u, (const Ipp16u* pSrc, int len,
-                                     const Ipp16u* pFind, int lenFind,
-                                     int *pIndex))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFindRevC_8u,  (const Ipp8u* pSrc, int len,
                                       Ipp8u valFind, int *pIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFindRevC_16u, (const Ipp16u* pSrc, int len,
-                                      Ipp16u valFind, int *pIndex))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsFind_Z_8u        ippsFind_Z_16u
-//              ippsFindC_Z_8u       ippsFindC_Z_16u
+//  Name:       ippsFind_Z_8u
+//              ippsFindC_Z_8u
 //
 //  Purpose:    Finds the match for zero-ended string of elements or single element
 //              within source zero-ended string in direct or reverse direction
@@ -151,19 +145,16 @@ IPPAPI (IppStatus, ippsFindRevC_16u, (const Ipp16u* pSrc, int len,
 //   ippStsNoErr       Ok
 //   ippStsNullPtrErr  pSrcZ, pFindZ or pIndex are NULL
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFind_Z_8u,   (const Ipp8u* pSrcZ,
                                      const Ipp8u* pFindZ, int *pIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFind_Z_16u,  (const Ipp16u* pSrcZ,
-                                     const Ipp16u* pFindZ, int *pIndex))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFindC_Z_8u,  (const Ipp8u* pSrcZ,
                                      Ipp8u valFind, int *pIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFindC_Z_16u, (const Ipp16u* pSrcZ,
-                                     Ipp16u valFind, int *pIndex))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsCompare_8u        ippsCompare_16u
+//  Name:       ippsCompare_8u
 //
 //  Purpose:    Compares two strings element-by-element
 //
@@ -181,14 +172,13 @@ IPPAPI (IppStatus, ippsFindC_Z_16u, (const Ipp16u* pSrcZ,
 //   ippStsNullPtrErr  pSrc1, pSrc2 or pResult are NULL
 //   ippStsLengthErr   len is negative
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsCompare_8u,  (const Ipp8u* pSrc1, const Ipp8u* pSrc2,
-                                     int len, int *pResult))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsCompare_16u, (const Ipp16u* pSrc1, const Ipp16u* pSrc2,
                                      int len, int *pResult))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsEqual_8u        ippsEqual_16u
+//  Name:       ippsEqual_8u
 //
 //  Purpose:    Compares two strings element-by-element
 //
@@ -205,14 +195,13 @@ IPPAPI (IppStatus, ippsCompare_16u, (const Ipp16u* pSrc1, const Ipp16u* pSrc2,
 //   ippStsNullPtrErr  pSrc1, pSrc2 or pResult are NULL
 //   ippStsLengthErr   len is negative
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsEqual_8u,  (const Ipp8u* pSrc1, const Ipp8u* pSrc2,
-                                   int len, int *pResult))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsEqual_16u, (const Ipp16u* pSrc1, const Ipp16u* pSrc2,
                                    int len, int *pResult))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsTrimC_8u_I        ippsTrimC_16u_I
+//  Name:       ippsTrimC_8u_I
 //
 //  Purpose:    Deletes an odd symbol at the end and the beginning of a string
 //              in-place
@@ -229,13 +218,12 @@ IPPAPI (IppStatus, ippsEqual_16u, (const Ipp16u* pSrc1, const Ipp16u* pSrc2,
 //   ippStsNullPtrErr  pSrcDst or pLen are NULL
 //   ippStsLengthErr   *pLen is negative
 */
-IPP_DEPRECATED("is deprecated. Removal  2H 2014 or later.  Replace with ippsTrimC_8u.  For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsTrimC_8u_I,  (Ipp8u* pSrcDst, int* pLen, Ipp8u odd ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsTrimC_16u_I, (Ipp16u* pSrcDst, int* pLen, Ipp16u odd ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsTrimC_8u        ippsTrimC_16u
+//  Name:       ippsTrimC_8u
 //
 //  Purpose:    Deletes an odd symbol at the end and the beginning of a string
 //
@@ -253,46 +241,16 @@ IPPAPI (IppStatus, ippsTrimC_16u_I, (Ipp16u* pSrcDst, int* pLen, Ipp16u odd ))
 //   ippStsNullPtrErr  pSrcDst, pDst or pDstLen are NULL
 //   ippStsLengthErr   srcLen is negative
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsTrimC_8u,  (const Ipp8u* pSrc, int srcLen, Ipp8u odd,
                                    Ipp8u* pDst, int* pDstLen ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsTrimC_16u, (const Ipp16u* pSrc, int srcLen, Ipp16u odd,
-                                   Ipp16u* pDst, int* pDstLen ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:          ippsUppercase_16u_I
-//                 ippsLowercase_16u_I
-//                 ippsUppercase_16u
-//                 ippsLowercase_16u
-//
-//  Purpose:    Forms an uppercase or lowercase version of the Unicode string
-//
-//  Arguments:
-//     pSrc    - pointer to the source string
-//     pDst    - pointer to the destination string
-//     pSrcDst - pointer to the string for in-place operation
-//     len     - string length
-//
-//  Return:
-//   ippStsNoErr       Ok
-//   ippStsNullPtrErr  pSrc, pDst or pSrcDst are NULL;
-//   ippStsLengthErr   len is negative;
-*/
-
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsUppercase_16u_I,( Ipp16u* pSrcDst, int len ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsLowercase_16u_I,( Ipp16u* pSrcDst, int len ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsUppercase_16u, (const Ipp16u* pSrc, Ipp16u* pDst, int len))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsLowercase_16u, (const Ipp16u* pSrc, Ipp16u* pDst, int len))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsUppercaseLatin_8u_I   ippsUppercaseLatin_16u_I
-//              ippsLowercaseLatin_8u_I   ippsLowercaseLatin_16u_I
-//              ippsLowercaseLatin_8u     ippsUppercaseLatin_16u
-//              ippsUppercaseLatin_8u     ippsLowercaseLatin_16u
+//  Name:       ippsUppercaseLatin_8u_I
+//              ippsLowercaseLatin_8u_I
+//              ippsLowercaseLatin_8u
+//              ippsUppercaseLatin_8u
 //
 //  Purpose:    Forms an uppercase or lowercase version of the ASCII string
 //
@@ -307,20 +265,15 @@ IPPAPI (IppStatus, ippsLowercase_16u, (const Ipp16u* pSrc, Ipp16u* pDst, int len
 //   ippStsNullPtrErr  pSrc, pDst or pSrcDst are NULL;
 //   ippStsLengthErr   len is negative;
 */
-IPP_DEPRECATED("is deprecated. Removal  2H 2014 or later.  Replace with ippsUppercaseLatin_8u.  For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsUppercaseLatin_8u_I, ( Ipp8u* pSrcDst, int len ))
-IPP_DEPRECATED("is deprecated. Removal  2H 2014 or later.  Replace with ippsLowercaseLatin_8u.  For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsLowercaseLatin_8u_I, ( Ipp8u* pSrcDst, int len ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsUppercaseLatin_16u_I,( Ipp16u* pSrcDst, int len ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsLowercaseLatin_16u_I,( Ipp16u* pSrcDst, int len ))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsLowercaseLatin_8u,  (const Ipp8u* pSrc, Ipp8u* pDst, int len))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsUppercaseLatin_8u,  (const Ipp8u* pSrc, Ipp8u* pDst, int len))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsUppercaseLatin_16u, (const Ipp16u* pSrc, Ipp16u* pDst, int len))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsLowercaseLatin_16u, (const Ipp16u* pSrc, Ipp16u* pDst, int len))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsHash_8u32u        ippsHash_16u32u
@@ -340,7 +293,9 @@ IPPAPI (IppStatus, ippsLowercaseLatin_16u, (const Ipp16u* pSrc, Ipp16u* pDst, in
 //   ippStsLengthErr   len is negative
 */
 
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsHash_8u32u,  (const Ipp8u* pSrc, int len, Ipp32u* pHashVal ))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsHash_16u32u, (const Ipp16u* pSrc, int len, Ipp32u* pHashVal ))
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -361,8 +316,11 @@ IPPAPI (IppStatus, ippsHash_16u32u, (const Ipp16u* pSrc, int len, Ipp32u* pHashV
 //   ippStsLengthErr   len is negative
 */
 
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus,ippsHashSJ2_8u32u, (const Ipp8u* pSrc, int len, Ipp32u* pHashVal))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus,ippsHashSJ2_16u32u, (const Ipp16u* pSrc, int len, Ipp32u* pHashVal))
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsHashMSCS_8u32u        ippsHashMSCS_16u32u
 //
@@ -381,14 +339,13 @@ IPPAPI (IppStatus,ippsHashSJ2_16u32u, (const Ipp16u* pSrc, int len, Ipp32u* pHas
 //   ippStsLengthErr   len is negative
 */
 
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus,ippsHashMSCS_8u32u, (const Ipp8u* pSrc, int len, Ipp32u* pHashVal))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus,ippsHashMSCS_16u32u, (const Ipp16u* pSrc, int len, Ipp32u* pHashVal))
 
-
-
-
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsConcat_8u   ippsConcat_16u
+//  Name:       ippsConcat_8u
 //
 //  Purpose:    Concatenates two strings together
 //
@@ -404,13 +361,11 @@ IPPAPI (IppStatus,ippsHashMSCS_16u32u, (const Ipp16u* pSrc, int len, Ipp32u* pHa
 //   ippStsNullPtrErr  pSrc1, pSrc2 or pDst are NULL
 //   ippStsLengthErr   len1 or len2 are negative
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsConcat_8u,  (const Ipp8u* pSrc1, int len1,
                                     const Ipp8u* pSrc2, int len2,
                                     Ipp8u* pDst))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsConcat_16u, (const Ipp16u* pSrc1, int len1,
-                                    const Ipp16u* pSrc2, int len2,
-                                    Ipp16u* pDst))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsConcat_8u_D2L   ippsConcat_16u_D2L
@@ -430,14 +385,13 @@ IPPAPI (IppStatus, ippsConcat_16u, (const Ipp16u* pSrc1, int len1,
 //   ippStsLengthErr   srcLen[i] is negative for i < numSrc
 //   ippStsSizeErr     numSrc is not positive
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsConcat_8u_D2L,  (const Ipp8u* const pSrc[], const int srcLen[], int numSrc,
                                         Ipp8u* pDst ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsConcat_16u_D2L, (const Ipp16u* const pSrc[], const int srcLen[], int numSrc,
-                                        Ipp16u* pDst ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsConcatC_8u_D2L   ippsConcatC_16u_D2L
+//  Name:       ippsConcatC_8u_D2L
 //
 //  Purpose:    Concatenates several strings together and separates them
 //              by the symbol delimiter
@@ -456,14 +410,13 @@ IPPAPI (IppStatus, ippsConcat_16u_D2L, (const Ipp16u* const pSrc[], const int sr
 //   ippStsLengthErr   srcLen[i] is negative for i < numSrc
 //   ippStsSizeErr     numSrc is not positive
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsConcatC_8u_D2L,  (const Ipp8u* const pSrc[], const int srcLen[], int numSrc,
                                          Ipp8u delim, Ipp8u* pDst ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsConcatC_16u_D2L, (const Ipp16u* const pSrc[], const int srcLen[], int numSrc,
-                                         Ipp16u delim, Ipp16u* pDst ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsSplitC_8u_D2L   ippsSplitC_16u_D2L
+//  Name:       ippsSplitC_8u_D2L
 //
 //  Purpose:    Splits source string to several destination strings
 //              using the symbol delimiter; all delimiters are significant,
@@ -497,18 +450,15 @@ IPPAPI (IppStatus, ippsConcatC_16u_D2L, (const Ipp16u* const pSrc[], const int s
 //                            splitted string is truncated to destination length
 //                            in this case
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsSplitC_8u_D2L,  (const Ipp8u* pSrc, int srcLen, Ipp8u delim,
                                         Ipp8u* pDst[], int dstLen[], int* pNumDst))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsSplitC_16u_D2L, (const Ipp16u* pSrc, int srcLen, Ipp16u delim,
-                                        Ipp16u* pDst[], int dstLen[], int* pNumDst))
 
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsFindCAny_8u
-//              ippsFindCAny_16u
 //              ippsFindRevCAny_8u
-//              ippsFindRevCAny_16u
 //
 //  Purpose:    Reports the index of the first/last occurrence in
 //              the vector of any value in a specified array.
@@ -527,21 +477,17 @@ IPPAPI (IppStatus, ippsSplitC_16u_D2L, (const Ipp16u* pSrc, int srcLen, Ipp16u d
 //   ippStsNullPtrErr  Any of pointers is NULL.
 //   ippStsLengthErr   len or lenAnyOf are negative.
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFindCAny_8u, ( const Ipp8u* pSrc, int len,
         const Ipp8u* pAnyOf, int lenAnyOf, int* pIndex ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFindCAny_16u, ( const Ipp16u* pSrc, int len,
-        const Ipp16u* pAnyOf, int lenAnyOf, int* pIndex ))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsFindRevCAny_8u, ( const Ipp8u* pSrc, int len,
         const Ipp8u* pAnyOf, int lenAnyOf, int* pIndex ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsFindRevCAny_16u, ( const Ipp16u* pSrc, int len,
-        const Ipp16u* pAnyOf, int lenAnyOf, int* pIndex ))
 
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsReplaceC_8u
-//              ippsReplaceC_16u
 //
 //  Purpose:    Replaces all occurrences of a specified value in
 //              the vector with another specified value.
@@ -558,19 +504,15 @@ IPPAPI (IppStatus, ippsFindRevCAny_16u, ( const Ipp16u* pSrc, int len,
 //   ippStsNullPtrErr  Any of pointers is NULL.
 //   ippStsLengthErr   len is negative.
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsReplaceC_8u, ( const Ipp8u* pSrc, Ipp8u* pDst, int len,
         Ipp8u oldVal, Ipp8u newVal ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsReplaceC_16u, ( const Ipp16u* pSrc, Ipp16u* pDst, int len,
-        Ipp16u oldVal, Ipp16u newVal ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsTrimCAny_8u
-//              ippsTrimCAny_16u
 //              ippsTrimEndCAny_8u
-//              ippsTrimEndCAny_16u
 //              ippsTrimStartCAny_8u
-//              ippsTrimStartCAny_16u
 //
 //  Purpose:    Removes all occurrences of a set of specified values
 //              from:
@@ -595,49 +537,19 @@ IPPAPI (IppStatus, ippsReplaceC_16u, ( const Ipp16u* pSrc, Ipp16u* pDst, int len
 //   The length of the pDst should be sufficient;
 //   if values not found, *pDstLen = srcLen.
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsTrimCAny_8u, ( const Ipp8u* pSrc, int srcLen,
         const Ipp8u* pTrim, int trimLen, Ipp8u* pDst, int* pDstLen ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsTrimCAny_16u, ( const Ipp16u* pSrc, int srcLen,
-        const Ipp16u* pTrim, int trimLen, Ipp16u* pDst, int* pDstLen ))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsTrimEndCAny_8u, ( const Ipp8u* pSrc, int srcLen,
         const Ipp8u* pTrim, int trimLen, Ipp8u* pDst, int* pDstLen ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsTrimEndCAny_16u, ( const Ipp16u* pSrc, int srcLen,
-        const Ipp16u* pTrim, int trimLen, Ipp16u* pDst, int* pDstLen ))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsTrimStartCAny_8u, ( const Ipp8u* pSrc, int srcLen,
         const Ipp8u* pTrim, int trimLen, Ipp8u* pDst, int* pDstLen ))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsTrimStartCAny_16u, ( const Ipp16u* pSrc, int srcLen,
-        const Ipp16u* pTrim, int trimLen, Ipp16u* pDst, int* pDstLen ))
-
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsCompareIgnoreCase_16u
-//
-//  Purpose:    Compares two Unicode strings element-by-element
-//
-//  Arguments:
-//     pSrc1   - pointer to the first string
-//     pSrc2   - pointer to the second string
-//     len     - string length to compare
-//     pResult - pointer to the result:
-//               *pResult = 0 if src1 == src2;
-//               *pResult > 0 if src1 >  src2;
-//               *pResult < 0 if src1 <  src2;
-//
-//  Return:
-//   ippStsNoErr       Ok
-//   ippStsNullPtrErr  pSrc1, pSrc2 or pResult is NULL
-//   ippStsLengthErr   len is negative
-*/
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsCompareIgnoreCase_16u, (const Ipp16u* pSrc1, const Ipp16u* pSrc2, int len,
-                                               int *pResult))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsCompareIgnoreCaseLatin_8u
-//              ippsCompareIgnoreCaseLatin_16u
 //
 //  Purpose:    Compares two ASCII strings element-by-element
 //
@@ -655,15 +567,14 @@ IPPAPI (IppStatus, ippsCompareIgnoreCase_16u, (const Ipp16u* pSrc1, const Ipp16u
 //   ippStsNullPtrErr  pSrc1, pSrc2 or pResult is NULL
 //   ippStsLengthErr   len is negative
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsCompareIgnoreCaseLatin_8u,  (const Ipp8u* pSrc1, const Ipp8u* pSrc2, int len,
                                                     int *pResult))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsCompareIgnoreCaseLatin_16u, (const Ipp16u* pSrc1, const Ipp16u* pSrc2,
-                                                    int len, int *pResult))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsInsert_8u_I       ippsInsert_16u_I
-//              ippsInsert_8u         ippsInsert_16u
+//  Name:       ippsInsert_8u_I
+//              ippsInsert_8u
 //
 //  Purpose:    Inserts one string at a specified index position in other string
 //
@@ -685,21 +596,17 @@ IPPAPI (IppStatus, ippsCompareIgnoreCaseLatin_16u, (const Ipp16u* pSrc1, const I
 //   ippStsLengthErr   srcLen, insertLen, *pSrcDstLen or startIndex is negative Or
 //                     startIndex is greater than srcLen or *pSrcDstLen
 */
-IPP_DEPRECATED("is deprecated. Removal  2H 2014 or later.  Replace with ippsInsert_8u.  For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsInsert_8u_I,  (const Ipp8u* pInsert, int insertLen, Ipp8u* pSrcDst,
                                       int* pSrcDstLen, int startIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsInsert_16u_I, (const Ipp16u* pInsert, int insertLen, Ipp16u* pSrcDst,
-                                      int* pSrcDstLen, int startIndex))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsInsert_8u,    (const Ipp8u* pSrc, int srcLen, const Ipp8u* pInsert,
                                       int insertLen, Ipp8u* pDst, int startIndex))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsInsert_16u,   (const Ipp16u* pSrc, int srcLen, const Ipp16u* pInsert,
-                                      int insertLen, Ipp16u* pDst, int startIndex))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:       ippsRemove_8u_I       ippsRemove_16u_I
-//              ippsRemove_8u         ippsRemove_16u
+//  Name:       ippsRemove_8u_I
+//              ippsRemove_8u
 //
 //  Purpose:    Deletes a specified number of characters from the string
 //              beginning at a specified position.
@@ -721,45 +628,12 @@ IPPAPI (IppStatus, ippsInsert_16u,   (const Ipp16u* pSrc, int srcLen, const Ipp1
 //   ippStsLengthErr   srcLen, *pSrcDstLen, len or startIndex is negative Or
 //                     (startIndex + len) is greater than srcLen or *pSrcDstLen
 */
-IPP_DEPRECATED("is deprecated. Removal  2H 2014 or later.  Replace with ippsRemove_8u.  For more details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsRemove_8u_I,  (Ipp8u* pSrcDst, int* pSrcDstLen, int startIndex, int len))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsRemove_16u_I, (Ipp16u* pSrcDst, int* pSrcDstLen, int startIndex, int len))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI (IppStatus, ippsRemove_8u,    (const Ipp8u* pSrc, int srcLen, Ipp8u* pDst, int startIndex,
                                       int len))
-IPP_DEPRECATED("is deprecated. 16u char support is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI (IppStatus, ippsRemove_16u,   (const Ipp16u* pSrc, int srcLen, Ipp16u* pDst, int startIndex,
-                                      int len))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpInitAlloc
-// Purpose:             Allocates necessary memory, compiles a pattern into the
-//                      internal form consideration corresponding options and
-//                      writes it into the pRegExpState
-//
-// Parameters:
-//    pPattern          Pointer to the pattern of regular expression
-//    pOptions          Pointer to options for compiling and executing
-//                      regular expression (possible values 'i','s','m','x','g')
-//                      It should be NULL if no options are required.
-//    pRegExpState      Pointer to the structure containing internal form of
-//                      a regular expression.
-//    pErrOffset        Pointer to offset into the pattern if compiling is break
-//
-// Return:
-//    ippStsNoErr               No errors
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsMemAllocErr         Can't allocate memory for pRegExpState
-//    ippStsRegExpOptionsErr    Options are incorrect
-//    ippStsRegExpQuantifierErr Error caused by using wrong quantifier
-//    ippStsRegExpGroupingErr   Error caused by using wrong grouping
-//    ippStsRegExpBackRefErr    Error caused by using wrong back reference
-//    ippStsRegExpChClassErr    Error caused by using wrong character class
-//    ippStsRegExpMetaChErr     Error caused by using wrong metacharacter
-//
-*/
-IPPAPI(IppStatus, ippsRegExpInitAlloc, ( const char* pPattern, const char* pOptions,
-                                         IppRegExpState** ppRegExpState, int* pErrOffset ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 // Name:                ippsRegExpGetSize
@@ -776,6 +650,8 @@ IPPAPI(IppStatus, ippsRegExpInitAlloc, ( const char* pPattern, const char* pOpti
 //    ippStsNoErr       No errors
 //
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsRegExpGetSize, ( const char* pPattern, int* pRegExpStateSize ))
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -803,6 +679,8 @@ IPPAPI(IppStatus, ippsRegExpGetSize, ( const char* pPattern, int* pRegExpStateSi
 //    ippStsRegExpMetaChErr     Error caused by using wrong metacharacter
 //
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsRegExpInit, ( const char* pPattern, const char* pOptions,
                                     IppRegExpState*  pRegExpState, int* pErrOffset ))
 
@@ -820,6 +698,8 @@ IPPAPI(IppStatus, ippsRegExpInit, ( const char* pPattern, const char* pOptions,
 //    ippStsNoErr       No errors
 //
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsRegExpSetMatchLimit, ( int matchLimit, IppRegExpState* pRegExpState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -837,19 +717,9 @@ IPPAPI(IppStatus, ippsRegExpSetMatchLimit, ( int matchLimit, IppRegExpState* pRe
 //    ippStsNoErr       No errors
 //
 */
-IPPAPI(IppStatus, ippsRegExpSetFormat, ( IppRegExpFormat fmt, IppRegExpState* pRegExpState ))
 
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpFree
-// Purpose:             Frees allocated memory for the structure containing
-//                      internal form of regular expression
-//
-// Parameters:
-//    pRegExpState      Pointer to the structure containing internal form of
-//                      a regular expression.
-//
-*/
-IPPAPI(void, ippsRegExpFree, ( IppRegExpState* pRegExpState ))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
+IPPAPI(IppStatus, ippsRegExpSetFormat, ( IppRegExpFormat fmt, IppRegExpState* pRegExpState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 // Name:                ippsRegExpFind_8u
@@ -874,137 +744,11 @@ IPPAPI(void, ippsRegExpFree, ( IppRegExpState* pRegExpState ))
 //    ippStsNoErr               No errors
 //
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsRegExpFind_8u, ( const Ipp8u* pSrc, int srcLen, IppRegExpState* pRegExpState,
                                        IppRegExpFind* pFind, int* pNumFind ))
 
-
-#if !defined( _OWN_BLDPCS )
-
-struct RegExpMultiState;
-typedef struct RegExpMultiState IppRegExpMultiState;
-
-typedef struct {
-   Ipp32u regexpDoneFlag;
-   Ipp32u regexpID;
-   Ipp32s numMultiFind;
-   IppStatus status;
-   IppRegExpFind* pFind;
-} IppRegExpMultiFind;
-
-#endif /* _OWN_BLDPCS */
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpMultiGetSize
-// Purpose:             Computes the size of necessary memory (in bytes) for
-//                      structure containing internal form of multi patterns search engine.
-//
-// Parameters:
-//    maxPatterns       Maximum number of pattern.
-//    pSize             Pointer to the computed size of structure containing
-//                      internal form of search engine
-//
-// Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     When maxPatterns is less or equal 0.
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsRegExpMultiGetSize, ( Ipp32u maxPatterns, int *pSize))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpMultiInit
-// Purpose:             Initialize internal form of multi patterns search engine.
-//
-// Parameters:
-//    maxPatterns       Maximum number of pattern.
-//    pState            Pointer to the structure containing internal form of
-//                      multi patterns search engine.
-//
-// Return:
-//    ippStsNoErr       No errors
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     When maxPatterns is less or equal 0.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsRegExpMultiInit, ( IppRegExpMultiState* pState, Ipp32u maxPatterns))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpMultiInitAlloc
-// Purpose:             Allocates necessary memory, initialize internal form of multi patterns search engine
-//
-// Parameters:
-//    maxPatterns       Maximum number of pattern.
-//    pState            Double pointer to the structure containing internal form of
-//                      multi patterns search engine.
-//
-// Return:
-//    ippStsNoErr       No errors
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     When maxPatterns is less or equal 0.
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsRegExpMultiInitAlloc, ( IppRegExpMultiState** ppState, Ipp32u maxPatterns))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpMultiFree
-// Purpose:             Frees allocated memory for the structure containing
-//                      internal form of multi patterns search engine
-//
-// Parameters:
-//    pState            Pointer to the structure containing internal form of
-//                      multi patterns search engine.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void, ippsRegExpMultiFree, (IppRegExpMultiState* pState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpMulti*
-// Purpose:             Controls multi patterns database. Add, remove or modify patterns.
-//
-// Parameters:
-//    pRegExpState      Pointer to the structure containing internal form of a
-//                      compiled regular expression.
-//    regexpID          Pattern ID. 0 is invalid ID.
-//    pState            Pointer to the structure containing internal form of
-//                      multi patterns search engine.
-//
-// Return:
-//    ippStsNoErr       No errors
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     When ID is equal 0.
-//    ippStsMemAllocErr When number of patterns exceeded its maximum value.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsRegExpMultiAdd, ( const IppRegExpState* pRegExpState, Ipp32u regexpID, IppRegExpMultiState* pState))
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsRegExpMultiModify, ( const IppRegExpState* pRegExpState, Ipp32u regexpID, IppRegExpMultiState* pState))
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsRegExpMultiDelete, (Ipp32u regexpID, IppRegExpMultiState* pState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsRegExpMultiFind_8u
-// Purpose:             Looks for the occurrences of the substrings matching
-//                      the specified patterns.
-//
-// Parameters:
-//    pSrc              Pointer to the source string
-//    srcLen            Number of elements in the source string.
-//    pState            Pointer to the structure containing internal form of
-//                      multi patterns search engine
-//    pDstMultiFind     Array of pointers to the matching patterns
-//
-// Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Length of the source vector is less or equal zero.
-//    ippStsNoErr               No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsRegExpMultiFind_8u, ( const Ipp8u* pSrc, int srcLen, IppRegExpMultiFind *pDstMultiFind, const IppRegExpMultiState* pState))
 
 /* /////////////////////////////////////////////////////////////////////////////
 // Name:                ippsConvertUTF
@@ -1022,14 +766,11 @@ IPPAPI(IppStatus, ippsRegExpMultiFind_8u, ( const Ipp8u* pSrc, int srcLen, IppRe
 //    ippStsNoErr               No errors
 */
 
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsConvertUTF_8u16u,( const Ipp8u* pSrc, Ipp32u *pSrcLen, Ipp16u* pDst, Ipp32u *pDstLen, int BEFlag))
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsConvertUTF_16u8u,( const Ipp16u* pSrc, Ipp32u *pSrcLen, Ipp8u* pDst, Ipp32u *pDstLen, int BEFlag))
 
-#if !defined( _OWN_BLDPCS )
-
-struct RegExpMultiState;
-typedef struct RegExpReplaceState IppRegExpReplaceState;
-#endif /* _OWN_BLDPCS */
 
 /* /////////////////////////////////////////////////////////////////////////////
 // Name:                ippsRegExpReplaceGetSize
@@ -1044,6 +785,8 @@ typedef struct RegExpReplaceState IppRegExpReplaceState;
 //    ippStsNoErr       No errors
 //
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsRegExpReplaceGetSize, ( const Ipp8u* pSrcReplacement, Ipp32u *pSize))
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -1060,6 +803,8 @@ IPPAPI(IppStatus, ippsRegExpReplaceGetSize, ( const Ipp8u* pSrcReplacement, Ipp3
 //    ippStsNullPtrErr  pReplaceState pointer is NULL
 //
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsRegExpReplaceInit, ( const Ipp8u* pSrcReplacement, IppRegExpReplaceState *pReplaceState))
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -1082,17 +827,15 @@ IPPAPI(IppStatus, ippsRegExpReplaceInit, ( const Ipp8u* pSrcReplacement, IppRegE
 //    ippStsSizeErr     Indicates an error when value in pSrcLen or pDstLen is less or equal to zero.
 //
 */
+
+IPP_DEPRECATED("is deprecated. All functions in the ippCH domain are obsolete and will be removed in one of the future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.")\
 IPPAPI(IppStatus, ippsRegExpReplace_8u, ( const Ipp8u* pSrc, int *pSrcLenOffset, Ipp8u *pDst, int *pDstLen, IppRegExpFind* pFind, int* pNumFind, IppRegExpState* pRegExpState,
        IppRegExpReplaceState *pReplaceState ))
 
-#if defined (_IPP_STDCALL_CDECL)
-  #undef  _IPP_STDCALL_CDECL
-  #define __stdcall __cdecl
-#endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __IPPCH_H__ */
-/* ////////////////////////////// End of file /////////////////////////////// */
+#endif /* IPPCH_H__ */
+
