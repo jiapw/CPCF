@@ -6,7 +6,7 @@
 #include "../../core/os/kernel.h"
 
 #include <string>
-void TestMain(int  mode=0);
+void TestMain();
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -15,7 +15,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	if (argc == 1)
 	{
-		TestMain(0);
+		TestMain();
 	}
 	
 	// _DumpMemoryAllocations;

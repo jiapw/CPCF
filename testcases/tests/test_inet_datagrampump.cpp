@@ -191,64 +191,64 @@ char charRand()
 
 }
 
-void rt::UnitTests::pump_client()
-{
-	InetAddr remote_addr("192.168.218.72", 33010);
-
-	InetAddr local_send_addr;
-	local_send_addr.SetAsLocal();
-	local_send_addr.SetPort(33000);
-	Socket local_send;
-	local_send.Create(local_send_addr, SOCK_DGRAM, true);
-
-	char send_message[500];
-	for (;;)
-	{
-		for ( int i = 0; i < sizeof(send_message); i++)
-		{
-			send_message[i] = charRand();
-		}
-		local_send.SendTo(send_message, sizeof(send_message), remote_addr);
-		os::Sleep(1);
-	}
-}
-void rt::UnitTests::pump_client2()
-{
-	InetAddr remote_addr("192.168.218.72", 33020);
-
-	InetAddr local_send_addr;
-	local_send_addr.SetAsLocal();
-	local_send_addr.SetPort(32000);
-	Socket local_send;
-	local_send.Create(local_send_addr, SOCK_DGRAM, true);
-
-	char send_message[500];
-	for (;;)
-	{
-		for (int i = 0; i < sizeof(send_message); i++)
-		{
-			send_message[i] = charRand();
-		}
-		local_send.SendTo(send_message, sizeof(send_message), remote_addr);
-		os::Sleep(1);
-	}
-}
-void rt::UnitTests::pump_server()
-{		
-	DatagramPump<SocketIOObj_Routing1>	core;
-	VERIFY(core.Init());
-	InetAddr remote_addr1("192.168.218.72", 33010);
-	InetAddr remote_addr2("192.168.218.72", 33020);
-	SocketIOObj_Routing1	remote1("Remote1");
-	remote1.Create(remote_addr1);
-	SocketIOObj_Routing1	remote2("Remote2");
-	remote2.Create(remote_addr2);
-	core.AddObject(&remote1);
-	core.AddObject(&remote2);
-	for (;;)
-	{
-	}
-
-	core.Term();
-
-}
+//void rt::UnitTests::pump_client()
+//{
+//	InetAddr remote_addr("192.168.218.72", 33010);
+//
+//	InetAddr local_send_addr;
+//	local_send_addr.SetAsLocal();
+//	local_send_addr.SetPort(33000);
+//	Socket local_send;
+//	local_send.Create(local_send_addr, SOCK_DGRAM, true);
+//
+//	char send_message[500];
+//	for (;;)
+//	{
+//		for ( int i = 0; i < sizeof(send_message); i++)
+//		{
+//			send_message[i] = charRand();
+//		}
+//		local_send.SendTo(send_message, sizeof(send_message), remote_addr);
+//		os::Sleep(1);
+//	}
+//}
+//void rt::UnitTests::pump_client2()
+//{
+//	InetAddr remote_addr("192.168.218.72", 33020);
+//
+//	InetAddr local_send_addr;
+//	local_send_addr.SetAsLocal();
+//	local_send_addr.SetPort(32000);
+//	Socket local_send;
+//	local_send.Create(local_send_addr, SOCK_DGRAM, true);
+//
+//	char send_message[500];
+//	for (;;)
+//	{
+//		for (int i = 0; i < sizeof(send_message); i++)
+//		{
+//			send_message[i] = charRand();
+//		}
+//		local_send.SendTo(send_message, sizeof(send_message), remote_addr);
+//		os::Sleep(1);
+//	}
+//}
+//void rt::UnitTests::pump_server()
+//{		
+//	DatagramPump<SocketIOObj_Routing1>	core;
+//	VERIFY(core.Init());
+//	InetAddr remote_addr1("192.168.218.72", 33010);
+//	InetAddr remote_addr2("192.168.218.72", 33020);
+//	SocketIOObj_Routing1	remote1("Remote1");
+//	remote1.Create(remote_addr1);
+//	SocketIOObj_Routing1	remote2("Remote2");
+//	remote2.Create(remote_addr2);
+//	core.AddObject(&remote1);
+//	core.AddObject(&remote2);
+//	for (;;)
+//	{
+//	}
+//
+//	core.Term();
+//
+//}
