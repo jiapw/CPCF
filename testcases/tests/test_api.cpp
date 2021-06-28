@@ -2129,6 +2129,16 @@ void rt::UnitTests::smallmath()
 		_LOG((a + b*2) + 2);
 		//_LOG(a*b + a*b);
 	}
+	{
+		int x = 1, y = 2, z = 3;
+		rt::Vec3i a1{ x,y,z };
+		rt::Vec3i a2{ x,y,z };
+		auto t1 = (a1 != a2);
+		auto t2 = (a1 == a2);
+		_LOG("t1=" << t1);
+		_LOG("t2=" << t2);
+		auto ans = (a1._p[1] == a1.g) && (a1._p[1] == a1.y) && (a1._p[1] == a1.l);
+	}
 }
 
 

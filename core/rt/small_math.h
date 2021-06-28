@@ -177,7 +177,7 @@ struct Vec
 		template<typename T> INLFUNC void operator += (T x){}
 		template<typename T> INLFUNC void operator -= (T x){}
 		template<typename T> INLFUNC constexpr bool operator == (T x){ return true; }
-		template<typename T> INLFUNC constexpr bool operator != (T x){ return true; }
+		template<typename T> INLFUNC constexpr bool operator != (T x){ return false; }
 	};
 
 template<typename T, int chan>
