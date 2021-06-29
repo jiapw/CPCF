@@ -13,3 +13,5 @@ mixed inner text: /*Some Inner Text*/ Another Node
   <item> [ key="no" ]
   <item> [ key="&lt;yes&gt;" height="12" ]
   <item> [ key="no" ]
+=== UnitTest<xml>: END =====
+

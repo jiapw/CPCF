@@ -2277,6 +2277,7 @@ void os::CommandLine::LoadEnvironmentVariablesAsOptions()
 
 void os::CommandLine::SetOptionDefault(const rt::String_Ref& opt_name, const rt::String_Ref& value)
 {
+	if (opt_name.GetLength() == 0) return;
 	if(!HasOption(opt_name))
 	{	
 		_opt& opt = _Options.push_back();

@@ -1,2 +1,22 @@
 ﻿=== UnitTest<recv_pump>: BEGIN ===
 [Remote] Recv: "from any" from: 33000
+[Remote] Recv: "from local" from: 33000
+[Local] Recv: "from remote" from: 33010
+[Remote] Recv: "from any" from: 33000
+[Remote] Recv: "from local" from: 33000
+[Local] Recv: "from remote" from: 33010
+[Remote] Recv: "from any" from: 33000
+[Remote] Recv: "from local" from: 33000
+[Local] Recv: "from remote" from: 33010
+[Remote] Recv: "from any" from: 33000
+[Remote] Recv: "from local" from: 33000
+[Local] Recv: "from remote" from: 33010
+[Remote] Recv: "from any" from: 33000
+[Remote] Recv: "from local" from: 33000
+[Local] Recv: "from remote" from: 33010
+1 Packet Recv = 0, 0
+2 Packet Recv = 300, 0
+3 Packet Recv = 400, 0
+4 Packet Recv = 500, 0
+=== UnitTest<recv_pump>: END =====
+

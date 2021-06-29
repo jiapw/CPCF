@@ -16,3 +16,98 @@ val is 3
 Precompiled:
 val > 3
 
+ALLUSERSPROFILE=C:\ProgramData
+APPDATA=C:\Users\IDEA\AppData\Roaming
+CommonProgramFiles=C:\Program Files\Common Files
+CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files
+CommonProgramW6432=C:\Program Files\Common Files
+COMPLUS_NoGuiFromShim=1
+COMPUTERNAME=DESKTOP-76SGT0T
+ComSpec=C:\Windows\system32\cmd.exe
+DriverData=C:\Windows\System32\Drivers\DriverData
+ENABLE_XAML_DIAGNOSTICS_SOURCE_INFO=1
+FPS_BROWSER_APP_PROFILE_STRING=Internet Explorer
+FPS_BROWSER_USER_PROFILE_STRING=Default
+HOMEDRIVE=C:
+HOMEPATH=\Users\IDEA
+LOCALAPPDATA=C:\Users\IDEA\AppData\Local
+LOGONSERVER=\\DESKTOP-76SGT0T
+MSBuildLoadMicrosoftTargetsReadOnly=true
+NUMBER_OF_PROCESSORS=16
+OneDrive=C:\Users\IDEA\OneDrive
+OS=Windows_NT
+Path=C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Perl64\bin;C:\Users\IDEA\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\VMware\VMware Player\bin\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\CMake\bin;C:\Program Files\Git\cmd;C;C:\Program Files\Graphviz\bin;C:\Program Files\Graphviz\bin;C:\Program Files\MiKTeX\miktex\bin\x64\;C:\Users\IDEA\AppData\Local\Programs\Python\Python39\Scripts\;C:\Users\IDEA\AppData\Local\Programs\Python\Python39\;C:\Users\IDEA\AppData\Local\Microsoft\WindowsApps;C:\Users\IDEA\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\doxygen\bin;C:\Program Files\doxyrest\bin;C:\Program Files\doxybook2\bin;C:\Program Files (x86)\LuaDist\bin;C:\Users\IDEA\AppData\Local\GitHubDesktop\bin
+PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PL;.WPL
+PkgDefApplicationConfigFile=C:\Users\IDEA\AppData\Local\Microsoft\VisualStudio\16.0_b0eb6f6d\devenv.exe.config
+PROCESSOR_ARCHITECTURE=AMD64
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 165 Stepping 5, GenuineIntel
+PROCESSOR_LEVEL=6
+PROCESSOR_REVISION=a505
+PROG27B48B2C057=1
+ProgramData=C:\ProgramData
+ProgramFiles=C:\Program Files
+ProgramFiles(x86)=C:\Program Files (x86)
+ProgramW6432=C:\Program Files
+PSModulePath=%ProgramFiles%\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
+PUBLIC=C:\Users\Public
+ServiceHubLogSessionKey=BC5F3CBC
+SystemDrive=C:
+SystemRoot=C:\Windows
+TEMP=C:\Users\IDEA\AppData\Local\Temp
+ThreadedWaitDialogDpiContext=-4
+TMP=C:\Users\IDEA\AppData\Local\Temp
+USERDOMAIN=DESKTOP-76SGT0T
+USERDOMAIN_ROAMINGPROFILE=DESKTOP-76SGT0T
+USERNAME=IDEA
+USERPROFILE=C:\Users\IDEA
+VisualStudioDir=C:\Users\IDEA\Documents\Visual Studio 2019
+VisualStudioEdition=Microsoft Visual Studio Community 2019
+VisualStudioVersion=16.0
+VS140COMNTOOLS=d:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\
+VSAPPIDDIR=D:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\
+VSAPPIDNAME=devenv.exe
+VSLANG=1033
+VSSKUEDITION=Community
+windir=C:\Windows
+WXDRIVE_START_ARGS=--wxdrive-setting=0 --disable-gpu --disable-software-rasterizer --enable-features=NetworkServiceInProcess
+ZES_ENABLE_SYSMAN=1
+_NO_DEBUG_HEAP=1
+
+Precompiled:
+
+1>2?1:2
+IT = "this is the value of IT"Values;
+MultiLine = Line1 Line2 Line3;
+MultiLine is Line1 Line2 MOOD-PC
+
+ComSpec = cmd.exeC:SomeMissing
+%NotClosed /var/usr/home%%
+MOOD-PC>12?MOOD-PC:12
+Merged = "this is the value of IT" + Values
+TT = 234
+TT exists
+End of File
+
+
+
+Precompiled:
+
+1>2?1:2
+it = "this is the value of it" Values;
+multiLine = Line1 Line2 Line3;
+multiLine is Line1 Line2 MOOD-PC
+
+comSpec = cmd.exe C: SomeMissing
+MOOD-PC>12?MOOD-PC:12
+Merged = "this is the value of it" + Values + HAHA234XIXI2>3?2:3WIWI
+tt = 234
+tt exists
+it is defined
+tt is fit
+it is correct
+(tx.Contract<<16 |  tx.Op)
+End of File
+
+
+=== UnitTest<precompiler>: END =====
+

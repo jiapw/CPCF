@@ -12,11 +12,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	os::CommandLine Cmdline;
 	Cmdline.Parse(argc, argv);
-
-	if (argc == 1)
-	{
-		TestMain();
-	}
+	TestMain();
 	
 	// _DumpMemoryAllocations;
 	return 0;

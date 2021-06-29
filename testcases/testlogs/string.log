@@ -93,3 +93,18 @@ String Expression 1: hello world 1233 !! ..
 String Expression 2: worlld !!
 Replace: wor===d !!
 IsPrefixOf: 1
+BinaryCString: \x31\x32\x33\x34\x35\x36
+Binary: 313233343536
+map["123"]: 456
+Length of "123" + "\x0\x1\x3" is 6
+FileSize<false,false>: 40.54 kB
+FileSize<false,true>: 3.96 MB
+FileSize<false,false>: 38.66 gB
+FileSize<false,true>: 3775.63 TB
+TimeSpan<true>: 0.010 second
+TimeSpan<true>: 10 seconds
+TimeSpan<true>: 1d:3h:46m:40s
+TimeSpan<true>: 16d:7h:41m
+TimeSpan<false>: 16d:7h:41m:0s
+=== UnitTest<string>: END =====
+
