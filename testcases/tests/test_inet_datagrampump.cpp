@@ -2,7 +2,7 @@
 #include "../../core/inet/datagram_pump.h"
 #include "test.h"
 
-#include "../../../3rdparty/CRCpp/inc/CRC.h"
+//#include "../../../3rdparty/CRCpp/inc/CRC.h"
 #include <iostream> // Includes ::std::cout
 #include <cstdint>  // Includes ::std::uint32_t
 
@@ -139,7 +139,7 @@ void rt::UnitTests::recv_pump()
 	}
 }
 
-volatile int _count = 0;
+/*volatile int _count = 0;
 volatile int _error = 0;
 struct SocketIOObj_Routing1 : public DatagramSocket
 {
@@ -189,7 +189,7 @@ char charRand()
 	}
 	return tmp;
 
-}
+}*/
 
 //void rt::UnitTests::pump_client()
 //{

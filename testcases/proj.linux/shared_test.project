@@ -11,62 +11,6 @@
     <File Name="../../core/ext/rocksdb/rocksdb.cpp"/>
     <File Name="../../core/ext/rocksdb/rocksdb.h"/>
   </VirtualDirectory>
-  <VirtualDirectory Name="CPCF">
-    <File Name="../../core/ext/bignum/big_num.cpp"/>
-    <File Name="../../core/ext/bignum/big_num.h"/>
-    <File Name="../../core/ext/botan/botan.cpp"/>
-    <File Name="../../core/ext/botan/botan.h"/>
-    <File Name="../../core/ext/exprtk/exprtk.cpp"/>
-    <File Name="../../core/ext/exprtk/exprtk.h"/>
-    <File Name="../../core/os/file_dir.cpp"/>
-    <File Name="../../core/os/file_dir.h"/>
-    <File Name="../../core/os/file_zip.cpp"/>
-    <File Name="../../core/os/file_zip.h"/>
-    <File Name="../../core/os/high_level.cpp"/>
-    <File Name="../../core/os/high_level.h"/>
-    <File Name="../../core/inet/http_client.cpp"/>
-    <File Name="../../core/inet/http_client.h"/>
-    <File Name="../../core/inet/inet.cpp"/>
-    <File Name="../../core/inet/inet.h"/>
-    <File Name="../../core/ext/ipp/ipp_core.cpp"/>
-    <File Name="../../core/ext/ipp/ipp_core.h"/>
-    <File Name="../../core/ext/ipp/ipp_image.cpp"/>
-    <File Name="../../core/rt/json.cpp"/>
-    <File Name="../../core/rt/json.h"/>
-    <File Name="../../core/os/kernal_encode.cpp"/>
-    <File Name="../../core/os/kernel.cpp"/>
-    <File Name="../../core/os/kernel.h"/>
-    <File Name="../../core/os/kernel_log.cpp"/>
-    <File Name="../../core/ext/lib_inc.c"/>
-    <File Name="../../core/os/multi_thread.cpp"/>
-    <File Name="../../core/os/multi_thread.h"/>
-    <File Name="../../core/os/platform.h"/>
-    <File Name="../../core/ext/bignum/precision_num.cpp"/>
-    <File Name="../../core/ext/bignum/precision_num.h"/>
-    <File Name="../../core/os/precompiler.cpp"/>
-    <File Name="../../core/os/precompiler.h"/>
-    <File Name="../../core/os/predefines.h"/>
-    <File Name="../../core/inet/datagram_pump.cpp"/>
-    <File Name="../../core/inet/datagram_pump.h"/>
-    <File Name="../../core/inet/tinyhttpd.cpp"/>
-    <File Name="../../core/inet/tinyhttpd.h"/>
-    <File Name="../../core/inet/tinyhttpd_fileserv.cpp"/>
-    <File Name="../../core/inet/tinyhttpd_fileserv.h"/>
-    <File Name="../../core/rt/xml_xhtml.cpp"/>
-    <File Name="../../core/rt/xml_xhtml.h"/>
-  </VirtualDirectory>
-  <VirtualDirectory Name="tests">
-    <File Name="../tests/entrypoint.cpp"/>
-    <File Name="../tests/experiments.cpp"/>
-    <File Name="../tests/test.h"/>
-    <File Name="../tests/test_api.cpp"/>
-    <File Name="../tests/test_botan.cpp"/>
-    <File Name="../tests/test_ext.cpp"/>
-    <File Name="../tests/test_http.cpp"/>
-    <File Name="../tests/test_inet.cpp"/>
-    <File Name="../tests/test_ipp.cpp"/>
-    <File Name="../tests/test_perf.cpp"/>
-  </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="-std=c++14;-pthread" C_Options="" Assembler="">
@@ -275,14 +219,26 @@
     <File Name="../../core/rt/xml_xhtml.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="tests">
+    <File Name="../tests/test_rt_string.cpp"/>
+    <File Name="../tests/test_os_kernel.cpp"/>
+    <File Name="../tests/test_rt_buffer.cpp"/>
+    <File Name="../tests/test_rt_json.cpp"/>
+    <File Name="../tests/test_os_multithread.cpp"/>
+    <File Name="../tests/test_inet_datagrampump.cpp"/>
+    <File Name="../tests/test_rt.cpp"/>
+    <File Name="../tests/test_inet_socket.cpp"/>
+    <File Name="../tests/test_os_filedir.cpp"/>
+    <File Name="../tests/test_os_precompiler.cpp"/>
+    <File Name="../tests/test_os_highlevel.cpp"/>
+    <File Name="../tests/test_rt_xml.cpp"/>
+    <File Name="../tests/test_inet_networkInterfaces.cpp"/>
+    <File Name="../tests/test_rt_smallmath.cpp"/>
     <File Name="../tests/entrypoint.cpp"/>
     <File Name="../tests/experiments.cpp"/>
     <File Name="../tests/test.h"/>
-    <File Name="../tests/test_api.cpp"/>
     <File Name="../tests/test_botan.cpp"/>
     <File Name="../tests/test_ext.cpp"/>
     <File Name="../tests/test_http.cpp"/>
-    <File Name="../tests/test_inet.cpp"/>
     <File Name="../tests/test_ipp.cpp"/>
     <File Name="../tests/test_perf.cpp"/>
   </VirtualDirectory>
