@@ -247,6 +247,14 @@ void rt::UnitTests::json()
 		json.AppendKey("key5", rt::SS("Hello ") + 1.0f);
 
 		_LOG(rt::JsonBeautified(json));
+		rt::Json json2;
+		json2.Object().AppendKeyAndEscapedValue("key\b", "\tke\by");
+		_LOG(rt::JsonBeautified(json2));
+		rt::JsonObject JO(json2.AsString());
+		_LOG(JO.GetValue(rt::JsonEscapeString("key\b")));
+		rt::String S;
+		JO.GetValueUnescaped(S,rt::JsonEscapeString("key\b"));
+		_LOG(S);
 	}
 
 	{

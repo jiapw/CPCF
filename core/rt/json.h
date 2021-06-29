@@ -681,7 +681,12 @@ public:
 				_details::_AppendJsonValueToString(json_value, _AppendingKeyedValue(*this, key)._pJson->_String);
 				return *this;
 			}
-
+	auto& AppendKeyAndEscapedValue(const rt::String_Ref& key, const rt::String_Ref& json_value)
+	{
+		ASSERT(IsEndsWith('}'));
+		_details::_AppendJsonValueToString(rt::JsonEscapeString(json_value), _AppendingKeyedValue(*this, key)._pJson->_String);
+		return *this;
+	}
 	// Array Operation
 	auto	ScopeAppendingElement(){ return _AppendingElement(*this); }
 	template<typename T>
