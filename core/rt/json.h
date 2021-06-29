@@ -478,6 +478,13 @@ public:
 						UnescapeStringValue(in, out);
 						return out;
 					}
+	rt::String		GetValueUnescaped(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const
+					{
+						rt::String out;
+						rt::String_Ref in = GetValue(xpath, p_exist, bDoNotSplitDot);
+						UnescapeStringValue(in, out);
+						return out;
+					}
 };
 template<>
 INLFUNC bool JsonObject::GetValueAs<bool>(const rt::String_Ref& xpath, bool default_val) const
