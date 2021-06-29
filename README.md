@@ -65,7 +65,7 @@ The library favors performance (more speed, less resource) over simplicity and m
 ### Dependency
 The library is completely self-contained. It embedded copies of other projects and credited below.
 
-CPCF embeds the Intel IPP 7.1.1 and the MKL 11.3.3. (Static linking libraries) for image processing, cryptography and advanced numeric operations. **Download static library package and follow instructions** at https://github.com/jiapw/CPCF/releases/tag/CPCF-Libs
+CPCF embeds the Intel IPP 2021.1. (Static linking libraries) for image processing, cryptography and advanced numeric operations. **Download static library package and follow instructions** at https://github.com/jiapw/CPCF/releases/tag/CPCF-Libs
 
 #### External Projects Embedded
 * Intel IPP: https://software.intel.com/en-us/intel-ipp
