@@ -255,6 +255,7 @@ void rt::UnitTests::json()
 		rt::String S;
 		JO.GetValueUnescaped(S,rt::JsonEscapeString("key\b"));
 		_LOG(S);
+		_LOG(JO.GetValueUnescaped(rt::JsonEscapeString("key\b")));
 	}
 
 	{

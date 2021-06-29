@@ -141,6 +141,7 @@ A Json:  13{"var":1.3000} EOF
 {"key\b": "\tke\by"}
 \tke\by
 	key
+	key
 J_IF: {"a": 1}
 J_IF: {}
 J_IF: {"b": 3, "d": 4}
