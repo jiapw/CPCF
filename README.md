@@ -1,9 +1,5 @@
 # CPCF
 
-[![Windows Action Status](../../workflows/Windows/badge.svg)](../../actions)
-[![Ubuntu Action Status](../../workflows/Ubuntu/badge.svg)](../../actions)
-[![macOS Action Status](../../workflows/macOS/badge.svg)](../../actions)
-
 It is a C++ library provides primitives for building cross-platform native systems and applications. It is refactored from a collection of codes accumulated when I was doing research on Computer Graphics/Vision and Distributed Systems in ICT/CAS, MSRA and MSR since 2002. 
 
 The library favors performance (more speed, less resource) over simplicity and maintainability, use with caution. It is designed for all major platforms: Windows, Linux, MacOSX and mobile platforms iOS and Andriod. Only three desktop platforms are intensively tested. iOS should be fine, Andriod is not tested for a long time. 
@@ -13,7 +9,7 @@ The library favors performance (more speed, less resource) over simplicity and m
 
 ##### Data Manipulation
 * `rt::TypeTraits` Extensible type traits framework
-* `rt::String/String_Ref` Memory efficient strings operations and expression (based on string without trailing NULL)
+* `rt::String`, `rt::String_Ref` Memory efficient strings operations and expression (based on string without trailing NULL)
 * `rt::JsonObject`, `J()` Memory efficient simply Json parser and composer
 * `rt::XMLParser`, `rt::XMLComposer` XML parser and composer support xpath expression
 * `rt::Buffer` Simple linear container with assuming *move* syntax
@@ -21,21 +17,18 @@ The library favors performance (more speed, less resource) over simplicity and m
 * `rt::Mat3x3`, `rt::Mat4x4` Small math matrix for numeric operations
 
 ##### Advanced Data Manipulation
-* `mkl::RandomNumberGenerator` High quality pseudo random numbers
-* `mkl::Vector<>/Matrix<>` High performance numeric computation. Least square solver, matrix decomposition and sparse linear equations.
 * `ipp::Image<>` High performance image processing operations for both LDR and HDR
-* `ipp::ImageDecoder/Encoder` Image codec supports GIF/PNG/JPG/PFM/EXR
+* `ipp::ImageDecoder`,`ipp::ImageEncoder` Image codec supports GIF/PNG/JPG/PFM/EXR
 
 ##### OS Primitives
-* `_LOG`, `_LOG_XXX` Runtime logging solution for various IDEs and devices
+* `_LOG(x)`, `_LOG_ERROR(x)`,`_LOG_HIGHLIGHT(x)`,etc. Runtime logging solution for various IDEs and devices
 * `os::File` File and Directory manipulation
-* `os::UTF8Encode/Decode` Multilingual string support
-* `os::Base64`, `os::Base32`, `os::Base16`, `os::UrlEnocde/Decode` Binary data encoding
+* `os::UTF8Encode`,`os::UTF8Decode` Multilingual string support
+* `rt::tos::Base64`, `rt::tos::Base32`, `rt::tos::Base16`, `os::UrlEncode`,`os::UrlDecode` Binary data encoding
 * `os::Timestamp` High precision time and date representation
 * `os::HighPerformanceCounter` High precision timing
 * `os::Thread` Simple thread creation and control
 * `os::CriticalSection`, `os::Event`, `os::AtomicXXX` Concurrency primitives
-* `os::GarbageCollection` Delayed memory free and object release
 * `os::ParallelWriter<>` Multiple writer and single reader scheme
 
 ##### Networking
@@ -60,7 +53,6 @@ The library favors performance (more speed, less resource) over simplicity and m
 * `gl::ArcBall<>` Intuitive user interactive for scene/object rotation
 * `gl::gdiCanvas` 2D graphics drawing interface (text, image, line, rectangle and polygon)
 * `gl::gdiFont` Bitmap font representation for `gl::gdiCanvas`
-* `win_fontgen` A bitmap font generator (Windows only)
 
 ### Dependency
 The library is completely self-contained. It embedded copies of other projects and credited below.
@@ -69,7 +61,6 @@ CPCF embeds the Intel IPP 2021.1. (Static linking libraries) for image processin
 
 #### External Projects Embedded
 * Intel IPP: https://software.intel.com/en-us/intel-ipp
-* Intel MKL: https://software.intel.com/en-us/mkl
 * LZMA SDK: https://www.7-zip.org/sdk.html
 * Botan: https://botan.randombit.net/
 * exprtk: http://www.partow.net/programming/exprtk/index.html
