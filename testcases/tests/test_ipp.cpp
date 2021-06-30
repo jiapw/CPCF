@@ -362,14 +362,6 @@ void rt::UnitTests::ipp_image()
 		img.Save("test.jpg");
 		img.Save("test_large.gif");
 
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		img.GetSub(600,600,300,300).BoxFilter(ipp::Size(80,10));
-		img.GetSub(100,100,200,200).Add(rt::Vec3b(50));  // no memory copy here, the returned image object is referring the pixel buffer of 'img'
-		img.GetSub(200,200,200,200).Add(rt::Vec3b(0,0,50));
-		img.GetSub(100,200,200,200).RightShift(2);
-		img.GetSub(200,200,200,200).RotateTo(30, rt::Vec2d(100,100), img.GetSub(400,400,300,300));
-		img(100,100) = rt::Vec3b(255,0,0);
-#endif
 		ipp::ImageEncoder	enc;
 		enc.Encode((LPCBYTE)img.GetBits(), img.GetChannels(), img.GetWidth(), img.GetHeight(), img.GetStep(), ipp::ImageCodec_PNG);
 
@@ -424,10 +416,6 @@ void rt::UnitTests::ipp_image()
 
 		hdr = img;
         
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		hdr.Sqr();
-		hdr.Sqr();
-#endif
 		hdr.Save("test.pfm");
 		hdr.Save("test_piz.exr"); // PIZ is the default
 		hdr.Save("test_pxr24.exr", ipp::ImageCodec_EXR_PXR24);
@@ -435,9 +423,6 @@ void rt::UnitTests::ipp_image()
 
 		ipp::Image_3c32f	img_hdr;
 		img_hdr.Load("test_piz.exr");
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-		img_hdr.Sqrt();
-#endif
 		img_hdr.Save("test_sqrt.png");
 	}
 }
@@ -446,207 +431,207 @@ void rt::UnitTests::ipp_image()
 
 void rt::UnitTests::ipp_image_apps()
 {
-	//{	// VRF
-	//	float threshold = 0.04f;
-	//	UINT   size_min = 32;
+	{	// VRF
+		float threshold = 0.04f;
+		UINT   size_min = 32;
 
-	//	LPCSTR fn = 
-	//		//"bmw_3k.png"
-	//		//"flower1.jpg"
-	//		//"minnie.png"
-	//		"zephyr_2k.png"
-	//		;
-
-
-	//	ipp::Image_3c8u	src, work;
-	//	ipp::Image_1c8u sample;
-	//	//src.Load("whirl.jpg");
-	//	//src.Load("minnie_2k.png");
-	//	//src.Load("zephyr.png");
-	//	//src.Load("ae.jpg");
-	//	//src.Load("bmw.png");
-	//	//src.Load("fig.png");
-	//	//src.Load("single_orig.png");
-
-	//	if(0)
-	//	{	ipp::Image_3c8u sss;
-	//		sss.Load(fn);
-	//		src.SetSize(1462, 1462);
-	//		sss.ResizeTo_SuperSampling(src);
-	//	}
-	//	else
-	//		src.Load(fn);
-
-	//	rt::Vec3d sum;
-	//	src.Sum(sum);
-	//	sum /= src.GetWidth()*src.GetHeight();
-	//	sum.r = rt::max(sum.r, 10);
-	//	sum.g = rt::max(sum.g, 10);
-	//	sum.b = rt::max(sum.b, 10);
-
-	//	_LOG(sum);
-
-	//	sample.SetSize(src);
-	//	sample.Zero();
-
-	//	rt::Randomizer rng(100);
-	//	float scale = 1;
-
-	//	while(src.GetWidth()/scale >= size_min && src.GetHeight()/scale >= size_min)
-	//	{
-	//		work.SetSize((UINT)src.GetWidth()/scale, (UINT)src.GetHeight()/scale);
-	//		src.ResizeTo_SuperSampling(work);
-
-	//		int spcount = 0;
-
-	//		for(UINT y=1;y<work.GetHeight()-1;y++)
-	//		for(UINT x=1;x<work.GetWidth()-1;x++)
-	//		{
-	//			rt::Vec3i	v = work(x,y);
-	//			rt::Vec3i	la;
-
-	//			/*
-	//			la.r =	rt::Vec4i(
-	//						abs(work(x + 1, y + 0).r + work(x - 1, y + 0).r - 2*v.r),
-	//						abs(work(x - 0, y - 1).r + work(x - 0, y + 1).r - 2*v.r),
-	//						abs(work(x + 1, y + 1).r + work(x - 1, y - 1).r - 2*v.r),
-	//						abs(work(x + 1, y - 1).r + work(x - 1, y + 1).r - 2*v.r)	
-	//						).Max()/2;
-
-	//			la.g =	rt::Vec4i(
-	//						abs(work(x + 1, y + 0).g + work(x - 1, y + 0).g - 2*v.g),
-	//						abs(work(x - 0, y - 1).g + work(x - 0, y + 1).g - 2*v.g),
-	//						abs(work(x + 1, y + 1).g + work(x - 1, y - 1).g - 2*v.g),
-	//						abs(work(x + 1, y - 1).g + work(x - 1, y + 1).g - 2*v.g)	
-	//						).Max()/2;
-
-	//			la.b =	rt::Vec4i(
-	//						abs(work(x + 1, y + 0).b + work(x - 1, y + 0).b - 2*v.b),
-	//						abs(work(x - 0, y - 1).b + work(x - 0, y + 1).b - 2*v.b),
-	//						abs(work(x + 1, y + 1).b + work(x - 1, y - 1).b - 2*v.b),
-	//						abs(work(x + 1, y - 1).b + work(x - 1, y + 1).b - 2*v.b)	
-	//						).Max()/2;
-	//			*/
+		LPCSTR fn =
+			//"bmw_3k.png"
+			//"flower1.jpg"
+			//"minnie.png"
+			"zephyr_2k.png"
+			;
 
 
-	//			la.r =	rt::max(
-	//					rt::Vec4i(
-	//						abs(work(x + 1, y + 0).r - v.r),
-	//						abs(work(x - 1, y + 0).r - v.r),
-	//						abs(work(x - 0, y - 1).r - v.r),
-	//						abs(work(x - 0, y + 1).r - v.r)
-	//						).Max()
-	//					,
-	//					rt::Vec4i(
-	//						abs(work(x + 1, y + 1).r - v.r),
-	//						abs(work(x - 1, y - 1).r - v.r),
-	//						abs(work(x + 1, y - 1).r - v.r),
-	//						abs(work(x - 1, y + 1).r - v.r)
-	//						).Max()
-	//					);
-	//				
-	//			la.g = rt::max(
-	//					rt::Vec4i(
-	//						abs(work(x + 1, y + 0).g - v.g),
-	//						abs(work(x - 1, y + 0).g - v.g),
-	//						abs(work(x - 0, y - 1).g - v.g),
-	//						abs(work(x - 0, y + 1).g - v.g)
-	//						).Max()
-	//					,
-	//					rt::Vec4i(
-	//						abs(work(x + 1, y + 1).g - v.g),
-	//						abs(work(x - 1, y - 1).g - v.g),
-	//						abs(work(x + 1, y - 1).g - v.g),
-	//						abs(work(x - 1, y + 1).g - v.g)
-	//						).Max()
-	//					);
-	//				
-	//			la.b = rt::max(
-	//					rt::Vec4i(
-	//						abs(work(x + 1, y + 0).b - v.b),
-	//						abs(work(x - 1, y + 0).b - v.b),
-	//						abs(work(x - 0, y - 1).b - v.b),
-	//						abs(work(x - 0, y + 1).b - v.b)
-	//						).Max()
-	//					,
-	//					rt::Vec4i(
-	//						abs(work(x + 1, y + 1).b - v.b),
-	//						abs(work(x - 1, y - 1).b - v.b),
-	//						abs(work(x + 1, y - 1).b - v.b),
-	//						abs(work(x - 1, y + 1).b - v.b)
-	//						).Max()
-	//					);
+		ipp::Image_3c8u	src, work;
+		ipp::Image_1c8u sample;
+		//src.Load("whirl.jpg");
+		//src.Load("minnie_2k.png");
+		//src.Load("zephyr.png");
+		//src.Load("ae.jpg");
+		//src.Load("bmw.png");
+		//src.Load("fig.png");
+		//src.Load("single_orig.png");
 
-	//			//if(sqrt((double)la.L2NormSqr()) > threshold*sqrt((double)work(x,y).L2NormSqr()))
-	//			//if(abs(la.g) > threshold*rt::max(1,work(x,y).g))
-	//			//if(	rt::max(la.r, rt::max(la.g, la.b)) > 
-	//			//	threshold*rt::max(v.r, rt::max(v.g, v.b))
-	//			//)
-	//			if(sqrt((double)la.L2NormSqr()) > threshold*sqrt((double)sum.L2NormSqr()))
-	//			{
-	//				int sx = x*scale + rng.GetNext()%(int)(scale + 0.5f);
-	//				int sy = y*scale + rng.GetNext()%(int)(scale + 0.5f);
-	//				sample(sx, sy) = 255;
-	//				spcount++;
-	//			}
-	//		}
+		if(0)
+		{	ipp::Image_3c8u sss;
+			sss.Load(fn);
+			src.SetSize(1462, 1462);
+			sss.ResizeTo_SuperSampling(src);
+		}
+		else
+			src.Load(fn);
 
-	//		_LOG(work.GetWidth()<<'x'<<work.GetHeight()<<": \\mu = "<<spcount*100.0f/(work.GetWidth()*work.GetHeight()));
+		rt::Vec3d sum;
+		src.Sum(sum);
+		sum /= src.GetWidth()*src.GetHeight();
+		sum.r = rt::max(sum.r, 10.0);
+		sum.g = rt::max(sum.g, 10.0);
+		sum.b = rt::max(sum.b, 10.0);
 
-	//		sample.Save(rt::String_Ref(fn) + '_' + scale + ".png", ipp::ImageCodec_PNG);
-	//		scale*=1.4f;
-	//	}
+		_LOG(sum);
 
-	//	work.SetSize(src.GetWidth()/scale, src.GetHeight()/scale);
-	//	for(UINT y=0;y<work.GetHeight();y++)
-	//	for(UINT x=0;x<work.GetWidth();x++)
-	//	{
-	//		int sx = x*scale + rng.GetNext()%(int)(scale + 0.5f);
-	//		int sy = y*scale + rng.GetNext()%(int)(scale + 0.5f);
-	//		sample(sx, sy) = 255;
-	//	}
+		sample.SetSize(src);
+		sample.Zero();
 
-	//	sample.Save(rt::String_Ref(fn) + "_final.png", ipp::ImageCodec_PNG);
-	//	rt::Vec<__int64, 1> sumv;
-	//	sample.Sum(sumv);
-	//	_LOG("PX = "<<sumv.x/255);
-	//}
+		rt::Randomizer rng(100);
+		float scale = 1;
 
-	//return;
+		while(src.GetWidth()/scale >= size_min && src.GetHeight()/scale >= size_min)
+		{
+			work.SetSize((UINT)(src.GetWidth()/scale), (UINT)(src.GetHeight()/scale));
+			src.ResizeTo_SuperSampling(work);
 
-	//{	// DY's brain training >_<
-	//	int seed = 66165;
-	//	rt::Randomizer rng(seed);
+			int spcount = 0;
 
-	//	ipp::Image_3c8u  a,b;
-	//	a.SetSize(100,100);
-	//	rt::Buffer_Ref<BYTE>((LPBYTE)a.GetBits(), a.GetHeight()*a.GetStep()).RandomBits(seed);
-	//	for(UINT i=0;i<a.GetHeight()*a.GetStep();i++)
-	//	{
-	//		((LPBYTE)a.GetBits())[i] = ((BYTE)rng.GetNext())&0xc0;
-	//	}
+			for(UINT y=1;y<work.GetHeight()-1;y++)
+			for(UINT x=1;x<work.GetWidth()-1;x++)
+			{
+				rt::Vec3i	v = work(x,y);
+				rt::Vec3i	la;
 
-	//	b.SetSize(a);
-	//	b = a;
-	//	
-	//	int x = rng.GetNext()%b.GetWidth();
-	//	int y = rng.GetNext()%b.GetHeight();
-	//	b(x,y).r = ~b(x,y).r;
-	//	b(x,y).g = ~b(x,y).g;
-	//	b(x,y).b = ~b(x,y).b;
+				/*
+				la.r =	rt::Vec4i(
+							abs(work(x + 1, y + 0).r + work(x - 1, y + 0).r - 2*v.r),
+							abs(work(x - 0, y - 1).r + work(x - 0, y + 1).r - 2*v.r),
+							abs(work(x + 1, y + 1).r + work(x - 1, y - 1).r - 2*v.r),
+							abs(work(x + 1, y - 1).r + work(x - 1, y + 1).r - 2*v.r)
+							).Max()/2;
 
-	//	ipp::Image_3c8u merged;
-	//	merged.Zero();
-	//	merged.SetSize(a.GetWidth() + b.GetWidth() + 4, b.GetHeight() + 2);
-	//	merged.GetSub(1, 1, a.GetWidth(), a.GetHeight()) = a;
-	//	merged.GetSub(a.GetWidth() + 3, 1, a.GetWidth(), a.GetHeight()) = b;
+				la.g =	rt::Vec4i(
+							abs(work(x + 1, y + 0).g + work(x - 1, y + 0).g - 2*v.g),
+							abs(work(x - 0, y - 1).g + work(x - 0, y + 1).g - 2*v.g),
+							abs(work(x + 1, y + 1).g + work(x - 1, y - 1).g - 2*v.g),
+							abs(work(x + 1, y - 1).g + work(x - 1, y + 1).g - 2*v.g)
+							).Max()/2;
 
-	//	ipp::Image_3c8u enlarged;
-	//	enlarged.SetSize(merged.GetWidth()*10, merged.GetHeight()*10);
-	//	merged.ResizeTo_Nearest(enlarged);
+				la.b =	rt::Vec4i(
+							abs(work(x + 1, y + 0).b + work(x - 1, y + 0).b - 2*v.b),
+							abs(work(x - 0, y - 1).b + work(x - 0, y + 1).b - 2*v.b),
+							abs(work(x + 1, y + 1).b + work(x - 1, y - 1).b - 2*v.b),
+							abs(work(x + 1, y - 1).b + work(x - 1, y + 1).b - 2*v.b)
+							).Max()/2;
+				*/
 
-	//	enlarged.Save("see.png", ipp::ImageCodec_PNG);
-	//}
+
+				la.r =	rt::max(
+						rt::Vec4i(
+							abs(work(x + 1, y + 0).r - v.r),
+							abs(work(x - 1, y + 0).r - v.r),
+							abs(work(x - 0, y - 1).r - v.r),
+							abs(work(x - 0, y + 1).r - v.r)
+							).Max()
+						,
+						rt::Vec4i(
+							abs(work(x + 1, y + 1).r - v.r),
+							abs(work(x - 1, y - 1).r - v.r),
+							abs(work(x + 1, y - 1).r - v.r),
+							abs(work(x - 1, y + 1).r - v.r)
+							).Max()
+						);
+					
+				la.g = rt::max(
+						rt::Vec4i(
+							abs(work(x + 1, y + 0).g - v.g),
+							abs(work(x - 1, y + 0).g - v.g),
+							abs(work(x - 0, y - 1).g - v.g),
+							abs(work(x - 0, y + 1).g - v.g)
+							).Max()
+						,
+						rt::Vec4i(
+							abs(work(x + 1, y + 1).g - v.g),
+							abs(work(x - 1, y - 1).g - v.g),
+							abs(work(x + 1, y - 1).g - v.g),
+							abs(work(x - 1, y + 1).g - v.g)
+							).Max()
+						);
+					
+				la.b = rt::max(
+						rt::Vec4i(
+							abs(work(x + 1, y + 0).b - v.b),
+							abs(work(x - 1, y + 0).b - v.b),
+							abs(work(x - 0, y - 1).b - v.b),
+							abs(work(x - 0, y + 1).b - v.b)
+							).Max()
+						,
+						rt::Vec4i(
+							abs(work(x + 1, y + 1).b - v.b),
+							abs(work(x - 1, y - 1).b - v.b),
+							abs(work(x + 1, y - 1).b - v.b),
+							abs(work(x - 1, y + 1).b - v.b)
+							).Max()
+						);
+
+				//if(sqrt((double)la.L2NormSqr()) > threshold*sqrt((double)work(x,y).L2NormSqr()))
+				//if(abs(la.g) > threshold*rt::max(1,work(x,y).g))
+				//if(	rt::max(la.r, rt::max(la.g, la.b)) >
+				//	threshold*rt::max(v.r, rt::max(v.g, v.b))
+				//)
+				if(sqrt((double)la.L2NormSqr()) > threshold*sqrt((double)sum.L2NormSqr()))
+				{
+					int sx = (int)(x*scale + rng.GetNext()%(int)(scale + 0.5f));
+					int sy = (int)(y*scale + rng.GetNext()%(int)(scale + 0.5f));
+					sample(sx, sy) = 255;
+					spcount++;
+				}
+			}
+
+			_LOG(work.GetWidth()<<'x'<<work.GetHeight()<<": \\mu = "<<spcount*100.0f/(work.GetWidth()*work.GetHeight()));
+
+			sample.Save(rt::String_Ref(fn) + '_' + scale + ".png", ipp::ImageCodec_PNG);
+			scale*=1.4f;
+		}
+
+		work.SetSize((UINT)(src.GetWidth()/scale), (UINT)(src.GetHeight()/scale));
+		for(UINT y=0;y<work.GetHeight();y++)
+		for(UINT x=0;x<work.GetWidth();x++)
+		{
+			int sx = (int)(x*scale + rng.GetNext()%(int)(scale + 0.5f));
+			int sy = (int)(y*scale + rng.GetNext()%(int)(scale + 0.5f));
+			sample(sx, sy) = 255;
+		}
+
+		sample.Save(rt::String_Ref(fn) + "_final.png", ipp::ImageCodec_PNG);
+		rt::Vec<__int64, 1> sumv;
+		sample.Sum(sumv);
+		_LOG("PX = "<<sumv.x/255);
+	}
+
+	return;
+
+	{	// DY's brain training >_<
+		int seed = 66165;
+		rt::Randomizer rng(seed);
+
+		ipp::Image_3c8u  a,b;
+		a.SetSize(100,100);
+		rt::Buffer_Ref<BYTE>((LPBYTE)a.GetBits(), a.GetHeight()*a.GetStep()).RandomBits(seed);
+		for(UINT i=0;i<a.GetHeight()*a.GetStep();i++)
+		{
+			((LPBYTE)a.GetBits())[i] = ((BYTE)rng.GetNext())&0xc0;
+		}
+
+		b.SetSize(a);
+		b = a;
+		
+		int x = rng.GetNext()%b.GetWidth();
+		int y = rng.GetNext()%b.GetHeight();
+		b(x,y).r = ~b(x,y).r;
+		b(x,y).g = ~b(x,y).g;
+		b(x,y).b = ~b(x,y).b;
+
+		ipp::Image_3c8u merged;
+		merged.Zero();
+		merged.SetSize(a.GetWidth() + b.GetWidth() + 4, b.GetHeight() + 2);
+		merged.GetSub(1, 1, a.GetWidth(), a.GetHeight()) = a;
+		merged.GetSub(a.GetWidth() + 3, 1, a.GetWidth(), a.GetHeight()) = b;
+
+		ipp::Image_3c8u enlarged;
+		enlarged.SetSize(merged.GetWidth()*10, merged.GetHeight()*10);
+		merged.ResizeTo_Nearest(enlarged);
+
+		enlarged.Save("see.png", ipp::ImageCodec_PNG);
+	}
 }
 
 
@@ -706,7 +691,7 @@ void rt::UnitTests::ipp_imageproc()
 	}
 
 	return;
-	
+
 	ipp::Image_3c8u	img, ret, resized;
 	img.Load("Konachan.com - 144591 sample.jpg");
 	ret.SetSize(img);
@@ -723,7 +708,7 @@ void rt::UnitTests::ipp_imageproc()
 	resized.Save("resized_linear.jpg");
 	img.ResizeTo_SuperSampling(resized);
 	resized.Save("resized_super.jpg");
-	
+
 	ipp::Image_1c8u r,g,b;
 	r.SetSize(resized);
 	g.SetSize(resized);
@@ -762,7 +747,7 @@ void rt::UnitTests::ipp_matting()
 		{
 			rt::Vec4b& pf = out(x,y);
 			pf.a = b(x,y).GetBrightness() + 255 - w(x,y).GetBrightness();
-			
+
 			rt::Vec3b& pb = b(x,y);
 			if(pf.a)
 			{

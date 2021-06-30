@@ -17,7 +17,7 @@ template<int bit_width>
 struct TTMathType;
 	template<>
 	struct TTMathType<256>
-	{	// 1:3
+	{ 	// 1:3
 		typedef ttmath::Big<TTMATH_BITS(64), TTMATH_BITS(192)> Float;
 		static_assert(sizeof(Float) == sizeof(PrecisionFloat<256>), "Size of TTMath type inconsistent");
 	};
@@ -30,16 +30,21 @@ struct TTMathType;
 	template<>
 	struct TTMathType<1024>
 	{	// 3:13
-		typedef ttmath::Big<TTMATH_BITS(128), TTMATH_BITS(896)> Float;
+		typedef ttmath::Big<TTMATH_BITS(192), TTMATH_BITS(832)> Float;
 		static_assert(sizeof(Float) == sizeof(PrecisionFloat<1024>), "Size of TTMath type inconsistent");
 	};
 	template<>
 	struct TTMathType<2048>
 	{	// 5:27
-		typedef ttmath::Big<TTMATH_BITS(128), TTMATH_BITS(1920)> Float;
+		typedef ttmath::Big<TTMATH_BITS(320), TTMATH_BITS(1728)> Float;
 		static_assert(sizeof(Float) == sizeof(PrecisionFloat<2048>), "Size of TTMath type inconsistent");
 	};
-
+	template<>
+	struct TTMathType<8192>
+	{	// 9:119
+		typedef ttmath::Big<TTMATH_BITS(576), TTMATH_BITS(7616)> Float;
+		static_assert(sizeof(Float) == sizeof(PrecisionFloat<8192>), "Size of TTMath type inconsistent");
+	};
 
 template<int bit_width>
 PrecisionFloat<bit_width>::PrecisionFloat(double x)
@@ -166,6 +171,6 @@ template class PrecisionFloat<256>;
 template class PrecisionFloat<512>;
 template class PrecisionFloat<1024>;
 template class PrecisionFloat<2048>;
-
+template class PrecisionFloat<8192>;
 }} // namespace ext::_details
 #pragma pack(pop)

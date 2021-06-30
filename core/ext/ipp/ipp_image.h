@@ -746,22 +746,24 @@ public:
 		if(size.height&1){}else{ size.height++; }
 		Point pt(size.width>>1,size.height>>1);
 		Ref win = GetSub_Inside(pt.x,pt.y);
-		switch(chan_num) {
-			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),win,size,pt); break;
-			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),win,size,pt); break;
-			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),win,size,pt); break;
-	}	}
+//		switch(chan_num) {
+//			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),win,size,pt); break;
+//			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),win,size,pt); break;
+//			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),win,size,pt); break;
+//	}
+	}
 	FORCEINL void BoxFilterTo(Image_Ref& dst, const Size& isize)
 	{	Size size = isize;
 		if(size.width&1){}else{ size.width++; }
 		if(size.height&1){}else{ size.height++; }
 		Point pt(size.width>>1,size.height>>1);
 		Ref win = GetSub_Inside(pt.x,pt.y);
-		switch(chan_num) {
-			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
-			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
-			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
-	}	}
+//		switch(chan_num) {
+//			case 1: ipp_cpp::ippiFilterBox_C1R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
+//			case 3: ipp_cpp::ippiFilterBox_C3R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
+//			case 4: ipp_cpp::ippiFilterBox_C4R(IPPARG_IMG(win),IPPARG_IMG(dst),win,size,pt); break;
+//	}
+}
 	FORCEINL void RightShift(Ipp32u count)
 	{	switch(chan_num) {
 			case 1: ipp_cpp::ippiRShift_C1R(IPPARG_IMG(*this),count,IPPARG_IMG(*this), *this); break;
@@ -1373,8 +1375,8 @@ public:
 	FORCEINL void Set(const t_Val& value)
 	{	switch(chan_num) {
 			case 1: ipp_cpp::ippiSet_C1R(value[0],IPPARG_IMG(*this),*this); break;
-			case 3: ipp_cpp::ippiSet_C3R(value,IPPARG_IMG(*this),*this); break;
-			case 4: ipp_cpp::ippiSet_C4R(value,IPPARG_IMG(*this),*this); break;
+			case 3: ipp_cpp::ippiSet_C3R(value.ptr(),IPPARG_IMG(*this),*this); break;
+			case 4: ipp_cpp::ippiSet_C4R(value.ptr(),IPPARG_IMG(*this),*this); break;
 	}	}
 	FORCEINL void Ln()
 	{	switch(chan_num) {	
@@ -2215,46 +2217,16 @@ public:
 	FORCEINL bool	SetSize(const Image_Ref<t_Value2, Channel2>& x){ return SetSize(x.GetWidth(), x.GetHeight()); }
 	FORCEINL bool	SetSize(const IppiSize& x){ return SetSize(x.width, x.height); }
 	INLFUNC  bool	SetSize(UINT w, UINT h)
-	{	if(w==Ref::Width && h==Ref::Height){ return true; }
+	{	if(w == Ref::Width && h == Ref::Height){ return true; }
 		else
 		{	__SafeFree();
-			int step_size = 0;
+			Ref::Width=w; Ref::Height=h;
 			if(w&&h)
-			{	
-#ifdef PLATFORM_INTEL_IPP_SUPPORT
-				switch(sizeof(t_Value)*8*Channel)
-				{
-				case 8:  // 1c8u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_8u_C1)(w,h,&step_size); break;
-				case 16: // 2c8u,1c16u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_16u_C1)(w,h,&step_size); break;
-				case 24: // 3c8u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_8u_C3)(w,h,&step_size); break;
-				case 32: // 4c8u,2c16u,1c32f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_8u_C4)(w,h,&step_size); break;
-				case 48: // 3c16u
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_16u_C3)(w,h,&step_size); break;
-				case 64: // 4c16u,2c32f,1c64f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_16u_C4)(w,h,&step_size); break;
-				case 96: // 3c32f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_32s_C3)(w,h,&step_size); break;
-				case 128:// 4c32f,2c64f
-					Ref::lpData = (typename Ref::t_Val*)IPPCALL(ippiMalloc_32s_C4)(w,h,&step_size); break;
-				default:
-					ASSERT(0); //unsupported pixel format
-				}
-#else	// PLATFORM_INTEL_IPP_SUPPORT
-				step_size = (int)_EnlargeTo32AL(sizeof(t_Value)*Channel*w);
-				Ref::lpData = (typename Ref::t_Val*)_Malloc32AL(BYTE, step_size*h);
-#endif  // PLATFORM_INTEL_IPP_SUPPORT
-				if(Ref::lpData == nullptr)
-				{	Ref::Width=Ref::Height=0;
-					return false;
-				}
+			{	Ref::Step_Bytes = (UINT)_EnlargeTo32AL(sizeof(t_Value)*Channel*w);
+				Ref::lpData = (typename Ref::t_Val*)_Malloc32AL(BYTE, Ref::Step_Bytes*h);
+				if(Ref::lpData == nullptr){ rt::Zero(*this); return false; }
 			}
-			
-			Ref::Width=w; Ref::Height=h; 
-			Ref::Step_Bytes = (UINT)step_size;
+			else Ref::Step_Bytes = 0;
 			return true;
 		}
 	}

@@ -91,8 +91,8 @@ namespace os
 	FORCEINL void		AtomicSet(int val, volatile int *theValue){ AtomicAdd(val-*theValue, theValue); }
 	FORCEINL __int64	AtomicAdd(__int64 theAmount, volatile __int64 *theValue){ return OSAtomicAdd64Barrier(theAmount, theValue); }
 	FORCEINL void		AtomicSet(__int64 val, volatile __int64 *theValue){ AtomicAdd(val-*theValue, theValue); }
-	FORCEINL DWORD		AtomicOr(DWORD bits, volatile DWORD* theValue){ return (DWORD)OSAtomicOr32((uint32_t)bits, (volatile uint32_t*)theValue); }
-	FORCEINL DWORD		AtomicAnd(DWORD bits, volatile DWORD* theValue){ return (DWORD)OSAtomicAnd32((uint32_t)bits, (volatile uint32_t*)theValue); }
+	FORCEINL DWORD		AtomicOr(DWORD bits, volatile DWORD* theValue){ return (DWORD)OSAtomicOr32Orig((uint32_t)bits, (volatile uint32_t*)theValue); }
+	FORCEINL DWORD		AtomicAnd(DWORD bits, volatile DWORD* theValue){ return (DWORD)OSAtomicAnd32Orig((uint32_t)bits, (volatile uint32_t*)theValue); }
     // Mac seems missing native support to bit ops of 64-bit
     // FORCEINL ULONGLONG    AtomicOr(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)OSAtomicOr64((uint64_t)bits, (volatile uint64_t*)theValue); }
 	// FORCEINL ULONGLONG	AtomicAnd(ULONGLONG bits, volatile ULONGLONG* theValue){ return (ULONGLONG)OSAtomicAnd64((uint64_t)bits, (volatile uint64_t*)theValue); }

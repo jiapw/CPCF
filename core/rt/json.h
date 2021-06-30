@@ -471,6 +471,20 @@ public:
 					{	rt::String_Ref in = GetValue(xpath, default_val, bDoNotSplitDot);
 						UnescapeStringValue(in, val_out);
 					}
+	rt::String		GetValueUnescaped(const rt::String_Ref& xpath, const rt::String_Ref& default_val = rt::String_Ref(), bool bDoNotSplitDot = false) const
+					{
+						rt::String out;
+						rt::String_Ref in = GetValue(xpath, default_val, bDoNotSplitDot);
+						UnescapeStringValue(in, out);
+						return out;
+					}
+	rt::String		GetValueUnescaped(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const
+					{
+						rt::String out;
+						rt::String_Ref in = GetValue(xpath, p_exist, bDoNotSplitDot);
+						UnescapeStringValue(in, out);
+						return out;
+					}
 };
 template<>
 INLFUNC bool JsonObject::GetValueAs<bool>(const rt::String_Ref& xpath, bool default_val) const
@@ -681,7 +695,12 @@ public:
 				_details::_AppendJsonValueToString(json_value, _AppendingKeyedValue(*this, key)._pJson->_String);
 				return *this;
 			}
-
+	auto& AppendKeyAndEscapedValue(const rt::String_Ref& key, const rt::String_Ref& json_value)
+	{
+		ASSERT(IsEndsWith('}'));
+		_details::_AppendJsonValueToString(rt::JsonEscapeString(json_value), _AppendingKeyedValue(*this, key)._pJson->_String);
+		return *this;
+	}
 	// Array Operation
 	auto	ScopeAppendingElement(){ return _AppendingElement(*this); }
 	template<typename T>

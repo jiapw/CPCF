@@ -271,7 +271,7 @@ ULONGLONG os::File::GetFileSize() const
 
 bool os::File::Lock(bool no_wait)
 {
-	ASSERT(_FileLockedSize == -1);
+	ASSERT(!_FileLockedSize);
 #ifdef	PLATFORM_WIN
 	auto os_h = _get_osfhandle(GetFD());
 	OVERLAPPED lap;
@@ -279,9 +279,9 @@ bool os::File::Lock(bool no_wait)
 
 	ULONGLONG size = GetFileSize();
 	if (::LockFileEx((HANDLE)os_h, LOCKFILE_EXCLUSIVE_LOCK | (no_wait ? LOCKFILE_FAIL_IMMEDIATELY : 0)
-		, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >> 32), &lap))
+		, 0, MAXDWORD, MAXDWORD, &lap))
 	{
-		_FileLockedSize = (LONGLONG)size;
+		_FileLockedSize = true;
 		return true;
 	}
 	else return false;
@@ -289,7 +289,7 @@ bool os::File::Lock(bool no_wait)
 	int res = flock(GetFD(), LOCK_EX | (no_wait ? LOCK_NB : 0));
 	if (res != -1)
 	{
-		_FileLockedSize = (LONGLONG)GetFileSize();
+		_FileLockedSize = true;
 		return true;
 	}
 	return false;
@@ -298,16 +298,16 @@ bool os::File::Lock(bool no_wait)
 
 void os::File::Unlock()
 {
-	ASSERT(_FileLockedSize >= 0);
+	ASSERT(_FileLockedSize);
 #ifdef	PLATFORM_WIN
 	auto os_h = _get_osfhandle(GetFD());
 	OVERLAPPED lap;
 	rt::Zero(lap);
-	VERIFY(::UnlockFileEx((HANDLE)os_h, 0, (DWORD)ULLONG_MAX, (DWORD)(ULLONG_MAX >> 32), &lap));
-	_FileLockedSize = -1;
+	VERIFY(::UnlockFileEx((HANDLE)os_h, 0, MAXDWORD,MAXDWORD, &lap));
+	_FileLockedSize = false;
 #else
 	VERIFY(flock(GetFD(), LOCK_UN) != -1);
-	_FileLockedSize = -1;
+	_FileLockedSize = false;
 #endif
 }
 

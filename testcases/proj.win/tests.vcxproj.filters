@@ -34,9 +34,6 @@
     <ClCompile Include="..\tests\test_ipp.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\test_mkl.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\core\ext\botan\botan.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -129,9 +126,6 @@
     <ClInclude Include="..\..\core\ext\ipp\ipp_config.h" />
     <ClInclude Include="..\..\core\ext\ipp\ipp_core.h" />
     <ClInclude Include="..\..\core\ext\ipp\ipp_image.h" />
-    <ClInclude Include="..\..\core\ext\mkl\mkl_matrix.h" />
-    <ClInclude Include="..\..\core\ext\mkl\mkl_rng.h" />
-    <ClInclude Include="..\..\core\ext\mkl\mkl_vector.h" />
     <ClInclude Include="..\..\core\inet\http_client.h" />
     <ClInclude Include="..\..\core\inet\inet.h" />
     <ClInclude Include="..\..\core\inet\tinyhttpd.h" />

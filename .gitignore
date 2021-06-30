@@ -113,3 +113,6 @@ core/ext/botan/amalgamation_build/
 /xml-dir
 /doxygen/that_style
 /.vscode
+/testcases/tests/test_os_kernel.cpp
+
+*.idb

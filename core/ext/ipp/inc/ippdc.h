@@ -1,24 +1,39 @@
-/* /////////////////////////////////////////////////////////////////////////////
+
+/*
+// Copyright 2004-2020 Intel Corporation All Rights Reserved.
 //
-//                  INTEL CORPORATION PROPRIETARY INFORMATION
-//     This software is supplied under the terms of a license agreement or
-//     nondisclosure agreement with Intel Corporation and may not be copied
-//     or disclosed except in accordance with the terms of that agreement.
-//          Copyright(c) 2004-2012 Intel Corporation. All Rights Reserved.
+// The source code, information and material ("Material") contained herein is
+// owned by Intel Corporation or its suppliers or licensors, and title
+// to such Material remains with Intel Corporation or its suppliers or
+// licensors. The Material contains proprietary information of Intel
+// or its suppliers and licensors. The Material is protected by worldwide
+// copyright laws and treaty provisions. No part of the Material may be used,
+// copied, reproduced, modified, published, uploaded, posted, transmitted,
+// distributed or disclosed in any way without Intel's prior express written
+// permission. No license under any patent, copyright or other intellectual
+// property rights in the Material is granted to or conferred upon you,
+// either expressly, by implication, inducement, estoppel or otherwise.
+// Any license under such intellectual property rights must be express and
+// approved by Intel in writing.
 //
-//                  Intel(R) Performance Primitives
-//                  Data Compression Library (ippDC)
+// Unless otherwise agreed by Intel in writing,
+// you may not remove or alter this notice or any other notice embedded in
+// Materials by Intel or Intel's suppliers or licensors in any way.
 //
 */
-#if !defined( __IPPDC_H__ ) || defined( _OWN_BLDPCS )
-#define __IPPDC_H__
 
-#if defined (_WIN32_WCE) && defined (_M_IX86) && defined (__stdcall)
-  #define _IPP_STDCALL_CDECL
-  #undef __stdcall
-#endif
+/*
+//              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
+//              Data Compression Library (ippDC)
+//
+//
+*/
 
-#ifndef __IPPDEFS_H__
+
+#if !defined( IPPDC_H__ ) || defined( _OWN_BLDPCS )
+#define IPPDC_H__
+
+#ifndef IPPDEFS_H__
   #include "ippdefs.h"
 #endif
 
@@ -26,18 +41,23 @@
 extern "C" {
 #endif
 
-#if !defined( _IPP_NO_DEFAULT_LIB )
-  #if defined( _IPP_PARALLEL_DYNAMIC )
-    #pragma comment( lib, "ippdc" )
-    #pragma comment( lib, "ippcore" )
-  #elif defined( _IPP_PARALLEL_STATIC )
-    #pragma comment( lib, "ippdc_t" )
-    #pragma comment( lib, "ipps_t" )
-    #pragma comment( lib, "ippcore_t" )
+#if !defined( IPP_NO_DEFAULT_LIB )
+  #if defined( _IPP_SEQUENTIAL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippdc" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcore" )
   #elif defined( _IPP_SEQUENTIAL_STATIC )
-    #pragma comment( lib, "ippdc_l" )
-    #pragma comment( lib, "ipps_l" )
-    #pragma comment( lib, "ippcore_l" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippdcmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippsmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippvmmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcoremt" )
+  #elif defined( _IPP_PARALLEL_DYNAMIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippdc" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcore" )
+  #elif defined( _IPP_PARALLEL_STATIC )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippdcmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippsmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippvmmt" )
+    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcoremt" )
   #endif
 #endif
 
@@ -62,79 +82,7 @@ extern "C" {
 */
 IPPAPI( const IppLibraryVersion*, ippdcGetLibVersion, (void) )
 
-/* Run Length Encoding */
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeRLE_8u
-//  Purpose:            Performs the RLE encoding
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    pSrcLen           Pointer to the length of source vector on input,
-//                      pointer to the size of remainder on output
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the size of destination buffer on input,
-//                      pointer to the resulting length of the destination vector
-//                      on output.
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsDstSizeLessExpected The size of destination vector less expected
-//    ippStsNoErr               No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeRLE_8u, ( Ipp8u** ppSrc, int* pSrcLen,
-                                      Ipp8u* pDst, int* pDstLen ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeRLE_8u
-//  Purpose:            Performs the RLE decoding
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    pSrcLen           Pointer to the length of source vector on input,
-//                      pointer to the size of remainder on output
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the size of destination buffer on input,
-//                      pointer to the resulting length of the destination vector
-//                      on output.
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsDstSizeLessExpected The size of destination vector less expected
-//    ippStsSrcDataErr          The source vector contains unsupported data
-//    ippStsNoErr               No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeRLE_8u, ( Ipp8u** ppSrc, int* pSrcLen,
-                                      Ipp8u* pDst, int* pDstLen ))
-
 /* Move To Front */
-#if !defined ( _OWN_BLDPCS )
-struct MTFState_8u;
-typedef struct MTFState_8u IppMTFState_8u;
-#endif
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsMTFInitAlloc_8u
-// Purpose:             Allocates necessary memory and initializes structure for
-//                      the MTF transform
-//
-// Parameters:
-//    pMTFState         Pointer to the structure containing parameters for
-//                       the MTF transform
-//
-// Return:
-//    ippStsNullPtrErr  Pointer to structure is NULL
-//    ippMemAllocErr    Can't allocate memory for pMTFState
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsMTFInitAlloc_8u, ( IppMTFState_8u** ppMTFState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 // Name:                ippsMTFInit_8u
@@ -166,17 +114,6 @@ IPPAPI(IppStatus, ippsMTFInit_8u, ( IppMTFState_8u* pMTFState ))
 */
 IPPAPI(IppStatus, ippsMTFGetSize_8u, ( int* pMTFStateSize ))
 
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsMTFFree_8u
-// Purpose:             Frees allocated memory for MTF transform structure
-//
-// Parameters:
-//    pMTFState         Pointer to the structure containing parameters for
-//                      the MTF transform
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void, ippsMTFFree_8u, ( IppMTFState_8u* pMTFState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsMTFFwd_8u
@@ -231,6 +168,7 @@ IPPAPI(IppStatus, ippsMTFInv_8u, ( const Ipp8u* pSrc, Ipp8u* pDst, int len,
 //    ippStsNoErr       No errors
 //
 */
+/* not used */
 IPPAPI(IppStatus, ippsBWTFwdGetSize_8u, ( int wndSize, int* pBWTFwdBuffSize ))
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -251,17 +189,10 @@ IPPAPI(IppStatus, ippsBWTFwdGetSize_8u, ( int wndSize, int* pBWTFwdBuffSize ))
 //    ippStsNoErr       No errors
 //
 */
+/* not used */
 IPPAPI(IppStatus, ippsBWTFwd_8u, ( const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                    int* index, Ipp8u* pBWTFwdBuff ))
 
-#if !defined ( _OWN_BLDPCS )
-typedef enum {
-    ippBWTItohTanakaLimSort,
-    ippBWTItohTanakaUnlimSort,
-    ippBWTSuffixSort,
-    ippBWTAutoSort
-} IppBWTSortAlgorithmHint;
-#endif
 
 /* /////////////////////////////////////////////////////////////////////////////
 // Name:                ippsBWTFwdGetBufSize_SelectSort_8u
@@ -317,6 +248,7 @@ IPPAPI(IppStatus, ippsBWTFwd_SelectSort_8u, ( const Ipp8u* pSrc, Ipp8u* pDst, Ip
 //    ippStsNoErr       No errors
 //
 */
+/* not used */
 IPPAPI(IppStatus, ippsBWTInvGetSize_8u, ( int wndSize, int* pBWTInvBuffSize ))
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -337,566 +269,11 @@ IPPAPI(IppStatus, ippsBWTInvGetSize_8u, ( int wndSize, int* pBWTInvBuffSize ))
 //    ippStsNoErr       No errors
 //
 */
+/* not used */
 IPPAPI(IppStatus, ippsBWTInv_8u, ( const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                    int index, Ipp8u* pBWTInvBuff ))
 
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsBWTGetSize_SmallBlock_8u
-// Purpose:             Computes the size of necessary memory (in bytes) for
-//                      additional buffer for the forward/inverse BWT transform
-//
-// Parameters:
-//    wndSize           Window size for the BWT transform
-//    pBWTBuffSize      Pointer to the computed size of buffer
-//
-// Return:
-//    ippStsNullPtrErr  Pointer is NULL
-//    ippStsSizeErr     wndSize less or equal 0 or more than 32768
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsBWTGetSize_SmallBlock_8u, ( int wndSize, int* pBuffSize ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsBWTFwd_SmallBlock_8u
-//  Purpose:            Performs the forward BWT transform. This function is
-//                      destined for processing of small blocks <= 32768
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    pDst              Pointer to the destination vector
-//    len               Length of source/destination vectors
-//    index             Pointer to the index of first position for
-//                      the inverse BWT transform
-//    pBWTBuff          Pointer to the additional buffer
-//
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Length of vectors is less or equal 0 or more than 32768
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsBWTFwd_SmallBlock_8u, ( const Ipp8u* pSrc, Ipp8u* pDst,
-                                              int len, int* index,
-                                              Ipp8u* pBWTBuff ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsBWTInv_SmallBlock_8u
-//  Purpose:            Performs the inverse BWT transform. This function is
-//                      destined for processing of small blocks <= 32768
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    pDst              Pointer to the destination vector
-//    len               Length of source/destination vectors
-//    index             Index of first position for the inverse BWT transform
-//    pBWTBuff          Pointer to the additional buffer
-//
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Length of source/destination vectors is less or
-//                      equal 0 or more than 32768 or index greater or equal srcLen
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsBWTInv_SmallBlock_8u, ( const Ipp8u* pSrc, Ipp8u* pDst,
-                                              int len, int index,
-                                              Ipp8u* pBWTBuff ))
-
-/* Huffman Coding */
-#if !defined ( _OWN_BLDPCS )
-struct HuffState_8u;
-typedef struct HuffState_8u IppHuffState_8u;
-#endif
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsEncodeHuffInit_8u
-// Purpose:             Initializes structure for Huffman encoding
-//
-// Parameters:
-//    freqTable         Table of symbols' frequencies
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//
-// Return:
-//    ippStsNullPtrErr        One or several pointer(s) is NULL
-//    ippStsFreqTableErr      Invalid freqTable
-//    ippStsMaxLenHuffCodeErr Max length of Huffman code more expected
-//    ippStsNoErr             No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeHuffInit_8u, ( const int freqTable[256],
-                                           IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsHuffGetSize_8u
-// Purpose:             Computes the size of necessary memory (in bytes) for
-//                      structure of Huffman coding
-//
-// Parameters:
-//    pHuffStateSize    Pointer to the computed size of structure
-//
-// Return:
-//    ippStsNullPtrErr  Pointer is NULL
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsHuffGetSize_8u, ( int* pHuffStateSize ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsEncodeHuffInitAlloc_8u
-// Purpose:             Allocates necessary memory and initializes structure for
-//                      Huffman encoding
-//
-// Parameters:
-//    freqTable         Table of symbols' frequencies
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//
-// Return:
-//    ippStsNullPtrErr        One or several pointer(s) is NULL
-//    ippMemAllocErr          Can't allocate memory for pHuffState
-//    ippStsFreqTableErr      Invalid freqTable
-//    ippStsMaxLenHuffCodeErr Max length of Huffman code more expected
-//    ippStsNoErr             No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeHuffInitAlloc_8u, ( const int freqTable[256],
-                                                IppHuffState_8u** ppHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsHuffFree_8u
-// Purpose:             Frees allocated memory for Huffman coding structure
-//
-// Parameters:
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void, ippsHuffFree_8u, ( IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeHuffOne_8u
-//  Purpose:            Performs Huffman encoding of the one source element
-//
-//  Parameters:
-//    src               Source element
-//    pDst              Pointer to the destination vector
-//    dstOffsetBits     Offset in the destination vector, starting with high bit
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//  Return:
-//    ippStsNullPtrErr      One or several pointer(s) is NULL
-//    ippStsCodeLenTableErr Invalid codeLenTable
-//    ippStsSizeErr         dstOffsetBits less than 0 or more than 7
-//    ippStsNoErr           No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeHuffOne_8u, ( Ipp8u src, Ipp8u* pDst, int dstOffsetBits,
-                                          IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeHuff_8u
-//  Purpose:            Performs Huffman encoding
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    srcLen            Length of source vector
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the resulting length of the destination vector
-//                      on output.
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Length of the source vector is less or equal zero
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeHuff_8u, ( const Ipp8u* pSrc, int srcLen,
-                                       Ipp8u* pDst, int* pDstLen,
-                                       IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeHuffFinal_8u
-//  Purpose:            Flushes remainder after Huffman encoding
-//
-//  Parameters:
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the resulting length of the destination vector
-//                      on output.
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeHuffFinal_8u, ( Ipp8u* pDst, int* pDstLen,
-                                            IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsHuffGetLenCodeTable_8u
-//  Purpose:            Gives back the table with lengths of Huffman codes from
-//                      pHuffState
-//
-//  Parameters:
-//    codeLenTable      Destination table with lengths of Huffman codes
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsHuffGetLenCodeTable_8u, ( int codeLenTable[256],
-                                                IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsDecodeHuffInit_8u
-// Purpose:             Initializes structure for Huffman decoding
-//
-// Parameters:
-//    codeLenTable      Table with lengths of Huffman codes
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//
-// Return:
-//    ippStsNullPtrErr      One or several pointer(s) is NULL
-//    ippStsCodeLenTableErr Invalid codeLenTable
-//    ippStsNoErr           No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeHuffInit_8u, ( const int codeLenTable[256],
-                                           IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsDecodeHuffInitAlloc_8u
-// Purpose:             Allocates necessary memory and initializes structure for
-//                      Huffman decoding
-//
-// Parameters:
-//    codeLenTable      Table with lengths of Huffman codes
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//
-// Return:
-//    ippStsNullPtrErr      One or several pointer(s) is NULL
-//    ippMemAllocErr        Can't allocate memory for pHuffState
-//    ippStsCodeLenTableErr Invalid codeLenTable
-//    ippStsNoErr           No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Internal memory allocation will not be supported - use Get<Buffer>Size and Init pair for this functionality. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeHuffInitAlloc_8u, ( const int codeLenTable[256],
-                                                IppHuffState_8u** ppHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeHuffOne_8u
-//  Purpose:            Performs Huffman decoding of the one destination element
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    srcOffsetBits     Offset in the source vector, starting with high bit
-//    pDst              Pointer to the destination vector
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     srcOffsetBits less than 0 or more than 7
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeHuffOne_8u, ( const Ipp8u* pSrc, int srcOffsetBits,
-                                          Ipp8u* pDst, IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeHuff_8u
-//  Purpose:            Performs Huffman decoding
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    srcLen            Length of source vector
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the expected size of destination vector on input,
-//                      pointer to the resulting length of the destination vector
-//                      on output.
-//    pHuffState        Pointer to the structure containing parameters for
-//                      Huffman coding
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Length of the source vector is less or equal zero
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeHuff_8u, ( const Ipp8u* pSrc, int srcLen,
-                                       Ipp8u* pDst, int* pDstLen,
-                                       IppHuffState_8u* pHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-// Name:                ippsHuffGetDstBuffSize_8u
-// Purpose:             Computes the size of necessary memory (in bytes) for
-//                      the destination buffer (for Huffman encoding/decoding)
-//
-// Parameters:
-//    codeLenTable      Table with lengths of Huffman codes
-//    srcLen            Length of source vector
-//    pEncDstBuffSize   Pointer to the computed size of the destination buffer
-//                      for Huffman encoding (value returns if pointer isn't NULL)
-//    pDecDstBuffSize   Pointer to the computed size of the destination buffer
-//                      for Huffman decoding (value returns if pointer isn't NULL)
-//
-// Return:
-//    ippStsNullPtrErr      Pointer to codeLenTable is NULL
-//    ippStsCodeLenTableErr Invalid codeLenTable
-//    ippStsNoErr           No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsHuffGetDstBuffSize_8u, ( const int codeLenTable[256], int srcLen,
-                                               int* pEncDstBuffSize, int* pDecDstBuffSize ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsHuffLenCodeTablePack_8u
-//  Purpose:            Packs the table with lengths of Huffman codes
-//
-//  Parameters:
-//    codeLenTable      Table with lengths of Huffman codes
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the size of destination buffer on input,
-//                      pointer to the resulting length of the destination vector
-//                      on output.
-//
-//  Return:
-//    ippStsNullPtrErr      One or several pointer(s) is NULL
-//    ippStsSizeErr         Length of the destination vector is less, equal zero or
-//                          less expected
-//    ippStsCodeLenTableErr Invalid codeLenTable
-//    ippStsNoErr           No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsHuffLenCodeTablePack_8u,   ( const int codeLenTable[256],
-                                                   Ipp8u* pDst, int* pDstLen ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsHuffLenCodeTableUnpack_8u
-//  Purpose:            Unpacks the table with lengths of Huffman codes
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    pSrcLen           Pointer to the length of source vector on input,
-//                      pointer to the resulting length of the source vector
-//    codeLenTable      Table with lengths of Huffman codes
-//
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Length of the source vector is less, equal zero or
-//                      less expected
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsHuffLenCodeTableUnpack_8u, ( const Ipp8u* pSrc, int* pSrcLen,
-                                                   int codeLenTable[256] ))
-
-/*  Generalized Interval Transform (GIT) functions */
-#if !defined ( _OWN_BLDPCS )
-struct GITState_8u;
-typedef struct GITState_8u IppGITState_8u;
-typedef enum {
-    ippGITNoStrategy,
-    ippGITLeftReorder,
-    ippGITRightReorder,
-    ippGITFixedOrder
-} IppGITStrategyHint;
-#endif
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeGITGetSize_8u
-//  Purpose:            Finds out size of GIT internal encoding state structure
-//                      in bytes
-//
-//  Parameters:
-//    maxSrcLen         Max length of source vector
-//    maxDstLen         Max length of destination vector
-//    pGITStateSize     Pointer to the size of GIT internal encoding state
-//  Return:
-//    ippStsNullPtrErr  Pointer to GITStateSize is NULL
-//    ippStsSizeErr     Bad length arguments
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeGITGetSize_8u, ( int maxSrcLen, int maxDstLen,
-                                             int* pGITStateSize))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeGITInit_8u
-//  Purpose:            Initializes the GIT internal encoding state
-//
-//  Parameters:
-//    maxSrcLen         Max length of source vector
-//    maxDstLen         Max length of destination vector
-//    pGITState         Pointer to memory allocated for GIT internal encoding
-//                      state
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Bad size arguments
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeGITInit_8u, (int maxSrcLen, int maxDstLen,
-                                         IppGITState_8u* ppGITState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeGITInitAlloc_8u
-//  Purpose:            Allocates and Initializes the GIT internal encoding state
-//
-//  Parameters:
-//    maxSrcLen         Max length of source vector
-//    maxDstLen         Max length of destination vector
-//    ppGITState        Pointer to pointer to GIT internal encoding state
-//  Return:
-//    ippStsSizeErr     Bad length arguments
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeGITInitAlloc_8u, (int maxSrcLen, int maxDstLen,
-                                              IppGITState_8u** ppGITState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeGIT_8u
-//  Purpose:            Performs GIT encoding
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    srcLen            Length of source vector
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the length of destination vector
-//    strategyHint      Strategy hint for lexicorgaphical reordering
-//    pGITState         Pointer to GIT internal encoding state
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Source vector is too long, more than the value of
-//                      maxSrcLen parameter passed to ippsGITEncodeGetSize_8u
-//                      or ippsGITEncodeInitAlloc_8u
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeGIT_8u, (const Ipp8u* pSrc, int srcLen, Ipp8u* pDst,
-                                     int* pDstLen,
-                                     IppGITStrategyHint strategyHint,
-                                     IppGITState_8u* pGITState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeGITGetSize_8u
-//  Purpose:            Finds out size of GIT internal decoding state structure
-//                      in bytes
-//
-//  Parameters:
-//    maxSrcLen         Max length of source vector
-//    pGITStateSize     Pointer to the size of GIT internal decoding state
-//  Return:
-//    ippStsNullPtrErr  Pointer to GITStateSize is NULL
-//    ippStsSizeErr     Bad length arguments
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeGITGetSize_8u, (int maxSrcLen, int* pGITStateSize))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeGITInit_8u
-//  Purpose:            Initializes the GIT internal decoding state
-//
-//  Parameters:
-//    maxSrcLen         Max length of source vector
-//    maxDstLen         Max length of destination vector
-//    pGITState         Pointer to memory allocated for GIT internal decoding
-//                      state
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Bad size arguments
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeGITInit_8u, (int maxDstLen, IppGITState_8u* pGITState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeGITInitAlloc_8u
-//  Purpose:            Allocates and Initializes the GIT internal decoding state
-//
-//  Parameters:
-//    maxSrcLen         Max length of source vector
-//    maxDstLen         Max length of destination vector
-//    ppGITState        Pointer to pointer to GIT internal decoding state
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Bad length arguments
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeGITInitAlloc_8u, (int maxSrcLen, int maxDstLen,
-                                              IppGITState_8u** ppGITState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeGIT_8u
-//  Purpose:            Performs GIT decoding
-//
-//  Parameters:
-//    pSrc              Pointer to the source vector
-//    srcLen            Length of source vector
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the length of destination vector
-//    strategyHint      Strategy hint for lexicorgaphical reordering
-//    pGITState         Pointer to GIT internal decoding state
-//  Return:
-//    ippStsNullPtrErr  One or several pointer(s) is NULL
-//    ippStsSizeErr     Not enough memory allocated for destination buffer
-//    ippStsNoErr       No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeGIT_8u, (const Ipp8u* pSrc, int srcLen, Ipp8u* pDst, int* pDstLen,
-                                     IppGITStrategyHint strategyHint,
-                                     IppGITState_8u* pGITState))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsGITFree_8u
-//  Purpose:            Frees the GIT internal decoding state
-//
-//  Parameters:
-//    pGITState         Pointer to the GIT internal state
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void, ippsGITFree_8u, (IppGITState_8u* pGITState))
-
 /* Ziv Lempel Storer Szymanski (LZSS) functions */
-#if !defined ( _OWN_BLDPCS )
-struct LZSSState_8u;
-typedef struct LZSSState_8u IppLZSSState_8u;
-#endif
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsLZSSGetSize_8u
@@ -909,7 +286,9 @@ typedef struct LZSSState_8u IppLZSSState_8u;
 //    ippStsNoErr       No errors
 //
 */
+
 IPPAPI(IppStatus, ippsLZSSGetSize_8u, ( int* pLZSSStateSize ))
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsEncodeLZSSInit_8u
 //  Purpose:            Initializes the LZSS internal state for encoding
@@ -921,21 +300,9 @@ IPPAPI(IppStatus, ippsLZSSGetSize_8u, ( int* pLZSSStateSize ))
 //    ippStsNoErr       No errors
 //
 */
+
 IPPAPI(IppStatus, ippsEncodeLZSSInit_8u, ( IppLZSSState_8u* pLZSSState ))
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZSSInitAlloc_8u
-//  Purpose:            Allocates and Initializes the LZSS internal state for encoding
-//
-//  Parameters:
-//    ppLZSSState       Double pointer to LZSS internal state
-//  Return:
-//    ippStsNullPtrErr     Double pointer to internal LZSS state structure is NULL
-//    ippStsMemAllocErr    Error occurred during memory allocation
-//    ippStsNoErr          No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Internal memory allocation will not be supported - use Get<Buffer>Size and Init pair for this functionality. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeLZSSInitAlloc_8u, ( IppLZSSState_8u** ppLZSSState ))
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsEncodeLZSS_8u
 //  Purpose:            Performs LZSS encoding
@@ -953,8 +320,10 @@ IPPAPI(IppStatus, ippsEncodeLZSSInitAlloc_8u, ( IppLZSSState_8u** ppLZSSState ))
 //    ippStsNoErr                No errors
 //
 */
+
 IPPAPI(IppStatus, ippsEncodeLZSS_8u, ( Ipp8u** ppSrc, int* pSrcLen, Ipp8u** ppDst, int* pDstLen,
                                     IppLZSSState_8u* pLZSSState ))
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsEncodeLZSSFlush_8u
 //  Purpose:            Flushes the last few bits from the bit stream and alignes
@@ -970,7 +339,9 @@ IPPAPI(IppStatus, ippsEncodeLZSS_8u, ( Ipp8u** ppSrc, int* pSrcLen, Ipp8u** ppDs
 //    ippStsDstSizeLessExpected  Destination buffer is full
 //    ippStsNoErr                No errors
 */
+
 IPPAPI(IppStatus, ippsEncodeLZSSFlush_8u, (Ipp8u** ppDst, int* pDstLen, IppLZSSState_8u* pLZSSState))
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsDecodeLZSSInit_8u
 //  Purpose:            Initializes the LZSS internal state for decoding
@@ -982,21 +353,9 @@ IPPAPI(IppStatus, ippsEncodeLZSSFlush_8u, (Ipp8u** ppDst, int* pDstLen, IppLZSSS
 //    ippStsNoErr       No errors
 //
 */
+
 IPPAPI(IppStatus, ippsDecodeLZSSInit_8u, ( IppLZSSState_8u* pLZSSState ))
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZSSInitAlloc_8u
-//  Purpose:            Allocates and Initializes the LZSS internal state for decoding
-//
-//  Parameters:
-//    ppLZSSState       Double pointer to LZSS internal state for decoding
-//  Return:
-//    ippStsNullPtrErr     Double pointer to internal LZSS state structure is NULL
-//    ippStsMemAllocErr    Error occurred during memory allocation
-//    ippStsNoErr          No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Internal memory allocation will not be supported - use Get<Buffer>Size and Init pair for this functionality. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeLZSSInitAlloc_8u, ( IppLZSSState_8u** ppLZSSState))
+
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsDecodeLZSS_8u
 //  Purpose:            Performs LZSS decoding
@@ -1016,737 +375,11 @@ IPPAPI(IppStatus, ippsDecodeLZSSInitAlloc_8u, ( IppLZSSState_8u** ppLZSSState))
 */
 IPPAPI(IppStatus, ippsDecodeLZSS_8u, ( Ipp8u** ppSrc, int* pSrcLen, Ipp8u** ppDst,
                                     int* pDstLen, IppLZSSState_8u* pLZSSState ))
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsLZSSFree_8u
-//  Purpose:            Frees the LZSS internal state
-//
-//  Parameters:
-//    pLZSSState        Pointer to the LZSS internal state for decoding
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void, ippsLZSSFree_8u, ( IppLZSSState_8u* pLZSSState ))
+
 
 /* rfc1950, 1951, 1952 - compatible functions */
 
-#if !defined ( _OWN_BLDPCS )
-struct LZ77State_8u;
-typedef struct LZ77State_8u IppLZ77State_8u;
-typedef enum{
-   IppLZ77FastCompr,
-   IppLZ77AverageCompr,
-   IppLZ77BestCompr
-} IppLZ77ComprLevel;
-typedef enum{
-   IppLZ77NoChcksm,
-   IppLZ77Adler32,
-   IppLZ77CRC32
-} IppLZ77Chcksm;
-typedef enum {
-   IppLZ77NoFlush,
-   IppLZ77SyncFlush,
-   IppLZ77FullFlush,
-   IppLZ77FinishFlush
-} IppLZ77Flush;
-typedef struct IppLZ77Pairs_16u {
-   Ipp16u length;
-   Ipp16u offset;
-} IppLZ77Pair;
-typedef enum {
-   IppLZ77StatusInit,
-   IppLZ77StatusLZ77Process,
-   IppLZ77StatusHuffProcess,
-   IppLZ77StatusFinal
-} IppLZ77DeflateStatus;
-typedef enum {
-  IppLZ77UseFixed,
-  IppLZ77UseDynamic,
-  IppLZ77UseStored
-} IppLZ77HuffMode;
-typedef enum {
-  IppLZ77InflateStatusInit,
-  IppLZ77InflateStatusHuffProcess,
-  IppLZ77InflateStatusLZ77Process,
-  IppLZ77InflateStatusFinal
-} IppLZ77InflateStatus;
-#endif
 
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77GetSize
-//  Purpose:            Computes the size of the internal encoding structure.
-//
-//  Parameters:
-//   pLZ77VLCStateSize  Pointer to the size of the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pointer pLZ77VLCStateSize is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77GetSize_8u, (int* pLZ77StateSize) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77Init
-//  Purpose:            Initializes the internal encoding structure.
-//
-//  Parameters:
-//   comprLevel         Compression level.
-//   checksum           Algorithm to compute the checksum for input data.
-//   pLZ77State         Pointer to memory allocated for the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State pointer is NULL.
-//   ippStsBadArgErr    Indicates an error when the checksum or comprLevel parameter
-//                      has an illegal value.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77Init_8u, (IppLZ77ComprLevel comprLevel,
-                                         IppLZ77Chcksm checksum, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77InitAlloc
-//  Purpose:            Allocates memory and initializes the internal encoding structure.
-//
-//  Parameters:
-//   comprLevel         Compression level.
-//   checksum           Algorithm to compute the checksum for input data.
-//   ppLZ77State        Double pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the ppLZ77State pointer is NULL.
-//   ippStsBadArgErr    Indicates an error when the checksum or comprLevel parameter
-//                      has an illegal value.
-//   ippStsMemAlloc     Indicates an error when memory allocation fails.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77InitAlloc_8u, (IppLZ77ComprLevel comprLevel,
-                                              IppLZ77Chcksm checksum, IppLZ77State_8u** ppLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77
-//  Purpose:            Performs LZ77 encoding.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   flush              Data-block encoding mode.
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//
-//  Note: This function searches for substring matches using the LZ77 algorithm.
-//        The technique of sliding window support is compatible with rfc1951.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77_8u, (Ipp8u** ppSrc, int* pSrcLen, IppLZ77Pair** ppDst,
-                                     int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77SelectHuffMode
-//  Purpose:            Takes the best decision about the optimal coding strategy
-//                      (use fixed Huffman coding or dynamic Huffman coding).
-//
-//  Parameters:
-//   pSrc               Pointer to the source vector.
-//   srcLen             Length of the source vector.
-//   pHuffMode          Pointer to the value of coding strategy.
-//   pLZ77State         Pointer to memory allocated for the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77SelectHuffMode_8u, (IppLZ77Pair* pSrc, int srcLen,
-                                                    IppLZ77HuffMode* pHuffMode,
-                                                    IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77FixedHuff
-//  Purpose:            Performs fixed Huffman coding of the LZ77 output.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   flush              Data-block encoding mode.
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//   ippStsStreamEnd            Indicates a warning when the stream ends. This warning can
-//                              be returned only when the flush value is FINISH.
-//
-//  Note: This function produces the rfc1951 compatible code for the LZ77 output.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77FixedHuff_8u, (IppLZ77Pair** ppSrc, int* pSrcLen, Ipp8u** ppDst,
-                                     int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77DynamicHuff
-//  Purpose:            Performs dynamic Huffman coding of the LZ77 output.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   flush              Data-block encoding mode.
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//   ippStsStreamEnd            Indicates a warning when the stream ends. This warning can
-//                              be returned only when the flush value is FINISH.
-//
-//  Note: This function produces the rfc1951 compatible code for the LZ77 output.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77DynamicHuff_8u, (IppLZ77Pair** ppSrc, int* pSrcLen, Ipp8u** ppDst,
-                                     int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77StoredBlock
-//  Purpose:            Transmits the block without compression.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   flush              Data-block encoding mode.
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77StoredBlock_8u, (Ipp8u** ppSrc, int* pSrcLen, Ipp8u** ppDst,
-                                     int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77Flush
-//  Purpose:            Performs writing the service information (accumulated
-//                      checksum and total length of input data stream) in order
-//                      to achieve the ZLIB/GZIP data format compatibility.
-//
-//  Parameters:
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//
-//  Note: This is a service function which is necessary for achieving compatibility with
-//        the rfc1950, rfc1951, rfc1952 describing ZLIB/GZIP data format.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77Flush_8u, (Ipp8u** ppDst, int* pDstLen,
-                                                 IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77GetPairs
-//  Purpose:            Reads the pointer to the pair buffer, it's length and current index
-//                      from the internal state structure for encoding.
-//
-//  Parameters:
-//   ppPairs            Double pointer to a variable of ippLZ77Pair type.
-//   pPairsInd          Pointer to the current index in the pair buffer
-//   pPairsLen          Pointer to the length of pair buffer
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State or ppPairs pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77GetPairs_8u, (IppLZ77Pair** ppPairs, int* pPairsInd,
-                                              int* pPairsLen, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77SetPairs
-//  Purpose:            Writes the pointer to the pair buffer, it's length and current index
-//                      to the internal state structure for encoding.
-//
-//  Parameters:
-//   pPairs             Pointer to a variable of ippLZ77Pair type.
-//   pairsInd           Current index in the pair buffer
-//   pairsLen           Length of pair buffer
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State or pPairs pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77SetPairs_8u, (IppLZ77Pair* pPairs, int pairsInd,
-                                             int pairsLen, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77GetStatus
-//  Purpose:            Reads the encoding status value from the internal state
-//                      structure for encoding.
-//
-//  Parameters:
-//   pDeflateStatus     Pointer to a variable of ippLZ77DeflateStatus type.
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State or pDeflateStatus pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77GetStatus_8u, (IppLZ77DeflateStatus* pDeflateStatus,
-                                              IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77SetStatus
-//  Purpose:            Writes the encoding status value to the internal state
-//                      structure for encoding.
-//
-//  Parameters:
-//   deflateStatus      Variable of ippLZ77DeflateStatus type.
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State pointer is NULL.
-//   ippStsBadArgErr    Indicates an error when the deflateStatus parameter has an illegal value.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77SetStatus_8u, (IppLZ77DeflateStatus deflateStatus,
-                                              IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77Reset
-//  Purpose:            Resets the internal state structure for encoding.
-//
-//  Parameters:
-//   pLZ77State         Pointer to the internal encoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsEncodeLZ77Reset_8u, (IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77GetSize
-//  Purpose:            Computes the size of the internal decoding structure.
-//
-//  Parameters:
-//   pLZ77StateSize     Pointer to the size of the internal decoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pointer pLZ77StateSize is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77GetSize_8u, (int* pLZ77StateSize) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77Init
-//  Purpose:            Initializes the internal decoding structure.
-//
-//  Parameters:
-//   checksum           Algorithm to compute the checksum for output data.
-//   pLZ77State         Pointer to memory allocated for the internal decoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State pointer is NULL.
-//   ippStsBadArgErr    Indicates an error when the checksum parameter
-//                      has an illegal value.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77Init_8u, (IppLZ77Chcksm checksum, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77InitAlloc
-//  Purpose:            Allocates memory and initializes the internal encoding structure.
-//
-//  Parameters:
-//   checksum           Algorithm to compute the checksum for output data.
-//   ppLZ77State        Double pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the ppLZ77State pointer is NULL.
-//   ippStsBadArgErr    Indicates an error when the checksum parameter has an illegal value.
-//   ippStsMemAlloc     Indicates an error when memory allocation fails.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77InitAlloc_8u, (IppLZ77Chcksm checksum, IppLZ77State_8u** ppLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77
-//  Purpose:            Performs LZ77 decoding.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   flush              Data-block encoding mode.
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//   ippStsStreamEnd            Indicates a warning when the stream ends.
-//
-//  Note: The technique of LZ77 sliding window support is compatible with rfc1951.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77_8u, (IppLZ77Pair** ppSrc, int* pSrcLen, Ipp8u** ppDst,
-                                     int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77GetBlockType
-//  Purpose:            Decodes the type of the block from the DEFLATE format.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   pHuffMode          Pointer to the value of coding mode.
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when SrcLen is less than zero.
-//   ippStsSrcSizeLessExpected  Indicates a warning when the source buffer is less than expected.
-//                              (Internal bit stream and source vector do not contain enough bits to decode
-//                              the type of the block)
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77GetBlockType_8u, (Ipp8u** ppSrc, int* pSrcLen,
-                                                  IppLZ77HuffMode* pHuffMode,
-                                                  IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77FixedHuff
-//  Purpose:            Performs fixed Huffman decoding of the rfc1951 compatible code.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   flush              Data-block encoding mode.
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsSrcSizeLessExpected  Indicates a warning when the source buffer is less than expected
-//                              (end of block marker is not decoded).
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//   ippStsStreamEnd            Indicates a warning when the stream ends.
-//
-//  Note: This function decodes the rfc1951 compatible code.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77FixedHuff_8u, (Ipp8u** ppSrc, int* pSrcLen, IppLZ77Pair** ppDst,
-                                     int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77DynamicHuff
-//  Purpose:            Performs dynamic Huffman decoding of the rfc1951 compatible code.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   flush              Data-block encoding mode.
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsWrongBlockType       Indicates a warning when the type of the block is not dynamic Huffman type.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsSrcSizeLessExpected  Indicates a warning when the source buffer is less than expected
-//                              (end of block marker is not decoded).
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//   ippStsStreamEnd            Indicates a warning when the stream ends.
-//
-//  Note: This function decodes the rfc1951 compatible code.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77DynamicHuff_8u, (Ipp8u** ppSrc, int* pSrcLen, IppLZ77Pair** ppDst,
-                                     int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77StoredBlock
-//  Purpose:            Performs decoding of the block transmitted without compression.
-//
-//  Parameters:
-//   ppSrc              Double pointer to the source vector.
-//   pSrcLen            Pointer to the length of the source vector.
-//   ppDst              Double pointer to the destination vector.
-//   pDstLen            Pointer to the length of the destination vector.
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr                Indicates no error.
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL.
-//   ippStsWrongBlockType       Indicates a warning when the type of the block is not of
-//                              the "stored without compression type" type.
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero.
-//   ippStsSrcSizeLessExpected  Indicates a warning when the source buffer is less than expected
-//                              (end of block marker is not decoded).
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full.
-//
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77StoredBlock_8u, (Ipp8u** ppSrc, int* pSrcLen, Ipp8u** ppDst,
-                                     int* pDstLen, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77StoredHuff_8u
-//  Purpose:            Performs copying the data to the output buffer of pairs
-//
-//  Parameters:
-//    ppSrc             Double pointer to the source vector
-//    pSrcLen           Pointer to the length of source vector
-//    ppDst             Double pointer to the destination vector of pairs
-//    pDstLen           Pointer to the length of destination vector of pairs
-//    pLZ77State        Pointer to the internal state
-//
-//  Return:
-//   ippStsNoErr                Indicates no error
-//   ippStsNullPtrErr           Indicates an error when one of the specified pointers is NULL
-//   ippStsWrongBlockType       Indicates a warning when the type of the block is not of
-//                              the "stored without compression type" type
-//   ippStsSizeErr              Indicates an error when DstLen is less than or equal to zero
-//   ippStsSrcSizeLessExpected  Indicates a warning when the source buffer is less than expected
-//   ippStsDstSizeLessExpected  Indicates a warning when the destination buffer is full
-//
-*/
-
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77StoredHuff_8u, (Ipp8u** ppSrc, int* pSrcLen, IppLZ77Pair** ppDst,
-                                     int* pDstLen, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77GetPairs
-//  Purpose:            Reads the pointer to the pair buffer, it's length and current index
-//                      from the internal state structure for decoding.
-//
-//  Parameters:
-//   ppPairs            Double pointer to a variable of ippLZ77Pair type.
-//   pPairsInd          Pointer to the current index in the pair buffer
-//   pPairsLen          Pointer to the length of pair buffer
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State or ppPairs pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77GetPairs_8u, (IppLZ77Pair** ppPairs, int* pPairsInd,
-                                              int* pPairsLen, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77SetPairs
-//  Purpose:            Writes the pointer to the pair buffer, it's length and current index
-//                      to the internal state structure for decoding.
-//
-//  Parameters:
-//   pPairs             Pointer to a variable of ippLZ77Pair type.
-//   pairsInd           Current index in the pair buffer
-//   pairsLen           Length of pair buffer
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State or pPairs pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77SetPairs_8u, (IppLZ77Pair* pPairs, int pairsInd,
-                                             int pairsLen, IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77GetStatus
-//  Purpose:            Reads the decoding status value from the internal state
-//                      structure for decoding.
-//
-//  Parameters:
-//   pInflateStatus     Pointer to a variable of ippLZ77InflateStatus type.
-//   pLZ77State         Pointer to the internal structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State or pInflateStatus pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77GetStatus_8u, ( IppLZ77InflateStatus* pInflateStatus,
-                                               IppLZ77State_8u* pLZ77State ) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77SetStatus
-//  Purpose:            Writes the decoding status value to the internal state
-//                      structure for decoding.
-//
-//  Parameters:
-//   inflateStatus      Variable of ippLZ77InflateStatus type.
-//   pLZ77State         Pointer to the internal structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State pointer is NULL.
-//   ippStsBadArgErr    Indicates an error when the inflateStatus parameter has an illegal value.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77SetStatus_8u, ( IppLZ77InflateStatus inflateStatus,
-                                               IppLZ77State_8u* pLZ77State ) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeLZ77SetDictionary_8u, ippsDecodeLZ77SetDictionary_8u
-//  Purpose:            Presets the dictionary for encoding/decoding.
-//
-//  Parameters:
-//    pDictionary       Pointer to the dictionary vector
-//    dictLen           Length of dictionary vector
-//    pLZ77State        Pointer to the internal state
-//
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsNoErr               No errors
-//
-*/
-
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeLZ77SetDictionary_8u, ( Ipp8u* pDictionary, int dictLen, IppLZ77State_8u* pLZ77State ))
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeLZ77SetDictionary_8u, ( Ipp8u* pDictionary, int dictLen, IppLZ77State_8u* pLZ77State ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77Reset
-//  Purpose:            Resets the internal state structure for decoding.
-//
-//  Parameters:
-//   pLZ77State         Pointer to the internal decoding structure.
-//  Return:
-//   ippStsNoErr        Indicates no error.
-//   ippStsNullPtrErr   Indicates an error when the pLZ77State pointer is NULL.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( IppStatus, ippsDecodeLZ77Reset_8u, (IppLZ77State_8u* pLZ77State) )
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77FixedHuffFull_8u
-//  Purpose:            Performs the decoding of fixed huffman rfc1951 compatible format
-//
-//  Parameters:
-//    ppSrc             Double pointer to the source vector
-//    pSrcLen           Pointer to the length of source vector
-//    ppDst             Double pointer to the destination vector
-//    pDstLen           Pointer to the size of destination buffer on input,
-//                      pointer to the resulting length of the destination vector
-//                      on output
-//    flush             Flush mode
-//    pLZ77State        Pointer to internal decoding state
-//
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsSrcSizeLessExpected The end of block symbol not decoded, so size of source vector less expected
-//    ippStsDstSizeLessExpected The size of destination vector less expected
-//    ippStsStreamEnd           The end of stream symbol decoded
-//    ippStsNoErr               No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeLZ77FixedHuffFull_8u, (Ipp8u** ppSrc, int* pSrcLen, Ipp8u** ppDst, int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77DynamicHuffFull_8u
-//  Purpose:            Performs the decoding of dynamic huffman rfc1951 compatible format
-//
-//  Parameters:
-//    ppSrc             Double pointer to the source vector
-//    pSrcLen           Pointer to the length of source vector
-//    ppDst             Double pointer to the destination vector
-//    pDstLen           Pointer to the size of destination buffer on input,
-//                      pointer to the resulting length of the destination vector
-//                      on output
-//    flush             Flush mode
-//    pLZ77State        Pointer to internal decoding state
-//
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsSrcSizeLessExpected The end of block symbol not decoded, so size of source vector less expected
-//    ippStsDstSizeLessExpected The size of destination vector less expected
-//    ippStsStreamEnd           The end of stream symbol decoded
-//    ippStsNoErr               No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeLZ77DynamicHuffFull_8u, (Ipp8u** ppSrc, int* pSrcLen, Ipp8u** ppDst, int* pDstLen, IppLZ77Flush flush, IppLZ77State_8u* pLZ77State))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeLZ77CopyState_8u
-//  Purpose:            Performs copying the fields of internal state structure
-//
-//  Parameters:
-//    pLZ77StateSrc        Pointer to the internal state for copying from
-//    pLZ77StateDst        Pointer to the internal state for copying to
-//
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsNoErr               No errors
-//
-*/
-
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeLZ77CopyState_8u,   ( IppLZ77State_8u* pLZ77StateSrc, IppLZ77State_8u* pLZ77StateDst ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsLZ77Free
-//  Purpose:            Frees the internal state structure for encoding or decoding.
-//
-//  Parameters:
-//   pLZ77State         Pointer to the internal decoding structure.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI( void, ippsLZ77Free_8u, (IppLZ77State_8u* pLZ77State) )
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsAdler32
@@ -1784,7 +417,7 @@ IPPAPI( IppStatus, ippsCRC32_8u, (const Ipp8u* pSrc, int srcLen, Ipp32u* pCRC32)
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsCRC32C
-//  Purpose:            Computes the CRC32C (the polinomial 0x11EDC6F41) value
+//  Purpose:            Computes the CRC32C (the polynomial 0x11EDC6F41) value
 //                      for the source vector.
 //                      Reference: "Optimization of cyclic redundancy-check
 //                      codes with 24 and 32 parity bits". Castagnoli, G.;
@@ -1804,23 +437,6 @@ IPPAPI( IppStatus, ippsCRC32_8u, (const Ipp8u* pSrc, int srcLen, Ipp32u* pCRC32)
 */
 IPPAPI( IppStatus, ippsCRC32C_8u, (const Ipp8u* pSrc, Ipp32u srcLen, Ipp32u* pCRC32C) )
 
-#if !defined ( _OWN_BLDPCS )
-typedef struct IppInflateState {
-  const Ipp8u* pWindow;          /* pointer to the sliding window
-                                    (the dictionary for the LZ77 algorithm) */
-  unsigned int winSize;          /* size of the sliding window */
-  unsigned int tableType;        /* type of Huffman code tables
-                                    (for example, 0 - tables for Fixed Huffman codes) */
-  unsigned int tableBufferSize;  /* (ENOUGH = 2048) * (sizeof(code) = 4) -
-                                    sizeof(IppInflateState) */
-} IppInflateState;
-
-typedef enum { /* this type is used as a translator of the inflate_mode type from zlib */
-  ippTYPE,
-  ippLEN,
-  ippLENEXT
-} IppInflateMode;
-#endif
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsInflateBuildHuffTable
@@ -1879,15 +495,6 @@ IPPAPI(IppStatus, ippsInflate_8u, ( Ipp8u** ppSrc, unsigned int* pSrcLen,
                                     Ipp8u** ppDst, unsigned int* pDstLen, unsigned int dstIdx,
                                     IppInflateMode* pMode, IppInflateState *pIppInflateState ))
 
-#if !defined( _OWN_BLDPCS )
-
-typedef struct {
-  Ipp16u freq;
-  Ipp16u code;
-} IppDeflateFreqTable;
-
-#endif /* _OWN_BLDPCS */
-
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsDeflateLZ77_8u
 //  Purpose:            Perform LZ77 encoding according to
@@ -1918,6 +525,12 @@ typedef struct {
 //    pDistDst          Pointer to the distances destination vector
 //    pDstLen           Pointer to the length of the destination vectors
 //    comprLevel        Compression level. It is like the zlib compression level
+//    pDst              Pointer to output vector
+//    dstLen            The length of output vector
+//    pDstIdx           Pointer to index for output vector
+//    pLitHuffCodes     Pointer to the literals/lengths Huffman codes
+//    pDistHuffCodes    Pointer to the distances Huffman codes
+//    pVecMatch         Pointer to vector of parameters for match finding
 //    flush             Flush value
 //  Return:
 //    ippStsNullPtrErr  One or several pointer(s) is NULL
@@ -1934,16 +547,53 @@ IPPAPI( IppStatus, ippsDeflateLZ77_8u, (
                      Ipp8u* pLitDst, Ipp16u* pDistDst, Ipp32u* pDstLen,
                      int comprLevel, IppLZ77Flush flush ) )
 
+IPPAPI( IppStatus, ippsDeflateLZ77Fast_8u, (
+                     const Ipp8u** ppSrc, Ipp32u* pSrcLen, Ipp32u* pSrcIdx,
+                     const Ipp8u* pWindow, Ipp32u winSize,
+                     Ipp32s* pHashHead, Ipp32s* pHashPrev, Ipp32u hashSize,
+                     IppDeflateFreqTable pLitFreqTable[286],
+                     IppDeflateFreqTable pDistFreqTable[30],
+                     Ipp8u* pLitDst, Ipp16u* pDistDst, Ipp32u* pDstLen,
+                     int *pVecMatch, IppLZ77Flush flush ) )
 
-#if !defined( _OWN_BLDPCS )
+IPPAPI( IppStatus, ippsDeflateLZ77Fastest_8u, ( const Ipp8u** ppSrc, Ipp32u* pSrcLen, Ipp32u* pSrcIdx,
+                     const Ipp8u* pWindow, Ipp32u winSize,
+                     Ipp32s* pHashHead, Ipp32u hashSize,
+                     Ipp16u* pCode, Ipp32u* pCodeLenBits,
+                     Ipp8u* pDst, Ipp32u dstLen, Ipp32u* pDstIdx,
+                     IppDeflateHuffCode pLitHuffCodes[286],
+                     IppDeflateHuffCode pDistHuffCodes[30],
+                     IppLZ77Flush flush ) )
 
-typedef struct {
-  Ipp16u code;
-  Ipp16u len;
-} IppDeflateHuffCode;
+IPPAPI( IppStatus, ippsDeflateLZ77FastestPrecompHeader_8u, ( const Ipp8u** ppSrc, Ipp32u* pSrcLen, Ipp32u* pSrcIdx,
+                     const Ipp8u* pWindow, Ipp32u winSize,
+                     Ipp32s* pHashHead, Ipp32u hashSize,
+                     Ipp16u* pCode, Ipp32u* pCodeLenBits,
+                     Ipp8u* pDst, Ipp32u dstLen, Ipp32u* pDstIdx,
+                     IppDeflateHuffCode pLitHuffCodes[288],
+                     IppDeflateHuffCode pDistHuffCodes[30],
+                     const Ipp8u* pHeaderCodeLens, int numBitsHeader,
+                     IppLZ77Flush flush ) )
 
-#endif /* _OWN_BLDPCS */
 
+IPPAPI( IppStatus, ippsDeflateLZ77Slow_8u, (
+                     const Ipp8u** ppSrc, Ipp32u* pSrcLen, Ipp32u* pSrcIdx,
+                     const Ipp8u* pWindow, Ipp32u winSize,
+                     Ipp32s* pHashHead, Ipp32s* pHashPrev, Ipp32u hashSize,
+                     IppDeflateFreqTable pLitFreqTable[286],
+                     IppDeflateFreqTable pDistFreqTable[30],
+                     Ipp8u* pLitDst, Ipp16u* pDistDst, Ipp32u* pDstLen,
+                     int *pVecMatch, IppLZ77Flush flush ) )
+
+IPPAPI( IppStatus, ippsDeflateLZ77FastestGetStat_8u, ( const Ipp8u** ppSrc, Ipp32u* pSrcLen, Ipp32u* pSrcIdx,
+                                         const Ipp8u* pWindow, Ipp32u winSize,
+                                         Ipp32s* pHashHead, Ipp32u hashSize,
+                                         int    pLitStat[286], int pDistStat[30],
+                                         IppLZ77Flush flush ))
+IPPAPI( IppStatus, ippsDeflateLZ77FastestGenHuffTable_8u, (const int pLitStat[286], const int pDistStat[30],
+    IppDeflateHuffCode pLitCodeTable[286], IppDeflateHuffCode pDistCodeTable[30]))
+IPPAPI( IppStatus, ippsDeflateLZ77FastestGenHeader_8u, (const IppDeflateHuffCode pLitCodeTable[286],
+    const IppDeflateHuffCode pDistCodeTable[30], Ipp8u *pDstHeader, int *pDstLen, int *pDstBits))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:              ippsDeflateHuff_8u
@@ -2009,7 +659,7 @@ IPPAPI( IppStatus, ippsDeflateDictionarySet_8u, (
 //  Parameters:
 //    pDictSrc         Pointer to the source vector
 //    srcIdx           Index of the current position in the source vector.
-//                     This parameter is used by the function 
+//                     This parameter is used by the function
 //                     for correlation current possition of the source vector
 //                     and indexes in the hash tables.
 //                     The normalization of this index and the hash tables
@@ -2034,11 +684,6 @@ IPPAPI( IppStatus, ippsDeflateUpdateHash_8u, ( const Ipp8u* pSrc, Ipp32u srcIdx,
                                                Ipp32s* pHashPrevDst, Ipp32u winSize, int comprLevel ) )
 
 /* bzip2 - compatible functions */
-
-#if !defined ( _OWN_BLDPCS )
-struct RLEState_BZ2;
-typedef struct RLEState_BZ2 IppRLEState_BZ2;
-#endif
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsRLEGetSize_BZ2_8u
@@ -2071,23 +716,6 @@ IPPAPI(IppStatus, ippsRLEGetSize_BZ2_8u,    ( int* pRLEStateSize ))
 */
 
 IPPAPI(IppStatus, ippsEncodeRLEInit_BZ2_8u,    ( IppRLEState_BZ2* pRLEState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeRLEInitAlloc_BZ2_8u
-//  Purpose:            Allocates the memory and initializes the elements of the bzip2-specific internal state for RLE.
-//                      Specific function for bzip2 compatibility.
-//
-//  Parameters:
-//    ppRLEState        Double pointer to internal state structure for bzip2 specific RLE
-//
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsNoErr               No errors
-//
-*/
-
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeRLEInitAlloc_BZ2_8u, ( IppRLEState_BZ2** ppRLEState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsEncodeRLE_BZ2_8u
@@ -2213,44 +841,6 @@ IPPAPI(IppStatus, ippsDecodeRLEStateFlush_BZ2_8u, (IppRLEState_BZ2* pRLEState, I
 IPPAPI(IppStatus, ippsRLEGetInUseTable_8u,    ( Ipp8u inUse[256], IppRLEState_BZ2* pRLEState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsRLEFree_BZ2_8u
-//  Purpose:            Frees the bzip2-specific internal state for RLE.
-//                      Specific function for bzip2 compatibility.
-//
-//  Parameters:
-//    pRLEState         Pointer to internal state structure for bzip2 specific RLE.
-//
-*/
-
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void, ippsRLEFree_BZ2_8u,    ( IppRLEState_BZ2* pRLEState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeRLE_BZ2_8u
-//  Purpose:            Performs the RLE decoding with thresholding = 4.
-//                      Specific function for bzip2 compatibility.
-//
-//  Parameters:
-//    ppSrc             Double pointer to the source vector
-//    pSrcLen           Pointer to the length of source vector on input,
-//                      pointer to the size of remainder on output
-//    pDst              Pointer to the destination vector
-//    pDstLen           Pointer to the size of destination buffer on input,
-//                      pointer to the resulting length of the destination vector
-//                      on output.
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsDstSizeLessExpected The size of destination vector less expected
-//    ippStsNoErr               No errors
-//
-*/
-
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeRLE_BZ2_8u,    (Ipp8u** ppSrc, int* pSrcLen, Ipp8u* pDst, int* pDstLen ))
-
-/* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsEncodeZ1Z2_BZ2_8u16u
 //  Purpose:            Performs the Z1Z2 encoding.
 //                      Specific function for bzip2 compatibility.
@@ -2360,14 +950,6 @@ IPPAPI(IppStatus, ippsExpandDictionary_8u_I,   ( const Ipp8u inUse[256], Ipp8u* 
 
 IPPAPI(IppStatus, ippsCRC32_BZ2_8u,    ( const Ipp8u* pSrc, int srcLen, Ipp32u* pCRC32 ))
 
-#if !defined ( _OWN_BLDPCS )
-struct EncodeHuffState_BZ2;
-typedef struct EncodeHuffState_BZ2 IppEncodeHuffState_BZ2;
-
-struct DecodeHuffState_BZ2;
-typedef struct DecodeHuffState_BZ2 IppDecodeHuffState_BZ2;
-#endif
-
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsEncodeHuffGetSize_BZ2_16u8u
 //  Purpose:            Calculates the size of internal state for bzip2-specific Huffman coding.
@@ -2407,30 +989,6 @@ IPPAPI(IppStatus, ippsEncodeHuffGetSize_BZ2_16u8u,   ( int wndSize, int* pEncode
 */
 IPPAPI(IppStatus, ippsEncodeHuffInit_BZ2_16u8u,      ( int sizeDictionary, const int freqTable[258], const Ipp16u* pSrc, int srcLen,
                                                        IppEncodeHuffState_BZ2* pEncodeHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeHuffInitAlloc_BZ2_16u8u
-//  Purpose:            Allocates the memory and initializes the elements of the bzip2-specific internal state for Huffman coding.
-//                      Specific function for bzip2 compatibility.
-//
-//  Parameters:
-//    wndSize            The size of the input block in bytes
-//    sizeDictionary     The size of the dictionary
-//    freqTable          Table of frequencies of symbols
-//    pSrc               Pointer to the source vector
-//    srcLen             Length of the source vector
-//    pEncodeHuffState   Pointer to internal state structure for bzip2 specific Huffman coding
-//
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsNoErr               No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsEncodeHuffInitAlloc_BZ2_16u8u, ( int wndSize, int sizeDictionary, const int freqTable[258],
-                                                       const Ipp16u* pSrc, int srcLen, IppEncodeHuffState_BZ2** ppEncodeHuffState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsPackHuffContext_BZ2_16u8u
@@ -2485,18 +1043,6 @@ IPPAPI(IppStatus, ippsEncodeHuff_BZ2_16u8u,          ( Ipp32u* pCode, int* pCode
                                                        Ipp8u* pDst, int* pDstLen, IppEncodeHuffState_BZ2* pEncodeHuffState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsEncodeHuffFree_BZ2_16u8u
-//  Purpose:            Frees the bzip2-specific internal state for Huffman coding.
-//                      Specific function for bzip2 compatibility.
-//
-//  Parameters:
-//    pEncodeHuffState         Pointer to internal state structure for bzip2 specific Huffman coding.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void,      ippsEncodeHuffFree_BZ2_16u8u,            ( IppEncodeHuffState_BZ2* pEncodeHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsDecodeHuffGetSize_BZ2_8u16u
 //  Purpose:            Calculates the size of internal state for bzip2-specific Huffman decoding.
 //                      Specific function for bzip2 compatibility.
@@ -2531,26 +1077,6 @@ IPPAPI(IppStatus, ippsDecodeHuffGetSize_BZ2_8u16u,   ( int wndSize, int* pDecode
 //
 */
 IPPAPI(IppStatus, ippsDecodeHuffInit_BZ2_8u16u,      ( int sizeDictionary, IppDecodeHuffState_BZ2* pDecodeHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeHuffInitAlloc_BZ2_8u16u
-//  Purpose:            Allocates the memory and initializes the elements of the bzip2-specific internal state for Huffman decoding.
-//                      Specific function for bzip2 compatibility.
-//
-//  Parameters:
-//    wndSize            The size of the input block in bytes
-//    sizeDictionary     The size of the dictionary
-//    pDecodeHuffState         Pointer to internal state structure for bzip2 specific Huffman coding
-//
-//  Return:
-//    ippStsNullPtrErr          One or several pointer(s) is NULL
-//    ippStsSizeErr             Lengths of the source/destination vector are less
-//                              or equal zero
-//    ippStsNoErr               No errors
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Internal memory allocation will not be supported - use Get<Buffer>Size and Init pair for this functionality. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(IppStatus, ippsDecodeHuffInitAlloc_BZ2_8u16u, ( int wndSize, int sizeDictionary, IppDecodeHuffState_BZ2** ppDecodeHuffState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:               ippsUnpackHuffContext_BZ2_8u16u
@@ -2605,18 +1131,6 @@ IPPAPI(IppStatus, ippsDecodeHuff_BZ2_8u16u,          ( Ipp32u* pCode, int* pCode
                                                        Ipp16u* pDst, int* pDstLen, IppDecodeHuffState_BZ2* pDecodeHuffState ))
 
 /* /////////////////////////////////////////////////////////////////////////////
-//  Name:               ippsDecodeHuffFree_BZ2_8u16u
-//  Purpose:            Frees the bzip2-specific internal state for Huffman decoding.
-//                      Specific function for bzip2 compatibility.
-//
-//  Parameters:
-//  pDecodeHuffState    Pointer to internal state structure for bzip2 specific Huffman coding.
-//
-*/
-IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases. Use the following link for details: http://software.intel.com/en-us/articles/intel-ipp-71-deprecated-features/")\
-IPPAPI(void,      ippsDecodeHuffFree_BZ2_8u16u,      ( IppDecodeHuffState_BZ2* pDecodeHuffState ))
-
-/* /////////////////////////////////////////////////////////////////////////////
 // Name:                ippsDecodeBlockGetSize_BZ2_8u
 // Purpose:             Computes the size of necessary memory (in bytes) for
 //                      additional buffer for the bzip2-specific decoding.
@@ -2661,16 +1175,8 @@ IPPAPI(IppStatus, ippsDecodeBlock_BZ2_16u8u, ( const Ipp16u* pSrc, int srcLen, I
                                                int index, int dictSize, const Ipp8u inUse[256], Ipp8u* pBuff ))
 
 /**************************************************
-IPP LZO Definitions
+ LZO Definitions
 ***************************************************/
-#if !defined ( _OWN_BLDPCS )
-typedef enum {
-    IppLZO1XST,      /* Single-threaded, generic LZO-compatible*/
-    IppLZO1XMT      /* Multi-threaded */
-} IppLZOMethod ;
-struct LZOState_8u;
-typedef struct LZOState_8u IppLZOState_8u;
-#endif
 
 /*******************************************************************/
 
@@ -2712,7 +1218,7 @@ IPPAPI(IppStatus, ippsEncodeLZO_8u, (const Ipp8u *pSrc, Ipp32u srcLen, Ipp8u *pD
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippsEncodeLZOInit
-//  Purpose:    initializes IppLZOSate_8u structure
+//  Purpose:    initializes IppLZOState_8u structure
 //
 //  Arguments:
 //      method                  LZO compression method desired
@@ -2743,22 +1249,457 @@ IPPAPI(IppStatus, ippsEncodeLZOInit_8u, (IppLZOMethod method, Ipp32u maxInputLen
 //      ippStsNullPtrErr            one of the pointers is NULL
 //      ippStsDstSizeLessExpected   output buffer is too short for compressed data
 //      ippStsSrcSizeLessExpected   input buffer data is not complete, i.e. no EOF found
-//      ippStsBrokenLzoStream       ippsDecodeLZOSafe_8u detected output buffer boundary violation
+//      ippStsLzoBrokenStreamErr    ippsDecodeLZOSafe_8u detected output buffer boundary violation
 //      ippStsNoErr                 no error detected
 //
 */
 IPPAPI(IppStatus, ippsDecodeLZO_8u, (const Ipp8u *pSrc, Ipp32u srcLen, Ipp8u *pDst, Ipp32u *pDstLen))
 IPPAPI(IppStatus, ippsDecodeLZOSafe_8u, (const Ipp8u *pSrc, Ipp32u srcLen, Ipp8u *pDst, Ipp32u *pDstLen))
 
+/**************************************************
+Intel(R) IPP LZ4 Definitions
+***************************************************/
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeLZ4HashTableGetSize_8u
+//  Purpose:    get size of buffer for Hash Table
+//
+//  Arguments:
+//      pHashTableSize        pointer to size of buffer for Hash Table
+//
+//  Return:
+//      ippStsNullPtrErr      pointer is NULL
+//      ippStsNoErr           no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeLZ4HashTableGetSize_8u,(int *pHashTableSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeLZ4HashTableInit_8u
+//              ippsEncodeLZ4DictHashTableInit_8u
+//  Purpose:    init of Hash Table
+//
+//  Arguments:
+//      pHashTable      pointer to Hash Table
+//      srcLen          length of source
+//
+//  Return:
+//      ippStsNullPtrErr  pointer is NULL
+//      ippStsSizeErr     length of source is less or equal zero
+//      ippStsNoErr       no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeLZ4HashTableInit_8u,(Ipp8u* pHashTable, int srcLen))
+IPPAPI(IppStatus, ippsEncodeLZ4DictHashTableInit_8u,(Ipp8u* pHashTable, int srcLen))
+
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeLZ4_8u
+//              ippsEncodeLZ4Safe_8u
+//  Purpose:    LZ4 encoder
+//
+//  Arguments:
+//      pSrc            pointer to source
+//      srcLen          length of source
+//      pSrcLen         pointer to length of source / to length of proccesed input data
+//      pDst            pointer to destination
+//      pDstLen         pointer to length of destination buffer/ to length of compressed output data
+//      pHashTable      pointer to Hash Table
+//
+//  Return:
+//      ippStsNullPtrErr            one of the pointers is NULL
+//      ippStsSizeErr               length of source is less or equal zero
+//      ippStsNoErr                 no error detected
+//      ippStsDstSizeLessExpected   the length of destination buffer is not enough
+*/
+IPPAPI(IppStatus, ippsEncodeLZ4_8u,(const Ipp8u* pSrc, int srcLen, Ipp8u* pDst, int *pDstLen, Ipp8u *pHashTable))
+IPPAPI(IppStatus, ippsEncodeLZ4Safe_8u,(const Ipp8u* pSrc, int *srcLen, Ipp8u* pDst, int *pDstLen, Ipp8u *pHashTable))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeLZ4Dict_8u
+//              ippsEncodeLZ4DictSafe_8u
+//  Purpose:    LZ4 encoder
+//
+//  Arguments:
+//      pSrc            pointer to source
+//      srcIdx          index of start byte in source vector
+//      srcLen          length of source
+//      pSrcLen         pointer to length of source / to length of proccesed input data
+//      pDst            pointer to destination
+//      pDstLen         pointer to length of destination buffer/ to length of compressed output data
+//      pHashTable      pointer to Hash Table
+//      pDict           pointer to dictinary
+//      dictLen         length of dictinary
+//
+//  Return:
+//      ippStsNullPtrErr            one of the pointers is NULL
+//      ippStsSizeErr               length of source is less or equal zero
+//      ippStsNoErr                 no error detected
+//      ippStsBadArgErr             index of start byte is less then zero
+//      ippStsDstSizeLessExpected   thre length of destination buffer is not enough
+*/
+IPPAPI(IppStatus, ippsEncodeLZ4Dict_8u,(const Ipp8u* pSrc, int srcIdx, int srcLen, Ipp8u* pDst, int *pDstLen,
+    Ipp8u *pHashTable, const Ipp8u* pDict, int dictLen))
+IPPAPI(IppStatus, ippsEncodeLZ4DictSafe_8u,(const Ipp8u* pSrc, int srcIdx, int *pSrcLen, Ipp8u* pDst, int *pDstLen,
+    Ipp8u *pHashTable, const Ipp8u* pDict, int dictLen))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeLZ4HCHashTableGetSize_8u
+//  Purpose:    get size of buffer for Hash Table and for Prev Table
+//
+//  Arguments:
+//      pHashTableSize        pointer to size of buffer for Hash Table
+//      pPrevTableSize        pointer to size of buffer for Prev Table
+//
+//  Return:
+//      ippStsNullPtrErr      any pointer is NULL
+//      ippStsNoErr           no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeLZ4HCHashTableGetSize_8u,(int *pHashTableSize, int *pPrevTableSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeLZ4HCHashTableInit_8u
+//
+//  Purpose:    init of Tables (Hash & Prev) for LZ4 encoding
+//              in HC (High Compression) mode
+//
+//  Arguments:
+//      ppHashTable     pointer to pointer to Tables (Hash & Prev)
+//                      ppHashTables[0] = pHachTable
+//                      ppHashTables[1] = pPrevTable
+//
+//  Return:
+//      ippStsNullPtrErr  if any pointer is NULL
+//      ippStsNoErr       no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeLZ4HCHashTableInit_8u,(Ipp8u** ppHashTables))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeLZ4HC_8u
+//  Purpose:    LZ4 encoder for HC (High Compression) mode
+//
+//  Arguments:
+//      pSrc            pointer to source
+//      srcIdx          index of start byte in source vector
+//      pSrcLen         pointer to length of source / to length of proccesed input data
+//      pDst            pointer to destination
+//      pDstLen         pointer to length of destination buffer/ to length of compressed output data
+//      ppHashTablep    pointer to pointer array (pHashTable & pPrevTable)
+//                      ppHashTable[0] = pHashTable
+//                      ppPrevTable[1] = pPrevTable
+//      pDict           pointer to dictinary
+//      dictLen         length of dictinary
+//      level           compression level
+//
+//  Return:
+//      ippStsNullPtrErr            one of the pointers is NULL
+//      ippStsSizeErr               length of source is less or equal zero
+//      ippStsBadArgErr             index of start byte is less then zero
+//      ippStsNotSupportedModeErr   this case is not supprted
+//      ippStsNoErr                 no error detected
+*/
+
+IPPAPI(IppStatus, ippsEncodeLZ4HC_8u,(const Ipp8u* pSrc, int srcIdx, int* pSrcLen, Ipp8u* pDst, int *pDstLen,
+    Ipp8u **ppHashTables, const Ipp8u* pDict, int dictLen, int level))
+
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsDecodeLZ4_8u
+//  Purpose:    LZ4 encoder
+//
+//  Arguments:
+//      pSrc            pointer to source
+//      srcLen          length of source
+//      pDst            pointer to destination
+//      pDstLen         pointer to size of buffer for destination / length of compressed data
+//      dstIdx          index of start byte in desination vector
+//      pDict           pointer to dictinary
+//      dictLen         length of dictinary
+//
+//  Return:
+//      ippStsNullPtrErr            one of the pointers is NULL
+//      ippStsSizeErr               length of source or buffer destination is less or equal zero
+//                                  or destination buffer length is insufficient
+//      ippStsDstSizeLessExpected   desination buffer is too short for uncompressed data
+//      ippStsSrcSizeLessExpected   source buffer data is incomplete
+//      ippStsNoErr                 no error detected
+//
+*/
+IPPAPI(IppStatus, ippsDecodeLZ4_8u,(const Ipp8u* pSrc, int srcLen, Ipp8u* pDst, int *pDstLen))
+IPPAPI(IppStatus, ippsDecodeLZ4Dict_8u, (const Ipp8u* pSrc, int *pSrcLen, Ipp8u* pDst, int dstIdx, int *pDstLen, const Ipp8u* pDict, int dictSize))
+
+/**************************************************
+ZFP Definitions
+***************************************************/
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfpGetStateSize_32f
+//  Purpose:    get size of buffer for IppEncodeZfpState_32f state
+//
+//  Arguments:
+//      pStateSize            pointer to size of IppEncodeZfpState_32f structure
+//
+//  Return:
+//      ippStsNullPtrErr      pointer is NULL
+//      ippStsNoErr           no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfpGetStateSize_32f,(int *pStateSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfpInit_32f,
+//              ippsEncodeZfpInitLong_32f
+//
+//  Purpose:    init of IppEncodeZfpState_32f state with default values
+//              described in ippsSetZfpSet_32f function
+//
+//  Arguments:
+//      pDst            pointer to destination data
+//      dstLen          size of buffer for destination
+//      pState          pointer to IppEncodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNoErr       no error detected
+//      ippStsNullPtrErr  if pDst or pState pointer is NULL
+//      ippStsSizeErr     length of destination buffer is less or equal zero
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfpInit_32f,(Ipp8u *pDst, int dstLen, IppEncodeZfpState_32f *pState))
+IPPAPI(IppStatus, ippsEncodeZfpInitLong_32f,(Ipp8u *pDst, Ipp64u dstLen, IppEncodeZfpState_32f *pState))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfpSet_32f
+//
+//  Purpose:    set of fields for IppEncodeZfpState_32f state
+//
+//  Arguments:
+//      minBits         minimum number of bits for compressed block,
+//                      default value is IppZFPMINBITS
+//      maxBits         maximum number of bits for compressed block,
+//                      default value is IppZFPMAXBITS
+//      maxPrec         maximum level of precision,
+//                      default value is IppZFPMAXPREC
+//      minExp          minimum level of exponent,
+//                      default value is IppZFPMINEXP
+//      pState          pointer to IppEncodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNullPtrErr        if pState pointer is NULL
+//      ippStsContextMatchErr   if context is not appropriate
+//      ippStsNoErr             no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfpSet_32f,(int minBits, int maxBits, int maxPrec,
+    int minExp, IppEncodeZfpState_32f *pState))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfpSetAccuracy_32f
+//
+//  Purpose:    set of fields for IppEncodeZfpState_32f state
+//              accordingly value of precision
+//
+//  Arguments:
+//      precision       precision for encoding
+//      pState          pointer to IppEncodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNullPtrErr        if pState pointer is NULL
+//      ippStsContextMatchErr   if context is not appropriate
+//      ippStsNoErr             no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfpSetAccuracy_32f,(Ipp64f precision, IppEncodeZfpState_32f *pState))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfp444_32f
+//
+//  Purpose:    encoding of block 4x4x4 of Ipp32f type
+//
+//  Arguments:
+//      pSrc            pointer to blcok
+//      srcStep         row step
+//      srcPlaneStep    plane step
+//      pState          pointer to IppEncodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNullPtrErr        if pSrc or pState pointer is NULL
+//      ippStsContextMatchErr   if context is not appropriate
+//      ippStsNoErr             no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfp444_32f,(const Ipp32f *pSrc, int srcStep, int srcPlaneStep, IppEncodeZfpState_32f *pState))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfpFlush_32f
+//
+//  Purpose:    put data from internal buffer to destination buffer
+//
+//  Arguments:
+//      pState          pointer to IppEncodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNullPtrErr        if pState pointer is NULL
+//      ippStsNoErr             no error detected
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfpFlush_32f,(IppEncodeZfpState_32f *pState))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfpGetCompressedSize_32f,
+//              ippsEncodeZfpGetCompressedSizeLong_32f
+//
+//  Purpose:    returns size in bytes of compressed data
+//
+//  Arguments:
+//      pState          pointer to IppEncodeZfpState_32f spec
+//      pCompressedSize pointer to compressed data size
+//
+//  Return:
+//      ippStsNoErr             no error detected
+//      ippStsContextMatchErr   if context is not appropriate
+//      ippStsNullPtrErr        if pState or pCompressedSize pointer is NULL
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfpGetCompressedSize_32f,(IppEncodeZfpState_32f *pState, int *pCompressedSize))
+IPPAPI(IppStatus, ippsEncodeZfpGetCompressedSizeLong_32f,(IppEncodeZfpState_32f *pState, Ipp64u *pCompressedSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsEncodeZfpGetCompressedBitSize_32f
+//
+//  Purpose:    returns size in bits of compressed data
+//
+//  Arguments:
+//      pState          pointer to IppEncodeZfpState_32f state structure
+//      pCompressedBitSize pointer to compressed data size in bits
+//
+//  Return:
+//      ippStsNoErr             no error detected
+//      ippStsNullPtrErr        if pState or pCompressedBitSize pointer is NULL
+//
+*/
+IPPAPI(IppStatus, ippsEncodeZfpGetCompressedBitSize_32f,(IppEncodeZfpState_32f *pState, Ipp64u* pCompressedBitSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsDecodeZfpGetStateSize_32f
+//  Purpose:    get size of buffer for IppDecodeZfpState_32f state
+//
+//  Arguments:
+//      pStateSize            pointer to size of IppDecodeZfpState_32f structure
+//
+//  Return:
+//      ippStsNullPtrErr      pointer is NULL
+//      ippStsNoErr           no error detected
+//
+*/
+IPPAPI(IppStatus, ippsDecodeZfpGetStateSize_32f,(int *pStateSize))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsDecodeZfpInit_32f,
+//              ippsDecodeZfpInitLong_32f
+//
+//  Purpose:    init of IppDecodeZfpState_32f state with default values
+//              described in ippsSetZfpSet_32f function
+//
+//  Arguments:
+//      pSrc            pointer to source data
+//      srcLen          size of buffer for source data
+//      pState          pointer to IppDecodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNullPtrErr  if pSrc or pState pointer is NULL
+//      ippStsSizeErr     length of source buffer is less or equal zero
+//      ippStsNoErr       no error detected
+//
+*/
+IPPAPI(IppStatus, ippsDecodeZfpInit_32f,(const Ipp8u *pSrc, int srcLen, IppDecodeZfpState_32f *pState))
+IPPAPI(IppStatus, ippsDecodeZfpInitLong_32f,(const Ipp8u *pSrc, Ipp64u srcLen, IppDecodeZfpState_32f *pState))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsDecodeZfpSetAccuracy_32f
+//
+//  Purpose:    set of fields for IppDecodeZfpState_32f state
+//              accordingly value of precision
+//
+//  Arguments:
+//      precision       precision for encoding
+//      pState          pointer to IppDecodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNullPtrErr        if pState pointer is NULL
+//      ippStsContextMatchErr   if context is not appropriate
+//      ippStsNoErr             no error detected
+//
+*/
+IPPAPI(IppStatus, ippsDecodeZfpSetAccuracy_32f,(Ipp64f precision, IppDecodeZfpState_32f *pState))
+
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsDecodeZfpSet_32f
+//
+//  Purpose:    set of fields for IppDecodeZfpState_32f state
+//
+//  Arguments:
+//      minBits         minimum number of bits for compressed block,
+//                      default value is IppZFPMINBITS
+//      maxBits         pointer to maximum number of bits for compressed block,
+//                      default value is IppZFPMAXBITS
+//      maxPrec         pointer to maximum level of precision,
+//                      default value is IppZFPMAXPREC
+//      minExp          pointer to minimum level of exponent,
+//                      default value is IppZFPMINEXP
+//      pState          pointer to IppDecodeZfpState_32f spec
+//
+//  Return:
+//      ippStsNullPtrErr        if pState pointer is NULL
+//      ippStsContextMatchErr   if context is not appropriate
+//      ippStsNoErr             no error detected
+//
+*/
+IPPAPI(IppStatus, ippsDecodeZfpSet_32f,(int minBits, int maxBits, int maxPrec,
+    int minExp, IppDecodeZfpState_32f *pState))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsDecodeZfp444_32f
+//
+//  Purpose:    encoding of block 4x4x4 of Ipp32f type
+//
+//  Arguments:
+//      pState          pointer to IppDecodeZfpState_32f spec
+//      pDst            pointer to destination
+//      dstStep         row step
+//      dstPlaneStep    plane step
+//
+//  Return:
+//      ippStsNullPtrErr        if pSrc or pState pointer is NULL
+//      ippStsContextMatchErr   if context is not appropriate
+//      ippStsNoErr             no error detected
+//
+*/
+IPPAPI(IppStatus, ippsDecodeZfp444_32f,(IppDecodeZfpState_32f *pState, Ipp32f *pDst, int dstStep, int dstPlaneStep))
+
+/* /////////////////////////////////////////////////////////////////////////////
+//  Name:       ippsDecodeZfpGetDecompressedSize_32f,
+//              ippsDecodeZfpGetDecompressedSizeLong_32f
+//
+//  Purpose:    returns size of decompressed data in bytes
+//
+//  Arguments:
+//      pState          pointer to IppDecodeZfpState_32f spec
+//      pDecompressedSize pointer to decompressed data size
+//
+//  Return:
+//      ippStsNoErr             no error detected
+//      ippStsNullPtrErr        if pState or pDecompressedSize pointer is NULL
+//      ippStsContextMatchErr   if context is not appropriate
+//
+*/
+IPPAPI(IppStatus, ippsDecodeZfpGetDecompressedSize_32f,(IppDecodeZfpState_32f *pState, int *pDecompressedSize))
+IPPAPI(IppStatus, ippsDecodeZfpGetDecompressedSizeLong_32f,(IppDecodeZfpState_32f *pState, Ipp64u *pDecompressedSize))
+
 #ifdef __cplusplus
 }
 #endif
 
-#if defined (_IPP_STDCALL_CDECL)
-  #undef  _IPP_STDCALL_CDECL
-  #define __stdcall __cdecl
-#endif
-
-#endif /* __IPPDC_H__ */
-/* ////////////////////////////// End of file /////////////////////////////// */
-
+#endif /* IPPDC_H__ */
