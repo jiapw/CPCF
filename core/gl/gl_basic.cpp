@@ -250,7 +250,7 @@ void SetLineWidth(float w)
 #ifdef PLATFORM_DEBUG_BUILD
 namespace _details
 {
-	os::AtomicLocker	_GLErrorAssetion;
+	os::AtomicLock	_GLErrorAssetion;
 }
 #endif
 
@@ -328,7 +328,7 @@ void DrawUnitBox(ShaderProgramBase* pShader)
 	int clrloc = pShader->GetAttribLocation("_Color");
 	
 	rt::Vec4f clr_pad;
-	glGetFloatv(GL_COLOR_CLEAR_VALUE,clr_pad);
+	glGetFloatv(GL_COLOR_CLEAR_VALUE,(GLfloat*)&clr_pad);
 
 #define CLR_VARY 0.5f
 

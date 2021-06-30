@@ -636,10 +636,14 @@ public:
 };
 
 
-///////////////////////////////////////////////////////////
-// PodRef
+/**
+ * @brief PodRef
+ * 
+ * caution: map.insert(std::make_pair(x->y,x)) is incorrect, should use map[x->y] = x;
+ * @tparam T_POD 
+*/
 template<typename T_POD>
-struct PodRef		// caution: map.insert(std::make_pair(x->y,x)) is incorrect, should use map[x->y] = x;
+struct PodRef		
 {	static_assert(rt::TypeTraits<T_POD>::IsPOD, "PodRef takes POD only");
 	const T_POD* _p;
 	PodRef(){ _p = nullptr; }

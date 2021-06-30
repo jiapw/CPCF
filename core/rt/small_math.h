@@ -121,9 +121,9 @@ struct Vec
 	Dot(const Vec<t_Val, LEN>& x) const { return ((const Vec<t_Val, LEN-1>&)(*this)).Dot((const Vec<t_Val, LEN-1>&)x) + _p[LEN-1]*x[LEN-1]; } \
 	\
 	template<typename T> \
-	INLFUNC bool operator == (T x){ return ((Vec<t_Val, LEN-1>&)(*this)) == x && rt::NumericTraits<t_Val>::IsEqual(_p[LEN-1], (t_Val)x); } \
+	INLFUNC bool operator == (T x) const { return ((Vec<t_Val, LEN-1>&)(*this)) == x && rt::NumericTraits<t_Val>::IsEqual(_p[LEN-1], (t_Val)x); } \
 	template<typename T> \
-	INLFUNC bool operator != (T x){ return ((Vec<t_Val, LEN-1>&)(*this)) != x || rt::NumericTraits<t_Val>::IsNotEqual(_p[LEN-1], (t_Val)x); } \
+	INLFUNC bool operator != (T x) const { return ((Vec<t_Val, LEN-1>&)(*this)) != x || rt::NumericTraits<t_Val>::IsNotEqual(_p[LEN-1], (t_Val)x); } \
 	template<typename T> \
 	INLFUNC Vec<t_Val, LEN>& operator /= (T x){ ((Vec<t_Val, LEN-1>&)(*this)) /= x; _p[LEN-1]= (t_Val)(_p[LEN-1]/x); return *this; } \
 	template<typename T> \
@@ -133,9 +133,9 @@ struct Vec
 	template<typename T> \
 	INLFUNC Vec<t_Val, LEN>& operator -= (T x){ ((Vec<t_Val, LEN-1>&)(*this)) -= x; _p[LEN-1]= (t_Val)(_p[LEN-1]-x); return *this; } \
 	template<typename T> \
-	INLFUNC bool operator == (const Vec<T, LEN>& x){ return ((Vec<t_Val, LEN-1>&)(*this)) == (const Vec<T, LEN-1>&)x && rt::NumericTraits<t_Val>::IsEqual(_p[LEN-1], (t_Val)x[LEN-1]); } \
+	INLFUNC bool operator == (const Vec<T, LEN>& x) const { return ((Vec<t_Val, LEN-1>&)(*this)) == (const Vec<T, LEN-1>&)x && rt::NumericTraits<t_Val>::IsEqual(_p[LEN-1], (t_Val)x[LEN-1]); } \
 	template<typename T> \
-	INLFUNC bool operator != (const Vec<T, LEN>& x){ return ((Vec<t_Val, LEN-1>&)(*this)) != (const Vec<T, LEN-1>&)x || rt::NumericTraits<t_Val>::IsNotEqual(_p[LEN-1], (t_Val)x[LEN-1]); } \
+	INLFUNC bool operator != (const Vec<T, LEN>& x) const { return ((Vec<t_Val, LEN-1>&)(*this)) != (const Vec<T, LEN-1>&)x || rt::NumericTraits<t_Val>::IsNotEqual(_p[LEN-1], (t_Val)x[LEN-1]); } \
 	template<typename T> \
 	INLFUNC Vec<t_Val, LEN>& operator /= (const Vec<T, LEN>& x){ ((Vec<t_Val, LEN-1>&)(*this)) /= (const Vec<T, LEN-1>&)x; _p[LEN-1]= (t_Val)(_p[LEN-1]/x[LEN-1]); return *this; } \
 	template<typename T> \
