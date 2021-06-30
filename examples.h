@@ -18,4 +18,6 @@
   * @example test_rt_smallmath.cpp
   * @example test_rt_string.cpp
   * @example test_rt_xml.cpp
+  * @example render_core.h
+  * @example render_core.cpp
  */

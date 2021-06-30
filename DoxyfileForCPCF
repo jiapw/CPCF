@@ -127,7 +127,8 @@ EXCLUDE                = testcases core\gl\glext_inc.h core\gl\wglext_inc.h
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        =
-EXAMPLE_PATH           = testcases\tests\
+EXAMPLE_PATH           = testcases\tests \
+						 testcases\gl_testcases\tests
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             =
