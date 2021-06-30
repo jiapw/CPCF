@@ -65,6 +65,7 @@ extern int _objc_get_battery_state(bool* plugged);
 
 #ifdef PLATFORM_ANDROID
 #include <sys/sysconf.h>
+#include <sys/system_properties.h>
 
 #ifdef PLATFORM_64BIT
 #include <time.h>
@@ -481,6 +482,25 @@ int os::GetLastError()
 #endif
 }
 
+namespace os 
+{
+namespace _details 
+{
+#if defined(PLATFORM_ANDROID)
+
+const char* ndk_system_property_get(const char* name)
+{
+    thread_local static char value[PROP_VALUE_MAX];
+    if (__system_property_get(name, value))
+        return value;
+    else
+        return nullptr;
+}
+
+#endif
+}
+}
+
 void os::GetHostName(rt::String& name)
 {
 #if defined(PLATFORM_WIN)
@@ -489,6 +509,18 @@ void os::GetHostName(rt::String& name)
 	GetComputerNameW(buf, &len);
 	name = __UTF8(buf);
 #else
+
+	#if defined(PLATFORM_ANDROID)
+    {
+        auto* v = os::_details::ndk_system_property_get("net.hostname");
+        if (v)
+        {
+            name = v;
+            return;
+        }
+    }
+    #endif
+
 	char buf[1024] = {'\x0'};
 	gethostname(buf, sizeof(buf));
 	name = buf;
@@ -503,6 +535,19 @@ void os::GetLogonUserName(rt::String& name)
 	::GetUserNameW(buf, &len);
 	name = __UTF8(buf);
 #else
+
+    #if defined(PLATFORM_ANDROID)
+    {
+        auto* v = os::_details::ndk_system_property_get("persist.sys.device_name");
+        if (v)
+        {
+            name = v;
+            return;
+        }
+    }
+    #endif
+
+
 	name = getlogin();
 	//char buf[1024] = {'\x0'};
 	//getlogin_r(buf, sizeof(buf));
