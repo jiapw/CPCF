@@ -7,33 +7,37 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		931E9F7B1732559700721A9E /* libippac_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F6A1732559600721A9E /* libippac_l.a */; };
-		931E9F7C1732559700721A9E /* libippcc_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F6B1732559600721A9E /* libippcc_l.a */; };
-		931E9F7D1732559700721A9E /* libippch_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F6C1732559600721A9E /* libippch_l.a */; };
-		931E9F7E1732559700721A9E /* libippcore_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F6D1732559600721A9E /* libippcore_l.a */; };
-		931E9F7F1732559700721A9E /* libippcp_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F6E1732559600721A9E /* libippcp_l.a */; };
-		931E9F801732559700721A9E /* libippcv_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F6F1732559600721A9E /* libippcv_l.a */; };
-		931E9F811732559700721A9E /* libippdc_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F701732559600721A9E /* libippdc_l.a */; };
-		931E9F821732559700721A9E /* libippdi_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F711732559600721A9E /* libippdi_l.a */; };
-		931E9F831732559700721A9E /* libippgen_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F721732559700721A9E /* libippgen_l.a */; };
-		931E9F841732559700721A9E /* libippi_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F731732559700721A9E /* libippi_l.a */; };
-		931E9F851732559700721A9E /* libippj_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F741732559700721A9E /* libippj_l.a */; };
-		931E9F861732559700721A9E /* libippm_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F751732559700721A9E /* libippm_l.a */; };
-		931E9F871732559700721A9E /* libippr_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F761732559700721A9E /* libippr_l.a */; };
-		931E9F881732559700721A9E /* libipps_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F771732559700721A9E /* libipps_l.a */; };
-		931E9F891732559700721A9E /* libippsc_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F781732559700721A9E /* libippsc_l.a */; };
-		931E9F8A1732559700721A9E /* libippvc_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F791732559700721A9E /* libippvc_l.a */; };
-		931E9F8B1732559700721A9E /* libippvm_l.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 931E9F7A1732559700721A9E /* libippvm_l.a */; };
-		934D804517404E6A0023478D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934D804417404E6A0023478D /* QuartzCore.framework */; };
+		6357F04B268C782A0036ED88 /* libippac90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F035268C76710036ED88 /* libippac90lgc.a */; };
+		6357F04C268C782A0036ED88 /* libippcc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F033268C76710036ED88 /* libippcc.a */; };
+		6357F04D268C782A0036ED88 /* libippch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F036268C76710036ED88 /* libippch.a */; };
+		6357F04E268C782A0036ED88 /* libippcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F032268C76710036ED88 /* libippcore.a */; };
+		6357F04F268C782A0036ED88 /* libippcp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F028268C76710036ED88 /* libippcp.a */; };
+		6357F050268C782A0036ED88 /* libippcv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F02D268C76710036ED88 /* libippcv.a */; };
+		6357F051268C782A0036ED88 /* libippdc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F02C268C76710036ED88 /* libippdc.a */; };
+		6357F052268C782A0036ED88 /* libippdi90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F027268C76710036ED88 /* libippdi90lgc.a */; };
+		6357F053268C782A0036ED88 /* libippgen90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F034268C76710036ED88 /* libippgen90lgc.a */; };
+		6357F054268C782A0036ED88 /* libippi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F030268C76710036ED88 /* libippi.a */; };
+		6357F055268C782A0036ED88 /* libippj90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F031268C76710036ED88 /* libippj90lgc.a */; };
+		6357F056268C782A0036ED88 /* libippm90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F02A268C76710036ED88 /* libippm90lgc.a */; };
+		6357F057268C782B0036ED88 /* libippr90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F029268C76710036ED88 /* libippr90lgc.a */; };
+		6357F058268C782B0036ED88 /* libipps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F037268C76710036ED88 /* libipps.a */; };
+		6357F059268C782B0036ED88 /* libipps90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F02E268C76710036ED88 /* libipps90lgc.a */; };
+		6357F05A268C782B0036ED88 /* libippsc90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F02B268C76710036ED88 /* libippsc90lgc.a */; };
+		6357F05B268C782B0036ED88 /* libippvc90lgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F02F268C76710036ED88 /* libippvc90lgc.a */; };
+		6357F05C268C782C0036ED88 /* libippvm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F038268C76710036ED88 /* libippvm.a */; };
+		6357F05D268C78EE0036ED88 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93A25C601728E9BF00D2B16E /* OpenGL.framework */; };
+		6357F060268C78F00036ED88 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934D804417404E6A0023478D /* QuartzCore.framework */; };
+		6357F062268C78F20036ED88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9391F429172A2C2C00C97595 /* IOKit.framework */; };
+		6357F064268C78F30036ED88 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93A25C411728D11800D2B16E /* Cocoa.framework */; };
+		6357F067268C7A720036ED88 /* kernal_encode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6357F066268C7A720036ED88 /* kernal_encode.cpp */; };
+		6357F069268C7D4B0036ED88 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F068268C7D4B0036ED88 /* Security.framework */; };
+		6357F06B268C81CA0036ED88 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6357F06A268C81CA0036ED88 /* json.cpp */; };
 		9391F4201729E1FA00C97595 /* render_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9391F41E1729E1FA00C97595 /* render_core.cpp */; };
-		9391F42A172A2C2C00C97595 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9391F429172A2C2C00C97595 /* IOKit.framework */; };
-		93A25C421728D11800D2B16E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93A25C411728D11800D2B16E /* Cocoa.framework */; };
 		93A25C4C1728D11800D2B16E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 93A25C4A1728D11800D2B16E /* InfoPlist.strings */; };
 		93A25C4E1728D11800D2B16E /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93A25C4D1728D11800D2B16E /* main.mm */; };
 		93A25C521728D11800D2B16E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 93A25C501728D11800D2B16E /* Credits.rtf */; };
 		93A25C551728D11800D2B16E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 93A25C541728D11800D2B16E /* AppDelegate.m */; };
 		93A25C581728D11900D2B16E /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 93A25C561728D11900D2B16E /* MainMenu.xib */; };
-		93A25C611728E9BF00D2B16E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93A25C601728E9BF00D2B16E /* OpenGL.framework */; };
 		93A25C67172901F900D2B16E /* MyOpenGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93A25C66172901F900D2B16E /* MyOpenGLView.mm */; };
 		941D3E9F21307BE800F97118 /* lib_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = 941D3E9E21307BE800F97118 /* lib_inc.c */; };
 		941D3EA321307BF600F97118 /* ipp_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941D3EA021307BF600F97118 /* ipp_core.cpp */; };
@@ -53,6 +57,28 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6357F027268C76710036ED88 /* libippdi90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippdi90lgc.a; path = ../../../libs/mac/libippdi90lgc.a; sourceTree = "<group>"; };
+		6357F028268C76710036ED88 /* libippcp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippcp.a; path = ../../../libs/mac/libippcp.a; sourceTree = "<group>"; };
+		6357F029268C76710036ED88 /* libippr90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippr90lgc.a; path = ../../../libs/mac/libippr90lgc.a; sourceTree = "<group>"; };
+		6357F02A268C76710036ED88 /* libippm90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippm90lgc.a; path = ../../../libs/mac/libippm90lgc.a; sourceTree = "<group>"; };
+		6357F02B268C76710036ED88 /* libippsc90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippsc90lgc.a; path = ../../../libs/mac/libippsc90lgc.a; sourceTree = "<group>"; };
+		6357F02C268C76710036ED88 /* libippdc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippdc.a; path = ../../../libs/mac/libippdc.a; sourceTree = "<group>"; };
+		6357F02D268C76710036ED88 /* libippcv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippcv.a; path = ../../../libs/mac/libippcv.a; sourceTree = "<group>"; };
+		6357F02E268C76710036ED88 /* libipps90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libipps90lgc.a; path = ../../../libs/mac/libipps90lgc.a; sourceTree = "<group>"; };
+		6357F02F268C76710036ED88 /* libippvc90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippvc90lgc.a; path = ../../../libs/mac/libippvc90lgc.a; sourceTree = "<group>"; };
+		6357F030268C76710036ED88 /* libippi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippi.a; path = ../../../libs/mac/libippi.a; sourceTree = "<group>"; };
+		6357F031268C76710036ED88 /* libippj90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippj90lgc.a; path = ../../../libs/mac/libippj90lgc.a; sourceTree = "<group>"; };
+		6357F032268C76710036ED88 /* libippcore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippcore.a; path = ../../../libs/mac/libippcore.a; sourceTree = "<group>"; };
+		6357F033268C76710036ED88 /* libippcc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippcc.a; path = ../../../libs/mac/libippcc.a; sourceTree = "<group>"; };
+		6357F034268C76710036ED88 /* libippgen90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippgen90lgc.a; path = ../../../libs/mac/libippgen90lgc.a; sourceTree = "<group>"; };
+		6357F035268C76710036ED88 /* libippac90lgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippac90lgc.a; path = ../../../libs/mac/libippac90lgc.a; sourceTree = "<group>"; };
+		6357F036268C76710036ED88 /* libippch.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippch.a; path = ../../../libs/mac/libippch.a; sourceTree = "<group>"; };
+		6357F037268C76710036ED88 /* libipps.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libipps.a; path = ../../../libs/mac/libipps.a; sourceTree = "<group>"; };
+		6357F038268C76710036ED88 /* libippvm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippvm.a; path = ../../../libs/mac/libippvm.a; sourceTree = "<group>"; };
+		6357F066268C7A720036ED88 /* kernal_encode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = kernal_encode.cpp; path = ../../../core/os/kernal_encode.cpp; sourceTree = "<group>"; };
+		6357F068268C7D4B0036ED88 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		6357F06A268C81CA0036ED88 /* json.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../../../core/rt/json.cpp; sourceTree = "<group>"; };
+		6357F06C268C83800036ED88 /* objc_wrap.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = objc_wrap.mm; path = ../../../core/os/objc_wrap.mm; sourceTree = "<group>"; };
 		931E9F6A1732559600721A9E /* libippac_l.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippac_l.a; path = ../../../shared_library/libs/mac/libippac_l.a; sourceTree = "<group>"; };
 		931E9F6B1732559600721A9E /* libippcc_l.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippcc_l.a; path = ../../../shared_library/libs/mac/libippcc_l.a; sourceTree = "<group>"; };
 		931E9F6C1732559600721A9E /* libippch_l.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippch_l.a; path = ../../../shared_library/libs/mac/libippch_l.a; sourceTree = "<group>"; };
@@ -126,27 +152,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				934D804517404E6A0023478D /* QuartzCore.framework in Frameworks */,
-				931E9F7B1732559700721A9E /* libippac_l.a in Frameworks */,
-				931E9F7C1732559700721A9E /* libippcc_l.a in Frameworks */,
-				931E9F7D1732559700721A9E /* libippch_l.a in Frameworks */,
-				931E9F7E1732559700721A9E /* libippcore_l.a in Frameworks */,
-				931E9F7F1732559700721A9E /* libippcp_l.a in Frameworks */,
-				931E9F801732559700721A9E /* libippcv_l.a in Frameworks */,
-				931E9F811732559700721A9E /* libippdc_l.a in Frameworks */,
-				931E9F821732559700721A9E /* libippdi_l.a in Frameworks */,
-				931E9F831732559700721A9E /* libippgen_l.a in Frameworks */,
-				931E9F841732559700721A9E /* libippi_l.a in Frameworks */,
-				931E9F851732559700721A9E /* libippj_l.a in Frameworks */,
-				931E9F861732559700721A9E /* libippm_l.a in Frameworks */,
-				931E9F871732559700721A9E /* libippr_l.a in Frameworks */,
-				931E9F881732559700721A9E /* libipps_l.a in Frameworks */,
-				931E9F891732559700721A9E /* libippsc_l.a in Frameworks */,
-				931E9F8A1732559700721A9E /* libippvc_l.a in Frameworks */,
-				931E9F8B1732559700721A9E /* libippvm_l.a in Frameworks */,
-				9391F42A172A2C2C00C97595 /* IOKit.framework in Frameworks */,
-				93A25C611728E9BF00D2B16E /* OpenGL.framework in Frameworks */,
-				93A25C421728D11800D2B16E /* Cocoa.framework in Frameworks */,
+				6357F069268C7D4B0036ED88 /* Security.framework in Frameworks */,
+				6357F055268C782A0036ED88 /* libippj90lgc.a in Frameworks */,
+				6357F04D268C782A0036ED88 /* libippch.a in Frameworks */,
+				6357F051268C782A0036ED88 /* libippdc.a in Frameworks */,
+				6357F059268C782B0036ED88 /* libipps90lgc.a in Frameworks */,
+				6357F05A268C782B0036ED88 /* libippsc90lgc.a in Frameworks */,
+				6357F04E268C782A0036ED88 /* libippcore.a in Frameworks */,
+				6357F052268C782A0036ED88 /* libippdi90lgc.a in Frameworks */,
+				6357F05C268C782C0036ED88 /* libippvm.a in Frameworks */,
+				6357F05B268C782B0036ED88 /* libippvc90lgc.a in Frameworks */,
+				6357F05D268C78EE0036ED88 /* OpenGL.framework in Frameworks */,
+				6357F04C268C782A0036ED88 /* libippcc.a in Frameworks */,
+				6357F056268C782A0036ED88 /* libippm90lgc.a in Frameworks */,
+				6357F053268C782A0036ED88 /* libippgen90lgc.a in Frameworks */,
+				6357F060268C78F00036ED88 /* QuartzCore.framework in Frameworks */,
+				6357F064268C78F30036ED88 /* Cocoa.framework in Frameworks */,
+				6357F058268C782B0036ED88 /* libipps.a in Frameworks */,
+				6357F062268C78F20036ED88 /* IOKit.framework in Frameworks */,
+				6357F054268C782A0036ED88 /* libippi.a in Frameworks */,
+				6357F050268C782A0036ED88 /* libippcv.a in Frameworks */,
+				6357F057268C782B0036ED88 /* libippr90lgc.a in Frameworks */,
+				6357F04B268C782A0036ED88 /* libippac90lgc.a in Frameworks */,
+				6357F04F268C782A0036ED88 /* libippcp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,6 +268,9 @@
 		93A25C351728D11800D2B16E = {
 			isa = PBXGroup;
 			children = (
+				6357F06C268C83800036ED88 /* objc_wrap.mm */,
+				6357F06A268C81CA0036ED88 /* json.cpp */,
+				6357F066268C7A720036ED88 /* kernal_encode.cpp */,
 				93A25C471728D11800D2B16E /* gltest */,
 				9391F4071729E16900C97595 /* CPF */,
 				93A25C401728D11800D2B16E /* Frameworks */,
@@ -258,6 +289,25 @@
 		93A25C401728D11800D2B16E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6357F068268C7D4B0036ED88 /* Security.framework */,
+				6357F035268C76710036ED88 /* libippac90lgc.a */,
+				6357F033268C76710036ED88 /* libippcc.a */,
+				6357F036268C76710036ED88 /* libippch.a */,
+				6357F032268C76710036ED88 /* libippcore.a */,
+				6357F028268C76710036ED88 /* libippcp.a */,
+				6357F02D268C76710036ED88 /* libippcv.a */,
+				6357F02C268C76710036ED88 /* libippdc.a */,
+				6357F027268C76710036ED88 /* libippdi90lgc.a */,
+				6357F034268C76710036ED88 /* libippgen90lgc.a */,
+				6357F030268C76710036ED88 /* libippi.a */,
+				6357F031268C76710036ED88 /* libippj90lgc.a */,
+				6357F02A268C76710036ED88 /* libippm90lgc.a */,
+				6357F029268C76710036ED88 /* libippr90lgc.a */,
+				6357F037268C76710036ED88 /* libipps.a */,
+				6357F02E268C76710036ED88 /* libipps90lgc.a */,
+				6357F02B268C76710036ED88 /* libippsc90lgc.a */,
+				6357F02F268C76710036ED88 /* libippvc90lgc.a */,
+				6357F038268C76710036ED88 /* libippvm.a */,
 				934D804417404E6A0023478D /* QuartzCore.framework */,
 				931E9F8C173255D200721A9E /* ipp_lib */,
 				9391F429172A2C2C00C97595 /* IOKit.framework */,
@@ -339,6 +389,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 93A25C351728D11800D2B16E;
@@ -369,6 +420,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				941D3ECD213081F400F97118 /* objc_wrap.mm in Sources */,
+				6357F06B268C81CA0036ED88 /* json.cpp in Sources */,
+				6357F067268C7A720036ED88 /* kernal_encode.cpp in Sources */,
 				93A25C4E1728D11800D2B16E /* main.mm in Sources */,
 				941D3EC421307C2900F97118 /* kernel_log.cpp in Sources */,
 				941D3EC321307C2900F97118 /* kernel.cpp in Sources */,
@@ -378,7 +432,6 @@
 				941D3EB421307C0F00F97118 /* objc_gl_wrap.mm in Sources */,
 				941D3E9F21307BE800F97118 /* lib_inc.c in Sources */,
 				941D3EC221307C2900F97118 /* user_inputs.cpp in Sources */,
-				941D3ECD213081F400F97118 /* objc_wrap.mm in Sources */,
 				93A25C67172901F900D2B16E /* MyOpenGLView.mm in Sources */,
 				941D3EB721307C0F00F97118 /* gl_object.cpp in Sources */,
 				941D3EC92130813B00F97118 /* multi_thread.cpp in Sources */,
@@ -440,14 +493,14 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
-					"$(inherited)",
+					"$(inherited)PLATFORM_APPLICATION",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 11.4;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -469,11 +522,12 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = PLATFORM_APPLICATION;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 11.4;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -485,10 +539,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "gltest/gltest-Prefix.pch";
 				INFOPLIST_FILE = "gltest/gltest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../libs/mac\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -501,10 +557,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "gltest/gltest-Prefix.pch";
 				INFOPLIST_FILE = "gltest/gltest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../libs/mac\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
