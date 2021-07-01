@@ -706,6 +706,9 @@ void os::GetDeviceModel(rt::String& model)
     uname(&systemInfo);
     model = systemInfo.machine;  // like iPhone12,3 , https://stackoverflow.com/questions/11197509/how-to-get-device-make-and-model-on-ios
 #elif defined(PLATFORM_ANDROID)
+	model = os::_details::ndk_system_property_get("ro.product.model");
+	if(!model.IsEmpty()) return;
+
 	FILE * f = fopen("/sys/devices/virtual/dmi/id/product_name","r");
 	if(f)
 	{	char buf[256];
@@ -713,6 +716,7 @@ void os::GetDeviceModel(rt::String& model)
 		if(len)model = rt::SS(buf, len);
 		fclose(f);
 	}
+
 	if(model.IsEmpty())model = "Android";
 #elif defined(PLATFORM_LINUX)
 	FILE * f = fopen("/sys/devices/virtual/dmi/id/product_name","r");
