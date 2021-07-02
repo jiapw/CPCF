@@ -32,6 +32,7 @@
 		6357F067268C7A720036ED88 /* kernal_encode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6357F066268C7A720036ED88 /* kernal_encode.cpp */; };
 		6357F069268C7D4B0036ED88 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6357F068268C7D4B0036ED88 /* Security.framework */; };
 		6357F06B268C81CA0036ED88 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6357F06A268C81CA0036ED88 /* json.cpp */; };
+		63E7FC68268DF78300EA9ABD /* cjk_14.ufg in Resources */ = {isa = PBXBuildFile; fileRef = 63E7FC67268DF78300EA9ABD /* cjk_14.ufg */; };
 		9391F4201729E1FA00C97595 /* render_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9391F41E1729E1FA00C97595 /* render_core.cpp */; };
 		93A25C4C1728D11800D2B16E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 93A25C4A1728D11800D2B16E /* InfoPlist.strings */; };
 		93A25C4E1728D11800D2B16E /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93A25C4D1728D11800D2B16E /* main.mm */; };
@@ -79,6 +80,7 @@
 		6357F068268C7D4B0036ED88 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6357F06A268C81CA0036ED88 /* json.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../../../core/rt/json.cpp; sourceTree = "<group>"; };
 		6357F06C268C83800036ED88 /* objc_wrap.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = objc_wrap.mm; path = ../../../core/os/objc_wrap.mm; sourceTree = "<group>"; };
+		63E7FC67268DF78300EA9ABD /* cjk_14.ufg */ = {isa = PBXFileReference; lastKnownFileType = file; name = cjk_14.ufg; path = gltest/cjk_14.ufg; sourceTree = "<group>"; };
 		931E9F6A1732559600721A9E /* libippac_l.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippac_l.a; path = ../../../shared_library/libs/mac/libippac_l.a; sourceTree = "<group>"; };
 		931E9F6B1732559600721A9E /* libippcc_l.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippcc_l.a; path = ../../../shared_library/libs/mac/libippcc_l.a; sourceTree = "<group>"; };
 		931E9F6C1732559600721A9E /* libippch_l.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libippch_l.a; path = ../../../shared_library/libs/mac/libippch_l.a; sourceTree = "<group>"; };
@@ -268,6 +270,7 @@
 		93A25C351728D11800D2B16E = {
 			isa = PBXGroup;
 			children = (
+				63E7FC67268DF78300EA9ABD /* cjk_14.ufg */,
 				6357F06C268C83800036ED88 /* objc_wrap.mm */,
 				6357F06A268C81CA0036ED88 /* json.cpp */,
 				6357F066268C7A720036ED88 /* kernal_encode.cpp */,
@@ -407,6 +410,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63E7FC68268DF78300EA9ABD /* cjk_14.ufg in Resources */,
 				93A25C4C1728D11800D2B16E /* InfoPlist.strings in Resources */,
 				93A25C521728D11800D2B16E /* Credits.rtf in Resources */,
 				93A25C581728D11900D2B16E /* MainMenu.xib in Resources */,

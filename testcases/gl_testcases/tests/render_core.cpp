@@ -1,5 +1,10 @@
 #include "render_core.h"
 
+#if !defined(PLATFORM_WIN)
+#include "CoreFoundation/CoreFoundation.h"
+#include <string>
+#endif
+
 #define GNAME "R8"
 //#define GNAME "USB"
 
@@ -49,9 +54,9 @@ bool RenderCore::PostInit()
 
 	// get assets
 	{
-#if !defined(PLATFORM_WIN)
-		os::SetAppSandboxAsCurrentDirectory("opengl_test");
-#endif
+//#if !defined(PLATFORM_WIN)
+//		os::SetAppSandboxAsCurrentDirectory("opengl_test");
+//#endif
 		_LOG("loading resource ...");
 
 		//{	WebResource texw("http://jiapingwang.com/texture.png");
@@ -122,7 +127,23 @@ bool RenderCore::PostInit()
 		gl::StopUsingVBO();
 
 		//_Font.Open("cjk_16.ufg", gl::gdiFont::FLAG_KEEP_IN_MEMORY);
-		_Font.Open("cjk_14.ufg", gl::gdiFont::FLAG_KEEP_IN_MEMORY);
+#if !defined(PLATFORM_WIN)
+        CFBundleRef mainBundle = CFBundleGetMainBundle();
+            CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+            char path[PATH_MAX];
+            if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
+            {
+                // error!
+            }
+            CFRelease(resourcesURL);
+            chdir(path);
+        std::string t(path);
+        std::string fn=t+"/cjk_14.ufg";
+        _Font.Open(fn.c_str(),gl::gdiFont::FLAG_KEEP_IN_MEMORY);
+#elif defined(PLATFORM_WIN)
+        _Font.Open("cjk_14.ufg", gl::gdiFont::FLAG_KEEP_IN_MEMORY);
+#endif
+		
 		_Font.SetFontSpacing(-4);
 		//{	ipp::Image_1c8u		copy;
 		//	ipp::ImageRef_1c8u	test(_Font.GetGlyphMap(), _Font.GetGlyphMapWidth(), _Font.GetGlyphMapHeight(), _Font.GetStep());
