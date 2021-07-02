@@ -8,6 +8,3 @@ Thread Run: 1
 Event Timeout: 2000
 Event Set
 Thread Waited: 2000, 1
-Thread Ended
-=== UnitTest<multithread>: END =====
-

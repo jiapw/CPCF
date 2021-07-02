@@ -62,6 +62,8 @@ struct UnitTests
 
 	static void lockfile();
 
+	static void rocks_db2();
+
 	#if defined(PLATFORM_INTEL_IPP_SUPPORT)
 	static void ipp_matting();
 	static void ipp_image_apps();

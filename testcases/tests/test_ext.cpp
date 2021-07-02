@@ -370,7 +370,7 @@ void rt::UnitTests::rocks_db()
 	rt::Buffer<ULONGLONG>	keys;
 	keys.SetSize(100*1024);
 
-	/*
+	
 	{
 		cmp	_cmp;
 		::rocksdb::ColumnFamilyOptions opt;
@@ -547,8 +547,8 @@ void rt::UnitTests::rocks_db()
 		_LOG_HIGHLIGHT("ROCKSSTG_DEFAULT - WriteOptionsFastRisky");
 		test(ext::ROCKSSTG_DEFAULT, ext::RocksDB::WriteOptionsFastRisky);
 
-		_LOG_HIGHLIGHT("ROCKSSTG_UNBUFFERED - WriteOptionsFastRisky");
-		test(ext::ROCKSSTG_UNBUFFERED, ext::RocksDB::WriteOptionsFastRisky);
+		//_LOG_HIGHLIGHT("ROCKSSTG_UNBUFFERED - WriteOptionsFastRisky");
+		//test(ext::ROCKSSTG_UNBUFFERED, ext::RocksDB::WriteOptionsFastRisky);
 
 		_LOG_HIGHLIGHT("ROCKSSTG_STRONG - WriteOptionsFastRisky");
 		test(ext::ROCKSSTG_STRONG, ext::RocksDB::WriteOptionsFastRisky);
@@ -560,8 +560,8 @@ void rt::UnitTests::rocks_db()
 		_LOG_HIGHLIGHT("ROCKSSTG_DEFAULT - WriteOptionsDefault");
 		test(ext::ROCKSSTG_DEFAULT, ext::RocksDB::WriteOptionsDefault);
 
-		_LOG_HIGHLIGHT("ROCKSSTG_UNBUFFERED - WriteOptionsDefault");
-		test(ext::ROCKSSTG_UNBUFFERED, ext::RocksDB::WriteOptionsDefault);
+		//_LOG_HIGHLIGHT("ROCKSSTG_UNBUFFERED - WriteOptionsDefault");
+		//test(ext::ROCKSSTG_UNBUFFERED, ext::RocksDB::WriteOptionsDefault);
 
 		_LOG_HIGHLIGHT("ROCKSSTG_STRONG - WriteOptionsDefault");
 		test(ext::ROCKSSTG_STRONG, ext::RocksDB::WriteOptionsDefault);
@@ -574,13 +574,13 @@ void rt::UnitTests::rocks_db()
 		_LOG_HIGHLIGHT("ROCKSSTG_DEFAULT - WriteOptionsRobust");
 		test(ext::ROCKSSTG_DEFAULT, ext::RocksDB::WriteOptionsRobust);
 
-		_LOG_HIGHLIGHT("ROCKSSTG_UNBUFFERED - WriteOptionsRobust");
-		test(ext::ROCKSSTG_UNBUFFERED, ext::RocksDB::WriteOptionsRobust);
+		//_LOG_HIGHLIGHT("ROCKSSTG_UNBUFFERED - WriteOptionsRobust");
+		//test(ext::ROCKSSTG_UNBUFFERED, ext::RocksDB::WriteOptionsRobust);
 
 		_LOG_HIGHLIGHT("ROCKSSTG_STRONG - WriteOptionsRobust");
 		test(ext::ROCKSSTG_STRONG, ext::RocksDB::WriteOptionsRobust);
 	}
-	*/
+	
 	/*
 	{
 		::rocksdb::ColumnFamilyOptions opt;
@@ -1399,4 +1399,145 @@ void rt::UnitTests::big_num()
 	_LOG(b);
 	b <<= 234;
 	_LOG(b);
+}
+template<typename T>
+void NegateFirstBit(T& out)
+{
+	if (rt::NumericTraits<T>::IsSigned)
+	{
+		LPBYTE p = (LPBYTE)&out;
+		if ((p[0] & 0x80) == 0x80)
+		{
+			p[0] = p[0] & 0x7f;
+		}
+		else p[0] = p[0] | 0x80;
+	}
+}
+template<typename T>
+T ToSwappedByteOrder(const T& x)
+{	
+	T out = x;
+	rt::SwapByteOrder(out);
+	NegateFirstBit<T>(out);
+	return out;
+}
+template<typename T>
+T ToNormalByteOrder(const T& x)
+{
+	T out = x;	
+	NegateFirstBit<T>(out);
+	rt::SwapByteOrder(out);
+	return out;
+}
+
+template<typename... Values> struct RightByteOrderClass;
+template<> struct RightByteOrderClass<> {};
+
+template<typename Head, typename... Tail>
+struct RightByteOrderClass<Head, Tail...>
+	: public RightByteOrderClass<Tail...>
+{
+	Head m_head;
+
+	typedef RightByteOrderClass<Tail...> inherited;
+	RightByteOrderClass() {}
+	RightByteOrderClass(const Head& value, Tail... vtail) :inherited(vtail...) 
+	{ m_head = ToSwappedByteOrder<Head>(value); }
+	Head head() const  { return ToNormalByteOrder<Head>(m_head); }
+};
+template <int N, typename ... __args_type>
+struct element;
+
+
+template <int N>
+struct element<N, RightByteOrderClass<>> {
+	static_assert(0 > N, "Index outside of tuple!");
+};
+
+template <int N, typename Head, typename ... Tail>
+struct element<N, RightByteOrderClass<Head, Tail ...>>
+	: public element<N - 1, RightByteOrderClass<Tail ...>> {};
+
+template <typename Head, typename ... Tail>
+struct element<0, RightByteOrderClass<Head, Tail ...>>
+{
+	using value_type = Head;
+	using class_type = RightByteOrderClass<Head, Tail ...>;
+};
+
+template <int N, typename ... Values>
+auto get(RightByteOrderClass<Values ...>& tu)
+{
+	using __class_type = typename element<N, RightByteOrderClass<Values ...>>::class_type;
+	return ((__class_type&)tu).head();
+}
+
+void rt::UnitTests::rocks_db2()
+{
+
+
+	LPCSTR fn = "test.db";
+
+	{
+		ext::RocksStorage::Nuke(fn);
+#pragma pack(push, 1)
+		struct TxnMetadata
+		{
+			WORD	ExtraDataSize;
+		};
+#pragma pack(pop)
+		typedef ext::RocksDBStandalonePaged<UINT, TxnMetadata, 1024>	t_PagedTxnDB;
+
+		t_PagedTxnDB db;
+		db.Open(fn);
+		db.SetPaged(100, { 10 }, "123", 3);
+
+		std::string ws;
+		auto* b = db.GetPaged(100, 0, ws);
+		_LOG(b->TotalSize << ", " << b->ExtraDataSize);
+	}
+
+	{
+		ext::RocksStorage::Nuke(fn);
+		ext::RocksStorage store;
+
+		store.SetDBOpenOption("t2", ext::RocksDBOpenOption().SetKeyOrder<INT>());
+
+		store.Open(fn);
+
+		ext::RocksDB db = store.Get("t");
+		ext::RocksDB db2 = store.Get("t2");
+		ext::RocksDB db3 = store.Get("t3");
+		
+		for (INT i = -100; i < 100; i++)
+		{			
+			db.Set(i * 100, i * 100);
+			db2.Set(i * 100, i * 100 + 1);
+			RightByteOrderClass<int,int> test(i*100,-i*100);
+			::rocksdb::Slice x((LPCSTR)&test, sizeof(test));
+			db3.Set(x,i*100);
+		}
+
+		{	rt::String str;
+		auto it = db.First();
+		while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
+		_LOG(str);
+		_LOG("");
+
+		str.Empty();
+		it = db2.First();
+		while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
+		_LOG(str);
+		_LOG("");
+		str.Empty();
+		it = db3.First();
+		while (it.IsValid()) {
+			auto t = it.Key<RightByteOrderClass<int, int>>();
+			str += rt::tos::Number(get<0,int, int>(t)) + ' ';
+			it.Next();
+		}
+		_LOG(str);
+	}
+		store.Close();
+	}
 }
