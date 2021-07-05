@@ -1430,52 +1430,193 @@ T ToNormalByteOrder(const T& x)
 	return out;
 }
 
-template<typename... Values> struct RightByteOrderClass;
-template<> struct RightByteOrderClass<> {};
+template<bool Reverse,typename... Values> struct RightByteOrderClass;
+template<bool Reverse> struct RightByteOrderClass<Reverse> {};
 
-template<typename Head, typename... Tail>
-struct RightByteOrderClass<Head, Tail...>
-	: public RightByteOrderClass<Tail...>
+template<bool Reverse, typename Head, typename... Tail>
+struct RightByteOrderClass<Reverse, Head, Tail...>
+	: public RightByteOrderClass<Reverse, Tail...>
 {
 	Head m_head;
 
-	typedef RightByteOrderClass<Tail...> inherited;
+	typedef RightByteOrderClass<Reverse, Tail...> inherited;
 	RightByteOrderClass() {}
-	RightByteOrderClass(const Head& value, Tail... vtail) :inherited(vtail...) 
-	{ m_head = ToSwappedByteOrder<Head>(value); }
-	Head head() const  { return ToNormalByteOrder<Head>(m_head); }
+	RightByteOrderClass( const Head& value, Tail... vtail) :inherited(vtail...)
+	{ 
+		m_head = ToSwappedByteOrder<Head>(value);
+		if (Reverse) m_head = ~ m_head;		
+	}
+	Head getHead() const
+	{
+		if (!Reverse)
+		return(ToNormalByteOrder<Head>(m_head) );
+		else 
+		return(~ ToNormalByteOrder<Head>(m_head) );
+	}
+	void setHead(Head& value)  { 
+		m_head = ToSwappedByteOrder<Head>(value);
+		if (Reverse) m_head = ~m_head;
+	}
 };
+
 template <int N, typename ... __args_type>
 struct element;
 
-
-template <int N>
-struct element<N, RightByteOrderClass<>> {
+template <int N, bool Reverse>
+struct element<N, RightByteOrderClass<Reverse>> {
 	static_assert(0 > N, "Index outside of tuple!");
 };
 
-template <int N, typename Head, typename ... Tail>
-struct element<N, RightByteOrderClass<Head, Tail ...>>
-	: public element<N - 1, RightByteOrderClass<Tail ...>> {};
+template <int N, bool Reverse, typename Head, typename ... Tail>
+struct element<N, RightByteOrderClass<Reverse,Head, Tail ...>>
+	: public element<N - 1, RightByteOrderClass<Reverse, Tail ...>> {};
 
-template <typename Head, typename ... Tail>
-struct element<0, RightByteOrderClass<Head, Tail ...>>
+template <bool Reverse, typename Head, typename ... Tail>
+struct element<0, RightByteOrderClass<Reverse,Head, Tail ...>>
 {
 	using value_type = Head;
-	using class_type = RightByteOrderClass<Head, Tail ...>;
+	using class_type = RightByteOrderClass<Reverse, Head, Tail ...>;
 };
 
-template <int N, typename ... Values>
-auto get(RightByteOrderClass<Values ...>& tu)
+template <int N, bool Reverse, typename ... Values>
+auto get(RightByteOrderClass<Reverse,Values ...>& tu)
 {
-	using __class_type = typename element<N, RightByteOrderClass<Values ...>>::class_type;
-	return ((__class_type&)tu).head();
+	using __class_type = typename element<N, RightByteOrderClass<Reverse,Values ...>>::class_type;
+	return ((__class_type&)tu).getHead();
+}
+template <int N, bool Reverse, typename Head, typename ... Tail>
+auto set(Head value,RightByteOrderClass<Reverse,Head, Tail ...>& tu)
+{
+	using __class_type = typename element<N, RightByteOrderClass<Reverse,Head, Tail ...>>::class_type;
+	((__class_type&)tu).setHead(value);
 }
 
-void rt::UnitTests::rocks_db2()
+void performanceTest()
 {
+	LPCSTR fn = "test.db";
+	{
+		struct cmp : public ::rocksdb::Comparator
+		{
+			// Three-way comparison.  Returns value:
+			//   < 0 iff "a" < "b",
+			//   == 0 iff "a" == "b",
+			//   > 0 iff "a" > "b"
+			virtual int Compare(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
+			{
+				auto x = *(UINT*)a.data();
+				auto y = *(UINT*)b.data();
+				if (x > y)return -1;
+				else if (x < y)return +1;
+				return 0;
+			}
+
+			virtual bool Equal(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
+			{
+				return  *(UINT*)a.data() == *(UINT*)b.data();
+			}
+
+			virtual const char* Name() const { return "test_cmp"; }
+			virtual void FindShortestSeparator(std::string* start, const ::rocksdb::Slice& limit) const {}
+			virtual void FindShortSuccessor(std::string* key) const {}
+		};
+			
+		os::SetProcessPriority(os::PROCPRIO_REALTIME);
+
+		rt::Buffer<ULONGLONG>	keys;
+		keys.SetSize(100 * 1024);
+		{
+			cmp	_cmp;
+			::rocksdb::ColumnFamilyOptions opt;
+			opt.comparator = &_cmp;
+						
+			::rocksdb::ColumnFamilyOptions opt3;
+
+			auto test = [&keys, fn, &opt, &opt3](ext::RocksStorageWriteRobustness wr, const ext::WriteOptions* w_opt)
+			{
+				os::HighPerformanceCounter hpc;
+				hpc.SetOutputUnit(1000U);
+
+				{
+					ext::RocksStorage::Nuke(fn);
+					ext::RocksStorage store;
+
+					for (UINT i = 0; i < keys.GetSize(); i++)
+						keys[i] = i;
+
+					store.SetDBOpenOption("q", opt);
+					store.Open(fn, wr);
+					auto db = store.Get("q");
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < keys.GetSize(); i++)
+						db.Set(keys[keys.GetSize() - i - 1], keys[i], w_opt);
+					ULONGLONG insert = keys.GetSize() * 1000000LL / rt::max(1LL, hpc.TimeLapse());
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.First();
+						while (it.IsValid())it.Next();
+					}
+					ULONGLONG scan = keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse());
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.Last();
+						while (it.IsValid())it.Prev();
+					}
+					_LOG("Desc+Compr: " << insert << '\t' << scan << '\t' << keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse()));
+				}
+				
+				{
+					int count = 0;
+					ext::RocksStorage::Nuke(fn);
+					ext::RocksStorage store;
+
+					for (UINT i = 0; i < keys.GetSize(); i++)
+						keys[i] = i;
+
+					store.SetDBOpenOption("q", opt3);
+					store.Open(fn, wr);
+					auto db = store.Get("q");
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < keys.GetSize(); i++)
+					{
+						RightByteOrderClass<false, ULONGLONG> test(keys[keys.GetSize() - i - 1]);
+						::rocksdb::Slice x((LPCSTR)&test, sizeof(test));
+						db.Set(x, keys[i], w_opt);
+					}
+					ULONGLONG insert = keys.GetSize() * 1000000LL / rt::max(1LL, hpc.TimeLapse());
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.First();
+						while (it.IsValid()){ it.Next(); count++; }
+					}
+					ULONGLONG scan = keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse());
+					 count = 0;
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.Last();
+						while (it.IsValid()) {	it.Prev(); count++;	}
+					}
+					_LOG("RightByteOrderClass: " << insert << '\t' << scan << '\t' << keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse())<< '\t' <<count) ;
+				}
+				
+			};
 
 
+			_LOG_HIGHLIGHT("ROCKSSTG_DEFAULT - WriteOptionsDefault");
+			test(ext::ROCKSSTG_DEFAULT, ext::RocksDB::WriteOptionsDefault);
+		}
+	}
+}
+void accurucyTest()
+{
 	LPCSTR fn = "test.db";
 
 	{
@@ -1508,36 +1649,47 @@ void rt::UnitTests::rocks_db2()
 		ext::RocksDB db = store.Get("t");
 		ext::RocksDB db2 = store.Get("t2");
 		ext::RocksDB db3 = store.Get("t3");
-		
+
 		for (INT i = -100; i < 100; i++)
-		{			
+		{
 			db.Set(i * 100, i * 100);
 			db2.Set(i * 100, i * 100 + 1);
-			RightByteOrderClass<int,int> test(i*100,-i*100);
+			RightByteOrderClass<true, int, int> test(i * 100, -i * 100);
+			if (i == 99)
+			{
+				set<1, true, int, int>(99900, test);
+			}
 			::rocksdb::Slice x((LPCSTR)&test, sizeof(test));
-			db3.Set(x,i*100);
+			db3.Set(x, i * 100);
 		}
 
-		{	rt::String str;
-		auto it = db.First();
-		while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
-		_LOG(str);
-		_LOG("");
+		{
+			rt::String str;
+			auto it = db.First();
+			while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
+			_LOG(str);
+			_LOG("");
 
-		str.Empty();
-		it = db2.First();
-		while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
-		_LOG(str);
-		_LOG("");
-		str.Empty();
-		it = db3.First();
-		while (it.IsValid()) {
-			auto t = it.Key<RightByteOrderClass<int, int>>();
-			str += rt::tos::Number(get<0,int, int>(t)) + ' ';
-			it.Next();
+			str.Empty();
+			it = db2.First();
+			while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
+			_LOG(str);
+			_LOG("");
+			str.Empty();
+			it = db3.First();
+			while (it.IsValid())
+			{
+				auto t = it.Key<RightByteOrderClass<true, int, int>>();
+				str += rt::tos::Number(get<0, true, int, int>(t)) + '(' + rt::tos::Number(get<1, true, int, int>(t)) + ')' + ' ';
+				it.Next();
+			}
+			_LOG(str);
 		}
-		_LOG(str);
-	}
 		store.Close();
 	}
+}
+void rt::UnitTests::rocks_db_ByteOrder()
+{
+	accurucyTest();
+	//performanceTest();
 }

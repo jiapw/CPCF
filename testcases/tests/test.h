@@ -62,7 +62,7 @@ struct UnitTests
 
 	static void lockfile();
 
-	static void rocks_db2();
+	static void rocks_db_ByteOrder();
 
 	#if defined(PLATFORM_INTEL_IPP_SUPPORT)
 	static void ipp_matting();
