@@ -65,6 +65,7 @@ extern int _objc_get_battery_state(bool* plugged);
 
 #ifdef PLATFORM_ANDROID
 #include <sys/sysconf.h>
+#include <sys/system_properties.h>
 
 #ifdef PLATFORM_64BIT
 #include <time.h>
@@ -481,6 +482,25 @@ int os::GetLastError()
 #endif
 }
 
+namespace os 
+{
+namespace _details 
+{
+#if defined(PLATFORM_ANDROID)
+
+const char* ndk_system_property_get(const char* name)
+{
+    thread_local static char value[PROP_VALUE_MAX];
+    if (__system_property_get(name, value))
+        return value;
+    else
+        return nullptr;
+}
+
+#endif
+}
+}
+
 void os::GetHostName(rt::String& name)
 {
 #if defined(PLATFORM_WIN)
@@ -489,6 +509,18 @@ void os::GetHostName(rt::String& name)
 	GetComputerNameW(buf, &len);
 	name = __UTF8(buf);
 #else
+
+	#if defined(PLATFORM_ANDROID)
+    {
+        auto* v = os::_details::ndk_system_property_get("net.hostname");
+        if (v)
+        {
+            name = v;
+            return;
+        }
+    }
+    #endif
+
 	char buf[1024] = {'\x0'};
 	gethostname(buf, sizeof(buf));
 	name = buf;
@@ -503,6 +535,19 @@ void os::GetLogonUserName(rt::String& name)
 	::GetUserNameW(buf, &len);
 	name = __UTF8(buf);
 #else
+
+    #if defined(PLATFORM_ANDROID)
+    {
+        auto* v = os::_details::ndk_system_property_get("persist.sys.device_name");
+        if (v)
+        {
+            name = v;
+            return;
+        }
+    }
+    #endif
+
+
 	name = getlogin();
 	//char buf[1024] = {'\x0'};
 	//getlogin_r(buf, sizeof(buf));
@@ -661,6 +706,9 @@ void os::GetDeviceModel(rt::String& model)
     uname(&systemInfo);
     model = systemInfo.machine;  // like iPhone12,3 , https://stackoverflow.com/questions/11197509/how-to-get-device-make-and-model-on-ios
 #elif defined(PLATFORM_ANDROID)
+	model = os::_details::ndk_system_property_get("ro.product.model");
+	if(!model.IsEmpty()) return;
+
 	FILE * f = fopen("/sys/devices/virtual/dmi/id/product_name","r");
 	if(f)
 	{	char buf[256];
@@ -668,6 +716,7 @@ void os::GetDeviceModel(rt::String& model)
 		if(len)model = rt::SS(buf, len);
 		fclose(f);
 	}
+
 	if(model.IsEmpty())model = "Android";
 #elif defined(PLATFORM_LINUX)
 	FILE * f = fopen("/sys/devices/virtual/dmi/id/product_name","r");

@@ -504,7 +504,7 @@ public:
 	rt::String_Ref	GetValueRaw(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const;	// xxx.yyy.zzz
 	/**
 	* @brief Get Value
-	* @param xpath Use [] to get value in array，use dot to get nested value for short.
+	* @param xpath Use [] to get value in array��use dot to get nested value for short.
 	* @param default_val return default_val if not find xpath.
 	* @param bDoNotSplitDot Not split dot while true,default = false
 	* @return
@@ -556,6 +556,20 @@ public:
 	void			GetValueUnescaped(rt::String& val_out, const rt::String_Ref& xpath, const rt::String_Ref& default_val = rt::String_Ref(), bool bDoNotSplitDot = false) const	// xxx.yyy.zzz
 					{	rt::String_Ref in = GetValue(xpath, default_val, bDoNotSplitDot);
 						UnescapeStringValue(in, val_out);
+					}
+	rt::String		GetValueUnescaped(const rt::String_Ref& xpath, const rt::String_Ref& default_val = rt::String_Ref(), bool bDoNotSplitDot = false) const
+					{
+						rt::String out;
+						rt::String_Ref in = GetValue(xpath, default_val, bDoNotSplitDot);
+						UnescapeStringValue(in, out);
+						return out;
+					}
+	rt::String		GetValueUnescaped(const rt::String_Ref& xpath, bool& p_exist, bool bDoNotSplitDot = false) const
+					{
+						rt::String out;
+						rt::String_Ref in = GetValue(xpath, p_exist, bDoNotSplitDot);
+						UnescapeStringValue(in, out);
+						return out;
 					}
 };
 /** \addtogroup Functions_json
@@ -829,6 +843,13 @@ public:
 				_details::_AppendJsonValueToString(json_value, _AppendingKeyedValue(*this, key)._pJson->_String);
 				return *this;
 			}
+	auto& AppendKeyAndEscapedValue(const rt::String_Ref& key, const rt::String_Ref& json_value)
+	{
+		ASSERT(IsEndsWith('}'));
+		_details::_AppendJsonValueToString(rt::JsonEscapeString(json_value), _AppendingKeyedValue(*this, key)._pJson->_String);
+		return *this;
+	}
+	// Array Operation
 	///@}
 	/** @name Array Operation
 	*/
