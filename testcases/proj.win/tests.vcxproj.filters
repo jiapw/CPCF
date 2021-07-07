@@ -154,6 +154,9 @@
     <ClCompile Include="..\tests\test_os_filedir.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_mkl.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\ext\botan\botan.h" />
@@ -200,6 +203,10 @@
     <ClInclude Include="..\..\core\ext\bignum\big_num.h">
       <Filter>source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\core\ext\mkl\mkl_linequ.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_matrix.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_rng.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_vector.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\..\core\ext\bignum\ttmath\ttmathuint_x86_64_msvc.asm">

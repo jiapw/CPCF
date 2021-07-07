@@ -25,7 +25,7 @@ void TestMain()
 	if(!os::CommandLine::Get().HasOption("verify"))
 	{
 		//TYPETRAITS_UNITTEST(big_num);
-		TYPETRAITS_UNITTEST(rocks_db_ByteOrder);
+		TYPETRAITS_UNITTEST(mkl_linequ);
 		//TYPETRAITS_UNITTEST(recv_pump);
 		return;
 	}

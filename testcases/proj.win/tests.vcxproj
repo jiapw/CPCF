@@ -200,6 +200,7 @@
     <ClCompile Include="..\tests\experiments.cpp" />
     <ClCompile Include="..\tests\test_inet_datagrampump.cpp" />
     <ClCompile Include="..\tests\test_inet_socket.cpp" />
+    <ClCompile Include="..\tests\test_mkl.cpp" />
     <ClCompile Include="..\tests\test_os_filedir.cpp" />
     <ClCompile Include="..\tests\test_os_kernel.cpp" />
     <ClCompile Include="..\tests\test_os_multithread.cpp" />
@@ -236,6 +237,10 @@
     <ClInclude Include="..\..\core\ext\ipp\ipp_config.h" />
     <ClInclude Include="..\..\core\ext\ipp\ipp_core.h" />
     <ClInclude Include="..\..\core\ext\ipp\ipp_image.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_linequ.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_matrix.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_rng.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_vector.h" />
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb.h" />
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb_serving.h" />
     <ClInclude Include="..\..\core\inet\recv_pump.h" />
