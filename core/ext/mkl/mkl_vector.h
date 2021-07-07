@@ -35,13 +35,8 @@
 #include "../../rt/buffer_type.h"
 #include "../../os/kernel.h"
 
-#include "inc\mkl_cpp.h"
-
-typedef rt::TypeTraits<MKL_INT>::t_Unsigned		MKL_SIZE;
-typedef rt::TypeTraits<MKL_INT>::t_Signed		MKL_SSIZE;
-
 #if defined(PLATFORM_WIN)
-
+#include "inc/win/mkl_cpp.h"
 #if defined(PLATFORM_DEBUG_BUILD)
 #pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib")
 #endif
@@ -79,8 +74,8 @@ typedef rt::TypeTraits<MKL_INT>::t_Signed		MKL_SSIZE;
 
 #endif // #if defined(PLATFORM_WIN)
 
-#include "../../rt/buffer_type.h"
-
+typedef rt::TypeTraits<MKL_INT>::t_Unsigned		MKL_SIZE;
+typedef rt::TypeTraits<MKL_INT>::t_Signed		MKL_SSIZE;
 namespace mkl
 {
 
