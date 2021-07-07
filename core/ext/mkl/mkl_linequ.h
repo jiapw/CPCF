@@ -261,14 +261,14 @@ public:
 
 	template<typename t_Val2, typename t_Val3>
 	bool Solve(const ::mkl::Matrix<t_Val2>& B, ::mkl::Matrix<t_Val3>& AT_B) // A'A*X = A'B
-	{	if( !X.SetSize(m_VaribleCount,B.GetSize_Col()) ){ return false; }
-		ComputeRightHand(B,X);
+	{	if( !this->X.SetSize(m_VaribleCount,B.GetSize_Col()) ){ return false; }
+		ComputeRightHand(B,this->X);
 		
-		::mkl::CMatrix<t_MatrixValue>	AT_A;
+		::mkl::Matrix<t_MatrixValue>	AT_A;
 		if( !AT_A.SetSize(m_VaribleCount,m_VaribleCount) ){ return false; }
 		ComputeLeftHand(AT_A);
 
-		return AT_A.SolveLinearLeastSquares_LQR(X);
+		return AT_A.SolveLinearLeastSquares_LQR(this->X);
 	}
 };
 

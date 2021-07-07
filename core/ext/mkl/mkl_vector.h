@@ -36,10 +36,10 @@
 #include "../../os/kernel.h"
 
 #if defined(PLATFORM_WIN)
-#include "inc/win/mkl_cpp.h"
-#if defined(PLATFORM_DEBUG_BUILD)
-#pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib")
-#endif
+    #include "inc/win/mkl_cpp.h"
+    #if defined(PLATFORM_DEBUG_BUILD)
+    #pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib")
+    #endif
 
 ////////////////////////////////////////////////////////////////
 // http://software.intel.com/sites/products/mkl/MKL_Link_Line_Advisor.html
@@ -47,35 +47,61 @@
 //#define MKL_USE_OPENMP_DLL  
 //requires libiomp5md.dll or https://software.intel.com/en-us/articles/redistributables-for-intel-parallel-studio-xe-2016-composer-edition-for-windows
 
-#ifdef _WIN64
-	#pragma comment(lib, "mkl_x64_core.lib")
-	#ifdef MKL_ILP64
-		#pragma comment(lib, "mkl_x64_intel_ilp64.lib")
-	#else
-		#pragma comment(lib, "mkl_x64_intel_lp64.lib")
-	#endif
-	#ifdef MKL_USE_OPENMP_DLL
-		#pragma comment(lib, "mkl_x64_libiomp5md.lib")
-		#pragma comment(lib, "mkl_x64_intel_thread.lib")
-	#else
-		#pragma comment(lib, "mkl_x64_sequential.lib")
-	#endif
-#else
-		#pragma comment(lib, "mkl_w32_intel_c.lib")
+    #ifdef _WIN64
+        #pragma comment(lib, "mkl_x64_core.lib")
+        #ifdef MKL_ILP64
+            #pragma comment(lib, "mkl_x64_intel_ilp64.lib")
+        #else
+            #pragma comment(lib, "mkl_x64_intel_lp64.lib")
+        #endif
+        #ifdef MKL_USE_OPENMP_DLL
+            #pragma comment(lib, "mkl_x64_libiomp5md.lib")
+            #pragma comment(lib, "mkl_x64_intel_thread.lib")
+        #else
+            #pragma comment(lib, "mkl_x64_sequential.lib")
+        #endif
+    #else
+        #pragma comment(lib, "mkl_w32_intel_c.lib")
 		#pragma comment(lib, "mkl_w32_core.lib")
-	#ifdef MKL_USE_OPENMP_DLL
-		#pragma comment(lib, "mkl_w32_libiomp5md.lib")
-		#pragma comment(lib, "mkl_w32_intel_thread.lib")
-	#else
-		#pragma comment(lib, "mkl_w32_sequential.lib")
-	#endif
-
-#endif
-
+        #ifdef MKL_USE_OPENMP_DLL
+            #pragma comment(lib, "mkl_w32_libiomp5md.lib")
+            #pragma comment(lib, "mkl_w32_intel_thread.lib")
+        #else
+            #pragma comment(lib, "mkl_w32_sequential.lib")
+        #endif
+    #endif
 #endif // #if defined(PLATFORM_WIN)
+
+#if defined(PLATFORM_LINUX)
+    #include "inc/linux/mkl_cpp.h"
+    #ifdef PLATFORM_64BIT
+        #pragma comment(lib, "mkl_x64_core.a")
+        #ifdef MKL_ILP64
+            #pragma comment(lib, "mkl_x64_intel_ilp64.a")
+        #else
+            #pragma comment(lib, "mkl_x64_intel_lp64.a")
+        #endif
+        #ifdef MKL_USE_OPENMP_DLL
+            #pragma comment(lib, "mkl_x64_libiomp5md.a")
+            #pragma comment(lib, "mkl_x64_intel_thread.a")
+        #else
+            #pragma comment(lib, "mkl_x64_sequential.a")
+        #endif
+    #else
+        #pragma comment(lib, "mkl_w32_intel_c.a")
+        #pragma comment(lib, "mkl_w32_core.a")
+        #ifdef MKL_USE_OPENMP_DLL
+            #pragma comment(lib, "mkl_w32_libiomp5md.a")
+            #pragma comment(lib, "mkl_w32_intel_thread.a")
+        #else
+            #pragma comment(lib, "mkl_w32_sequential.a")
+        #endif
+    #endif
+#endif // #if defined(PLATFORM_LINUX)
 
 typedef rt::TypeTraits<MKL_INT>::t_Unsigned		MKL_SIZE;
 typedef rt::TypeTraits<MKL_INT>::t_Signed		MKL_SSIZE;
+
 namespace mkl
 {
 
@@ -93,7 +119,6 @@ class Matrix;
 
 namespace _details
 {
-
 template<typename t_Val>
 class VectorCompact_Ref: public ::rt::Buffer_Ref<t_Val, MKL_SIZE>
 {
@@ -111,119 +136,119 @@ public:
 	static const bool IsCompactVector = true;
 	typedef VectorCompact_Ref<t_Val>	Ref;
 
-	INLFUNC t_Val		at(MKL_SIZE i) const { return _p[i]; }
-	INLFUNC t_Val&		at(MKL_SIZE i){ return _p[i]; }
+	INLFUNC t_Val		at(MKL_SIZE i) const { return this->_p[i]; }
+	INLFUNC t_Val&		at(MKL_SIZE i){ return this->_p[i];  }
 
 public:
 	VectorCompact_Ref(){ __always_be_one = 1; }
-	VectorCompact_Ref(const VectorCompact_Ref& x):Buffer_Ref<t_Val>(x){}
+	VectorCompact_Ref(const VectorCompact_Ref& x): Buffer_Ref<t_Val>(x){}
 
 public:
 	// MKL VML functions
 	//y = 1.0/x
 	INLFUNC void vml_Reciprocal(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlInv(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlInv(y.GetSize(),*this,y); }
 	INLFUNC void vml_Reciprocal(){ vml_Reciprocal(*this); }
 	//y = x^0.5
 	INLFUNC void vml_SquareRoot(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlSqrt(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlSqrt(y.GetSize(),*this,y); }
 	INLFUNC void vml_SquareRoot(){ vml_SquareRoot(*this); }
 	//y = 1/x^0.5
 	INLFUNC void vml_ReciprocalSquareRoot(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlInvSqrt(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlInvSqrt(y.GetSize(),*this,y); }
 	INLFUNC void vml_ReciprocalSquareRoot(){ vml_ReciprocalSquareRoot(*this); }
 	//y = x^0.3333333
 	INLFUNC void vml_CubeRoot(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlCbrt(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlCbrt(y.GetSize(),*this,y); }
 	INLFUNC void vml_CubeRoot(){ vml_CubeRoot(*this); }
 	//y = 1/x^0.333333333
 	INLFUNC void vml_ReciprocalCubeRoot(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlInvCbrt(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlInvCbrt(y.GetSize(),*this,y); }
 	INLFUNC void vml_ReciprocalCubeRoot(){ vml_ReciprocalCubeRoot(*this); }
 	//y = e^x
 	INLFUNC void vml_Exponential(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlExp(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlExp(y.GetSize(),*this,y); }
 	INLFUNC void vml_Exponential(){ vml_Exponential(*this); }
 	//y = ln(x)
 	INLFUNC void vml_LogarithmNatural(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlLn(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlLn(y.GetSize(),*this,y); }
 	INLFUNC void vml_LogarithmNatural(){ LogarithmNatural(*this); }
 	//y = log(x)
 	INLFUNC void vml_LogarithmDecimal(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); vmlLog10(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); vmlLog10(y.GetSize(),*this,y); }
 	INLFUNC void vml_LogarithmDecimal(){ vml_LogarithmDecimal(*this); }
 	//y = 2/(sqrt(Pi))* Int(0,x){ e^(-t^2) } dt
 	INLFUNC void vml_ErrorFunc(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlErf(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlErf(y.GetSize(),*this,y); }
 	INLFUNC void vml_ErrorFunc(){ vml_ErrorFunc(*this); }
 	//y = 1 - 2/(sqrt(Pi))* Int(0,x){ e^(-t^2) } dt
 	INLFUNC void vml_ErrorFuncComple(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlErfc(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlErfc(y.GetSize(),*this,y); }
 	INLFUNC void vml_ErrorFuncComple(){ vml_ErrorFuncComple(*this); }
 	//y = sin(x)
 	INLFUNC void vml_Sin(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlSin(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlSin(y.GetSize(),*this,y); }
 	INLFUNC void vml_Sin(){ Sin(*this); }
 	//y = cos(x)
 	INLFUNC void vml_Cos(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlCos(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlCos(y.GetSize(),*this,y); }
 	INLFUNC void vml_Cos(){ vml_Cos(*this); }
 	//y = tan(x)
 	INLFUNC void vml_Tan(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlTan(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlTan(y.GetSize(),*this,y); }
 	INLFUNC void vml_Tan(){ vml_Tan(*this); }
 	//y = sh(x)
 	INLFUNC void vml_Sinh(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlSinh(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlSinh(y.GetSize(),*this,y); }
 	INLFUNC void vml_Sinh(){ vml_Sinh(*this); }
 	//y = ch(x)
 	INLFUNC void vml_Cosh(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlCosh(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlCosh(y.GetSize(),*this,y); }
 	INLFUNC void vml_Cosh(){ vml_Cosh(*this); }
 	//y = th(x)
 	INLFUNC void vml_Tanh(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlTanh(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlTanh(y.GetSize(),*this,y); }
 	INLFUNC void vml_Tanh(){ vml_Tanh(*this); }
 	//y = arcsin(x)
 	INLFUNC void vml_ArcSin(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAsin(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAsin(y.GetSize(),*this,y); }
 	INLFUNC void vml_ArcSin(){ vml_ArcSin(*this); }
 	//y = arccos(x)
 	INLFUNC void vml_ArcCos(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAcos(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAcos(y.GetSize(),*this,y); }
 	INLFUNC void vml_ArcCos(){ vml_ArcCos(*this); }
 	//y = arctan(x)
 	INLFUNC void vml_ArcTan(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAtan(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAtan(y.GetSize(),*this,y); }
 	INLFUNC void vml_ArcTan(){ vml_ArcTan(*this); }
 	//y = arcsh(x)
 	INLFUNC void vml_ArcSinh(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAsinh(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAsinh(y.GetSize(),*this,y); }
 	INLFUNC void vml_ArcSinh(){ vml_ArcSinh(*this); }
 	//y = arcch(x)
 	INLFUNC void vml_ArcCosh(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAcosh(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAcosh(y.GetSize(),*this,y); }
 	INLFUNC void vml_ArcCosh(){ vml_ArcCosh(*this); }
 	//y = arcth(x)
 	INLFUNC void vml_ArcTanh(VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAtanh(y.GetSize(),*this,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlAtanh(y.GetSize(),*this,y); }
 	INLFUNC void vml_ArcTanh(){ vml_ArcTanh(*this); }
 	// y = x^b
 	INLFUNC void vml_Power(const VectorCompact_Ref&b, VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ASSERT(GetSize()==b.GetSize()); ::mkl::mkl_cpp::vmlPow(y.GetSize(),*this,b,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ASSERT(this->GetSize()==b.GetSize()); ::mkl::mkl_cpp::vmlPow(y.GetSize(),*this,b,y); }
 	INLFUNC void vml_Power(t_Val b,VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlPowx(y.GetSize(),*this,b,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ::mkl::mkl_cpp::vmlPowx(y.GetSize(),*this,b,y); }
 	INLFUNC void vml_Power(const VectorCompact_Ref&b){ Power(b,*this); }
 	INLFUNC void vml_Power(t_Val b){ vml_Power(b,*this); }
 	// a = sin(x) b=cos(x)
 	INLFUNC void vml_SinCos(VectorCompact_Ref&a, VectorCompact_Ref&b) const
-	{ ASSERT(GetSize() == a.GetSize()); ASSERT(GetSize() == b.GetSize()); ::mkl::mkl_cpp::vmlSinCos(GetSize(),*this,a,b); }
+	{ ASSERT(this->GetSize() == a.GetSize()); ASSERT(this->GetSize() == b.GetSize()); ::mkl::mkl_cpp::vmlSinCos(this->GetSize(),*this,a,b); }
 	// y = arctan(x/b)
 	INLFUNC void vml_ArctanDivision(const VectorCompact_Ref&b, VectorCompact_Ref&y) const
-	{ ASSERT(GetSize()==y.GetSize()); ASSERT(GetSize()==b.GetSize()); ::mkl::mkl_cpp::vmlAtan2(y.GetSize(),*this,b,y); }
+	{ ASSERT(this->GetSize()==y.GetSize()); ASSERT(this->GetSize()==b.GetSize()); ::mkl::mkl_cpp::vmlAtan2(y.GetSize(),*this,b,y); }
 	// x = x^2
 	INLFUNC void vml_Square()
-	{ t_Val* p = *this; t_Val* end = &p[GetSize()]; for(;p<end;p++)*p = ::rt::Sqr(*p); }
+	{ t_Val* p = *this; t_Val* end = &p[this->GetSize()]; for(;p<end;p++)*p = ::rt::Sqr(*p); }
 };
 
 template<typename t_Val>
@@ -242,7 +267,7 @@ public:
 	static const bool IsCompactVector = false;
 
 	INLFUNC VectorStrided_Ref(){ _inc = 1; }
-	INLFUNC VectorStrided_Ref(const VectorStrided_Ref& x):Buffer_Ref<t_Val>(x){ _inc = x._inc; }
+	INLFUNC VectorStrided_Ref(const VectorStrided_Ref& x){ _inc = x._inc; }
 	
 	INLFUNC t_Val		operator [](MKL_SIZE i) const { return _p[_inc*i]; }
 	INLFUNC t_Val&		operator [](MKL_SIZE i){ return _p[_inc*i]; }
@@ -310,76 +335,76 @@ template<typename t_Val, class Base_Ref = _details::VectorStrided_Ref<t_Val> >
 class Vector_Ref: public Base_Ref
 {
 public:
-	INLFUNC MKL_SIZE GetStride() const{ return _inc; }
+	INLFUNC MKL_SIZE GetStride() const{ return this->_inc; }
 
 public:
-	INLFUNC void  Flip(){ MKL_SIZE c=_len/2; for(MKL_SIZE i=0;i<c;i++)rt::Swap(at(i), at(_len-i-1)); }
-	INLFUNC t_Val Sum() const { t_Val s=0; for(MKL_SIZE i=0;i<_len;i++)s+=at(i); return s; }
-	INLFUNC t_Val SumSqrt() const { t_Val s=0; for(MKL_SIZE i=0;i<_len;i++)s+=sqrt(at(i)); return s; }
+	INLFUNC void  Flip(){ MKL_SIZE c=this->_len/2; for(MKL_SIZE i=0;i<c;i++)rt::Swap(this->at(i), this->at(this->_len-i-1)); }
+	INLFUNC t_Val Sum() const { t_Val s=0; for(MKL_SIZE i=0;i<this->_len;i++)s+=this->at(i); return s; }
+	INLFUNC t_Val SumSqrt() const { t_Val s=0; for(MKL_SIZE i=0;i<this->_len;i++)s+=sqrt(this->at(i)); return s; }
 	// BLAS Level 1
 	// |P1|+|P2|+.....+|Pn|
-	INLFUNC t_Val SumAbs() const{ return mkl_asum(_len,_p,_inc); }
+	INLFUNC t_Val SumAbs() const{ return mkl_asum(this->_len,this->_p,this->_inc); }
 	// Pi += scale*Xi
 	template<class t_BaseVec2>
 	INLFUNC void  Add_Scaled(t_Val scale,const Vector_Ref<t_Val,t_BaseVec2> &x)
-	{ ASSERT(GetSize() == x.GetSize());	::mkl::mkl_cpp::mkl_axpy(_len,scale,x.Begin(),x.GetStride(),_p,_inc); }
+	{ ASSERT(this->GetSize() == x.GetSize());	::mkl::mkl_cpp::mkl_axpy(this->_len,scale,x.Begin(),x.GetStride(),this->_p,this->_inc); }
 	// P1*X1+P2*X2+...Pn*Xn
 	template<class t_BaseVec2>
 	INLFUNC t_Val Dot(const Vector_Ref<t_Val,t_BaseVec2>& x) const
-	{ ASSERT(GetSize() == x.GetSize()); return ::mkl::mkl_cpp::mkl_dot(_len,x.Begin(),x.GetStride(),_p,_inc); }
+	{ ASSERT(this->GetSize() == x.GetSize()); return ::mkl::mkl_cpp::mkl_dot(this->_len,x.Begin(),x.GetStride(),this->_p,this->_inc); }
 	template<class t_BaseVec2>
 	INLFUNC t_Val L2Norm_Sqr(const Vector_Ref<t_Val,t_BaseVec2>& x) const
-	{	ASSERT(GetSize() == x.GetSize()); t_Val acc = 0;
-		for(MKL_SIZE i=0;i<GetSize();i++)acc += rt::Sqr((*this)[i] - x[i]);
+	{	ASSERT(this->GetSize() == x.GetSize()); t_Val acc = 0;
+		for(MKL_SIZE i=0;i<this->GetSize();i++)acc += rt::Sqr((*this)[i] - x[i]);
 		return acc;
 	}
 	template<class t_BaseVec2>
 	INLFUNC t_Val L2Norm(const Vector_Ref<t_Val,t_BaseVec2>& x) const { sqrt(L2Norm_Sqr(x)); }
 	// P1*P1+P2*P2+...Pn*Pn
-	INLFUNC t_Val L2Norm_Sqr() const{ return ::mkl::mkl_cpp::mkl_dot(_len,_p,_inc,_p,_inc); }
+	INLFUNC t_Val L2Norm_Sqr() const{ return ::mkl::mkl_cpp::mkl_dot(this->_len,this->_p,this->_inc,this->_p,this->_inc); }
 	// || P ||
-	INLFUNC t_Val L2Norm() const{ return ::mkl::mkl_cpp::mkl_nrm2(_len,_p,_inc); }
+	INLFUNC t_Val L2Norm() const{ return ::mkl::mkl_cpp::mkl_nrm2(this->_len,this->_p,this->_inc); }
 	// let || P || = 1
 	INLFUNC void Normalize(){ t_Val invl2Norm = 1/L2Norm(); *this *= invl2Norm; }
 	// get the index of max/min ABS(value),the MKL library is 1-based
-	INLFUNC int MaxAbsIndex() const{ return ::mkl::mkl_cpp::mkl_amax(_len,_p,_inc)-1; }
-	INLFUNC int MinAbsIndex() const{ return ::mkl::mkl_cpp::mkl_amax(_len,_p,_inc)-1; }
+	INLFUNC int MaxAbsIndex() const{ return ::mkl::mkl_cpp::mkl_amax(this->_len,this->_p,this->_inc)-1; }
+	INLFUNC int MinAbsIndex() const{ return ::mkl::mkl_cpp::mkl_amax(this->_len,this->_p,this->_inc)-1; }
 	// get the value of max/min ABS(value),the MKL library is 1-based
 	INLFUNC t_Val MinAbs() const{ return (*this)[MinAbsIndex()]; }
 	INLFUNC t_Val MaxAbs() const{ return (*this)[MaxAbsIndex()]; }
 	// swap content
 	template<class t_BaseVec2>
 	INLFUNC void Swap(Vector_Ref<t_Val,t_BaseVec2>& x)
-	{ ASSERT(GetSize()==x.GetSize()); ::mkl::mkl_cpp::mkl_swap((MKL_SIZE)_len,_p,_inc,x.Begin(),(MKL_SIZE)x._len); }
+	{ ASSERT(this->GetSize()==x.GetSize()); ::mkl::mkl_cpp::mkl_swap((MKL_SIZE)this->_len,this->_p,this->_inc,x.Begin(),(MKL_SIZE)x._len); }
 	// Perturb values
-	INLFUNC void Perturb(t_Val power = EPSILON)
-	{ for(UINT i=0;i<GetSize();i++)at(i)+=power*(::rand()-(RAND_MAX/2))/((t_Val)(RAND_MAX/2)); }
-	INLFUNC void PerturbPositive(t_Val power = EPSILON)
-	{ for(UINT i=0;i<GetSize();i++)at(i)+=power*::rand()/((t_Val)RAND_MAX); }
+	INLFUNC void Perturb(t_Val power )
+	{ for(UINT i=0;i<this->GetSize();i++)this->at(i)+=power*(::rand()-(RAND_MAX/2))/((t_Val)(RAND_MAX/2)); }
+	INLFUNC void PerturbPositive(t_Val power )
+	{ for(UINT i=0;i<this->GetSize();i++)this->at(i)+=power*::rand()/((t_Val)RAND_MAX); }
 
 	//assignment
 	template<class t_BaseVec2>
 	INLFUNC void CopyTo(Vector_Ref<t_Val,t_BaseVec2>& x) const
-	{ ASSERT(x.GetSize() == GetSize()); ::mkl::mkl_cpp::mkl_copy((MKL_SIZE)_len,_p,_inc,x._p,x._inc); }
+	{ ASSERT(x.GetSize() == this->GetSize()); ::mkl::mkl_cpp::mkl_copy((MKL_SIZE)this->_len,this->_p,this->_inc,x._p,x._inc); }
 
 	template<class t_BaseVec2>
 	INLFUNC void CopyFrom(const Vector_Ref<t_Val,t_BaseVec2>& x)
-	{ ASSERT(x.GetSize() == GetSize()); ::mkl::mkl_cpp::mkl_copy((MKL_SIZE)_len,_p,x.GetStride(),_p,_inc); }
+	{ ASSERT(x.GetSize() == this->GetSize()); ::mkl::mkl_cpp::mkl_copy((MKL_SIZE)this->_len,this->_p,x.GetStride(),this->_p,this->_inc); }
 
 	template<typename T, typename BaseVec2>
 	INLFUNC void CopyFrom(const Vector_Ref<T,BaseVec2> & x)
-	{ ASSERT(GetSize()==x.GetSize());	for(MKL_SIZE i=0;i<GetSize();i++)(*this)[i] = x[i]; }
+	{ ASSERT(this->GetSize()==x.GetSize());	for(MKL_SIZE i=0;i<this->GetSize();i++)(*this)[i] = x[i]; }
 
 	template<class t_BaseVec2>
 	INLFUNC const Vector_Ref<t_Val,t_BaseVec2>& operator = (const Vector_Ref<t_Val,t_BaseVec2>& x){ CopyFrom(x); return x; }
-	INLFUNC t_Val operator = (t_Val x){ for(MKL_SIZE i=0;i<GetSize();i++)(*this)[i] = x; return x; }
+	INLFUNC t_Val operator = (t_Val x){ for(MKL_SIZE i=0;i<this->GetSize();i++)(*this)[i] = x; return x; }
 	INLFUNC const Vector_Ref& operator = (const Vector_Ref& x){ CopyFrom(x); return x; }
 
 public:
 	typedef Vector_Ref Ref;
 
 	INLFUNC Ref GetRef(){ return Ref(*this); }
-	INLFUNC Ref GetSub(MKL_SIZE offset, MKL_SIZE len){ return Ref(&at(offset),len,_inc); }
+	INLFUNC Ref GetSub(MKL_SIZE offset, MKL_SIZE len){ return Ref(&this->at(offset),len,this->_inc); }
 
 	INLFUNC const Ref GetRef() const { return ::rt::_CastToNonconst(this)->GetRef(); }
 	INLFUNC const Ref GetSub(MKL_SIZE x, MKL_SIZE len) const{ return ::rt::_CastToNonconst(this)->GetRef(x,len); }
@@ -390,28 +415,28 @@ public:
 	template<typename T>
 	INLFUNC const t_Val&  operator ()(T offset) const { return at(offset); }
 	template<typename T>
-	INLFUNC t_Val& operator ()(T offset){ return at(offset); }
+	INLFUNC t_Val& operator ()(T offset){ return this->at(offset); }
 
 	INLFUNC void Zero(){ *this = 0; }
 	//////////////////////////////////////////////////////////
 	// overrided operators
-	INLFUNC void operator *= (t_Val a){ ::mkl::mkl_cpp::mkl_scal((MKL_SIZE)_len,a,_p,_inc); }
+	INLFUNC void operator *= (t_Val a){ ::mkl::mkl_cpp::mkl_scal((MKL_SIZE)this->_len,a,this->_p,this->_inc); }
 	template<typename T>
-	INLFUNC void operator -= (const T& a){ ASSERT(GetSize() == a.GetSize()); for(MKL_SIZE i=0; i<GetSize(); i++)(*this)[i] -= a[i]; }
+	INLFUNC void operator -= (const T& a){ ASSERT(this->GetSize() == a.GetSize()); for(MKL_SIZE i=0; i<this->GetSize(); i++)(*this)[i] -= a[i]; }
 	template<typename T>
-	INLFUNC void operator += (const T& a){ ASSERT(GetSize() == a.GetSize()); for(MKL_SIZE i=0; i<GetSize(); i++)(*this)[i] += a[i]; }
-	INLFUNC void operator -= (t_Val a){ for(MKL_SIZE i=0; i<GetSize(); i++)(*this)[i] -= a; }
-	INLFUNC void operator += (t_Val a){ for(MKL_SIZE i=0; i<GetSize(); i++)(*this)[i] += a; }
+	INLFUNC void operator += (const T& a){ ASSERT(this->GetSize() == a.GetSize()); for(MKL_SIZE i=0; i<this->GetSize(); i++)(*this)[i] += a[i]; }
+	INLFUNC void operator -= (t_Val a){ for(MKL_SIZE i=0; i<this->GetSize(); i++)(*this)[i] -= a; }
+	INLFUNC void operator += (t_Val a){ for(MKL_SIZE i=0; i<this->GetSize(); i++)(*this)[i] += a; }
 
 public:
 	INLFUNC Vector_Ref(){}
 	INLFUNC Vector_Ref(const t_Val* ptr, MKL_SIZE len, MKL_SIZE inc = 1)
 	{
-		_p=(t_Val*)ptr; _len=len; _set_stride(inc); 
+		this->_p=(t_Val*)ptr; this->_len=len; this->_set_stride(inc); 
 	}
 	INLFUNC Vector_Ref(const Vector_Ref& x):Base_Ref(x){}
 	template<class _BaseVec>
-	INLFUNC Vector_Ref(Vector_Ref<t_Val,_BaseVec> &x){ _p=x; _len=x.GetSize(); _set_stride(x.GetStride()); }
+	INLFUNC Vector_Ref(Vector_Ref<t_Val,_BaseVec> &x){ this->_p=x; this->_len=x.GetSize(); this->_set_stride(x.GetStride()); }
 };
 template<class t_Ostream, typename t_Ele, class t_Base>
 t_Ostream& operator<<(t_Ostream& Ostream, const ::mkl::Vector_Ref<t_Ele, t_Base> & km)
@@ -489,7 +514,7 @@ public:
 	}
 	template<class t_BaseVec2>
 	INLFUNC const Vector_Ref<t_Val,t_BaseVec2>& operator = (const Vector_Ref<t_Val,t_BaseVec2>& x){ VERIFY(SetSizeAs(x)); CopyFrom(x); return x; }
-	INLFUNC t_Val operator = (t_Val x){ for(SIZE_T i=0;i<GetSize();i++)(*this)[i] = x; return x; }
+	INLFUNC t_Val operator = (t_Val x){ for(SIZE_T i=0;i<this->GetSize();i++)(*this)[i] = x; return x; }
 	INLFUNC const Vector& operator = (const Vector& x){ VERIFY(SetSizeAs(x)); CopyFrom(x); return x; }
 };
 
