@@ -118,6 +118,9 @@
     <ClCompile Include="..\..\core\inet\datagram_pump.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_mkl.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\ext\botan\botan.h" />
@@ -164,6 +167,8 @@
     <ClInclude Include="..\..\core\ext\bignum\big_num.h">
       <Filter>source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\core\ext\mkl\mkl_linequ.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_rng.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\..\core\ext\bignum\ttmath\ttmathuint_x86_64_msvc.asm">

@@ -204,6 +204,7 @@
     <ClCompile Include="..\tests\test_http.cpp" />
     <ClCompile Include="..\tests\test_inet.cpp" />
     <ClCompile Include="..\tests\test_ipp.cpp" />
+    <ClCompile Include="..\tests\test_mkl.cpp" />
     <ClCompile Include="..\tests\test_perf.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Ob0 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Ob0 %(AdditionalOptions)</AdditionalOptions>
@@ -224,6 +225,8 @@
     <ClInclude Include="..\..\core\ext\ipp\ipp_config.h" />
     <ClInclude Include="..\..\core\ext\ipp\ipp_core.h" />
     <ClInclude Include="..\..\core\ext\ipp\ipp_image.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_linequ.h" />
+    <ClInclude Include="..\..\core\ext\mkl\mkl_rng.h" />
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb.h" />
     <ClInclude Include="..\..\core\ext\rocksdb\rocksdb_serving.h" />
     <ClInclude Include="..\..\core\inet\recv_pump.h" />
