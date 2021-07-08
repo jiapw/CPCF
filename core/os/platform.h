@@ -79,7 +79,7 @@
 
 		#define PLATFORM_OPENGL_SUPPORT
 
-#if defined(PLATFORM_WIN)
+#if defined(PLATFORM_WIN) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
 		#define PLATFORM_INTEL_MKL_SUPPORT
 #endif
 

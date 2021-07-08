@@ -1,7 +1,7 @@
 #pragma once
 
 //////////////////////////////////////////////////////////////////////
-// Copyright 2012 the Cicada Project Dev Team. All rights reserved.
+// Cross-Platform Core Foundation (CPCF)
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -13,7 +13,7 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of Cicada.  nor the names of its
+//     * Neither the name of CPCF.  nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -47,8 +47,8 @@ protected:
 			struct{UINT i,j; };
 		};
 		t_Val	value;
-		INLFUNC bool operator <(const _NonZeroItem& x)
-		{	return _ordinal<x._ordinal;  
+		INLFUNC bool operator <(const _NonZeroItem& x) const
+		{	return _ordinal<x._ordinal;
 		}
 	};
 	struct _Value
@@ -149,7 +149,7 @@ public:
 	//	return *this;
 	//}
 
-	__forceinline LinearEquationSolver& AddCoefficient(UINT equation_i,UINT varible_j,const t_Val & value)
+	inline LinearEquationSolver& AddCoefficient(UINT equation_i,UINT varible_j,const t_Val & value)
 	{	ASSERT( equation_i< m_EquationCount );
 		ASSERT( varible_j< m_VaribleCount );
 		_NonZeroItem& item = m_Entries.push_back();
@@ -240,7 +240,7 @@ public:
 
 		_Value* p = m_Coefficients;
 		for(UINT j=0;j<m_VaribleCount;j++)
-		{	typename ::mkl::CMatrix<t_Val3,t_BaseVec3>::t_RowRef& dst_row = AT_B.GetRow(j);
+		{	typename ::mkl::Matrix<t_Val3>::t_RowRef& dst_row = AT_B.GetRow(j);
 			_Value* pend = m_Coefficients[m_ColumnIndex[j+1]];
 			for(;p<pend;p++)
 				dst_row.Add_Scaled( p->value, B.GetRow(p->i) );
@@ -261,14 +261,14 @@ public:
 
 	template<typename t_Val2, typename t_Val3>
 	bool Solve(const ::mkl::Matrix<t_Val2>& B, ::mkl::Matrix<t_Val3>& AT_B) // A'A*X = A'B
-	{	if( !X.SetSize(m_VaribleCount,B.GetSize_Col()) ){ return false; }
-		ComputeRightHand(B,X);
+	{	if( !this->X.SetSize(m_VaribleCount,B.GetSize_Col()) ){ return false; }
+		ComputeRightHand(B,this->X);
 		
-		::mkl::CMatrix<t_MatrixValue>	AT_A;
+		::mkl::Matrix<t_MatrixValue>	AT_A;
 		if( !AT_A.SetSize(m_VaribleCount,m_VaribleCount) ){ return false; }
 		ComputeLeftHand(AT_A);
 
-		return AT_A.SolveLinearLeastSquares_LQR(X);
+		return AT_A.SolveLinearLeastSquares_LQR(this->X);
 	}
 };
 

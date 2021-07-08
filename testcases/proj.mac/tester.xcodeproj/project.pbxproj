@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		6056B4E6260DCD37000E2D4D /* libipps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6056B4E5260DCD37000E2D4D /* libipps.a */; };
 		6331BD4C25A011E90071B3C1 /* rocksdb_serving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */; };
+		63F8F0A52696FB3B001E79A5 /* test_mkl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63F8F0A42696FB3B001E79A5 /* test_mkl.cpp */; };
+		63F8F0AB26970E41001E79A5 /* libmkl_sequential.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 63F8F0A826970E41001E79A5 /* libmkl_sequential.a */; };
+		63F8F0AC26970E41001E79A5 /* libmkl_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 63F8F0A926970E41001E79A5 /* libmkl_core.a */; };
+		63F8F0AD26970E41001E79A5 /* libmkl_intel_lp64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 63F8F0AA26970E41001E79A5 /* libmkl_intel_lp64.a */; };
 		744E721825FC875D004FADCF /* datagram_pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 744E721725FC875D004FADCF /* datagram_pump.cpp */; };
 		746B67EF25DEEFD800A65224 /* test_inet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 746B67EE25DEEFD800A65224 /* test_inet.cpp */; };
 		7484A61E25E716B1009A0263 /* big_num.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7484A61A25E716B1009A0263 /* big_num.cpp */; };
@@ -82,6 +86,12 @@
 		6056B4E5260DCD37000E2D4D /* libipps.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libipps.a; path = ../../libs/mac/libipps.a; sourceTree = "<group>"; };
 		6331BD4A25A011E90071B3C1 /* rocksdb_serving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rocksdb_serving.h; path = ../../../core/ext/rocksdb/rocksdb_serving.h; sourceTree = "<group>"; };
 		6331BD4B25A011E90071B3C1 /* rocksdb_serving.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rocksdb_serving.cpp; path = ../../../core/ext/rocksdb/rocksdb_serving.cpp; sourceTree = "<group>"; };
+		63F8F0A42696FB3B001E79A5 /* test_mkl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_mkl.cpp; path = ../../tests/test_mkl.cpp; sourceTree = "<group>"; };
+		63F8F0A62696FB61001E79A5 /* mkl_linequ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mkl_linequ.h; path = ../../../core/ext/mkl/mkl_linequ.h; sourceTree = "<group>"; };
+		63F8F0A72696FB61001E79A5 /* mkl_rng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mkl_rng.h; path = ../../../core/ext/mkl/mkl_rng.h; sourceTree = "<group>"; };
+		63F8F0A826970E41001E79A5 /* libmkl_sequential.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmkl_sequential.a; path = ../../libs/mac/libmkl_sequential.a; sourceTree = "<group>"; };
+		63F8F0A926970E41001E79A5 /* libmkl_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmkl_core.a; path = ../../libs/mac/libmkl_core.a; sourceTree = "<group>"; };
+		63F8F0AA26970E41001E79A5 /* libmkl_intel_lp64.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmkl_intel_lp64.a; path = ../../libs/mac/libmkl_intel_lp64.a; sourceTree = "<group>"; };
 		744E721625FC875D004FADCF /* datagram_pump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = datagram_pump.h; path = ../../../core/inet/datagram_pump.h; sourceTree = "<group>"; };
 		744E721725FC875D004FADCF /* datagram_pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = datagram_pump.cpp; path = ../../../core/inet/datagram_pump.cpp; sourceTree = "<group>"; };
 		746B67EE25DEEFD800A65224 /* test_inet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_inet.cpp; path = ../../tests/test_inet.cpp; sourceTree = "<group>"; };
@@ -174,6 +184,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63F8F0AB26970E41001E79A5 /* libmkl_sequential.a in Frameworks */,
+				63F8F0AC26970E41001E79A5 /* libmkl_core.a in Frameworks */,
+				63F8F0AD26970E41001E79A5 /* libmkl_intel_lp64.a in Frameworks */,
 				6056B4E6260DCD37000E2D4D /* libipps.a in Frameworks */,
 				941D3E7A213073A100F97118 /* libippm90lgc.a in Frameworks */,
 				941D3E7F213073A100F97118 /* libippch.a in Frameworks */,
@@ -260,6 +273,7 @@
 		93C4A231169FEC7A00D3C820 /* tester */ = {
 			isa = PBXGroup;
 			children = (
+				63F8F0A42696FB3B001E79A5 /* test_mkl.cpp */,
 				9429576D241709C500A5A0A3 /* test_ext.cpp */,
 				94A69E8F22C0840A00757781 /* test_perf.cpp */,
 				746B67EE25DEEFD800A65224 /* test_inet.cpp */,
@@ -344,6 +358,8 @@
 		93C4A267169FF40D00D3C820 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				63F8F0A62696FB61001E79A5 /* mkl_linequ.h */,
+				63F8F0A72696FB61001E79A5 /* mkl_rng.h */,
 				7484A61A25E716B1009A0263 /* big_num.cpp */,
 				7484A61D25E716B1009A0263 /* big_num.h */,
 				7484A61C25E716B1009A0263 /* precision_num.cpp */,
@@ -361,6 +377,9 @@
 		945545D324BB924B009A9796 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				63F8F0A926970E41001E79A5 /* libmkl_core.a */,
+				63F8F0AA26970E41001E79A5 /* libmkl_intel_lp64.a */,
+				63F8F0A826970E41001E79A5 /* libmkl_sequential.a */,
 				6056B4E5260DCD37000E2D4D /* libipps.a */,
 				945545D424BB924B009A9796 /* Security.framework */,
 			);
@@ -447,6 +466,7 @@
 				941D3E9D2130779000F97118 /* exprtk.cpp in Sources */,
 				941D3E492130737100F97118 /* http_client.cpp in Sources */,
 				941D3E5E2130738800F97118 /* file_zip.cpp in Sources */,
+				63F8F0A52696FB3B001E79A5 /* test_mkl.cpp in Sources */,
 				95C9EC96232A3D6F002A4B91 /* kernal_encode.cpp in Sources */,
 				941D3E4B2130737100F97118 /* tinyhttpd.cpp in Sources */,
 				941D3E642130738800F97118 /* multi_thread.cpp in Sources */,

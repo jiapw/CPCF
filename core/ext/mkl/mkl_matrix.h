@@ -205,13 +205,13 @@ public:
 public:
 	// Matrix as vector
 	// disturb values
-	INLFUNC void Perturb(t_Val power = EPSILON)
+	INLFUNC void Perturb(t_Val power = rt::TypeTraits<t_Val>::Epsilon())
 	{	if(t_NotTransposed)
 			for(UINT i=0;i<GetColCount();i++)GetCol(i).Perturb(power);
 		else
 			for(UINT i=0;i<GetRowCount();i++)GetRow(i).Perturb(power);
 	}
-	INLFUNC void PerturbPositive(t_Val power = EPSILON)
+	INLFUNC void PerturbPositive(t_Val power = rt::TypeTraits<t_Val>::Epsilon())
 	{	if(t_NotTransposed)
 			for(UINT i=0;i<GetColCount();i++)GetCol(i).PerturbPositive(power);
 		else
@@ -308,7 +308,7 @@ public:
 		ret = ::mkl::mkl_cpp::mkl_getrf(GetRowCount(),GetColCount(),*this,GetLeadingDim(),Ipiv);
 
 		if( !ret )
-		{	mkl::_meta_::CVector_Compact<t_Val> Workspc;
+		{	rt::Buffer<t_Val> Workspc;
 			if(Workspc.SetSize(GetColCount()*OPTI_WORKING_BLOCK_SIZE)){}
 			else return false;
 			
@@ -330,14 +330,14 @@ public:
 		ret = ::mkl::mkl_cpp::mkl_getrf(GetRowCount(),GetColCount(),*this,GetLeadingDim(),Ipiv);
 
 		if( !ret )
-		{	mkl::_meta_::Vector_Compact<t_Val> Workspc;
+		{	rt::Buffer<t_Val> Workspc;
 			if(Workspc.SetSize(GetColCount()*OPTI_WORKING_BLOCK_SIZE)){}
 			else{ return false; }
 			::rt::Buffer<int> intWorkspc;
 			if(intWorkspc.SetSize(GetColCount()*OPTI_WORKING_BLOCK_SIZE)){}
 			else{ return false; }
 			
-			mkl::CMatrix<t_Val>		identity, X;
+			mkl::Matrix<t_Val>		identity, X;
 			identity.SetSizeAs(*this);
 			X.SetSizeAs(identity);
 			X.Zero();
@@ -352,13 +352,13 @@ public:
 			ret = ::mkl::mkl_cpp::mkl_getrs(_LapackTranspose(), GetColCount(), GetRowCount(),origSolveLinear,
 				origSolveLinear.GetLeadingDim(), Ipiv, X, X.GetLeadingDim() );
 
-			mkl::CMatrix<t_Val>		temp;
+			mkl::Matrix<t_Val>		temp;
 			temp.SetSizeAs(origSolveLinear);
 			temp.Product(!!origSolveLinear,!!X);
 
 			if(!ret)
 			{
-				mkl::_meta_::CVector_Compact<t_Val> ferr, berr;
+				rt::Buffer<t_Val> ferr, berr;
 				if(ferr.SetSize(GetColCount()) && berr.SetSize(GetColCount()) )  {}
 				else return false;
 				//refine the solution
@@ -387,7 +387,7 @@ public:
 	{	static_assert(t_NotTransposed, "row major matrix is not supported");
 		ASSERT(IsSquare());
 		ASSERT(GetRowCount() == B.GetRowCount());
-		::rt::Buffer_32BIT<int> Ipiv;
+		::rt::Buffer<int> Ipiv;
 		if(Ipiv.SetSize(GetColCount())){}
 		else{ return false; }
 
@@ -396,7 +396,8 @@ public:
 	}
 	INLFUNC bool SolveLinearEquations( t_VecComp_Ref&b )
 	{	ASSERT(GetRowCount() == b.GetSize());
-		return SolveLinearEquations( CMatrix_Ref<t_Val,true>(b,b.GetSize(),1,b.GetSize()));
+		return SolveLinearEquations( Matrix_Ref<t_Val,true>(b,b.GetSize(),1,b.GetSize()));
+  
 	}
 
 	//Linear Least Squares
@@ -412,7 +413,8 @@ public:
 									GetLeadingDim(),B,B.GetLeadingDim(),Workspc,Workspc.GetSize());
 	}
 	INLFUNC bool SolveLinearLeastSquares_LQR(t_VecComp_Ref&b)
-	{	return SolveLinearLeastSquares_LQR( Matrix_Ref<t_Val,true>(b,b.GetSize(),1,b.GetSize())); }
+	{	Matrix_Ref<t_Val,true> t (b,b.GetSize(),1,b.GetSize());
+        return SolveLinearLeastSquares_LQR(t ); }
 
 	//Linear Least Squares
 	//This*x=B  --> This change to singlar vectors, B change to solution
@@ -502,7 +504,7 @@ public:
 	// Symmetric Eigen Problem
 	// solve eigens of [TermStart,TermEnd] zero-based, eigenvalue is in ascending order
 	// EigenVectors in rows
-	HRESULT PartialSolveSymmetricEigen(	UINT TermStart,UINT TermEnd, 
+	long PartialSolveSymmetricEigen(	UINT TermStart,UINT TermEnd, 
 										Vector<t_Val>&  EigenValue, 
 										Matrix<t_Val>* EigenVectors = nullptr)
 	{	ASSERT(IsSquare());
@@ -524,7 +526,7 @@ public:
 		t_Val abstol = 0;//2*slamch("S");
 		int  m=0, info;
 
-		mkl::_meta_::CVector_Compact<t_Val> Workspc;
+		rt::Buffer<t_Val> Workspc;
 		// query optimized working space
 		{
 			t_Val opti_workspace_size = 0;
@@ -547,10 +549,10 @@ public:
 		if(info)
 		{
 			if(info>0)
-			{	_CheckDump("::mkl::CMatrix::PartialSolveSymmetricEigen: Total "<<info<<" eigenvalues failed to converge:");
+			{	_LOG("::mkl::CMatrix::PartialSolveSymmetricEigen: Total "<<info<<" eigenvalues failed to converge:");
 				for(int i=0;i<info-1;i++)
-					_CheckDump(ifail_iWork[i]<<", ");
-				_CheckDump(ifail_iWork[info-1]<<"\n");
+					_LOG(ifail_iWork[i]<<", ");
+				_LOG(ifail_iWork[info-1]<<"\n");
 			}
 			return false;
 		}
@@ -615,7 +617,7 @@ public:
 	// solve eigens of (EigenvalueMin,EigenvalueMax], eigenvalue is in ascending order
 	// EigenVectors in rows
 	bool PartialSolveSymmetricEigen_Robust(	Vector<t_Val>& EigenValue, 
-												t_Val EigenvalueMin = EPSILON,
+												t_Val EigenvalueMin = rt::TypeTraits<t_Val>::Epsilon(),
 												Matrix<t_Val>* EigenVectors = nullptr,
 												t_Val EigenvalueMax = FLT_MAX)
 	{	ASSERT(IsSquare());
@@ -701,24 +703,24 @@ template<typename t_Val>
 class Matrix: public Matrix_Ref<t_Val, true>
 {
 protected:
-	void	__SafeFree(){ _SafeFree32AL(lpData); }
+	void	__SafeFree(){ _SafeFree32AL(this->lpData); }
 public:
 	~Matrix(){ __SafeFree(); }
 	INLFUNC bool SetSize(MKL_SIZE row=0,MKL_SIZE col=0)
-	{	if(row==row_count && col==col_count){ return true; }
+	{	if(row==this->row_count && col==this->col_count){ return true; }
 		else
 		{	__SafeFree();
 			if(row&&col)
 			{
-				LeadingDimen = (MKL_INT)_EnlargeTo32AL(row);
-				lpData = _Malloc32AL(t_Val,LeadingDimen*col);
+				this->LeadingDimen = (MKL_INT)_EnlargeTo32AL(row);
+				this->lpData = _Malloc32AL(t_Val,this->LeadingDimen*col);
 			}
-			if(lpData)
-			{	row_count=row; col_count=col; 
-				Padding = LeadingDimen - row;
+			if(this->lpData)
+			{	this->row_count=row; this->col_count=col; 
+				this->Padding = this->LeadingDimen - row;
 				return true;
 			}
-			else{ row_count=col_count=0; }
+			else{ this->row_count=this->col_count=0; }
 		}
 		return false;
 	}
@@ -729,8 +731,8 @@ public:
 public:
 	template<typename T> 
 	void CloneFrom(const T& x)
-	{	if(GetRowCount() == x.GetRowCount() && GetColCount() == x.GetColCount())
-		{	CopyFrom(x);
+	{	if(this->GetRowCount() == x.GetRowCount() && this->GetColCount() == x.GetColCount())
+		{	this->CopyFrom(x);
 		}
 		else
 		{	Matrix<t_Val> tmp;
@@ -743,19 +745,19 @@ public:
 	template<bool transpose> 
 	INLFUNC const Matrix_Ref<t_Val, transpose>& operator = (const Matrix_Ref<t_Val, transpose>& x){ CloneFrom(x); return x; }
 	INLFUNC const Matrix& operator = (const Matrix& x){ CloneFrom(x); return x; }
-	INLFUNC t_Val operator = (t_Val x){ for(UINT i=0;i<GetColCount();i++)GetCol(i) = x; return x; }
+	INLFUNC t_Val operator = (t_Val x){ for(UINT i=0;i<this->GetColCount();i++)this->GetCol(i) = x; return x; }
 
 	// SVD (Driver function for PartialSolveSymmetricEigen)
 	// [*this] turn to EigenVectors after solving in descending order
 	bool SolveEigen_ByTerm(Vector<t_Val>& EigenValue,UINT FeatureDimenMax,UINT FeatureDimenMin = 1,bool NeedEigenVectors = true)
-	{	UINT dimen = GetColCount();
-		ASSERT( dimen == GetRowCount() );
+	{	UINT dimen = this->GetColCount();
+		ASSERT( dimen == this->GetRowCount() );
 		ASSERT(FeatureDimenMax >= FeatureDimenMin);
 		ASSERT(dimen >= FeatureDimenMax);
 		
 		Matrix<t_Val> MatTemp;
 
-		if(!PartialSolveSymmetricEigen_Robust(	dimen-FeatureDimenMax,dimen-1,
+		if(!this->PartialSolveSymmetricEigen_Robust(	dimen-FeatureDimenMax,dimen-1,
 												EigenValue,NeedEigenVectors?&MatTemp:nullptr)
 		)return false;
 
@@ -783,21 +785,21 @@ public:
 				}
 				else{ return false; }
 			}
-			FlipColumns();
+			this->FlipColumns();
 		}
 
 		return true;
 	}
 	// SVD (Driver function for PartialSolveSymmetricEigen)
 	// [*this] turn to EigenVectors (in rows) after solving in descending order
-	HRESULT SolveEigen_ByValue(Vector<t_Val>& EigenValue,t_Val EigenvalueMin = EPSILON, bool NeedEigenVectors = true)
-	{	int dimen = GetColCount();
-		ASSERT( dimen == GetRowCount() );
+	long SolveEigen_ByValue(Vector<t_Val>& EigenValue,t_Val EigenvalueMin , bool NeedEigenVectors = true)
+	{	int dimen = this->GetColCount();
+		ASSERT( dimen == this->GetRowCount() );
 		ASSERT(EigenvalueMin>0);
 
 		Matrix<t_Val> MatTemp;
 
-		if(!PartialSolveSymmetricEigen_Robust(EigenValue,EigenvalueMin,NeedEigenVectors?&MatTemp:nullptr))
+		if(!this->PartialSolveSymmetricEigen_Robust(EigenValue,EigenvalueMin,NeedEigenVectors?&MatTemp:nullptr))
 			return false;
 		EigenValue.Flip();
 		//reserves eigenvectors
@@ -807,7 +809,7 @@ public:
 			{	*this = MatTemp.GetSub(0,0,MatTemp.GetRowCount(),EigenValue.GetSize());
 			}
 			else{ return false; }
-			FlipColumns();
+			this->FlipColumns();
 		}
 
 		return true;
@@ -820,7 +822,7 @@ public:
 		{	Matrix<t_Val>	mat_temp;
 			mat_temp.SetSizeAs(*this);
 			mat_temp = *this;
-			if(mat_temp.SolveEigen_ByValue(EigenValue,FLT_EPSILON,false))
+			if(mat_temp.SolveEigen_ByValue(EigenValue, rt::TypeTraits<t_Val>::Epsilon(),false))
 			{	if(ignore_first_eige_in_energy)EigenValue[0] = (t_Val)2.0 * ::rt::TypeTraits<t_Val>::Epsilon();
 				t_Val tot_energe = EigenValue.Sum()*EnergePreservationRate;
 				UINT i=0;
@@ -832,7 +834,7 @@ public:
 				term = rt::min(dimen_max,i);
 			}else{ return false; }
 		}
-		else term = rt::min(dimen_max,GetColCount());
+		else term = rt::min(dimen_max,this->GetColCount());
 		return SolveEigen_ByTerm(EigenValue,term);
 	}
 };
