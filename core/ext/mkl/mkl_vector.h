@@ -76,6 +76,10 @@
     #include "inc/linux/mkl_cpp.h"
 #endif // #if defined(PLATFORM_LINUX)
 
+#if defined(PLATFORM_MAC)
+    #include "inc/mac/mkl_cpp.h"
+#endif // #if defined(PLATFORM_MAC)
+
 typedef rt::TypeTraits<MKL_INT>::t_Unsigned		MKL_SIZE;
 typedef rt::TypeTraits<MKL_INT>::t_Signed		MKL_SSIZE;
 

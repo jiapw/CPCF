@@ -47,8 +47,8 @@ protected:
 			struct{UINT i,j; };
 		};
 		t_Val	value;
-		INLFUNC bool operator <(const _NonZeroItem& x)
-		{	return _ordinal<x._ordinal;  
+		INLFUNC bool operator <(const _NonZeroItem& x) const
+		{	return _ordinal<x._ordinal;
 		}
 	};
 	struct _Value
