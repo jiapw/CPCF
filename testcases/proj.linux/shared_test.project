@@ -107,7 +107,7 @@
       <Compiler Options="-g;-O0;-w" C_Options="-g;-O0;-w" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
       </Compiler>
-      <Linker Options="" Required="yes">
+      <Linker Options="-Wl,--start-group  $(LibrarySwitch)mkl_intel_lp64 $(LibrarySwitch)mkl_sequential $(LibrarySwitch)mkl_core  -Wl,--end-group -lpthread -lm" Required="yes">
         <LibraryPath Value="../../libs/linux"/>
         <Library Value="libippac90lgc.a"/>
         <Library Value="libippcc90lgc.a"/>

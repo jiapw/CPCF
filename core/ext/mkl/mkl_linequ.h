@@ -149,7 +149,7 @@ public:
 	//	return *this;
 	//}
 
-	__forceinline LinearEquationSolver& AddCoefficient(UINT equation_i,UINT varible_j,const t_Val & value)
+	inline LinearEquationSolver& AddCoefficient(UINT equation_i,UINT varible_j,const t_Val & value)
 	{	ASSERT( equation_i< m_EquationCount );
 		ASSERT( varible_j< m_VaribleCount );
 		_NonZeroItem& item = m_Entries.push_back();
@@ -240,7 +240,7 @@ public:
 
 		_Value* p = m_Coefficients;
 		for(UINT j=0;j<m_VaribleCount;j++)
-		{	typename ::mkl::CMatrix<t_Val3,t_BaseVec3>::t_RowRef& dst_row = AT_B.GetRow(j);
+		{	typename ::mkl::Matrix<t_Val3>::t_RowRef& dst_row = AT_B.GetRow(j);
 			_Value* pend = m_Coefficients[m_ColumnIndex[j+1]];
 			for(;p<pend;p++)
 				dst_row.Add_Scaled( p->value, B.GetRow(p->i) );

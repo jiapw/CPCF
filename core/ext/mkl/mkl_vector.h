@@ -74,29 +74,6 @@
 
 #if defined(PLATFORM_LINUX)
     #include "inc/linux/mkl_cpp.h"
-    #ifdef PLATFORM_64BIT
-        #pragma comment(lib, "mkl_x64_core.a")
-        #ifdef MKL_ILP64
-            #pragma comment(lib, "mkl_x64_intel_ilp64.a")
-        #else
-            #pragma comment(lib, "mkl_x64_intel_lp64.a")
-        #endif
-        #ifdef MKL_USE_OPENMP_DLL
-            #pragma comment(lib, "mkl_x64_libiomp5md.a")
-            #pragma comment(lib, "mkl_x64_intel_thread.a")
-        #else
-            #pragma comment(lib, "mkl_x64_sequential.a")
-        #endif
-    #else
-        #pragma comment(lib, "mkl_w32_intel_c.a")
-        #pragma comment(lib, "mkl_w32_core.a")
-        #ifdef MKL_USE_OPENMP_DLL
-            #pragma comment(lib, "mkl_w32_libiomp5md.a")
-            #pragma comment(lib, "mkl_w32_intel_thread.a")
-        #else
-            #pragma comment(lib, "mkl_w32_sequential.a")
-        #endif
-    #endif
 #endif // #if defined(PLATFORM_LINUX)
 
 typedef rt::TypeTraits<MKL_INT>::t_Unsigned		MKL_SIZE;
@@ -141,7 +118,7 @@ public:
 
 public:
 	VectorCompact_Ref(){ __always_be_one = 1; }
-	VectorCompact_Ref(const VectorCompact_Ref& x): Buffer_Ref<t_Val>(x){}
+	VectorCompact_Ref(const VectorCompact_Ref& x): rt::Buffer_Ref<t_Val, MKL_SIZE>(x){}
 
 public:
 	// MKL VML functions

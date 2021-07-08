@@ -308,7 +308,7 @@ public:
 		ret = ::mkl::mkl_cpp::mkl_getrf(GetRowCount(),GetColCount(),*this,GetLeadingDim(),Ipiv);
 
 		if( !ret )
-		{	mkl::_meta_::CVector_Compact<t_Val> Workspc;
+		{	rt::Buffer<t_Val> Workspc;
 			if(Workspc.SetSize(GetColCount()*OPTI_WORKING_BLOCK_SIZE)){}
 			else return false;
 			
@@ -330,14 +330,14 @@ public:
 		ret = ::mkl::mkl_cpp::mkl_getrf(GetRowCount(),GetColCount(),*this,GetLeadingDim(),Ipiv);
 
 		if( !ret )
-		{	mkl::_meta_::Vector_Compact<t_Val> Workspc;
+		{	rt::Buffer<t_Val> Workspc;
 			if(Workspc.SetSize(GetColCount()*OPTI_WORKING_BLOCK_SIZE)){}
 			else{ return false; }
 			::rt::Buffer<int> intWorkspc;
 			if(intWorkspc.SetSize(GetColCount()*OPTI_WORKING_BLOCK_SIZE)){}
 			else{ return false; }
 			
-			mkl::CMatrix<t_Val>		identity, X;
+			mkl::Matrix<t_Val>		identity, X;
 			identity.SetSizeAs(*this);
 			X.SetSizeAs(identity);
 			X.Zero();
@@ -352,13 +352,13 @@ public:
 			ret = ::mkl::mkl_cpp::mkl_getrs(_LapackTranspose(), GetColCount(), GetRowCount(),origSolveLinear,
 				origSolveLinear.GetLeadingDim(), Ipiv, X, X.GetLeadingDim() );
 
-			mkl::CMatrix<t_Val>		temp;
+			mkl::Matrix<t_Val>		temp;
 			temp.SetSizeAs(origSolveLinear);
 			temp.Product(!!origSolveLinear,!!X);
 
 			if(!ret)
 			{
-				mkl::_meta_::CVector_Compact<t_Val> ferr, berr;
+				rt::Buffer<t_Val> ferr, berr;
 				if(ferr.SetSize(GetColCount()) && berr.SetSize(GetColCount()) )  {}
 				else return false;
 				//refine the solution
@@ -387,7 +387,7 @@ public:
 	{	static_assert(t_NotTransposed, "row major matrix is not supported");
 		ASSERT(IsSquare());
 		ASSERT(GetRowCount() == B.GetRowCount());
-		::rt::Buffer_32BIT<int> Ipiv;
+		::rt::Buffer<int> Ipiv;
 		if(Ipiv.SetSize(GetColCount())){}
 		else{ return false; }
 
@@ -396,7 +396,7 @@ public:
 	}
 	INLFUNC bool SolveLinearEquations( t_VecComp_Ref&b )
 	{	ASSERT(GetRowCount() == b.GetSize());
-		return SolveLinearEquations( CMatrix_Ref<t_Val,true>(b,b.GetSize(),1,b.GetSize()));
+		return SolveLinearEquations( Matrix_Ref<t_Val,true>(b,b.GetSize(),1,b.GetSize()));
   
 	}
 
@@ -526,7 +526,7 @@ public:
 		t_Val abstol = 0;//2*slamch("S");
 		int  m=0, info;
 
-		mkl::_meta_::CVector_Compact<t_Val> Workspc;
+		rt::Buffer<t_Val> Workspc;
 		// query optimized working space
 		{
 			t_Val opti_workspace_size = 0;
@@ -549,10 +549,10 @@ public:
 		if(info)
 		{
 			if(info>0)
-			{	_CheckDump("::mkl::CMatrix::PartialSolveSymmetricEigen: Total "<<info<<" eigenvalues failed to converge:");
+			{	_LOG("::mkl::CMatrix::PartialSolveSymmetricEigen: Total "<<info<<" eigenvalues failed to converge:");
 				for(int i=0;i<info-1;i++)
-					_CheckDump(ifail_iWork[i]<<", ");
-				_CheckDump(ifail_iWork[info-1]<<"\n");
+					_LOG(ifail_iWork[i]<<", ");
+				_LOG(ifail_iWork[info-1]<<"\n");
 			}
 			return false;
 		}
@@ -732,7 +732,7 @@ public:
 	template<typename T> 
 	void CloneFrom(const T& x)
 	{	if(this->GetRowCount() == x.GetRowCount() && this->GetColCount() == x.GetColCount())
-		{	CopyFrom(x);
+		{	this->CopyFrom(x);
 		}
 		else
 		{	Matrix<t_Val> tmp;
