@@ -205,13 +205,13 @@ public:
 public:
 	// Matrix as vector
 	// disturb values
-	INLFUNC void Perturb(t_Val power = EPSILON)
+	INLFUNC void Perturb(t_Val power = rt::TypeTraits<t_Val>::Epsilon())
 	{	if(t_NotTransposed)
 			for(UINT i=0;i<GetColCount();i++)GetCol(i).Perturb(power);
 		else
 			for(UINT i=0;i<GetRowCount();i++)GetRow(i).Perturb(power);
 	}
-	INLFUNC void PerturbPositive(t_Val power = EPSILON)
+	INLFUNC void PerturbPositive(t_Val power = rt::TypeTraits<t_Val>::Epsilon())
 	{	if(t_NotTransposed)
 			for(UINT i=0;i<GetColCount();i++)GetCol(i).PerturbPositive(power);
 		else
@@ -617,7 +617,7 @@ public:
 	// solve eigens of (EigenvalueMin,EigenvalueMax], eigenvalue is in ascending order
 	// EigenVectors in rows
 	bool PartialSolveSymmetricEigen_Robust(	Vector<t_Val>& EigenValue, 
-												t_Val EigenvalueMin = EPSILON,
+												t_Val EigenvalueMin = rt::TypeTraits<t_Val>::Epsilon(),
 												Matrix<t_Val>* EigenVectors = nullptr,
 												t_Val EigenvalueMax = FLT_MAX)
 	{	ASSERT(IsSquare());
@@ -822,7 +822,7 @@ public:
 		{	Matrix<t_Val>	mat_temp;
 			mat_temp.SetSizeAs(*this);
 			mat_temp = *this;
-			if(mat_temp.SolveEigen_ByValue(EigenValue,FLT_EPSILON,false))
+			if(mat_temp.SolveEigen_ByValue(EigenValue, rt::TypeTraits<t_Val>::Epsilon(),false))
 			{	if(ignore_first_eige_in_energy)EigenValue[0] = (t_Val)2.0 * ::rt::TypeTraits<t_Val>::Epsilon();
 				t_Val tot_energe = EigenValue.Sum()*EnergePreservationRate;
 				UINT i=0;
