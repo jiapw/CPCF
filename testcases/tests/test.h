@@ -61,6 +61,7 @@ struct UnitTests
 	static void image_to_text();
 
 	static void lockfile();
+	static void rocks_db_ByteOrder();
 
 	#if defined(PLATFORM_INTEL_IPP_SUPPORT)
 	static void ipp_matting();

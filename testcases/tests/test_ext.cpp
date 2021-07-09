@@ -1400,3 +1400,211 @@ void rt::UnitTests::big_num()
 	b <<= 234;
 	_LOG(b);
 }
+
+
+
+
+void performanceTest()
+{
+	LPCSTR fn = "test.db";
+	{
+		struct cmp : public ::rocksdb::Comparator
+		{
+			// Three-way comparison.  Returns value:
+			//   < 0 iff "a" < "b",
+			//   == 0 iff "a" == "b",
+			//   > 0 iff "a" > "b"
+			virtual int Compare(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
+			{
+				auto x = *(UINT*)a.data();
+				auto y = *(UINT*)b.data();
+				if (x > y)return -1;
+				else if (x < y)return +1;
+				return 0;
+			}
+
+			virtual bool Equal(const ::rocksdb::Slice& a, const ::rocksdb::Slice& b) const override
+			{
+				return  *(UINT*)a.data() == *(UINT*)b.data();
+			}
+
+			virtual const char* Name() const { return "test_cmp"; }
+			virtual void FindShortestSeparator(std::string* start, const ::rocksdb::Slice& limit) const {}
+			virtual void FindShortSuccessor(std::string* key) const {}
+		};
+
+		os::SetProcessPriority(os::PROCPRIO_REALTIME);
+
+		rt::Buffer<ULONGLONG>	keys;
+		keys.SetSize(100 * 1024);
+		{
+			cmp	_cmp;
+			::rocksdb::ColumnFamilyOptions opt;
+			opt.comparator = &_cmp;
+
+			::rocksdb::ColumnFamilyOptions opt3;
+
+			auto test = [&keys, fn, &opt, &opt3](ext::RocksStorageWriteRobustness wr, const ext::WriteOptions* w_opt)
+			{
+				os::HighPerformanceCounter hpc;
+				hpc.SetOutputUnit(1000U);
+
+				{
+					ext::RocksStorage::Nuke(fn);
+					ext::RocksStorage store;
+
+					for (UINT i = 0; i < keys.GetSize(); i++)
+						keys[i] = i;
+
+					store.SetDBOpenOption("q", opt);
+					store.Open(fn, wr);
+					auto db = store.Get("q");
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < keys.GetSize(); i++)
+						db.Set(keys[keys.GetSize() - i - 1], keys[i], w_opt);
+					ULONGLONG insert = keys.GetSize() * 1000000LL / rt::max(1LL, hpc.TimeLapse());
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.First();
+						while (it.IsValid())it.Next();
+					}
+					ULONGLONG scan = keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse());
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.Last();
+						while (it.IsValid())it.Prev();
+					}
+					_LOG("Desc+Compr: " << insert << '\t' << scan << '\t' << keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse()));
+				}
+
+				{
+					int count = 0;
+					ext::RocksStorage::Nuke(fn);
+					ext::RocksStorage store;
+
+					for (UINT i = 0; i < keys.GetSize(); i++)
+						keys[i] = i;
+
+					store.SetDBOpenOption("q", opt3);
+					store.Open(fn, wr);
+					auto db = store.Get("q");
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < keys.GetSize(); i++)
+					{
+						ext::ToRightByteOrder<false, ULONGLONG> test(keys[keys.GetSize() - i - 1]);
+						::rocksdb::Slice x((LPCSTR)&test, sizeof(test));
+						db.Set(x, keys[i], w_opt);
+					}
+					ULONGLONG insert = keys.GetSize() * 1000000LL / rt::max(1LL, hpc.TimeLapse());
+
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.First();
+						while (it.IsValid()) { it.Next(); count++; }
+					}
+					ULONGLONG scan = keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse());
+					count = 0;
+					hpc.LoadCurrentCount();
+					for (UINT i = 0; i < 10; i++)
+					{
+						auto it = db.Last();
+						while (it.IsValid()) { it.Prev(); count++; }
+					}
+					_LOG("ToRightByteOrder: " << insert << '\t' << scan << '\t' << keys.GetSize() * 10000000LL / rt::max(1LL, hpc.TimeLapse()) << '\t' << count);
+				}
+
+			};
+
+
+			_LOG_HIGHLIGHT("ROCKSSTG_DEFAULT - WriteOptionsDefault");
+			test(ext::ROCKSSTG_DEFAULT, ext::RocksDB::WriteOptionsDefault);
+		}
+	}
+}
+
+void accurucyTest()
+{
+
+	LPCSTR fn = "test.db";
+
+	{
+		ext::RocksStorage::Nuke(fn);
+#pragma pack(push, 1)
+		struct TxnMetadata
+		{
+			WORD	ExtraDataSize;
+		};
+#pragma pack(pop)
+		typedef ext::RocksDBStandalonePaged<UINT, TxnMetadata, 1024>	t_PagedTxnDB;
+
+		t_PagedTxnDB db;
+		db.Open(fn);
+		db.SetPaged(100, { 10 }, "123", 3);
+
+		std::string ws;
+		auto* b = db.GetPaged(100, 0, ws);
+		_LOG(b->TotalSize << ", " << b->ExtraDataSize);
+	}
+
+	{
+		ext::RocksStorage::Nuke(fn);
+		ext::RocksStorage store;
+
+		store.SetDBOpenOption("t2", ext::RocksDBOpenOption().SetKeyOrder<INT>());
+
+		store.Open(fn);
+
+		ext::RocksDB db = store.Get("t");
+		ext::RocksDB db2 = store.Get("t2");
+		ext::RocksDB db3 = store.Get("t3");
+		using structType = ext::ToRightByteOrder<true, int, int>;
+		for (INT i = -100; i < 100; i++)
+		{
+			db.Set(i * 100, i * 100);
+			db2.Set(i * 100, i * 100 + 1);
+			structType test(i * 100, -i * 100);
+			if (i == 99)
+			{
+				ext::setRightByteOrderElement<1>(99900, test);
+			}
+			::rocksdb::Slice x((LPCSTR)&test, sizeof(test));
+			db3.Set(x, i * 100);
+		}
+
+		{
+			rt::String str;
+			auto it = db.First();
+			while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
+			_LOG(str);
+			_LOG("");
+
+			str.Empty();
+			it = db2.First();
+			while (it.IsValid()) { str += rt::tos::Number(it.Key<INT>()) + ' '; it.Next(); }
+			_LOG(str);
+			_LOG("");
+			str.Empty();
+			it = db3.First();
+			while (it.IsValid())
+			{
+				auto t = it.Key<structType>();
+				str += rt::tos::Number(ext::getRightByteOrderElement<0>(t)) + '(' + rt::tos::Number(ext::getRightByteOrderElement<1>(t)) + ')' + ' ';
+				it.Next();
+			}
+			_LOG(str);
+		}
+		store.Close();
+	}
+}
+void rt::UnitTests::rocks_db_ByteOrder()
+{
+	accurucyTest();
+	performanceTest();
+}

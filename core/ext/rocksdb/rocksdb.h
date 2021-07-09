@@ -747,6 +747,95 @@ public:
 									UINT	varname##_strlen = (UINT)varname##_strexp.CopyTo(varname##_buf); \
 									SliceValue varname(varname##_buf, varname##_strlen); \
 
+template<typename T>
+void NegateFirstBit(T& out)
+{
+	if (rt::NumericTraits<T>::IsSigned)
+	{
+		LPBYTE p = (LPBYTE)&out;
+		if ((p[0] & 0x80) == 0x80)
+		{
+			p[0] = p[0] & 0x7f;
+		}
+		else p[0] = p[0] | 0x80;
+	}
+}
+template<typename T>
+T ToSwappedByteOrder(const T& x)
+{
+	T out = x;
+	rt::SwapByteOrder(out);
+	NegateFirstBit<T>(out);
+	return out;
+}
+template<typename T>
+T ToNormalByteOrder(const T& x)
+{
+	T out = x;
+	NegateFirstBit<T>(out);
+	rt::SwapByteOrder(out);
+	return out;
+}
 
+template<bool Reverse, typename... Values> struct ToRightByteOrder;
+template<bool Reverse> struct ToRightByteOrder<Reverse> {};
+
+template<bool Reverse, typename Head, typename... Tail>
+struct ToRightByteOrder<Reverse, Head, Tail...>
+	: public ToRightByteOrder<Reverse, Tail...>
+{
+	Head m_head;
+
+	typedef ToRightByteOrder<Reverse, Tail...> inherited;
+	ToRightByteOrder() {}
+	ToRightByteOrder(const Head& value, Tail... vtail) :inherited(vtail...)
+	{
+		m_head = ToSwappedByteOrder<Head>(value);
+		if (Reverse) m_head = ~m_head;
+	}
+	Head getHead() const
+	{
+		if (!Reverse)
+			return(ToNormalByteOrder<Head>(m_head));
+		else
+			return(~ToNormalByteOrder<Head>(m_head));
+	}
+	void setHead(Head& value) {
+		m_head = ToSwappedByteOrder<Head>(value);
+		if (Reverse) m_head = ~m_head;
+	}
+};
+
+template <int N, typename ... __args_type>
+struct RightByteOrder_element;
+
+template <int N, bool Reverse>
+struct RightByteOrder_element<N, ToRightByteOrder<Reverse>> {
+	static_assert(0 > N, "Index outside of tuple!");
+};
+
+template <int N, bool Reverse, typename Head, typename ... Tail>
+struct RightByteOrder_element<N, ToRightByteOrder<Reverse, Head, Tail ...>>
+	: public RightByteOrder_element<N - 1, ToRightByteOrder<Reverse, Tail ...>> {};
+
+template <bool Reverse, typename Head, typename ... Tail>
+struct RightByteOrder_element<0, ToRightByteOrder<Reverse, Head, Tail ...>>
+{
+	using value_type = Head;
+	using class_type = ToRightByteOrder<Reverse, Head, Tail ...>;
+};
+
+template <int N, bool Reverse, typename ... Values>
+auto getRightByteOrderElement(ToRightByteOrder<Reverse, Values ...>& tu)
+{
+	using __class_type = typename RightByteOrder_element<N, ToRightByteOrder<Reverse, Values ...>>::class_type;
+	return ((__class_type&)tu).getHead();
+}
+template <int N, bool Reverse, typename Head, typename ... Tail>
+auto setRightByteOrderElement(Head value, ToRightByteOrder<Reverse, Head, Tail ...>& tu)
+{
+	using __class_type = typename RightByteOrder_element<N, ToRightByteOrder<Reverse, Head, Tail ...>>::class_type;
+	((__class_type&)tu).setHead(value);
+}
 } // namespace ext
 
