@@ -1615,8 +1615,10 @@ void performanceTest()
 		}
 	}
 }
+
 void accurucyTest()
 {
+	
 	LPCSTR fn = "test.db";
 
 	{
@@ -1656,8 +1658,8 @@ void accurucyTest()
 			db2.Set(i * 100, i * 100 + 1);
 			RightByteOrderClass<true, int, int> test(i * 100, -i * 100);
 			if (i == 99)
-			{
-				set<1, true, int, int>(99900, test);
+			{				
+				set<1>(99900, test);
 			}
 			::rocksdb::Slice x((LPCSTR)&test, sizeof(test));
 			db3.Set(x, i * 100);
@@ -1680,7 +1682,7 @@ void accurucyTest()
 			while (it.IsValid())
 			{
 				auto t = it.Key<RightByteOrderClass<true, int, int>>();
-				str += rt::tos::Number(get<0, true, int, int>(t)) + '(' + rt::tos::Number(get<1, true, int, int>(t)) + ')' + ' ';
+				str += rt::tos::Number(get<0>(t)) + '(' + rt::tos::Number(get<1, true, int, int>(t)) + ')' + ' ';
 				it.Next();
 			}
 			_LOG(str);
