@@ -221,6 +221,7 @@ namespace _details
 
 #define TYPETRAITS_DECLARE_NON_POD		public: static const bool __IsPOD = false;
 #define TYPETRAITS_DECLARE_POD			public: static const bool __IsPOD = true;
+#define TYPETRAITS_DECLARE_ELEMENT(T)	public: typedef T __TypeElement;
 
 ////////////////////////////////////////////////////////////////////////////
 // TypeTraits
