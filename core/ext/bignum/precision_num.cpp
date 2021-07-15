@@ -39,12 +39,7 @@ struct TTMathType;
 		typedef ttmath::Big<TTMATH_BITS(320), TTMATH_BITS(1728)> Float;
 		static_assert(sizeof(Float) == sizeof(PrecisionFloat<2048>), "Size of TTMath type inconsistent");
 	};
-	template<>
-	struct TTMathType<8192>
-	{	// 9:119
-		typedef ttmath::Big<TTMATH_BITS(576), TTMATH_BITS(7616)> Float;
-		static_assert(sizeof(Float) == sizeof(PrecisionFloat<8192>), "Size of TTMath type inconsistent");
-	};
+
 
 template<int bit_width>
 PrecisionFloat<bit_width>::PrecisionFloat(double x)
@@ -171,6 +166,5 @@ template class PrecisionFloat<256>;
 template class PrecisionFloat<512>;
 template class PrecisionFloat<1024>;
 template class PrecisionFloat<2048>;
-template class PrecisionFloat<8192>;
 }} // namespace ext::_details
 #pragma pack(pop)

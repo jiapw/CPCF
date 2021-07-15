@@ -168,7 +168,6 @@ rt::String_Ref JsonObject::GetValue(const rt::String_Ref& xpath, bool& p_exist, 
 	return nullptr;
 }
 
-
 bool JsonObject::IsEmptyObject() const 
 { 
 	if(IsEmpty())
@@ -465,7 +464,7 @@ JsonType JsonKeyValuePair::GetValueType(const rt::String_Ref& Value)
 	if(Value[0] == '{')return JSON_OBJECT;
 	if(Value[0] == '[')return JSON_ARRAY;
 	if(Value[0] == 't' || Value[0] == 'T' || Value[0] == 'f' || Value[0] == 'F')return JSON_BOOL;
-	if((Value[0] >= '0' && Value[0] <= '9') || Value[0] == '-')return JSON_NUMBER;
+	if((Value[0] >= '0' && Value[0] <= '9') || Value[0] == '-' || Value[0] == '.')return JSON_NUMBER;
 	if(Value.GetLength() == 4 && *(DWORD*)Value.Begin() == 0x6c6c756e)return JSON_NULL;
 	return JSON_CORRUPTED;
 }

@@ -73,7 +73,6 @@ public:
 };
 } // namespace _details
 
-typedef _details::PrecisionFloat<8192>	Float8192;
 typedef _details::PrecisionFloat<2048>	Float2048;
 typedef _details::PrecisionFloat<1024>	Float1024;
 typedef _details::PrecisionFloat<512>	Float512;
