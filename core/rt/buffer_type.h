@@ -407,7 +407,7 @@ template<typename t_Val>
 class BufferEx: public Buffer<t_Val>
 {
 	typedef Buffer<t_Val> _SC;
-	bool _add_entry(SIZE_T co = 1) // the added entry's ctor is not called !!
+	bool _expand_entries(SIZE_T co = 1) // the added entry's ctor is not called !!
 	{	if(_SC::_len+co <= _len_reserved){} // expand elements only
 		else // expand buffer
 		{	SIZE_T new_buf_resv = rt::max(rt::max((SIZE_T)4, _SC::_len+co),_len_reserved*2);
@@ -497,23 +497,23 @@ public:
 	}
 	SIZE_T GetReservedSize() const { return _len_reserved; }
 	t_Val& push_front()
-	{	VERIFY(_add_entry());
+	{	VERIFY(_expand_entries());
 		memmove(&_SC::_p[1],&_SC::_p[0],sizeof(t_Val)*(_SC::_len-1));
 		_SC::_xt::ctor(&_SC::_p[0]);
 		return _SC::_p[0];
 	}
 	template<typename T>
 	t_Val& push_front(const T& x)
-	{	VERIFY(_add_entry());
+	{	VERIFY(_expand_entries());
 		memmove(&_SC::_p[1],&_SC::_p[0],sizeof(t_Val)*(_SC::_len-1));
-		_SC::_xt::ctor(&_SC::_p[0],x);
+		_SC::_xt::ctor(&_SC::_p[0], x);
 		return _SC::_p[0];
 	}
 	template<typename T>
 	void push_front(const T* x, SIZE_T count)
 	{	if(count == 0)return;
 		SIZE_T sz = _SC::GetSize();
-		VERIFY(_add_entry(count));
+		VERIFY(_expand_entries(count));
 		memmove(&_SC::_p[count],&_SC::_p[0],sizeof(t_Val)*sz);
 		for(SIZE_T sz = 0;sz<count;sz++){ _SC::_xt::ctor(&_SC::_p[sz], *x++); }
 	}
@@ -521,7 +521,7 @@ public:
 	void push_front(const T& x, SIZE_T count)
 	{	if(count == 0)return;
 		SIZE_T sz = _SC::GetSize();
-		VERIFY(_add_entry(count));
+		VERIFY(_expand_entries(count));
 		memmove(&_SC::_p[count],&_SC::_p[0],sizeof(t_Val)*sz);
 		for(SIZE_T i = 0;i<count;i++){ _SC::_xt::ctor(&_SC::_p[i], x); }
 	}
@@ -535,20 +535,20 @@ public:
 		for(SIZE_T i = sz+front_count;i<_SC::_len;i++){ _SC::_xt::ctor(&_SC::_p[i], x); }
 	}
 	t_Val& push_back()
-	{	VERIFY(_add_entry());
+	{	VERIFY(_expand_entries());
 		_SC::_xt::ctor(&_SC::_p[_SC::_len-1]);
 		return _SC::_p[_SC::_len-1];
 	}
 	t_Val& push_back(const t_Val& x)
-	{	VERIFY(_add_entry());
-		_SC::_xt::ctor(&_SC::_p[_SC::_len-1],x);
+	{	VERIFY(_expand_entries());
+		_SC::_xt::ctor(&_SC::_p[_SC::_len-1], x);
 		return _SC::_p[_SC::_len-1];
 	}
 	template<typename T>
 	void push_back(const T* x, SIZE_T count)
 	{	
 		SIZE_T sz = _SC::GetSize();
-		VERIFY(_add_entry(count));
+		VERIFY(_expand_entries(count));
 		for(;sz<_SC::_len;sz++){ _SC::_xt::ctor(&_SC::_p[sz], *x++); }
 	}
 	t_Val* push_back_n(SIZE_T count)
@@ -632,20 +632,18 @@ public:
 	const t_Val& last()const{  ASSERT(_SC::_len); return _SC::_p[_SC::_len-1]; }
 
 	t_Val& insert(SIZE_T index)
-	{	VERIFY(_add_entry());
-		if(index<_SC::_len-1)	
-		{	memmove(&_SC::_p[index+1],&_SC::_p[index],(_SC::_len-index-1)*sizeof(t_Val));
-			_SC::_xt::ctor(&_SC::_p[index]);
-		}
+	{	VERIFY(_expand_entries());
+		if(index<_SC::_len-1)
+			memmove(&_SC::_p[index+1],&_SC::_p[index],(_SC::_len-index-1)*sizeof(t_Val));
+		_SC::_xt::ctor(&_SC::_p[index]);
 		return _SC::_p[index];
 	}
-	void insert(SIZE_T index, const t_Val& x)
-	{	VERIFY(_add_entry());
+	t_Val& insert(SIZE_T index, const t_Val& x)
+	{	VERIFY(_expand_entries());
 		if(index<_SC::_len-1)	
-		{	memmove(&_SC::_p[index+1],&_SC::_p[index],(_SC::_len-index-1)*sizeof(t_Val));
-			_SC::_xt::ctor(&_SC::_p[index]);
-		}
-		_SC::_p[index] = x;
+			memmove(&_SC::_p[index+1],&_SC::_p[index],(_SC::_len-index-1)*sizeof(t_Val));
+		_SC::_xt::ctor(&_SC::_p[index], x);
+		return _SC::_p[index];
 	}
 	t_Val* insert_n(SIZE_T index, SIZE_T count)
 	{

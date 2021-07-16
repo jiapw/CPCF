@@ -486,7 +486,8 @@ namespace _details
 #pragma pack(push, 1)
 	template<int SIZE>
 	struct Zeros
-	{	BYTE	_zeros[SIZE];
+	{	TYPETRAITS_DECLARE_POD;
+		BYTE	_zeros[SIZE];
 		Zeros(){ memset(this, 0, SIZE); }
 	};
 #pragma pack(pop)
